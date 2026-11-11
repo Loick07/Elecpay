@@ -1,0 +1,36 @@
+# Secrets — ne jamais committer
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins*
+mobile/android/key.properties
+*.jks
+*.keystore
+
+# Node / Next.js
+admin/node_modules/
+admin/.next/
+admin/out/
+
+# Divers
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+storage/receipts/

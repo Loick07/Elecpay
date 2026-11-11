@@ -64,6 +64,12 @@ Les maquettes fournies servent d'inspiration couleurs/style, pas de spécificati
 - Dire clairement à chaque fin d'étape : où on en est, ce qui reste.
 - Le contrat d'API (OpenAPI généré par FastAPI) fait foi pour le mobile et l'admin.
 
+## Feuille de route
+Le backend se construit en suivant **`docs/BACKEND_PLAN.md`** (étapes B0 → B11), dans l'ordre.
+Ne jamais commencer une étape avant que la précédente remplisse ses critères « Terminé quand ».
+À la fin de chaque étape : mettre à jour le tableau de bord en haut de ce fichier, commit et push.
+Pas de Flutter ni de Next.js avant la fin de B11.
+
 ## Où on en est
 Phase 0 (socle) : dépôt + structure ✅. Reste : Docker MySQL qui tourne, squelette FastAPI qui démarre (`/health`), CI GitHub Actions.
 Puis Phase 1 : modèle de données complet + migrations Alembic + seed simulé.

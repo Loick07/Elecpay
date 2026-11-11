@@ -69,7 +69,7 @@ Les `service` ne connaissent pas HTTP. Les règles métier vivent dans les servi
 - Pytest : base de test séparée (`elecpay_test`), fixture client HTTPX.
 - Ruff configuré.
 - CI GitHub Actions : Ruff + tests avec un service MySQL 8.
-- Récupération de l'ancien `elecpay-api` : analyser, garder ce qui respecte ce plan, jeter le reste.
+- Pas de reprise des anciens projets : reconstruction propre dans ce dépôt.
 
 Terminé quand : `uvicorn app.main:app --reload` démarre ; `/health` répond `ok` avec la base ; `/docs` s'affiche ;
 `pytest` et `ruff check` passent en local **et** sur GitHub.

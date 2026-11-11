@@ -70,7 +70,15 @@ Ne jamais commencer une étape avant que la précédente remplisse ses critères
 À la fin de chaque étape : mettre à jour le tableau de bord en haut de ce fichier, commit et push.
 Pas de Flutter ni de Next.js avant la fin de B11.
 
+## Périmètre de travail (strict)
+- Travailler **uniquement** dans ce dépôt (`C:\Users\makos\Documents\CODING\ElecPay`).
+- Ne jamais lire, chercher, lister ni modifier des fichiers en dehors de ce dossier (pas de recherche dans
+  `Documents`, `C:\`, ni dans les anciens projets). Si quelque chose d'extérieur semble nécessaire : demander à Loick d'abord.
+- Les anciens projets (`elecpay-console`, `elecpay-api`) ne sont **pas** repris : le backend est reconstruit proprement
+  selon `docs/BACKEND_PLAN.md`.
+- Seules exceptions autorisées hors du dossier : vérifier les outils installés (`python --version`, `git --version`,
+  `docker --version`, `mysql --version`) et installer des paquets Python dans l'environnement virtuel du projet.
+
 ## Où on en est
-Phase 0 (socle) : dépôt + structure ✅. Reste : Docker MySQL qui tourne, squelette FastAPI qui démarre (`/health`), CI GitHub Actions.
-Puis Phase 1 : modèle de données complet + migrations Alembic + seed simulé.
-Un ancien code existe sur le PC de Loick (`Documents/CODING/Code python/Projet_Python/elecpay-api`, FastAPI + SQLAlchemy + JWT + Alembic, 8 tests, sur MariaDB XAMPP) : le reprendre plutôt que tout réécrire.
+Étape B0 (socle) : dépôt + structure ✅. Reste : environnement Python, squelette FastAPI (`/health`), base MySQL connectée,
+Alembic, Pytest, Ruff, CI GitHub Actions.

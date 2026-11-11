@@ -1,0 +1,17 @@
+# Fins de ligne Unix (LF) dans le dépôt, quel que soit le système (Windows, Linux de la CI, serveur).
+* text=auto eol=lf
+
+# Scripts Windows : CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Fichiers binaires
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.ico binary
+*.ttf binary
+*.woff binary
+*.woff2 binary

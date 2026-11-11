@@ -1,0 +1,6 @@
+# Outils de développement : tests et qualité du code.
+-r requirements.txt
+
+pytest==9.2.0
+httpx2==2.16.0   # client HTTP du TestClient (Starlette déprécie l'ancien paquet httpx)
+ruff==0.17.4

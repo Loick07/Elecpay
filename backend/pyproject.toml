@@ -1,0 +1,42 @@
+[project]
+name = "elecpay-api"
+version = "0.1.0"
+description = "API commune (client + admin) de la plateforme ElecPay"
+requires-python = ">=3.14,<3.15"
+
+# Les dépendances sont fixées dans requirements.txt / requirements-dev.txt.
+# Ce fichier sert à la configuration des outils.
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle (style)
+    "F",        # pyflakes (erreurs : imports inutilisés, variables non définies…)
+    "I",        # tri des imports
+    "B",        # bugbear (pièges courants)
+    "UP",       # syntaxe Python moderne
+    "SIM",      # simplifications
+    "S",        # bandit (sécurité)
+    "N",        # conventions de nommage
+]
+ignore = [
+    "B008",     # Depends(...) dans les paramètres par défaut : c'est l'usage normal de FastAPI
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]   # assert et faux mots de passe autorisés dans les tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "tests"]
+known-third-party = ["alembic"]   # la bibliothèque, pas notre dossier backend/alembic/
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"

@@ -11,7 +11,7 @@ Auteur : Loick Makosso (Pointe-Noire). Directeur de mémoire : Ir Mbemba Donald.
 Langue de travail : **français**.
 
 ## Architecture (décidée, ne pas remettre en cause)
-- `backend/` — API **commune** client + admin : Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, PyMySQL,
+- `backend/` — API **commune** client + admin : Python 3.14, FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, PyMySQL,
   PyJWT + Argon2, Pytest + HTTPX, Ruff. Monolithe modulaire (`app/modules/<domaine>`).
 - `mobile/` — application **client** Flutter : Riverpod, GoRouter, Dio, freezed/json_serializable,
   flutter_secure_storage, fl_chart, intl, flutter_animate, skeletonizer, google_fonts.

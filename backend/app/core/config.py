@@ -1,0 +1,88 @@
+"""Configuration de l'API, lue depuis les variables d'environnement et le fichier `.env`.
+
+Toute la configuration passe par `get_settings()` : aucun autre module ne lit `os.environ`.
+Les valeurs sont validées au démarrage ; une configuration invalide empêche l'API de démarrer.
+"""
+
+from functools import lru_cache
+from pathlib import Path
+from typing import Annotated, Literal, Self
+
+from pydantic import Field, SecretStr, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+# backend/.env, quel que soit le dossier depuis lequel on lance l'API.
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+ENV_FILE = BACKEND_DIR / ".env"
+
+INSECURE_JWT_SECRETS = {"", "change-me", "secret", "changeme"}
+MIN_JWT_SECRET_LENGTH = 32
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=ENV_FILE,
+        env_file_encoding="utf-8",
+        extra="ignore",  # une variable inconnue dans le .env n'empêche pas le démarrage
+    )
+
+    app_env: Literal["development", "test", "production"] = "development"
+
+    # Base de données
+    database_url: str
+    test_database_url: str | None = None
+
+    # Authentification
+    jwt_secret: SecretStr  # SecretStr : jamais affiché en clair dans les logs ou les erreurs
+    access_token_minutes: int = Field(default=15, ge=1, le=60)
+    refresh_token_days: int = Field(default=30, ge=1, le=90)
+
+    # Intégrations (seuls les simulateurs existent pour l'instant)
+    payment_provider: Literal["simulated"] = "simulated"
+    billing_source: Literal["simulated"] = "simulated"
+    demo_mode: bool = True
+
+    # CORS : origines autorisées, séparées par des virgules dans le .env
+    cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def split_cors_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        return value
+
+    @field_validator("cors_origins")
+    @classmethod
+    def forbid_wildcard_origin(cls, value: list[str]) -> list[str]:
+        if "*" in value:
+            raise ValueError("CORS strict : l'origine '*' est interdite, lister les origines")
+        return value
+
+    @model_validator(mode="after")
+    def check_production_safety(self) -> Self:
+        if self.app_env != "production":
+            return self
+        secret = self.jwt_secret.get_secret_value()
+        if secret.lower() in INSECURE_JWT_SECRETS or len(secret) < MIN_JWT_SECRET_LENGTH:
+            raise ValueError(
+                f"JWT_SECRET doit faire au moins {MIN_JWT_SECRET_LENGTH} caractères aléatoires "
+                "en production"
+            )
+        uses_simulation = "simulated" in (self.payment_provider, self.billing_source)
+        if uses_simulation and not self.demo_mode:
+            raise ValueError(
+                "Des sources simulées sont actives : DEMO_MODE doit rester à true "
+                "(une donnée simulée ne doit jamais passer pour réelle)"
+            )
+        return self
+
+    @property
+    def is_production(self) -> bool:
+        return self.app_env == "production"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Configuration unique de l'application (lue une seule fois, puis mise en cache)."""
+    return Settings()  # type: ignore[call-arg]  # les valeurs viennent de l'environnement

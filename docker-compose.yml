@@ -1,14 +1,31 @@
+# Base de données locale d'ElecPay (développement uniquement).
+# Démarrer : docker compose up -d      Arrêter : docker compose stop
+# Tout effacer (données comprises) : docker compose down -v
 services:
   db:
     image: mysql:8.4
+    container_name: elecpay-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00          # toutes les dates en UTC
     environment:
       MYSQL_DATABASE: elecpay
       MYSQL_USER: elecpay
       MYSQL_PASSWORD: elecpay
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3307:3306"   # 3307 pour ne pas entrer en conflit avec XAMPP
+      - "127.0.0.1:3307:3306"   # 3307 pour ne pas entrer en conflit avec XAMPP ; accessible seulement depuis ce PC
     volumes:
       - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro   # scripts exécutés au tout premier démarrage
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uelecpay", "-pelecpay", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
 volumes:
   db_data:

@@ -11,7 +11,7 @@ historique financier, multi-compteurs / foyers, paiement pour un proche, et back
 
 | Dossier    | Contenu                                   | Technologie                         |
 |------------|-------------------------------------------|-------------------------------------|
-| `backend/` | API commune (client + admin), règles métier, simulateurs | Python 3.12 · FastAPI · SQLAlchemy 2 · Alembic · MySQL 8 |
+| `backend/` | API commune (client + admin), règles métier, simulateurs | Python 3.14 · FastAPI · SQLAlchemy 2 · Alembic · MySQL 8 |
 | `mobile/`  | Application client (16 écrans)            | Flutter · Riverpod · GoRouter · Dio |
 | `admin/`   | Back-office web (11 écrans)               | Next.js · TypeScript · Tailwind · shadcn/ui |
 | `docs/`    | Plan directeur, décisions, contrat d'API  | Markdown                            |

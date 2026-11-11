@@ -1,0 +1,20 @@
+# Dépendances d'exécution de l'API ElecPay (versions fixées).
+# Installation : pip install -r requirements-dev.txt  (inclut ce fichier)
+
+# Web
+fastapi==0.162.4
+uvicorn[standard]==0.54.0
+
+# Validation et configuration
+pydantic==2.14.3
+pydantic-settings==2.16.2
+
+# Base de données
+SQLAlchemy==2.1.8
+alembic==1.20.1
+PyMySQL==1.2.4
+cryptography==50.0.2   # requis par PyMySQL pour l'authentification MySQL 8 (caching_sha2_password)
+
+# Sécurité
+PyJWT==2.15.1
+argon2-cffi==25.1.0

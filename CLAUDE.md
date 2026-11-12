@@ -109,7 +109,7 @@ cookies httpOnly + CSRF, réservé à l'équipe), `/me`, `/me/password`. Gardien
 `app/modules/auth/dependencies.py` (à utiliser pour toutes les routes suivantes). Limites de tentatives, audit,
 SMS simulé (`app/integrations/sms/`). Guide pour Flutter / Next.js : `backend/docs/AUTHENTIFICATION.md`. 736 tests.
 
-**B4 (foyers, compteurs et délégation) ✅ terminé le 13/11/2026** — CI verte. Accès centralisés dans
+**B4 (foyers, compteurs et délégation) ✅ terminé le 12/11/2026** — CI verte. Accès centralisés dans
 `app/modules/households/access.py` (`household_access`, `meter_access` : à utiliser pour toute route qui touche
 un foyer, un compteur ou ses factures ; pas d'accès → 404). Invitations (compte existant requis), compteurs ajoutés
 avec N° branchement + N° client via `BillingSource`, historique de démo via `ConsumptionSource`

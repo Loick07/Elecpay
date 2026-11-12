@@ -209,6 +209,18 @@ Réalisé (guide pour Flutter et Next.js : `backend/docs/AUTHENTIFICATION.md`) :
 - Payeur délégué : peut voir et payer les factures du foyer, pas le modifier.
 - Ajout de compteur : vérifié via `BillingSource` (simulé aujourd'hui, E²C demain).
 
+Réalisé (guide pour Flutter : `backend/docs/FOYERS_COMPTEURS.md`) :
+- Règles d'accès centralisées (`app/modules/households/access.py`) : propriétaire, payeur, lecteur ;
+  pas d'accès → 404 identique à « n'existe pas » ; numéros des autres toujours masqués.
+- Routes ajoutées au plan : `GET /invitations`, `POST /invitations/{id}/decline`, `POST /households/{id}/leave`,
+  `GET /households/{id}/members`.
+- Décisions (12/11/2026) : personne invitée = compte existant ; ajout de compteur = N° branchement + N° client
+  (preuve de la facture) ; en démo, 18 mois d'historique importés (anciennes factures payées hors ElecPay,
+  sans transaction inventée).
+- Interfaces `BillingSource` (vérifier un compteur) et `ConsumptionSource` (importer son historique),
+  simulées, choisies par `BILLING_SOURCE`. Limites : 10 foyers, 10 membres, 5 compteurs ; 20 invitations / jour.
+- Le métier ne dépend plus des simulateurs : notifications créées par `app/modules/notifications/service.py`.
+
 ---
 
 ## B5 — Consommation

@@ -23,6 +23,7 @@ from app.modules.bills.models import Bill, BillStatus
 from app.modules.households.models import Household, HouseholdMember, MemberRole, MemberStatus
 from app.modules.meters.models import Meter
 from app.modules.notifications.models import NotificationType
+from app.modules.notifications.service import insert_notifications, notification_row
 from app.modules.payments.models import PaymentProvider, PaymentTransaction, TransactionStatus
 from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
@@ -36,9 +37,7 @@ from app.simulators.persistence import (
     bill_overdue_notification,
     format_fcfa,
     insert_bill,
-    insert_notifications,
     insert_readings,
-    notification_row,
 )
 from app.simulators.readings import PROFILES, generate_readings
 

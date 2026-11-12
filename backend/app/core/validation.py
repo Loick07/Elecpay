@@ -100,6 +100,19 @@ def normalize_full_name(raw: str) -> str:
     return name
 
 
+# --- Textes libres (nom de foyer, ville, adresse…) ----------------------------------
+
+
+def clean_text(raw: str, *, max_length: int, min_length: int = 1) -> str:
+    """Espaces superflus retirés (début, fin, doublons) puis longueur contrôlée."""
+    text = " ".join(raw.split())
+    if len(text) < min_length:
+        raise ValueError("Ce champ ne peut pas être vide")
+    if len(text) > max_length:
+        raise ValueError(f"Trop long : {max_length} caractères maximum")
+    return text
+
+
 # --- Types prêts à l'emploi dans les schémas Pydantic -------------------------------
 
 CongoPhone = Annotated[str, AfterValidator(normalize_congo_phone)]

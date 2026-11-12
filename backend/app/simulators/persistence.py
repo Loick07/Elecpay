@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 from app.core.timezone import local_date, local_midnight_utc
 from app.modules.bills.models import Bill, BillLine, BillSource
 from app.modules.consumption.models import MeterReading, ReadingSource
-from app.modules.notifications.models import Notification, NotificationType
+from app.modules.notifications.models import NotificationType
+from app.modules.notifications.service import notification_row
 from app.simulators.bills import SimulatedBill, bill_reference
 from app.simulators.readings import SimulatedReading
 
@@ -70,35 +71,6 @@ def insert_bill(
         insert(BillLine), [{"bill_id": bill.id, **asdict(line)} for line in computation.lines]
     )
     return bill
-
-
-def notification_row(
-    user_id: int,
-    kind: NotificationType,
-    title: str,
-    body: str,
-    data: dict[str, Any] | None,
-    *,
-    at: datetime,
-    read: bool = False,
-) -> dict[str, Any]:
-    """Une notification prête pour une insertion groupée, datée au moment de l'événement."""
-    return {
-        "user_id": user_id,
-        "type": kind,
-        "title": title,
-        "body": body,
-        "data_json": data,
-        "read_at": at + timedelta(hours=2) if read else None,
-        "created_at": at,
-        "updated_at": at,
-    }
-
-
-def insert_notifications(session: Session, rows: Sequence[dict[str, Any]]) -> int:
-    if rows:
-        session.execute(insert(Notification), list(rows))
-    return len(rows)
 
 
 def bill_issued_notification(user_id: int, bill: Bill) -> dict[str, Any]:

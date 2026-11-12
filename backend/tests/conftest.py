@@ -24,6 +24,7 @@ from app.core.config import Settings, get_settings
 from app.db.migrations import alembic_config as app_alembic_config
 from app.db.session import build_engine, get_db
 from app.main import create_app
+from app.modules.auth.tokens import create_access_token
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -115,6 +116,23 @@ def app(test_settings: Settings, db_session: Session) -> FastAPI:
     application = create_app(test_settings)
     application.dependency_overrides[get_db] = lambda: db_session
     return application
+
+
+@pytest.fixture
+def auth_headers(test_settings: Settings):
+    """Fabrique l'en-tête Authorization d'un utilisateur, sans passer par /auth/login
+    (la connexion elle-même est testée dans test_auth_*.py)."""
+
+    def make(user) -> dict[str, str]:
+        token, _ = create_access_token(
+            user.id,
+            user.role.value,
+            secret=test_settings.jwt_secret.get_secret_value(),
+            minutes=test_settings.access_token_minutes,
+        )
+        return {"Authorization": f"Bearer {token}"}
+
+    return make
 
 
 @pytest.fixture

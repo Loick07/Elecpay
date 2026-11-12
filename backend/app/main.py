@@ -12,6 +12,9 @@ from app.core.rate_limit import RateLimiter
 from app.modules.auth.router import router as auth_router
 from app.modules.auth.web_router import router as auth_web_router
 from app.modules.health.router import router as health_router
+from app.modules.households.router import invitations_router
+from app.modules.households.router import router as households_router
+from app.modules.meters.router import router as meters_router
 from app.modules.users.router import router as users_router
 
 API_VERSION = "0.1.0"
@@ -53,6 +56,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_router, prefix=API_PREFIX)
     app.include_router(auth_web_router, prefix=API_PREFIX)
     app.include_router(users_router, prefix=API_PREFIX)
+    app.include_router(households_router, prefix=API_PREFIX)
+    app.include_router(invitations_router, prefix=API_PREFIX)
+    app.include_router(meters_router, prefix=API_PREFIX)
 
     return app
 

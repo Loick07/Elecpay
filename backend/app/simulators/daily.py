@@ -24,6 +24,7 @@ from app.modules.bills.models import Bill, BillStatus
 from app.modules.consumption.models import MeterReading
 from app.modules.households.models import Household
 from app.modules.meters.models import Meter, MeterStatus
+from app.modules.notifications.service import insert_notifications
 from app.modules.tariffs.models import Tariff
 from app.simulators.bills import BillingSettings, billing_periods, generate_bills
 from app.simulators.demo_dataset import profile_for
@@ -32,7 +33,6 @@ from app.simulators.persistence import (
     bill_issued_notification,
     bill_overdue_notification,
     insert_bill,
-    insert_notifications,
     insert_readings,
     next_bill_sequence,
 )

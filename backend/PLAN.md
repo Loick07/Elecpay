@@ -23,6 +23,64 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 
 Après B11 seulement : application Flutter, puis back-office Next.js.
 
+## Point de reprise (mis à jour le 12/11/2026, fin de session)
+
+- **Terminé** : B0 → B5, tout commité et poussé, CI verte (dernier commit de code : `bfe22af`, B5).
+  992 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : B6 Factures, B7 Paiements, B8 Reçus, B9 Notifications, B10 API d'administration,
+  B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
+- **Prochaine sous-étape** : proposer à Loick le **découpage de B6** (B6.1, B6.2…), l'expliquer en français
+  et attendre sa validation avant d'écrire du code. Points déjà connus pour B6 : service `generate_bill`
+  unique et idempotent, utilisé aussi par `scripts.daily_tick` ; liste filtrée avec la pagination commune ;
+  détail avec lignes et comparaison à la facture précédente ; PDF ; passage en retard ; facture payée immuable
+  (déjà garanti par les triggers de B1) ; accès via `meter_access` (payeur délégué compris).
+- **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
+  vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
+  CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
+
+### Bugs trouvés en conditions réelles (et corrigés)
+
+| Étape | Symptôme | Cause | Correction |
+|---|---|---|---|
+| B5.6 | `GET /meters/{id}/consumption?granularity=bimester` sur 18 mois → **erreur 500** | la comparaison chiffrait une « facture estimée » de 18 mois d'un bloc, refusée par `compute_bill` (12 mois au plus) | au-delà de 12 mois, seul `energy_cost` est calculé (`estimated_total = null`) ; 2 tests de non-régression (`test_consumption_costs.py`, `test_b5_acceptance.py`) |
+
+Bugs trouvés par les tests pendant la session (tous corrigés, avec un test) : `downgrade` Alembic qui
+supprimait un index utilisé par une clé étrangère ; CHECK « anomalie ⇔ motif » contourné par NULL ;
+JSON `None` stocké comme texte `null` ; empreinte Argon2 corrompue qui faisait planter `verify_password` ;
+message trompeur pour un numéro vide.
+
+### Décisions techniques transverses (session du 12/11/2026)
+
+- **Python 3.14** partout (local, CI). Dépendances fixées dans `requirements*.txt` ; le client de test utilise
+  **`httpx2`** (Starlette déprécie l'ancien paquet `httpx`).
+- **Règle de dépendance** : un module métier (`app/modules/*`) n'importe **jamais** `app.simulators`.
+  Les versions simulées des intégrations (`app/integrations/*/simulated.py`) le peuvent. Le métier ne
+  connaît que les interfaces (`BillingSource`, `ConsumptionSource`, `SmsSender`, bientôt `PaymentProvider`).
+- **Socle partagé** : `app/core/` (config, erreurs, validation des saisies, calendrier, fuseau UTC+1,
+  pagination, limitation des tentatives, contexte de requête) ; notifications créées par
+  `app/modules/notifications/service.py` ; audit par `app/modules/audit/service.py` (refuse les secrets).
+- **Migrations** autonomes (n'importent jamais `app.*`), relues après génération ; garde-fous métier en
+  **triggers MySQL** (option `log_bin_trust_function_creators=1` dans `docker-compose.yml` et la CI).
+- **Tests** : session transactionnelle annulée après chaque test ; `auth_headers` pour fabriquer un jeton ;
+  Argon2 allégé **pendant les tests uniquement** ; un limiteur de tentatives par application ;
+  date du jour injectée dans les services (`today`) pour des tests reproductibles.
+- **Consommation** : semaines du lundi au dimanche ; kWh à 3 décimales pour l'affichage seulement (la valeur
+  exacte est en Wh) ; comparaisons sur les mêmes journées relevées ; RAV et timbre au prorata des mois.
+- **Commits** : un commit par étape + un commit des tableaux de bord ; message écrit dans un fichier
+  `.git/COMMIT_MSG_*` (PowerShell 5.1 abîme les accents et ajoute un BOM sinon), puis supprimé.
+- **Environnement** : ouvrir Docker Desktop avant de travailler. Avec peu de mémoire libre (≈ 2 Go sur 16 Go
+  constatés), la suite de tests passe de ~2 à ~7 min : fermer les applications lourdes accélère tout.
+
+### Notes reportées aux étapes suivantes
+
+- **B6** : faire passer l'émission des factures de `scripts.daily_tick` par `generate_bill`.
+- **B7** : colonne `operator` (MTN / Airtel) distincte de `provider` ; état « PIN saisi » sans expiration (A8).
+- **B11** : IP réelle derrière un proxy (`X-Forwarded-For`) ; compteurs de tentatives partagés si plusieurs
+  processus ; durée de conservation du journal d'audit (loi congolaise).
+- **Flutter** : un seul rafraîchissement de jeton à la fois. **Next.js** : appeler l'API via le serveur Next
+  (cookies `SameSite=Strict`) et recopier `elecpay_csrf` dans `X-CSRF-Token`.
+- Les autres besoins des maquettes à placer dans les étapes : tableau en fin de section B1.
+
 ---
 
 ## Organisation du code (rappel)

@@ -115,6 +115,7 @@ Réalisé : schéma, relations et garde-fous (triggers MySQL) décrits dans `bac
 | Annonces ciblées, programmées, taux de lecture (A9) | B9 / B10 | table des annonces (cible, date d'envoi) liée aux `notifications` |
 | Anomalie de relevé : « relevé de contrôle » / « classer sans suite » (A4) | B10 | statut de traitement de l'anomalie |
 | PIN saisi mais débit non confirmé : pas d'expiration (A8) | B7 | état « PIN saisi » sur la transaction |
+| Opérateur choisi MTN MoMo / Airtel Money (client 8) | B7 | colonne `operator` distincte de `provider` (qui vaut `simulated` en démo : aucune donnée simulée présentée comme réelle) |
 | « Ouvrir un litige » (A8) | B10 | table des litiges |
 | Durée de conservation du journal (loi congolaise) | B11 | à définir ; le journal est aujourd'hui strictement non supprimable |
 
@@ -144,6 +145,17 @@ d'estimation de B5.
 
 Terminé quand : `python -m scripts.reset_db && python -m scripts.seed` donne une base complète en moins d'une minute ;
 les totaux des factures = somme de leurs lignes ; la consommation facturée = somme des relevés de la période (tests).
+
+Réalisé :
+- `app/modules/bills/calculator.py` : **unique** moteur de calcul (troncature, entiers) ; reproduit la vraie facture
+  au franc près (571 kWh → 40 384 FCFA). Réutilisé par B5 (estimations) et B6 (factures).
+- `app/simulators/` : relevés (3 profils, saisons, coupures, anomalies), factures bimestrielles calées sur le calendrier,
+  historique de paiements (échecs, expirations, payeur délégué), jeu de démo fictif, écriture en base commune,
+  relevé quotidien `scripts.daily_tick` (idempotent, rattrape les jours manqués, émet les factures, passe en retard).
+- `app/core/security.py` (Argon2id) et `app/core/timezone.py` (UTC+1) : réutilisés par B3 et B5.
+- Mesuré sur la base de dev : reset + seed en ~19 s ; 144/144 factures conformes aux deux critères.
+- À reprendre en B5 : l'estimation sur 1 mois doit répartir la RAV (1 000 FCFA par facture de 2 mois, hypothèse).
+- À reprendre en B6 : l'émission des factures du relevé quotidien passera par le service `generate_bill`.
 
 ---
 

@@ -17,7 +17,8 @@ from sqlalchemy import Engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
-from app.core.config import BACKEND_DIR, Settings, get_settings
+from app.core.config import Settings, get_settings
+from app.db.migrations import alembic_config as app_alembic_config
 from app.db.session import build_engine, get_db
 from app.main import create_app
 
@@ -39,11 +40,8 @@ def test_engine() -> Iterator[Engine]:
 
 
 def alembic_config(database_url: str) -> Config:
-    """Configuration Alembic pointée sur une base donnée (au lieu du DATABASE_URL du .env)."""
-    config = Config(str(BACKEND_DIR / "alembic.ini"))
-    config.set_main_option("sqlalchemy.url", database_url)
-    config.attributes["configure_logger"] = False  # ne pas écraser la capture des logs de pytest
-    return config
+    """Configuration Alembic des tests (sans toucher à la capture des logs de pytest)."""
+    return app_alembic_config(database_url, configure_logger=False)
 
 
 @contextmanager

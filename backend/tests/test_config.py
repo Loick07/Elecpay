@@ -30,6 +30,27 @@ def test_default_values():
     assert settings.payment_provider == "simulated"
     assert settings.demo_mode is True
     assert settings.cors_origins == []
+    assert settings.billing_period_months == 2  # bimestriel, comme E²C
+    assert (settings.bill_issue_delay_days, settings.bill_due_delay_days) == (3, 15)
+
+
+def test_billing_period_is_read_from_environment(monkeypatch):
+    monkeypatch.setenv("BILLING_PERIOD_MONTHS", "3")
+    assert make_settings().billing_period_months == 3
+
+
+@pytest.mark.parametrize("months", [0, 5, 7, 24])
+def test_billing_period_must_divide_the_year(months):
+    with pytest.raises(ValidationError, match="billing_period_months"):
+        make_settings(billing_period_months=months)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"), [("bill_issue_delay_days", -1), ("bill_due_delay_days", 0)]
+)
+def test_bill_delays_are_bounded(field, value):
+    with pytest.raises(ValidationError, match=field):
+        make_settings(**{field: value})
 
 
 def test_reads_environment_variables(monkeypatch):

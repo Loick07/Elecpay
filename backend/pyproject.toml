@@ -27,8 +27,12 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Tests : assert, faux mots de passe, et SQL brut construit à partir de constantes (jamais d'entrée utilisateur).
-"tests/**" = ["S101", "S105", "S106", "S608"]
+# Tests : assert, faux mots de passe, SQL brut construit à partir de constantes (jamais d'entrée
+# utilisateur), et hasard reproductible (`random` avec graine fixe).
+"tests/**" = ["S101", "S105", "S106", "S311", "S608"]
+# Simulateurs : `random` à graine fixe pour des données de démo reproductibles (jamais pour la sécurité ;
+# jetons et codes utilisent `secrets`, et S311 reste actif partout ailleurs).
+"app/simulators/**" = ["S311"]
 # Migrations : longues expressions SQL générées, et triggers construits à partir de constantes.
 "alembic/versions/**" = ["E501", "S608"]
 

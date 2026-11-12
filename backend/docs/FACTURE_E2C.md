@@ -45,8 +45,24 @@ Règles qui en découlent :
 - **RAV** : 1 000 FCFA par facture, ou par période de 2 mois (500/mois) ?
 - **Timbre électronique** : toujours 0 ?
 - Le prix unitaire varie-t-il selon les tranches de consommation ou la puissance ?
+- **Échéance** : la facture n'imprime **aucune date limite de paiement**. ElecPay suppose une émission
+  3 jours après la fin de la période (observé : période close le 31/08, situation au 03/09) et une
+  échéance 15 jours après l'émission (`BILL_ISSUE_DELAY_DAYS`, `BILL_DUE_DELAY_DAYS`, réglables).
 
 Tant que ces points ne sont pas vérifiés, le tarif est stocké avec `is_assumption = true`.
+
+## Retards de paiement (observé)
+
+La facture de juillet-août 2026 mentionne une facture antérieure (émise début juin) toujours impayée au 03/09,
+**sans pénalité ni majoration** sur la nouvelle facture. ElecPay ne calcule donc **aucun frais de retard** :
+une facture dépassée passe simplement au statut `overdue`.
+
+## Périodes de facturation
+
+Périodes **calées sur le calendrier** (« Juillet-Août 2026 ») : janvier-février, mars-avril, mai-juin…
+Durée réglable (`BILLING_PERIOD_MONTHS` : 1, 2, 3, 4, 6 ou 12 ; 2 par défaut, comme E²C).
+Ancien index = relevé de minuit (heure du Congo) au début du premier jour ; nouvel index = relevé de minuit
+au début du lendemain du dernier jour. Une période incomplète n'est jamais facturée.
 
 ## Impayés
 

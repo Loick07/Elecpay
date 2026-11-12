@@ -5,6 +5,7 @@ user = make_user(db_session, role=UserRole.ADMIN)
 
 import hashlib
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from itertools import count
 
@@ -24,6 +25,15 @@ from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User
 
 _sequence = count(1)
+
+
+@dataclass(frozen=True)
+class Billing:
+    """Réglages de facturation des tests (ceux d'E²C : bimestriel, émission J+3, échéance +15)."""
+
+    billing_period_months: int = 2
+    bill_issue_delay_days: int = 3
+    bill_due_delay_days: int = 15
 
 
 def next_phone() -> str:

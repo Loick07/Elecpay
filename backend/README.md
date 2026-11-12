@@ -28,6 +28,12 @@ copy .env.example .env          # puis adapter si besoin (jamais commité)
 | Qualité | `.venv\Scripts\ruff check .` et `.venv\Scripts\ruff format .` |
 | Nouvelle migration | `.venv\Scripts\alembic revision --autogenerate -m "description"` |
 | Appliquer les migrations | `.venv\Scripts\alembic upgrade head` |
+| **Recréer la base de démo** | `.venv\Scripts\python -m scripts.reset_db` puis `.venv\Scripts\python -m scripts.seed` |
+| Relevé quotidien (faire « vivre » la démo) | `.venv\Scripts\python -m scripts.daily_tick` (une fois par jour ; `--today AAAA-MM-JJ` pour simuler une date) |
+
+Données de démo : 18 mois de relevés, factures, paiements et reçus **simulés**, personnes fictives.
+Tous les comptes de démo ont le mot de passe `Demo2026!` (liste affichée par `scripts.seed`).
+`reset_db` et `seed` refusent de tourner avec `APP_ENV=production`.
 
 Les tests utilisent la base `elecpay_test` (créée par `docker/mysql/init/`), jamais la base de développement.
 La CI GitHub Actions (`.github/workflows/backend.yml`) lance Ruff, les migrations et les tests à chaque push.

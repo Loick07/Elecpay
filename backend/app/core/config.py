@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     billing_source: Literal["simulated"] = "simulated"
     demo_mode: bool = True
 
+    # Facturation (voir backend/docs/FACTURE_E2C.md). E²C facture tous les 2 mois, périodes
+    # calées sur le calendrier (janvier-février, mars-avril…). Délais : hypothèses à vérifier.
+    billing_period_months: int = 2  # 1, 2, 3, 4, 6 ou 12 (doit diviser 12)
+    bill_issue_delay_days: int = Field(default=3, ge=0, le=30)  # émission après fin de période
+    bill_due_delay_days: int = Field(default=15, ge=1, le=90)  # échéance après émission
+
     # CORS : origines autorisées, séparées par des virgules dans le .env
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
@@ -50,6 +56,13 @@ class Settings(BaseSettings):
     def split_cors_origins(cls, value: object) -> object:
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
+        return value
+
+    @field_validator("billing_period_months")
+    @classmethod
+    def period_divides_the_year(cls, value: int) -> int:
+        if value < 1 or 12 % value != 0:
+            raise ValueError("doit valoir 1, 2, 3, 4, 6 ou 12 (périodes calées sur l'année)")
         return value
 
     @field_validator("cors_origins")

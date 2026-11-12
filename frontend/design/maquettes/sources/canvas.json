@@ -1,0 +1,33 @@
+{"v":3,"createdOnFiles":{"v":1,"at":"2026-11-12T00:30:00Z"},"title":"ElecPay — Maquettes application client","launch":{"view":"canvas"},"pages":[],
+"boards":{
+"Splash.dc.html":{"x":0,"y":0,"w":390,"h":844,"title":"1 · Splash","is_interactive":true,"radius":36},
+"Connexion.dc.html":{"x":470,"y":0,"w":390,"h":844,"title":"2 · Connexion","is_interactive":true,"radius":36},
+"Inscription.dc.html":{"x":940,"y":0,"w":390,"h":844,"title":"3 · Inscription","is_interactive":true,"radius":36},
+"MotDePasse.dc.html":{"x":1410,"y":0,"w":390,"h":844,"title":"4 · Mot de passe oublié","is_interactive":true,"radius":36},
+"Main.dc.html":{"x":0,"y":1300,"w":390,"h":844,"title":"5 · Accueil","is_interactive":true,"radius":36},
+"Factures.dc.html":{"x":470,"y":1300,"w":390,"h":844,"title":"6 · Mes factures","is_interactive":true,"radius":36},
+"Facture.dc.html":{"x":940,"y":1300,"w":390,"h":844,"title":"7 · Détail de la facture","is_interactive":true,"radius":36},
+"Paiement.dc.html":{"x":1410,"y":1300,"w":390,"h":844,"title":"8 · Paiement","is_interactive":true,"radius":36},
+"Attente.dc.html":{"x":1880,"y":1300,"w":390,"h":844,"title":"9 · Confirmation en attente","is_interactive":true,"radius":36},
+"Recu.dc.html":{"x":2350,"y":1300,"w":390,"h":844,"title":"10 · Reçu","is_interactive":true,"radius":36},
+"Consommation.dc.html":{"x":0,"y":2600,"w":390,"h":844,"title":"11 · Consommation","is_interactive":true,"radius":36},
+"Historique.dc.html":{"x":470,"y":2600,"w":390,"h":844,"title":"12 · Historique des paiements","is_interactive":true,"radius":36},
+"Notifications.dc.html":{"x":940,"y":2600,"w":390,"h":844,"title":"13 · Notifications","is_interactive":true,"radius":36},
+"Profil.dc.html":{"x":0,"y":3900,"w":390,"h":844,"title":"14 · Compte","is_interactive":true,"radius":36},
+"Compteurs.dc.html":{"x":470,"y":3900,"w":390,"h":844,"title":"15 · Compteurs et foyers","is_interactive":true,"radius":36},
+"Assistance.dc.html":{"x":940,"y":3900,"w":390,"h":844,"title":"16 · Assistance","is_interactive":true,"radius":36}
+},
+"order":["Splash.dc.html","Connexion.dc.html","Inscription.dc.html","MotDePasse.dc.html","Main.dc.html","Factures.dc.html","Facture.dc.html","Paiement.dc.html","Attente.dc.html","Recu.dc.html","Consommation.dc.html","Historique.dc.html","Notifications.dc.html","Profil.dc.html","Compteurs.dc.html","Assistance.dc.html"],
+"notes":{
+"titreAcces":{"x":0,"y":-280,"text":"1. Accès : ouverture, connexion, inscription, mot de passe","kind":"title1","maxW":1800},
+"acces":{"x":1880,"y":0,"w":320,"text":"Connexion par numéro de téléphone (+242) et mot de passe, comme prévu à l'étape B3 du backend. Le code de réinitialisation est simulé : en mode démo il s'affiche à l'écran au lieu d'arriver par SMS. Parcours : Splash → Connexion → Accueil ; liens vers Inscription et Mot de passe oublié.","fill":"blue"},
+"titre":{"x":0,"y":1020,"text":"2. Factures et paiement : de l'accueil au reçu","kind":"title1","maxW":2740},
+"parcours":{"x":2820,"y":1300,"w":320,"text":"Prototype cliquable (bouton Lecture) : Accueil → Mes factures → Détail → Paiement → Confirmation → Reçu. Les onglets de la barre du bas relient les écrans 5, 6, 11 et 14.","fill":"blue"},
+"donnees":{"x":2820,"y":1760,"w":320,"text":"Données de démonstration, cohérentes d'un écran à l'autre : foyer Maison Mpita, compteur 0412-8833, facture d'octobre 2026 = 212,4 kWh × 49,08 FCFA (tarif de travail à confirmer) + frais fixes + taxes = 12 500 FCFA. Le détail des lignes de facture sera ajusté sur de vraies factures E²C.","fill":"orange"},
+"titreListes":{"x":0,"y":2320,"text":"3. Suivi : consommation, paiements, notifications","kind":"title1","maxW":1330},
+"listes":{"x":1410,"y":2600,"w":320,"text":"Consommation : on descend de l'année au mois, du mois à la semaine, de la semaine au jour (toucher une barre ou une ligne), ou on va directement sur un jour avec le calendrier de l'onglet Jour. Un relevé par jour, de janvier 2025 au 12 nov. 2026 ; octobre 2026 = 212,4 kWh comme sur la facture.","fill":"blue"},
+"listes2":{"x":1410,"y":3060,"w":320,"text":"Deux foyers : Maison Mpita et Boutique Tié-Tié (où Grâce Ngoma est payeuse déléguée). L'historique est vu après le paiement du 12 nov. (une tentative Airtel échouée, puis MTN réussie).","fill":"gray"},
+"titreCompte":{"x":0,"y":3620,"text":"4. Compte : profil, compteurs et foyers, assistance","kind":"title1","maxW":1330},
+"compte":{"x":1410,"y":3900,"w":320,"text":"L'onglet Compte ouvre le profil. Sur Compteurs et foyers, « Ajouter un compteur » ouvre une feuille : la référence est vérifiée auprès de la source de facturation (simulée aujourd'hui, E²C demain). Le numéro du support reste à définir.","fill":"blue"}
+},
+"designSystems":[{"title":"ElecPay","namespace":"elecpay","artifact":"https://claude.ai/artifact/R3gyZpbvCECZJys5KzQYoN","version":"1794441043-acd4","copiedAt":"2026-11-12T00:30:00Z"}]}

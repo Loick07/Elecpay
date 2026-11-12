@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Paiement</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div style="width: 100%; height: 100vh; min-height: 640px; position: relative; overflow: hidden; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app);">
+
+<div aria-hidden="true" style="padding: 76px 16px 0; display: flex; flex-direction: column; gap: 8px; opacity: 0.35;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Octobre 2026 · Maison Mpita</span>
+<div style="font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -0.02em;">12 500 FCFA</div>
+<div style="margin-top: 16px; height: 150px; border-radius: 20px; background: var(--surface-1);"></div>
+<div style="height: 160px; border-radius: 20px; background: var(--surface-1);"></div>
+</div>
+<a href="Facture.dc.html" aria-label="Fermer le paiement" style="position: absolute; inset: 0; background: rgba(2,6,14,0.55);"></a>
+
+<section aria-label="Payer la facture" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 28px; border-radius: 28px 28px 0 0; background: var(--glass-strong); border-top: 1px solid var(--glass-border); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 18px;">
+<div style="width: 40px; height: 4px; border-radius: 2px; background: var(--line); align-self: center;"></div>
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Facture d'octobre 2026 · Maison Mpita</span>
+<div style="font-size: 36px; line-height: 40px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">12 500 <span style="font-size: 15px; font-weight: 500; color: var(--ink-muted); letter-spacing: 0;">FCFA</span></div>
+</div>
+
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 8px;">
+<legend style="padding: 0 0 8px; font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Moyen de paiement</legend>
+<sc-for list="{{methods}}" as="m" hint-placeholder-count="2">
+<button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="{{m.box}}">
+<span style="{{m.radio}}"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: left;"><span style="font: 500 15px/22px var(--font-app); color: var(--ink);">{{m.name}}</span><span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Confirmation par code PIN sur votre téléphone</span></span>
+</button>
+</sc-for>
+</fieldset>
+
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="numero" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Numéro {{methodName}}</label>
+<div style="display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--current); box-shadow: 0 0 0 3px var(--current-soft);">
+<span style="color: var(--ink-muted); padding-right: 8px; border-right: 1px solid var(--line); font: 400 15px/22px var(--font-app); font-variant-numeric: tabular-nums;">+242</span>
+<input id="numero" type="tel" value="06 123 45 67" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 15px/22px var(--font-app); font-variant-numeric: tabular-nums;">
+</div>
+<span style="font: 400 12px/16px var(--font-app); color: var(--ink-faint);">Vous pouvez payer depuis le numéro d'un proche.</span>
+</div>
+
+<a href="Attente.dc.html" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app);">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>Payer 12 500 FCFA</a>
+<span style="margin-top: -8px; font: 400 12px/16px var(--font-app); color: var(--ink-faint); text-align: center;">Le montant est celui de la facture ; il ne peut pas être modifié.</span>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { method: 'mtn' }; }
+  renderVals() {
+    const list = [{ id: 'mtn', name: 'MTN MoMo' }, { id: 'airtel', name: 'Airtel Money' }];
+    const cur = this.state.method;
+    const methods = list.map((m) => {
+      const on = m.id === cur;
+      return {
+        name: m.name,
+        on: on ? 'true' : 'false',
+        pick: () => this.setState({ method: m.id }),
+        box: 'display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 16px; border-radius: 14px; cursor: pointer; font-family: var(--font-app); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + ';',
+        radio: 'width: 20px; height: 20px; border-radius: 999px; flex: none; box-sizing: border-box; border: ' + (on ? '6px solid var(--volt)' : '2px solid var(--ink-faint)') + ';'
+      };
+    });
+    const methodName = cur === 'mtn' ? 'MTN MoMo' : 'Airtel Money';
+    return { methods, methodName };
+  }
+}
+</script>
+</body>
+</html>

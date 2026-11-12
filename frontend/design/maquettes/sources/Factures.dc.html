@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mes factures</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.ep-screen>*{flex-shrink:0}.ep-screen{scrollbar-width:none}.ep-screen::-webkit-scrollbar{display:none}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+</style>
+</helmet>
+<div class="ep-screen" style="width: 100%; height: 100vh; min-height: 560px; position: relative; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app); display: flex; flex-direction: column;">
+
+<header style="padding: 20px 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<h1 style="margin: 0; font-size: 26px; line-height: 34px; font-weight: 600; letter-spacing: -0.01em;">Mes factures</h1>
+<button aria-label="Rechercher une facture" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); display: grid; place-items: center; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></button>
+</header>
+
+<section style="margin: 16px 16px 0; padding: 16px; border-radius: 20px; background: var(--surface-1); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Reste à payer · 2 foyers</span>
+<span style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums;">22 370 <span style="font-size: 13px; font-weight: 500; color: var(--ink-muted); letter-spacing: 0;">FCFA</span></span>
+</div>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted); text-align: right;">2 factures<br>avant le 30 nov.</span>
+</section>
+
+<div role="tablist" aria-label="Filtrer les factures" style="margin: 16px 0 0; padding: 0 16px; display: flex; gap: 8px; overflow-x: auto;">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+<button role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}<span style="{{c.countStyle}}">{{c.count}}</span></button>
+</sc-for>
+</div>
+
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+<div style="margin: 16px 16px 0; display: flex; flex-direction: column; gap: 16px;">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">{{g.title}}</span>
+<div style="border-radius: 20px; background: var(--surface-1); overflow: hidden;">
+<sc-for list="{{g.items}}" as="b" hint-placeholder-count="2">
+<a href="Facture.dc.html" style="{{b.rowStyle}}">
+<span style="width: 40px; height: 40px; border-radius: 14px; background: var(--surface-2); color: var(--ink-muted); display: grid; place-items: center; flex: none;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font: 500 15px/22px var(--font-app);">{{b.home}}</span><span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">{{b.sub}}</span></span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;"><span style="font: 600 15px/22px var(--font-app); font-variant-numeric: tabular-nums; white-space: nowrap;">{{b.amount}}</span><span style="{{b.badgeStyle}}">{{b.status}}</span></span>
+</a>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+<div style="margin: 48px 24px 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px;">
+<span style="width: 64px; height: 64px; border-radius: 999px; background: var(--success-soft); color: var(--success); display: grid; place-items: center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span>
+<h2 style="margin: 0; font: 600 18px/26px var(--font-app);">Aucune facture en retard</h2>
+<p style="margin: 0; max-width: 280px; font: 400 15px/22px var(--font-app); color: var(--ink-muted);">Vos deux foyers sont à jour. Nous vous prévenons 5 jours avant chaque échéance.</p>
+</div>
+</sc-if>
+
+<nav aria-label="Navigation principale" style="position: sticky; bottom: 12px; margin: auto 12px 12px; z-index: 5; display: flex; align-items: flex-end; justify-content: space-around; padding: 8px 8px 10px; border-radius: 28px; background: var(--glass-strong); border: 1px solid var(--glass-border); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: var(--shadow-float);">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; min-height: 48px; justify-content: center; font: 500 11px/14px var(--font-app); color: var(--ink-muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"></path></svg>Accueil</a>
+<a href="Factures.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; min-height: 48px; justify-content: center; font: 600 11px/14px var(--font-app); color: var(--ink);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8z"></path><path d="M14 3v5h5M9 13h6M9 17h4"></path></svg>Factures<span style="width: 4px; height: 4px; border-radius: 999px; background: var(--volt);"></span></a>
+<a href="Paiement.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 0; min-width: 64px; font: 600 11px/14px var(--font-app); color: var(--volt-text);"><span style="width: 56px; height: 56px; border-radius: 999px; background: var(--volt); color: var(--on-volt); display: grid; place-items: center; box-shadow: var(--shadow-volt); margin-top: -26px; margin-bottom: 4px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18M16 15h2"></path></svg></span>Payer</a>
+<a href="Consommation.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; min-height: 48px; justify-content: center; font: 500 11px/14px var(--font-app); color: var(--ink-muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>Conso</a>
+<a href="Profil.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; min-height: 48px; justify-content: center; font: 500 11px/14px var(--font-app); color: var(--ink-muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0116 0"></path></svg>Compte</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { filter: 'toutes' }; }
+  renderVals() {
+    const BILLS = [
+      { month: 'Octobre 2026', home: 'Maison Mpita', amount: '12 500 FCFA', st: 'apayer', sub: 'Échéance le 25 nov.' },
+      { month: 'Octobre 2026', home: 'Boutique Tié-Tié', amount: '9 870 FCFA', st: 'apayer', sub: 'Échéance le 30 nov.' },
+      { month: 'Septembre 2026', home: 'Maison Mpita', amount: '11 240 FCFA', st: 'payee', sub: 'Payée le 18 oct.' },
+      { month: 'Septembre 2026', home: 'Boutique Tié-Tié', amount: '9 415 FCFA', st: 'payee', sub: 'Payée le 22 oct. par Grâce Ngoma' },
+      { month: 'Août 2026', home: 'Maison Mpita', amount: '10 615 FCFA', st: 'payee', sub: 'Payée le 16 sept.' },
+      { month: 'Août 2026', home: 'Boutique Tié-Tié', amount: '8 960 FCFA', st: 'payee', sub: 'Payée le 20 sept.' }
+    ];
+    const ST = {
+      apayer: { label: 'À payer', bg: 'var(--current-soft)', fg: 'var(--current-text)' },
+      payee: { label: 'Payée', bg: 'var(--success-soft)', fg: 'var(--success)' },
+      retard: { label: 'En retard', bg: 'var(--error-soft)', fg: 'var(--error-text)' }
+    };
+    const FILTERS = [['toutes', 'Toutes', null], ['apayer', 'À payer', 'apayer'], ['payee', 'Payées', 'payee'], ['retard', 'En retard', 'retard']];
+    const cur = this.state.filter;
+    const chips = FILTERS.map(([id, label, st]) => {
+      const on = id === cur;
+      const n = st ? BILLS.filter((b) => b.st === st).length : BILLS.length;
+      return {
+        label, count: String(n), on: on ? 'true' : 'false',
+        pick: () => this.setState({ filter: id }),
+        style: 'flex: none; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer; font: 500 13px/20px var(--font-app); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + '; color: var(--ink);',
+        countStyle: 'min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; display: inline-grid; place-items: center; font: 600 11px/14px var(--font-app); background: ' + (on ? 'var(--volt)' : 'var(--surface-2)') + '; color: ' + (on ? 'var(--on-volt)' : 'var(--ink-muted)') + ';'
+      };
+    });
+    const st = FILTERS.find((f) => f[0] === cur)[2];
+    const list = BILLS.filter((b) => !st || b.st === st);
+    const groups = [];
+    list.forEach((b) => {
+      let g = groups.find((x) => x.title === b.month);
+      if (!g) { g = { title: b.month, items: [] }; groups.push(g); }
+      const s = ST[b.st];
+      g.items.push({
+        home: b.home, sub: b.sub, amount: b.amount, status: s.label,
+        rowStyle: 'display: flex; align-items: center; gap: 12px; padding: 12px 16px; min-height: 68px; box-sizing: border-box; color: var(--ink);' + (g.items.length ? ' border-top: 1px solid var(--line);' : ''),
+        badgeStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 8px; font: 600 11px/14px var(--font-app); background: ' + s.bg + '; color: ' + s.fg + ';'
+      });
+    });
+    return { chips, groups, hasItems: list.length > 0, isEmpty: list.length === 0 };
+  }
+}
+</script>
+</body>
+</html>

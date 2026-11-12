@@ -6,7 +6,7 @@ Le frontend ne contient **aucune** règle métier : il affiche ce que renvoie l'
 | Dossier | Contenu | État |
 |---|---|---|
 | `design/` | Charte UI/UX validée : couleurs, typographie, statuts, formats, textes, composants | ✅ charte v1 validée |
-| `design/maquettes/` | Maquettes des écrans clés | prochaine étape |
+| `design/maquettes/` | Maquettes des 16 écrans client | ✅ validées · admin (11 écrans) : prochaine étape |
 | `mobile/` | Application client Flutter (16 écrans) | après la fin du backend (B11) |
 | `admin/` | Back-office web Next.js (11 écrans) | après l'application mobile |
 
@@ -22,6 +22,6 @@ Règle : si une valeur change, on la change dans `tokens.json`, puis partout ail
 
 ## Ordre de construction
 
-1. Design : charte ✅ → maquettes des écrans clés (accueil, détail facture, paiement, reçu, consommation)
+1. Design : charte ✅ → maquettes client 16/16 ✅ → maquettes back-office (11 écrans)
 2. Mobile Flutter : F0 socle → F7 finition (quand le backend est terminé)
 3. Back-office Next.js

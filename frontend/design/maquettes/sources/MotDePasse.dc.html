@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mot de passe oublié</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.ep-screen>*{flex-shrink:0}.ep-screen{scrollbar-width:none}.ep-screen::-webkit-scrollbar{display:none}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div class="ep-screen" style="width: 100%; height: 100vh; min-height: 560px; position: relative; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app); display: flex; flex-direction: column;">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 12px 0;">
+<a href="Connexion.dc.html" aria-label="Retour à la connexion" style="width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<span style="font: 500 13px/20px var(--font-app); color: var(--ink-muted); padding-right: 12px;">Étape {{stepNum}} sur 3</span>
+</header>
+<div style="margin: 8px 16px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="3"><span style="{{b}}"></span></sc-for>
+</div>
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{true}}">
+<div style="padding: 24px 16px 0; display: flex; flex-direction: column; gap: 24px; flex: 1;">
+<div>
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.01em;">Mot de passe oublié</h1>
+<p style="margin: 6px 0 0; font-size: 15px; line-height: 22px; color: var(--ink-muted);">Saisissez votre numéro. Nous vous envoyons un code à 6 chiffres par SMS.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="tel3" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Numéro de téléphone</label>
+<div style="display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--current); box-shadow: 0 0 0 3px var(--current-soft);">
+<span style="color: var(--ink-muted); padding-right: 8px; border-right: 1px solid var(--line); font: 400 15px/22px var(--font-app);">+242</span>
+<input id="tel3" type="tel" value="06 123 45 67" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 15px/22px var(--font-app); font-variant-numeric: tabular-nums;">
+</div>
+</div>
+<button onClick="{{next}}" style="margin-top: auto; margin-bottom: 28px; min-height: 52px; border: none; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app); cursor: pointer;">Envoyer le code</button>
+</div>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{false}}">
+<div style="padding: 24px 16px 0; display: flex; flex-direction: column; gap: 20px; flex: 1;">
+<div>
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.01em;">Nouveau mot de passe</h1>
+<p style="margin: 6px 0 0; font-size: 15px; line-height: 22px; color: var(--ink-muted);">Code envoyé au <span style="color: var(--ink); font-variant-numeric: tabular-nums;">+242 06 123 45 67</span>.</p>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--current-text); background: var(--current-soft);">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--current-text)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink);">Mode démo : aucun SMS n'est envoyé. Votre code est <strong style="font-variant-numeric: tabular-nums; letter-spacing: 0.06em;">482 913</strong>.</span>
+</div>
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 6px;">
+<legend style="padding: 0 0 6px; font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Code reçu</legend>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{digits}}" as="d" hint-placeholder-count="6">
+<input aria-label="{{d.label}}" inputmode="numeric" maxlength="1" value="{{d.v}}" style="height: 52px; min-width: 0; box-sizing: border-box; text-align: center; border-radius: 12px; background: var(--surface-1); border: 1px solid var(--line); outline: none; color: var(--ink); font: 600 20px/28px var(--font-app);">
+</sc-for>
+</div>
+<button type="button" style="align-self: flex-start; min-height: 44px; padding: 0; border: none; background: transparent; color: var(--ink-muted); font: 400 13px/20px var(--font-app); cursor: pointer;">Renvoyer le code dans 0:42</button>
+</fieldset>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="mdp3" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Nouveau mot de passe</label>
+<input id="mdp3" type="password" value="Mpita2026" style="min-height: 52px; padding: 0 16px; box-sizing: border-box; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); outline: none; color: var(--ink); font: 400 15px/22px var(--font-app);">
+<span style="font: 400 12px/16px var(--font-app); color: var(--ink-faint);">8 caractères minimum, dont un chiffre.</span>
+</div>
+<button onClick="{{next}}" style="margin-top: auto; margin-bottom: 28px; min-height: 52px; border: none; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app); cursor: pointer;">Changer le mot de passe</button>
+</div>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{false}}">
+<div style="padding: 120px 24px 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; flex: 1;">
+<span style="width: 72px; height: 72px; border-radius: 999px; background: var(--success-soft); color: var(--success); display: grid; place-items: center;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span>
+<h1 style="margin: 4px 0 0; font: 600 24px/32px var(--font-app);">Mot de passe modifié</h1>
+<p style="margin: 0; max-width: 300px; font: 400 15px/22px var(--font-app); color: var(--ink-muted);">Par sécurité, vous avez été déconnecté de vos autres appareils.</p>
+<a href="Connexion.dc.html" style="margin-top: auto; margin-bottom: 28px; width: 100%; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app);">Se connecter</a>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 1 }; }
+  renderVals() {
+    const step = this.state.step;
+    const bars = [1, 2, 3].map((i) => 'height: 4px; border-radius: 2px; background: ' + (i <= step ? 'var(--volt)' : 'var(--surface-3)') + ';');
+    const code = '482913';
+    const digits = code.split('').map((v, i) => ({ v, label: 'Chiffre ' + (i + 1) + ' du code' }));
+    return {
+      stepNum: step, bars, digits,
+      s1: step === 1, s2: step === 2, s3: step === 3,
+      next: () => this.setState({ step: Math.min(3, step + 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>

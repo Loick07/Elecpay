@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Inscription</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.ep-screen>*{flex-shrink:0}.ep-screen{scrollbar-width:none}.ep-screen::-webkit-scrollbar{display:none}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div class="ep-screen" style="width: 100%; height: 100vh; min-height: 560px; position: relative; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app); display: flex; flex-direction: column;">
+
+<header style="display: flex; align-items: center; padding: 16px 12px 0;">
+<a href="Connexion.dc.html" aria-label="Retour à la connexion" style="width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+</header>
+
+<div style="padding: 8px 16px 0;">
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.01em;">Créer un compte</h1>
+<p style="margin: 6px 0 0; font-size: 15px; line-height: 22px; color: var(--ink-muted);">Vous ajouterez votre compteur E²C juste après.</p>
+</div>
+
+<form style="padding: 24px 16px 0; display: flex; flex-direction: column; gap: 16px;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="nom" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Nom et prénom</label>
+<input id="nom" type="text" autocomplete="name" value="Loick Makosso" style="min-height: 52px; padding: 0 16px; box-sizing: border-box; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); outline: none; color: var(--ink); font: 400 15px/22px var(--font-app);">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="tel2" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Numéro de téléphone</label>
+<div style="display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<span style="color: var(--ink-muted); padding-right: 8px; border-right: 1px solid var(--line); font: 400 15px/22px var(--font-app);">+242</span>
+<input id="tel2" type="tel" autocomplete="tel" value="06 123 45 67" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 15px/22px var(--font-app); font-variant-numeric: tabular-nums;">
+</div>
+<span style="font: 400 12px/16px var(--font-app); color: var(--ink-faint);">Il servira à vous connecter et à recevoir vos alertes.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="mail" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">E-mail <span style="color: var(--ink-faint);">(facultatif)</span></label>
+<input id="mail" type="email" autocomplete="email" placeholder="vous@exemple.cg" style="min-height: 52px; padding: 0 16px; box-sizing: border-box; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); outline: none; color: var(--ink); font: 400 15px/22px var(--font-app);">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="mdp2" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Mot de passe</label>
+<input id="mdp2" type="password" autocomplete="new-password" value="elecpay" style="min-height: 52px; padding: 0 16px; box-sizing: border-box; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--current); box-shadow: 0 0 0 3px var(--current-soft); outline: none; color: var(--ink); font: 400 15px/22px var(--font-app);">
+<div style="display: flex; flex-wrap: wrap; gap: 6px 14px; font: 400 12px/16px var(--font-app);">
+<span style="display: inline-flex; align-items: center; gap: 4px; color: var(--ink-faint);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle></svg>8 caractères minimum</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; color: var(--ink-faint);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle></svg>Au moins un chiffre</span>
+</div>
+</div>
+<label for="cgu" style="display: flex; align-items: flex-start; gap: 10px; min-height: 44px; font: 400 13px/20px var(--font-app); color: var(--ink-muted); cursor: pointer;">
+<input id="cgu" type="checkbox" checked style="width: 20px; height: 20px; margin: 0; accent-color: var(--volt); flex: none;">
+<span>J'accepte les <span style="color: var(--volt-text); font-weight: 500;">conditions d'utilisation</span> et la <span style="color: var(--volt-text); font-weight: 500;">politique de confidentialité</span>.</span>
+</label>
+</form>
+
+<div style="margin-top: auto; padding: 0 16px 28px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+<a href="Main.dc.html" style="width: 100%; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app);">Créer mon compte</a>
+<a href="Connexion.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font: 400 14px/20px var(--font-app); color: var(--ink-muted);">Déjà inscrit ?&#160;<span style="color: var(--volt-text); font-weight: 500;">Se connecter</span></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

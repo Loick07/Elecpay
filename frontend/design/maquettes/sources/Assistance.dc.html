@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Assistance</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.ep-screen>*{flex-shrink:0}.ep-screen{scrollbar-width:none}.ep-screen::-webkit-scrollbar{display:none}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div class="ep-screen" style="width: 100%; height: 100vh; min-height: 560px; position: relative; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app); display: flex; flex-direction: column;">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 12px 0;">
+<a href="Profil.dc.html" aria-label="Retour" style="width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<span style="font: 600 17px/24px var(--font-app);">Assistance</span>
+<span style="width: 44px;"></span>
+</header>
+
+<div style="margin: 12px 16px 0; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Rechercher dans l'aide</label>
+<input id="q" placeholder="Rechercher : paiement, compteur, reçu…" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 15px/22px var(--font-app);">
+</div>
+
+<div style="margin: 18px 16px 0; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Questions fréquentes</span>
+<div style="border-radius: 20px; background: var(--surface-1); overflow: hidden;">
+<sc-for list="{{faq}}" as="f" hint-placeholder-count="5">
+<div style="{{f.wrap}}">
+<button aria-expanded="{{f.openStr}}" onClick="{{f.toggle}}" style="display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 16px; border: none; background: transparent; cursor: pointer; text-align: left; font: 500 14px/20px var(--font-app); color: var(--ink);">
+<span style="flex: 1;">{{f.q}}</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{f.chev}}"><path d="M6 9l6 6 6-6"></path></svg>
+</button>
+<sc-if value="{{f.open}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0; padding: 0 16px 14px; font: 400 13px/20px var(--font-app); color: var(--ink-muted);">{{f.a}}</p>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="margin: 18px 16px 0; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Nous contacter</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+<button style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; border-radius: 20px; border: none; background: var(--surface-1); color: var(--ink); cursor: pointer; text-align: left;">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--current-text)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"></path></svg>
+<span style="font: 500 14px/20px var(--font-app);">Écrire au support</span><span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Réponse dans l'application</span>
+</button>
+<button style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; border-radius: 20px; border: none; background: var(--surface-1); color: var(--ink); cursor: pointer; text-align: left;">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>
+<span style="font: 500 14px/20px var(--font-app);">Problème de paiement</span><span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Avec la référence TX-…</span>
+</button>
+</div>
+<div style="padding: 12px 14px; border-radius: 14px; background: var(--surface-2); display: flex; gap: 10px; align-items: flex-start;">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Coupure, panne ou problème sur le réseau électrique : contactez directement E²C. ElecPay ne gère que vos factures et vos paiements.</span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: 0 }; }
+  renderVals() {
+    const Q = [
+      ['Mon paiement est en attente depuis longtemps', 'Vérifiez votre téléphone : l’opérateur attend votre code PIN. Sans confirmation au bout de 10 minutes, la demande expire et rien n’est débité. Ne payez pas une deuxième fois tant que le statut est « Vérification en cours ».'],
+      ['J’ai payé mais la facture reste « À payer »', 'La confirmation de l’opérateur peut prendre quelques minutes. Si le montant a été débité et que la facture n’est pas à jour après une heure, signalez un problème de paiement avec la référence TX de la transaction.'],
+      ['Comment payer la facture d’un proche ?', 'Demandez au titulaire du foyer de vous inviter avec votre numéro. Vous verrez alors ses factures et pourrez les payer depuis votre compte Mobile Money.'],
+      ['Pourquoi ma consommation est « estimée » ?', 'Quand un relevé manque, ElecPay estime la consommation à partir de vos jours précédents. La valeur est corrigée dès que le relevé arrive.'],
+      ['Où trouver la référence de mon compteur ?', 'Elle est imprimée en haut de votre facture E²C, à côté de votre numéro de contrat.']
+    ];
+    const cur = this.state.open;
+    const faq = Q.map(([q, a], i) => {
+      const open = cur === i;
+      return {
+        q, a, open, openStr: open ? 'true' : 'false',
+        toggle: () => this.setState({ open: open ? -1 : i }),
+        wrap: i ? 'border-top: 1px solid var(--line);' : '',
+        chev: 'flex: none; transition: transform 150ms ease-out; transform: rotate(' + (open ? '180' : '0') + 'deg);'
+      };
+    });
+    return { faq };
+  }
+}
+</script>
+</body>
+</html>

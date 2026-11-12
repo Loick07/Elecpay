@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Compteurs et foyers</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div style="width: 100%; height: 100vh; min-height: 640px; position: relative; overflow: hidden; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app);">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 12px 0;">
+<a href="Profil.dc.html" aria-label="Retour" style="width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<span style="font: 600 17px/24px var(--font-app);">Compteurs et foyers</span>
+<span style="width: 44px;"></span>
+</header>
+
+<div style="margin: 12px 16px 0; display: flex; flex-direction: column; gap: 12px;">
+
+<article style="border-radius: 20px; background: var(--surface-1); overflow: hidden;">
+<div style="padding: 16px; display: flex; align-items: flex-start; gap: 12px;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: var(--current-soft); color: var(--current-text); display: grid; place-items: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"></path></svg></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+<span style="font: 600 16px/24px var(--font-app);">Maison Mpita</span>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Mpita, Pointe-Noire · Propriétaire</span>
+</div>
+<span style="display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 8px; font: 600 11px/14px var(--font-app); background: var(--current-soft); color: var(--current-text);">À payer</span>
+</div>
+<div style="padding: 0 16px 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="display: flex; flex-direction: column;"><span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Compteur</span><span style="font: 500 13px/20px var(--font-mono);">0412-8833</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Puissance souscrite</span><span style="font: 500 14px/20px var(--font-app);">6 kVA</span></div>
+</div>
+<div style="padding: 12px 16px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px;">
+<span style="display: flex;"><span style="width: 28px; height: 28px; border-radius: 999px; background: var(--current-soft); color: var(--current-text); display: grid; place-items: center; font: 600 11px/14px var(--font-app); border: 2px solid var(--surface-1);">LM</span></span>
+<span style="flex: 1; font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Vous seul</span>
+<button style="min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 13px/20px var(--font-app); cursor: pointer;">Inviter un proche</button>
+</div>
+</article>
+
+<article style="border-radius: 20px; background: var(--surface-1); overflow: hidden;">
+<div style="padding: 16px; display: flex; align-items: flex-start; gap: 12px;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: var(--surface-2); color: var(--ink-muted); display: grid; place-items: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9l1.5-5h13L20 9M4 9h16v11H4zM4 9a2.7 2.7 0 005.3 0 2.7 2.7 0 005.4 0 2.7 2.7 0 005.3 0M10 20v-5h4v5"></path></svg></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+<span style="font: 600 16px/24px var(--font-app);">Boutique Tié-Tié</span>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Tié-Tié, Pointe-Noire · Propriétaire</span>
+</div>
+<span style="display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 8px; font: 600 11px/14px var(--font-app); background: var(--current-soft); color: var(--current-text);">À payer</span>
+</div>
+<div style="padding: 0 16px 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="display: flex; flex-direction: column;"><span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Compteur</span><span style="font: 500 13px/20px var(--font-mono);">0377-1209</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Puissance souscrite</span><span style="font: 500 14px/20px var(--font-app);">9 kVA</span></div>
+</div>
+<div style="padding: 12px 16px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px;">
+<span style="display: flex;"><span style="width: 28px; height: 28px; border-radius: 999px; background: var(--current-soft); color: var(--current-text); display: grid; place-items: center; font: 600 11px/14px var(--font-app); border: 2px solid var(--surface-1);">LM</span><span style="width: 28px; height: 28px; margin-left: -8px; border-radius: 999px; background: var(--volt-soft); color: var(--volt-text); display: grid; place-items: center; font: 600 11px/14px var(--font-app); border: 2px solid var(--surface-1);">GN</span></span>
+<span style="flex: 1; min-width: 0; font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Grâce Ngoma · payeuse déléguée</span>
+<button style="min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 13px/20px var(--font-app); cursor: pointer;">Gérer</button>
+</div>
+</article>
+
+<p style="margin: 0; font: 400 12px/18px var(--font-app); color: var(--ink-faint);">Un payeur délégué voit et paie les factures du foyer. Il ne peut ni le modifier ni ajouter de compteur.</p>
+</div>
+
+<div style="position: absolute; left: 16px; right: 16px; bottom: 28px;">
+<button onClick="{{open}}" style="width: 100%; min-height: 52px; border: none; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Ajouter un compteur</button>
+</div>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{false}}">
+<button onClick="{{close}}" aria-label="Fermer" style="position: absolute; inset: 0; border: none; background: rgba(2,6,14,0.55); cursor: pointer;"></button>
+<section aria-label="Ajouter un compteur" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 28px; border-radius: 28px 28px 0 0; background: var(--glass-strong); border-top: 1px solid var(--glass-border); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px;">
+<div style="width: 40px; height: 4px; border-radius: 2px; background: var(--line); align-self: center;"></div>
+<div>
+<h2 style="margin: 0; font: 600 20px/28px var(--font-app);">Ajouter un compteur</h2>
+<p style="margin: 4px 0 0; font: 400 14px/20px var(--font-app); color: var(--ink-muted);">La référence figure en haut de votre facture E²C.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="ref" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Référence du compteur</label>
+<input id="ref" value="0519-4470" style="min-height: 52px; padding: 0 16px; box-sizing: border-box; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--current); box-shadow: 0 0 0 3px var(--current-soft); outline: none; color: var(--ink); font: 500 15px/22px var(--font-mono);">
+</div>
+<sc-if value="{{found}}" hint-placeholder-val="{{false}}">
+<div style="padding: 14px 16px; border-radius: 14px; background: var(--success-soft); display: flex; gap: 12px; align-items: flex-start;">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px;"><path d="M5 12l5 5L20 7"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px;"><span style="font: 600 14px/20px var(--font-app);">Compteur trouvé</span><span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">Abonné : L. Makosso · Mpaka, Pointe-Noire · 6 kVA</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="nomfoyer" style="font: 500 13px/20px var(--font-app); color: var(--ink-muted);">Nom du foyer</label>
+<input id="nomfoyer" value="Maison Mpaka" style="min-height: 52px; padding: 0 16px; box-sizing: border-box; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); outline: none; color: var(--ink); font: 400 15px/22px var(--font-app);">
+</div>
+</sc-if>
+<button onClick="{{primary}}" style="min-height: 52px; border: none; border-radius: 14px; background: var(--volt); color: var(--on-volt); font: 600 15px/22px var(--font-app); cursor: pointer;">{{primaryLabel}}</button>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sheet: false, found: false }; }
+  renderVals() {
+    const s = this.state;
+    return {
+      sheet: s.sheet, found: s.found,
+      open: () => this.setState({ sheet: true, found: false }),
+      close: () => this.setState({ sheet: false, found: false }),
+      primaryLabel: s.found ? 'Ajouter ce compteur' : 'Vérifier la référence',
+      primary: () => s.found ? this.setState({ sheet: false, found: false }) : this.setState({ found: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

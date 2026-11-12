@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Notifications</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.ep-screen>*{flex-shrink:0}.ep-screen{scrollbar-width:none}.ep-screen::-webkit-scrollbar{display:none}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+</style>
+</helmet>
+<div class="ep-screen" style="width: 100%; height: 100vh; min-height: 560px; position: relative; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app); display: flex; flex-direction: column;">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 12px 0;">
+<a href="Main.dc.html" aria-label="Retour" style="width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<span style="font: 600 17px/24px var(--font-app);">Notifications</span>
+<span style="width: 44px;"></span>
+</header>
+
+<div style="margin: 12px 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+<span style="font: 400 14px/20px var(--font-app); color: var(--ink-muted);">{{unreadText}}</span>
+<button onClick="{{markAll}}" style="{{markStyle}}">Tout marquer comme lu</button>
+</div>
+
+<div style="margin: 12px 16px 0; display: flex; flex-direction: column; gap: 16px;">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">{{g.title}}</span>
+<div style="border-radius: 20px; background: var(--surface-1); overflow: hidden;">
+<sc-for list="{{g.items}}" as="n" hint-placeholder-count="2">
+<a href="{{n.href}}" onClick="{{n.read}}" style="{{n.rowStyle}}">
+<span style="{{n.iconStyle}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
+</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+<span style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;"><span style="{{n.titleStyle}}">{{n.title}}</span><span style="flex: none; font: 400 12px/16px var(--font-app); color: var(--ink-faint);">{{n.time}}</span></span>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">{{n.body}}</span>
+</span>
+<span style="{{n.dotStyle}}"></span>
+</a>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { read: {} }; }
+  renderVals() {
+    const I = {
+      check: 'M5 12l5 5L20 7',
+      x: 'M6 6l12 12M18 6L6 18',
+      clock: 'M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v5l3 2',
+      bolt: 'M13 2L4 14h7l-1 8 9-12h-7z',
+      file: 'M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8zM14 3v5h5',
+      user: 'M16 21a4 4 0 00-8 0M12 13a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6'
+    };
+    const N = [
+      { id: 'n1', g: "Aujourd'hui", icon: 'check', tone: 'success', title: 'Paiement réussi', body: 'Facture d’octobre de Maison Mpita payée : 12 500 FCFA. Votre reçu est prêt.', time: '14:32', href: 'Recu.dc.html', unread: true },
+      { id: 'n2', g: "Aujourd'hui", icon: 'x', tone: 'error', title: 'Paiement échoué', body: 'Airtel Money : solde insuffisant. Aucun montant n’a été débité.', time: '14:20', href: 'Historique.dc.html', unread: true },
+      { id: 'n3', g: 'Cette semaine', icon: 'clock', tone: 'warning', title: 'Échéance dans 5 jours', body: 'Boutique Tié-Tié : 9 870 FCFA à payer avant le 30 nov.', time: 'Mer.', href: 'Factures.dc.html', unread: true },
+      { id: 'n4', g: 'Cette semaine', icon: 'bolt', tone: 'warning', title: 'Consommation inhabituelle', body: 'Maison Mpita : 9,8 kWh samedi, 30 % au-dessus de votre moyenne.', time: 'Dim.', href: 'Consommation.dc.html', unread: false },
+      { id: 'n5', g: 'Plus tôt', icon: 'file', tone: 'info', title: 'Nouvelle facture', body: 'Facture d’octobre disponible pour Maison Mpita : 12 500 FCFA.', time: '5 nov.', href: 'Facture.dc.html', unread: false },
+      { id: 'n6', g: 'Plus tôt', icon: 'user', tone: 'info', title: 'Invitation acceptée', body: 'Grâce Ngoma peut maintenant payer les factures de Boutique Tié-Tié.', time: '28 oct.', href: 'Main.dc.html', unread: false }
+    ];
+    const TONE = {
+      success: ['var(--success-soft)', 'var(--success)'],
+      error: ['var(--error-soft)', 'var(--error-text)'],
+      warning: ['var(--warning-soft)', 'var(--warning)'],
+      info: ['var(--current-soft)', 'var(--current-text)']
+    };
+    const read = this.state.read;
+    const groups = [];
+    let unread = 0;
+    N.forEach((n) => {
+      let g = groups.find((x) => x.title === n.g);
+      if (!g) { g = { title: n.g, items: [] }; groups.push(g); }
+      const isUnread = n.unread && !read[n.id];
+      if (isUnread) unread++;
+      const t = TONE[n.tone];
+      g.items.push({
+        title: n.title, body: n.body, time: n.time, href: n.href, icon: I[n.icon],
+        read: () => this.setState({ read: Object.assign({}, read, { [n.id]: true }) }),
+        rowStyle: 'display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; box-sizing: border-box; color: var(--ink);' + (g.items.length ? ' border-top: 1px solid var(--line);' : '') + (isUnread ? ' background: var(--surface-2);' : ''),
+        iconStyle: 'width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; flex: none; background: ' + t[0] + '; color: ' + t[1] + ';',
+        titleStyle: 'font: ' + (isUnread ? '600' : '500') + ' 15px/22px var(--font-app);',
+        dotStyle: isUnread ? 'width: 8px; height: 8px; border-radius: 999px; background: var(--volt); flex: none; margin-top: 8px;' : 'width: 8px; flex: none;'
+      });
+    });
+    const all = {};
+    N.forEach((n) => { all[n.id] = true; });
+    return {
+      groups,
+      unreadText: unread ? unread + ' non lue' + (unread > 1 ? 's' : '') : 'Tout est lu',
+      markAll: () => this.setState({ read: all }),
+      markStyle: 'min-height: 44px; padding: 0; border: none; background: transparent; cursor: pointer; font: 500 14px/20px var(--font-app); color: ' + (unread ? 'var(--volt-text)' : 'var(--ink-faint)') + ';'
+    };
+  }
+}
+</script>
+</body>
+</html>

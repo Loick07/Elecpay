@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Historique des paiements</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+.ep-screen>*{flex-shrink:0}.ep-screen{scrollbar-width:none}.ep-screen::-webkit-scrollbar{display:none}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+</style>
+</helmet>
+<div class="ep-screen" style="width: 100%; height: 100vh; min-height: 560px; position: relative; overflow-x: hidden; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--font-app); display: flex; flex-direction: column;">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 12px 0;">
+<a href="Main.dc.html" aria-label="Retour" style="width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<span style="font: 600 17px/24px var(--font-app);">Historique des paiements</span>
+<button aria-label="Exporter l'historique" style="width: 44px; height: 44px; border-radius: 999px; border: none; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg></button>
+</header>
+
+<section style="margin: 12px 16px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+<div style="padding: 14px 16px; border-radius: 20px; background: var(--surface-1); display: flex; flex-direction: column; gap: 2px;">
+<span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Payé en 2026</span>
+<span style="font: 700 20px/28px var(--font-app); font-variant-numeric: tabular-nums;">186 330 <span style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">FCFA</span></span>
+</div>
+<div style="padding: 14px 16px; border-radius: 20px; background: var(--surface-1); display: flex; flex-direction: column; gap: 2px;">
+<span style="font: 400 12px/16px var(--font-app); color: var(--ink-muted);">Paiements réussis</span>
+<span style="font: 700 20px/28px var(--font-app); font-variant-numeric: tabular-nums;">17 <span style="font-size: 12px; font-weight: 500; color: var(--ink-muted);">sur 19</span></span>
+</div>
+</section>
+
+<div role="tablist" aria-label="Filtrer les paiements" style="margin: 16px 0 0; padding: 0 16px; display: flex; gap: 8px;">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+<button role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+</sc-for>
+</div>
+
+<div style="margin: 16px 16px 0; display: flex; flex-direction: column; gap: 16px;">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">{{g.title}}</span>
+<div style="border-radius: 20px; background: var(--surface-1); overflow: hidden;">
+<sc-for list="{{g.items}}" as="t" hint-placeholder-count="2">
+<a href="{{t.href}}" style="{{t.rowStyle}}">
+<span style="{{t.iconStyle}}">
+<sc-if value="{{t.ok}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></sc-if>
+<sc-if value="{{t.ko}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></sc-if>
+<sc-if value="{{t.exp}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></sc-if>
+</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+<span style="font: 500 15px/22px var(--font-app);">{{t.title}}</span>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted);">{{t.sub}}</span>
+<span style="{{t.noteStyle}}">{{t.note}}</span>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;"><span style="{{t.amountStyle}}">{{t.amount}}</span><span style="{{t.badgeStyle}}">{{t.status}}</span></span>
+</a>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { filter: 'tous' }; }
+  renderVals() {
+    const TX = [
+      { month: 'Novembre 2026', title: 'Octobre · Maison Mpita', sub: 'MTN MoMo · 12 nov., 14:32', amount: '12 500 FCFA', st: 'ok', href: 'Recu.dc.html' },
+      { month: 'Novembre 2026', title: 'Octobre · Maison Mpita', sub: 'Airtel Money · 12 nov., 14:20', note: 'Solde Mobile Money insuffisant', amount: '12 500 FCFA', st: 'ko', href: 'Historique.dc.html' },
+      { month: 'Octobre 2026', title: 'Septembre · Boutique Tié-Tié', sub: 'Airtel Money · 22 oct., 09:14', note: 'Payé par Grâce Ngoma', amount: '9 415 FCFA', st: 'ok', href: 'Recu.dc.html' },
+      { month: 'Octobre 2026', title: 'Septembre · Maison Mpita', sub: 'MTN MoMo · 18 oct., 18:05', amount: '11 240 FCFA', st: 'ok', href: 'Recu.dc.html' },
+      { month: 'Septembre 2026', title: 'Août · Boutique Tié-Tié', sub: 'MTN MoMo · 20 sept., 11:47', amount: '8 960 FCFA', st: 'ok', href: 'Recu.dc.html' },
+      { month: 'Septembre 2026', title: 'Août · Maison Mpita', sub: 'MTN MoMo · 16 sept., 08:31', amount: '10 615 FCFA', st: 'ok', href: 'Recu.dc.html' },
+      { month: 'Septembre 2026', title: 'Août · Maison Mpita', sub: 'MTN MoMo · 15 sept., 21:02', note: 'Code PIN non saisi à temps', amount: '10 615 FCFA', st: 'exp', href: 'Historique.dc.html' }
+    ];
+    const ST = {
+      ok: { label: 'Réussi', bg: 'var(--success-soft)', fg: 'var(--success)' },
+      ko: { label: 'Échoué', bg: 'var(--error-soft)', fg: 'var(--error-text)' },
+      exp: { label: 'Expiré', bg: 'var(--surface-2)', fg: 'var(--ink-muted)' }
+    };
+    const FILTERS = [['tous', 'Tous'], ['ok', 'Réussis'], ['ko', 'Non aboutis']];
+    const cur = this.state.filter;
+    const chips = FILTERS.map(([id, label]) => {
+      const on = id === cur;
+      return { label, on: on ? 'true' : 'false', pick: () => this.setState({ filter: id }),
+        style: 'flex: none; height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer; font: 500 13px/20px var(--font-app); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + '; color: var(--ink);' };
+    });
+    const list = TX.filter((t) => cur === 'tous' || (cur === 'ok' ? t.st === 'ok' : t.st !== 'ok'));
+    const groups = [];
+    list.forEach((t) => {
+      let g = groups.find((x) => x.title === t.month);
+      if (!g) { g = { title: t.month, items: [] }; groups.push(g); }
+      const s = ST[t.st];
+      g.items.push({
+        title: t.title, sub: t.sub, note: t.note || '', amount: t.amount, status: s.label, href: t.href,
+        ok: t.st === 'ok', ko: t.st === 'ko', exp: t.st === 'exp',
+        rowStyle: 'display: flex; align-items: center; gap: 12px; padding: 12px 16px; min-height: 68px; box-sizing: border-box; color: var(--ink);' + (g.items.length ? ' border-top: 1px solid var(--line);' : ''),
+        iconStyle: 'width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; flex: none; background: ' + s.bg + '; color: ' + s.fg + ';',
+        noteStyle: t.note ? 'font: 500 12px/16px var(--font-app); color: ' + (t.st === 'ko' ? 'var(--error-text)' : 'var(--ink-faint)') + ';' : 'display: none;',
+        amountStyle: 'font: 600 15px/22px var(--font-app); font-variant-numeric: tabular-nums; white-space: nowrap;' + (t.st === 'ok' ? '' : ' color: var(--ink-muted); text-decoration: line-through;'),
+        badgeStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 8px; font: 600 11px/14px var(--font-app); background: ' + s.bg + '; color: ' + s.fg + ';'
+      });
+    });
+    return { chips, groups };
+  }
+}
+</script>
+</body>
+</html>

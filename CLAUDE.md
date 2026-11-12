@@ -87,7 +87,15 @@ Pas de Flutter ni de Next.js avant la fin de B11.
 **B0 (socle technique) ✅ terminé le 12/11/2026** — CI verte sur GitHub.
 Python 3.14 + `.venv`, MySQL 8.4 Docker (port 3307, bases `elecpay` et `elecpay_test`), config Pydantic Settings,
 SQLAlchemy 2 (`get_db`, `Base`, `UTCDateTime`, mixins), FastAPI (erreurs au format commun, CORS, `/api/v1/health`),
-Alembic (aucune table encore), 46 tests, Ruff, CI GitHub Actions. Mode d'emploi : `backend/README.md`.
+Alembic, Ruff, CI GitHub Actions. Mode d'emploi : `backend/README.md`.
 
-**Prochaine étape : B1 — Modèle de données** (13 tables + migration + tests de contraintes), découpée en sous-étapes
-validées une par une par Loick. Les modèles doivent être importés dans `app/db/models.py`.
+**B1 (modèle de données) ✅ terminé le 12/11/2026** — CI verte. 13 tables, 6 migrations autonomes, 15 triggers MySQL
+(facture jamais supprimée et figée, paiement terminé figé, une seule transaction en attente / réussie par facture,
+tarifs sans chevauchement, audit intouchable), 300 tests. Schéma : `backend/docs/SCHEMA.md`.
+Facture E²C analysée (bimestrielle, troncature, TVA 18 %, C.A. 5 % de la TVA, RAV, timbre) : `backend/docs/FACTURE_E2C.md`.
+Décisions : prix en millièmes de FCFA, puissance en VA, propriétaire = `households.owner_id` uniquement,
+vues mensuelle / trimestrielle… en **estimation** (B5), facture officielle bimestrielle.
+Besoins des maquettes reportés aux étapes B3–B11 : tableau dans `backend/PLAN.md` (fin de B1).
+
+**Prochaine étape : B2 — Simulateurs et données de démo**, découpée en sous-étapes validées une par une par Loick.
+Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

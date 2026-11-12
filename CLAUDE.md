@@ -120,5 +120,11 @@ avec N° branchement + N° client via `BillingSource`, historique de démo via `
 (+ `/summary`, `/days/{date}`) et `/meters/{id}/readings`. Pagination commune `app/core/pagination.py` (à réutiliser),
 calendrier `app/core/calendar.py`. Guide Flutter : `backend/docs/CONSOMMATION.md`. 992 tests.
 
-**Prochaine étape : B6 — Factures**, découpée en sous-étapes validées une par une par Loick.
+**B6 (factures) ✅ terminé le 12/11/2026** — CI verte. `generate_bill` (`app/modules/bills/service.py`) est
+l'unique endroit qui crée une facture (relevé quotidien, seed, import d'historique) ; `mark_overdue_bills`
+pour les retards. Routes `/bills` (filtres, reste à payer, retard affiché à la lecture), `/bills/{id}` (lignes,
+comparaison), `/bills/{id}/pdf` (fpdf2, « Mode démo »). Numéro de facture = AAAAMMJJ + séquence du jour.
+Guide Flutter : `backend/docs/FACTURES.md`. 1122 tests.
+
+**Prochaine étape : B7 — Paiements**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

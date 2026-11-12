@@ -9,9 +9,8 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
-
-import app.db.base
 ${imports if imports else ""}
+# Migration autonome : n'importe jamais le code de l'application (app.*).
 
 # Identifiants de révision, utilisés par Alembic.
 revision: str = ${repr(up_revision)}

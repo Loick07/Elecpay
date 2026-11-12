@@ -27,7 +27,10 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S105", "S106"]   # assert et faux mots de passe autorisés dans les tests
+# Tests : assert, faux mots de passe, et SQL brut construit à partir de constantes (jamais d'entrée utilisateur).
+"tests/**" = ["S101", "S105", "S106", "S608"]
+# Migrations : longues expressions SQL générées, et triggers construits à partir de constantes.
+"alembic/versions/**" = ["E501", "S608"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app", "tests"]

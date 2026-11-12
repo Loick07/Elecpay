@@ -31,3 +31,16 @@ copy .env.example .env          # puis adapter si besoin (jamais commité)
 
 Les tests utilisent la base `elecpay_test` (créée par `docker/mysql/init/`), jamais la base de développement.
 La CI GitHub Actions (`.github/workflows/backend.yml`) lance Ruff, les migrations et les tests à chaque push.
+
+## Base de données
+
+- Schéma, relations et garde-fous : [`docs/SCHEMA.md`](docs/SCHEMA.md). Calcul des factures E²C : [`docs/FACTURE_E2C.md`](docs/FACTURE_E2C.md).
+- Plusieurs règles métier sont des **triggers MySQL** (facture jamais supprimée, paiement terminé figé, audit intouchable…).
+  Ils exigent l'option `log_bin_trust_function_creators=1`, déjà réglée dans `docker-compose.yml`.
+  Si le conteneur MySQL existait avant cette option : `docker compose up -d` le recrée (les données sont conservées).
+- Écrire une migration :
+  1. modifier les modèles (`app/modules/<domaine>/models.py`) et les importer dans `app/db/models.py` ;
+  2. `alembic revision --autogenerate -m "..."`, puis **relire** le fichier généré ;
+  3. ajouter à la main ce qu'Alembic ne génère pas (triggers) ;
+  4. vérifier `alembic upgrade head`, `alembic downgrade -1`, `alembic upgrade head`, puis `pytest`.
+- Les migrations sont autonomes : elles n'importent jamais le code de l'application (`app.*`).

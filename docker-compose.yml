@@ -10,6 +10,9 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
       - --default-time-zone=+00:00          # toutes les dates en UTC
+      # Autorise l'utilisateur `elecpay` à créer des triggers (garde-fous métier en base,
+      # ex. tarifs sans chevauchement). Sans risque ici : nos triggers sont déterministes.
+      - --log-bin-trust-function-creators=1
     environment:
       MYSQL_DATABASE: elecpay
       MYSQL_USER: elecpay

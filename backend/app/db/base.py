@@ -62,13 +62,19 @@ class UTCDateTime(TypeDecorator[datetime]):
 class IdMixin:
     """Clé primaire entière auto-incrémentée (BIGINT)."""
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    # sort_order : l'id vient toujours en premier dans la table.
+    id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=True, sort_order=-100
+    )
 
 
 class TimestampMixin:
     """Dates de création et de dernière modification, gérées automatiquement."""
 
-    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow, nullable=False)
+    # sort_order : ces colonnes viennent toujours en dernier dans la table.
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime(), default=utcnow, nullable=False, sort_order=100
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        UTCDateTime(), default=utcnow, onupdate=utcnow, nullable=False
+        UTCDateTime(), default=utcnow, onupdate=utcnow, nullable=False, sort_order=101
     )

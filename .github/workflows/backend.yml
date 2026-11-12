@@ -79,6 +79,14 @@ jobs:
       - name: Ruff (format)
         run: ruff format --check .
 
+      # Équivalent de --log-bin-trust-function-creators=1 du docker-compose (les services
+      # GitHub n'acceptent pas d'options de démarrage) : permet à `elecpay` de créer des triggers.
+      - name: Autoriser les triggers MySQL
+        run: >-
+          python -c "import pymysql;
+          c = pymysql.connect(host='127.0.0.1', user='root', password='root');
+          c.cursor().execute('SET GLOBAL log_bin_trust_function_creators = 1')"
+
       - name: Migrations (upgrade / check / downgrade)
         run: |
           alembic upgrade head

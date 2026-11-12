@@ -80,5 +80,10 @@ Pas de Flutter ni de Next.js avant la fin de B11.
   `docker --version`, `mysql --version`) et installer des paquets Python dans l'environnement virtuel du projet.
 
 ## Où on en est
-Étape B0 (socle) : dépôt + structure ✅. Reste : environnement Python, squelette FastAPI (`/health`), base MySQL connectée,
-Alembic, Pytest, Ruff, CI GitHub Actions.
+**B0 (socle technique) ✅ terminé le 12/11/2026** — CI verte sur GitHub.
+Python 3.14 + `.venv`, MySQL 8.4 Docker (port 3307, bases `elecpay` et `elecpay_test`), config Pydantic Settings,
+SQLAlchemy 2 (`get_db`, `Base`, `UTCDateTime`, mixins), FastAPI (erreurs au format commun, CORS, `/api/v1/health`),
+Alembic (aucune table encore), 46 tests, Ruff, CI GitHub Actions. Mode d'emploi : `backend/README.md`.
+
+**Prochaine étape : B1 — Modèle de données** (13 tables + migration + tests de contraintes), découpée en sous-étapes
+validées une par une par Loick. Les modèles doivent être importés dans `app/db/models.py`.

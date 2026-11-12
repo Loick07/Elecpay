@@ -8,8 +8,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 
 | Étape | Nom | État |
 |---|---|---|
-| B0 | Socle technique | ⏳ en cours |
-| B1 | Modèle de données | à faire |
+| B0 | Socle technique | ✅ terminé (12/11/2026) |
+| B1 | Modèle de données | prochaine étape |
 | B2 | Simulateurs et données de démo | à faire |
 | B3 | Comptes et authentification | à faire |
 | B4 | Foyers, compteurs et délégation | à faire |

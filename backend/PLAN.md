@@ -12,8 +12,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B1 | Modèle de données | ✅ terminé (12/11/2026) |
 | B2 | Simulateurs et données de démo | ✅ terminé (12/11/2026) |
 | B3 | Comptes et authentification | ✅ terminé (12/11/2026) |
-| B4 | Foyers, compteurs et délégation | prochaine étape |
-| B5 | Consommation | à faire |
+| B4 | Foyers, compteurs et délégation | ✅ terminé (13/11/2026) |
+| B5 | Consommation | prochaine étape |
 | B6 | Factures | à faire |
 | B7 | Paiements | à faire |
 | B8 | Reçus | à faire |

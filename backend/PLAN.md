@@ -257,7 +257,7 @@ Chaque action d'écriture admin → une ligne `audit_logs` (test).
 
 - Rate limiting global et sur l'auth ; en-têtes de sécurité ; CORS limité aux origines connues.
 - Journalisation structurée ; aucun mot de passe, jeton ou numéro complet dans les logs.
-- Export du contrat `openapi.json` dans `docs/` (sert de référence au mobile et à l'admin).
+- Export du contrat `openapi.json` dans `backend/openapi.json` (sert de référence au mobile et à l'admin).
 - Tests de parcours complets : inscription → ajout compteur → consultation → paiement → reçu → historique ; et côté admin.
 - Couverture visée ≥ 80 % sur `modules/` et `integrations/`.
 - `Dockerfile` de l'API prêt pour le déploiement.

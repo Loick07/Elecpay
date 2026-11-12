@@ -1,0 +1,48 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ElecPay</title>
+<link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-app); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:288px; }
+  .cur { fill:var(--current); }
+  .tint { fill:var(--current-soft); }
+  .volt { fill:var(--volt); }
+  .dot { fill:var(--on-volt); }
+  .lg { rx:var(--radius-lg); }
+  .xl { rx:var(--radius-xl); }
+  .words { position:absolute; left:var(--space-8); bottom:var(--space-8); max-width:440px; }
+  .name { margin:0; font-size:100px; line-height:.92; font-weight:700; letter-spacing:-.03em; color:var(--ink); }
+  .tag { margin:var(--space-3) 0 0 4px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      current 232×176 (radius-lg) bled off the top; current-soft 232×96 below it; volt 220×328 slab (radius-xl) bled off top, right and bottom
+  arrangement one tall volt slab on the right with two stacked blue satellites on its left, gaps of space-4
+  pattern     dot grid at space-4 pitch on the volt slab, in on-volt: the dotted display of an electricity meter, the object every E²C subscriber reads
+  scales      space-4 (16px) pitch and gaps, space-8 inset for the name, radius-lg and radius-xl corners
+-->
+<rect class="cur lg" x="32" y="-20" width="232" height="176"/>
+<rect class="tint lg" x="32" y="172" width="232" height="96"/>
+<rect class="volt xl" x="280" y="-20" width="220" height="328"/>
+<circle class="dot" cx="312" cy="48" r="2.5"/><circle class="dot" cx="312" cy="64" r="2.5"/><circle class="dot" cx="312" cy="80" r="2.5"/><circle class="dot" cx="312" cy="96" r="2.5"/><circle class="dot" cx="312" cy="112" r="2.5"/><circle class="dot" cx="312" cy="128" r="2.5"/><circle class="dot" cx="328" cy="48" r="2.5"/><circle class="dot" cx="328" cy="64" r="2.5"/><circle class="dot" cx="328" cy="80" r="2.5"/><circle class="dot" cx="328" cy="96" r="2.5"/><circle class="dot" cx="328" cy="112" r="2.5"/><circle class="dot" cx="328" cy="128" r="2.5"/><circle class="dot" cx="344" cy="48" r="2.5"/><circle class="dot" cx="344" cy="64" r="2.5"/><circle class="dot" cx="344" cy="80" r="2.5"/><circle class="dot" cx="344" cy="96" r="2.5"/><circle class="dot" cx="344" cy="112" r="2.5"/><circle class="dot" cx="344" cy="128" r="2.5"/><circle class="dot" cx="360" cy="48" r="2.5"/><circle class="dot" cx="360" cy="64" r="2.5"/><circle class="dot" cx="360" cy="80" r="2.5"/><circle class="dot" cx="360" cy="96" r="2.5"/><circle class="dot" cx="360" cy="112" r="2.5"/><circle class="dot" cx="360" cy="128" r="2.5"/><circle class="dot" cx="376" cy="48" r="2.5"/><circle class="dot" cx="376" cy="64" r="2.5"/><circle class="dot" cx="376" cy="80" r="2.5"/><circle class="dot" cx="376" cy="96" r="2.5"/><circle class="dot" cx="376" cy="112" r="2.5"/><circle class="dot" cx="376" cy="128" r="2.5"/><circle class="dot" cx="392" cy="48" r="2.5"/><circle class="dot" cx="392" cy="64" r="2.5"/><circle class="dot" cx="392" cy="80" r="2.5"/><circle class="dot" cx="392" cy="96" r="2.5"/><circle class="dot" cx="392" cy="112" r="2.5"/><circle class="dot" cx="392" cy="128" r="2.5"/><circle class="dot" cx="408" cy="48" r="2.5"/><circle class="dot" cx="408" cy="64" r="2.5"/><circle class="dot" cx="408" cy="80" r="2.5"/><circle class="dot" cx="408" cy="96" r="2.5"/><circle class="dot" cx="408" cy="112" r="2.5"/><circle class="dot" cx="408" cy="128" r="2.5"/><circle class="dot" cx="424" cy="48" r="2.5"/><circle class="dot" cx="424" cy="64" r="2.5"/><circle class="dot" cx="424" cy="80" r="2.5"/><circle class="dot" cx="424" cy="96" r="2.5"/><circle class="dot" cx="424" cy="112" r="2.5"/><circle class="dot" cx="424" cy="128" r="2.5"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">ElecPay</h1>
+<p class="tag">Consommation, factures et paiements d'électricité, au même endroit.</p>
+</div>
+</div>
+</body>
+</html>

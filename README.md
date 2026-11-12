@@ -11,10 +11,10 @@ historique financier, multi-compteurs / foyers, paiement pour un proche, et back
 
 | Dossier    | Contenu                                   | Technologie                         |
 |------------|-------------------------------------------|-------------------------------------|
-| `backend/` | API commune (client + admin), règles métier, simulateurs | Python 3.14 · FastAPI · SQLAlchemy 2 · Alembic · MySQL 8 |
-| `mobile/`  | Application client (16 écrans)            | Flutter · Riverpod · GoRouter · Dio |
-| `admin/`   | Back-office web (11 écrans)               | Next.js · TypeScript · Tailwind · shadcn/ui |
-| `docs/`    | Plan directeur, décisions, contrat d'API  | Markdown                            |
+| `backend/` | API commune (client + admin), règles métier, simulateurs — plan : `backend/PLAN.md` | Python 3.14 · FastAPI · SQLAlchemy 2 · Alembic · MySQL 8 |
+| `frontend/design/` | Charte UI/UX validée et maquettes | tokens, composants de référence |
+| `frontend/mobile/` | Application client (16 écrans) | Flutter · Riverpod · GoRouter · Dio |
+| `frontend/admin/` | Back-office web (11 écrans) | Next.js · TypeScript · Tailwind · shadcn/ui |
 
 ## Ordre de construction
 
@@ -23,4 +23,4 @@ historique financier, multi-compteurs / foyers, paiement pour un proche, et back
 3. **Back-office** Next.js
 4. Raffinement du design, puis intégrations réelles
 
-Voir [`docs/PLAN.md`](docs/PLAN.md).
+Vue d'ensemble : [`PLAN.md`](PLAN.md) · Backend : [`backend/PLAN.md`](backend/PLAN.md) · Frontend : [`frontend/README.md`](frontend/README.md).

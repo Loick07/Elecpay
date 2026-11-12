@@ -1,0 +1,19 @@
+<!-- @dsCard group="États" height=420 -->
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>États d'écran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>html,body{margin:0;background:var(--bg)} .pv{padding:16px;display:flex;flex-direction:column;gap:16px} </style>
+</head>
+<body class="ep-root">
+<div class="pv">
+
+<div class="ep-banner" style="background:var(--warning-soft);color:var(--warning)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 2l20 20M8.5 16.5a5 5 0 017 0M5 12.5a10 10 0 015.2-2.7M19 12.5a10 10 0 00-2.4-1.7M12 20h.01"/></svg><span>Hors connexion. Les données affichées datent du 12 nov. à 08:15.</span></div>
+<div class="ep-row" style="align-items:stretch">
+<div class="ep-card ep-state" style="flex:1 1 220px"><div class="ep-state__mark" style="background:var(--surface-2);color:var(--ink-muted)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h3"/></svg></div><h3>Aucun compteur</h3><p>Ajoutez la référence de votre compteur E²C pour voir vos factures et votre consommation.</p><button class="ep-btn ep-btn--primary">Ajouter un compteur</button></div>
+<div class="ep-card ep-state" style="flex:1 1 220px"><div class="ep-state__mark" style="background:var(--error-soft);color:var(--error-text)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><h3>Chargement impossible</h3><p>Impossible de charger vos factures. Réessayez dans un instant.</p><button class="ep-btn ep-btn--secondary"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 11-2.3-5.6M20 4v5h-5"/></svg>Réessayer</button></div>
+</div>
+</div>
+</body>
+</html>

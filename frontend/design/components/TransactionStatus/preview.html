@@ -1,0 +1,14 @@
+<!-- @dsCard group="Paiement" height=400 -->
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>État de la transaction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>html,body{margin:0;background:var(--bg)} .pv{padding:16px;display:flex;flex-direction:column;gap:16px} </style>
+</head>
+<body class="ep-root">
+<div class="pv">
+<div class="ep-row" style="align-items:stretch"><div class="ep-card ep-state" style="flex:1 1 220px"><div class="ep-state__mark" style="background:var(--warning-soft);color:var(--warning)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3v3a5 5 0 005 5 5 5 0 015 5v5M17 3v3a5 5 0 01-5 5 5 5 0 00-5 5v5"/></svg></div><h3>En attente de confirmation</h3><p>Confirmez le paiement de 12 500 FCFA sur votre téléphone avec votre code PIN MTN MoMo.</p><span class="ep-faint ep-mono">TX-2026-004812</span></div><div class="ep-card ep-state" style="flex:1 1 220px"><div class="ep-state__mark" style="background:var(--success-soft);color:var(--success)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div><h3>Paiement réussi</h3><p>Facture d'octobre 2026 payée le 12 nov. 2026 à 14:32.</p><button class="ep-btn ep-btn--secondary"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>Voir le reçu</button></div><div class="ep-card ep-state" style="flex:1 1 220px"><div class="ep-state__mark" style="background:var(--error-soft);color:var(--error-text)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></div><h3>Paiement échoué</h3><p>Solde Mobile Money insuffisant. Rechargez votre compte puis réessayez.</p><button class="ep-btn ep-btn--primary"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 11-2.3-5.6M20 4v5h-5"/></svg>Réessayer</button></div><div class="ep-card ep-state" style="flex:1 1 220px"><div class="ep-state__mark" style="background:var(--warning-soft);color:var(--warning)"><svg class="ep-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg></div><h3>Vérification en cours</h3><p>L'opérateur n'a pas encore répondu. Ne payez pas une deuxième fois : vous serez notifié.</p><button class="ep-btn ep-btn--ghost">Retour aux factures</button></div></div>
+</div>
+</body>
+</html>

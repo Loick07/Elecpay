@@ -1,7 +1,7 @@
 # ElecPay — backend
 
 API commune (application client + back-office) : Python 3.14, FastAPI, SQLAlchemy 2, Alembic, MySQL 8.4.
-Feuille de route : [`docs/BACKEND_PLAN.md`](../docs/BACKEND_PLAN.md).
+Feuille de route : [`PLAN.md`](PLAN.md) (étapes B0 → B11). Le backend se termine (B11) avant de commencer l'application Flutter.
 
 ## Première installation (Windows)
 

@@ -1,0 +1,21 @@
+<!-- @dsCard group="Consommation" height=380 -->
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>Graphique de consommation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>html,body{margin:0;background:var(--bg)} .pv{padding:16px;display:flex;flex-direction:column;gap:16px} .bar{fill:var(--current)}.est{fill:var(--warning-soft);stroke:var(--warning);stroke-width:1.5;stroke-dasharray:4 3}</style>
+</head>
+<body class="ep-root">
+<div class="pv">
+
+<div class="ep-card ep-stack" style="gap:16px">
+ <div class="ep-row" style="justify-content:space-between"><span style="font:600 18px/26px var(--font-app)">Consommation</span><span class="ep-seg"><span class="on">Jour</span><span>Semaine</span><span>Mois</span><span>Année</span></span></div>
+ <div class="ep-row" style="gap:24px;align-items:flex-end"><div><div class="ep-overline">7 derniers jours</div><div class="ep-amount-hero" style="font-size:28px;line-height:34px">69,3<small>kWh</small></div></div><div><div class="ep-overline">Coût estimé</div><div class="ep-amount ep-num">≈ 3 400 FCFA</div></div><span class="ep-badge ep-badge--success">−12 % vs semaine passée</span></div>
+ <div style="overflow-x:auto"><svg viewBox="0 -4 322 124" width="100%" style="max-width:340px;display:block" role="img" aria-label="Consommation journalière en kWh"><rect x="0" y="51" width="28" height="69" rx="6" class="bar"/><rect x="42" y="39" width="28" height="81" rx="6" class="bar"/><rect x="84" y="58" width="28" height="62" rx="6" class="bar"/><rect x="126" y="27" width="28" height="93" rx="6" class="bar"/><rect x="168" y="35" width="28" height="85" rx="6" class="bar"/><rect x="210" y="12" width="28" height="108" rx="6" class="bar"/><rect x="252" y="23" width="28" height="97" rx="6" class="bar"/><rect x="294" y="45" width="28" height="75" rx="6" class="est"/></svg>
+ <div style="display:grid;grid-template-columns:repeat(8,1fr);max-width:340px;font:500 12px/16px var(--font-app);color:var(--ink-muted);text-align:center;margin-top:6px"><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span><span>Lun</span><span>Mar</span><span>Auj.</span></div></div>
+ <div class="ep-row ep-faint" style="font-size:12px;gap:16px"><span class="ep-row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:var(--current)"></i>Relevé</span><span class="ep-row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;border:1.5px dashed var(--warning)"></i>Estimation</span><span>Dernier relevé : aujourd'hui 06:00</span></div>
+</div>
+</div>
+</body>
+</html>

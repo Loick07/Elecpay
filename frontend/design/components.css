@@ -1,0 +1,106 @@
+/* ElecPay — composants de référence (HTML/CSS). Source de vérité visuelle pour Flutter et Next.js. */
+.ep-root{font-family:var(--font-app);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ep-root *{box-sizing:border-box}
+.ep-num{font-variant-numeric:tabular-nums}
+.ep-mono{font-family:var(--font-mono);font-size:13px;line-height:18px;font-weight:500;letter-spacing:.01em}
+.ep-muted{color:var(--ink-muted)}
+.ep-faint{color:var(--ink-faint)}
+.ep-overline{font-size:11px;line-height:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+.ep-row{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center}
+.ep-stack{display:flex;flex-direction:column;gap:var(--space-3)}
+.ep-icon{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+
+/* Bouton */
+.ep-btn{font:500 15px/22px var(--font-app);display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:48px;padding:0 var(--space-5);border-radius:var(--radius-md);border:1px solid transparent;cursor:pointer;transition:background var(--duration-fast,150ms) ease-out,transform 150ms ease-out}
+.ep-btn:active{transform:scale(.98)}
+.ep-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.ep-btn--primary{background:var(--volt);color:var(--on-volt);font-weight:600}
+.ep-btn--primary:hover{background:var(--volt-press)}
+.ep-btn--secondary{background:var(--glass);border-color:var(--glass-border);color:var(--ink);backdrop-filter:blur(var(--blur-glass));-webkit-backdrop-filter:blur(var(--blur-glass))}
+.ep-btn--ghost{background:transparent;color:var(--volt-text)}
+.ep-btn--danger{background:var(--error-soft);color:var(--error-text)}
+.ep-btn--block{width:100%}
+.ep-btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.ep-spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:ep-spin .8s linear infinite}
+@keyframes ep-spin{to{transform:rotate(1turn)}}
+
+/* Badge de statut */
+.ep-badge{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--radius-sm);font:600 12px/16px var(--font-app)}
+.ep-badge .ep-icon{width:14px;height:14px;stroke-width:2.25}
+.ep-badge--info{background:var(--current-soft);color:var(--current-text)}
+.ep-badge--success{background:var(--success-soft);color:var(--success)}
+.ep-badge--warning{background:var(--warning-soft);color:var(--warning)}
+.ep-badge--error{background:var(--error-soft);color:var(--error-text)}
+.ep-badge--neutral{background:var(--surface-2);color:var(--ink-muted)}
+.ep-demo{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:var(--radius-full);border:1px dashed var(--current-text);color:var(--current-text);font:600 11px/14px var(--font-app);letter-spacing:.06em;text-transform:uppercase}
+.ep-demo::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--current-text)}
+
+/* Surfaces */
+.ep-card{background:var(--surface-1);border-radius:var(--radius-lg);padding:var(--space-4);box-shadow:var(--shadow-card)}
+.ep-glass{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(var(--blur-glass));-webkit-backdrop-filter:blur(var(--blur-glass))}
+.ep-hero{border-radius:var(--radius-xl);padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-4)}
+.ep-amount-hero{font:700 36px/40px var(--font-app);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ep-amount-hero small{font-size:15px;font-weight:500;color:var(--ink-muted);letter-spacing:0;margin-left:4px}
+.ep-amount{font:600 17px/24px var(--font-app);font-variant-numeric:tabular-nums}
+
+/* Ligne de liste */
+.ep-list{background:var(--surface-1);border-radius:var(--radius-lg);overflow:hidden}
+.ep-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);min-height:64px}
+.ep-item + .ep-item{border-top:1px solid var(--line)}
+.ep-item__icon{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;background:var(--surface-2);color:var(--ink-muted);flex:none}
+.ep-item__main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ep-item__title{font:500 15px/22px var(--font-app)}
+.ep-item__sub{font:400 13px/20px var(--font-app);color:var(--ink-muted)}
+.ep-item__end{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+
+/* Champ */
+.ep-field{display:flex;flex-direction:column;gap:6px}
+.ep-field label{font:500 13px/20px var(--font-app);color:var(--ink-muted)}
+.ep-input{display:flex;align-items:center;gap:var(--space-2);min-height:52px;padding:0 var(--space-4);background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius-md);font:400 15px/22px var(--font-app);color:var(--ink)}
+.ep-input--focus{border-color:var(--current);box-shadow:0 0 0 3px var(--current-soft)}
+.ep-input--error{border-color:var(--error)}
+.ep-input .ep-prefix{color:var(--ink-muted);padding-right:var(--space-2);border-right:1px solid var(--line)}
+.ep-help{font:400 12px/16px var(--font-app);color:var(--ink-faint)}
+.ep-help--error{color:var(--error-text)}
+
+/* Choix (moyen de paiement, segment) */
+.ep-choice{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);border:1px solid var(--line);background:var(--surface-1);min-height:56px}
+.ep-choice--on{border-color:var(--volt);background:var(--volt-soft)}
+.ep-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink-faint);flex:none}
+.ep-choice--on .ep-radio{border:6px solid var(--volt)}
+.ep-seg{display:inline-flex;padding:4px;gap:4px;background:var(--surface-2);border-radius:var(--radius-md)}
+.ep-seg span{padding:6px 12px;border-radius:10px;font:500 13px/20px var(--font-app);color:var(--ink-muted)}
+.ep-seg .on{background:var(--surface-1);color:var(--ink);box-shadow:var(--shadow-card)}
+
+/* Navigation */
+.ep-nav{display:flex;align-items:flex-end;justify-content:space-around;padding:8px 8px 10px;border-radius:var(--radius-xl);box-shadow:var(--shadow-float)}
+.ep-nav__item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;min-height:48px;justify-content:center;font:500 11px/14px var(--font-app);color:var(--ink-muted)}
+.ep-nav__item .ep-icon{width:24px;height:24px}
+.ep-nav__item--on{color:var(--ink)}
+.ep-nav__item--on::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--volt);margin-top:2px}
+.ep-nav__pay{width:56px;height:56px;border-radius:var(--radius-full);background:var(--volt);color:var(--on-volt);display:grid;place-items:center;box-shadow:var(--shadow-volt);transform:translateY(-14px)}
+.ep-nav__pay .ep-icon{width:26px;height:26px;stroke-width:2}
+
+/* États */
+.ep-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--space-3);padding:var(--space-6) var(--space-4)}
+.ep-state__mark{width:64px;height:64px;border-radius:var(--radius-full);display:grid;place-items:center}
+.ep-state__mark .ep-icon{width:30px;height:30px;stroke-width:2}
+.ep-state h3{margin:0;font:600 18px/26px var(--font-app)}
+.ep-state p{margin:0;font:400 15px/22px var(--font-app);color:var(--ink-muted);max-width:32ch}
+.ep-banner{display:flex;gap:var(--space-2);align-items:flex-start;padding:var(--space-3);border-radius:var(--radius-md);font:400 13px/20px var(--font-app)}
+.ep-skel{background:var(--surface-3);border-radius:var(--radius-sm);animation:ep-pulse 1.4s ease-in-out infinite}
+@keyframes ep-pulse{50%{opacity:.55}}
+
+/* Back-office */
+.ep-admin{font-family:var(--font-admin)}
+.ep-kpi{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius-md);padding:var(--space-4);display:flex;flex-direction:column;gap:6px;min-width:0}
+.ep-kpi__label{font:500 12px/16px var(--font-admin);color:var(--ink-muted)}
+.ep-kpi__value{font:600 28px/34px var(--font-admin);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.ep-kpi__delta{font:500 12px/16px var(--font-admin)}
+.ep-table{width:100%;border-collapse:collapse;font:400 13px/18px var(--font-admin);font-variant-numeric:tabular-nums}
+.ep-table th{font:500 12px/16px var(--font-admin);color:var(--ink-muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ep-table td{padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ep-table tr:hover td{background:var(--surface-2)}
+.ep-table .r{text-align:right}
+
+@media (prefers-reduced-motion:reduce){.ep-spinner,.ep-skel{animation:none}.ep-btn{transition:none}}

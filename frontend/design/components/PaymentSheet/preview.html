@@ -1,0 +1,22 @@
+<!-- @dsCard group="Paiement" height=560 -->
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>Feuille de paiement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>html,body{margin:0;background:var(--bg)} .pv{padding:16px;display:flex;flex-direction:column;gap:16px} </style>
+</head>
+<body class="ep-root">
+<div class="pv">
+
+<div class="ep-glass" style="border-radius:28px 28px 0 0;padding:20px 16px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-float)">
+ <div style="width:40px;height:4px;border-radius:2px;background:var(--line);align-self:center"></div>
+ <div class="ep-row" style="justify-content:space-between"><div><div class="ep-overline">Payer la facture d'octobre 2026</div><div class="ep-amount-hero">12 500<small>FCFA</small></div></div></div>
+ <div class="ep-stack" style="gap:8px"><span class="ep-overline">Moyen de paiement</span><div class="ep-choice ep-choice--on"><span class="ep-radio"></span><div class="ep-item__main"><span class="ep-item__title">MTN MoMo</span><span class="ep-item__sub">Confirmation par code PIN sur votre téléphone</span></div></div><div class="ep-choice"><span class="ep-radio"></span><div class="ep-item__main"><span class="ep-item__title">Airtel Money</span><span class="ep-item__sub">Confirmation par code PIN sur votre téléphone</span></div></div></div>
+ <div class="ep-field"><label for="ph">Numéro Mobile Money</label><div class="ep-input ep-input--focus"><span class="ep-prefix ep-num">+242</span><span class="ep-num" id="ph">06 123 45 67</span></div><span class="ep-help">Vous pouvez payer depuis le numéro d'un proche.</span></div>
+ <button class="ep-btn ep-btn--primary ep-btn--block">Payer 12 500 FCFA</button>
+ <span class="ep-faint" style="font-size:12px;line-height:16px;text-align:center">Le montant est celui de la facture ; il ne peut pas être modifié.</span>
+</div>
+</div>
+</body>
+</html>

@@ -11,11 +11,12 @@ Auteur : Loick Makosso (Pointe-Noire). Directeur de mémoire : Ir Mbemba Donald.
 Langue de travail : **français**.
 
 ## Architecture (décidée, ne pas remettre en cause)
+Deux grands dossiers, à ne jamais mélanger : **`backend/`** (API, base, simulateurs, `backend/PLAN.md`) et **`frontend/`** (`design/`, `mobile/`, `admin/`).
 - `backend/` — API **commune** client + admin : Python 3.14, FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, PyMySQL,
   PyJWT + Argon2, Pytest + HTTPX, Ruff. Monolithe modulaire (`app/modules/<domaine>`).
-- `mobile/` — application **client** Flutter : Riverpod, GoRouter, Dio, freezed/json_serializable,
+- `frontend/mobile/` — application **client** Flutter : Riverpod, GoRouter, Dio, freezed/json_serializable,
   flutter_secure_storage, fl_chart, intl, flutter_animate, skeletonizer, google_fonts.
-- `admin/` — **back-office web Next.js** (App Router, TypeScript, Tailwind + shadcn/ui, TanStack Query/Table,
+- `frontend/admin/` — **back-office web Next.js** (App Router, TypeScript, Tailwind + shadcn/ui, TanStack Query/Table,
   React Hook Form + Zod, Recharts). L'admin n'est PAS dans l'app Flutter.
 - Base : MySQL 8 dans Docker (`docker-compose.yml`, port 3307 pour éviter XAMPP).
 - Pas maintenant : Kubernetes, microservices, Redis, Kafka, WebSockets, ML.
@@ -53,6 +54,7 @@ payment_transactions, receipts, notifications, audit_logs.
 - Prévoir les états : chargement, vide, erreur réseau, accès refusé, session expirée, paiement en attente / échoué / inconnu.
 
 ## Design
+Charte UI/UX **validée** dans `frontend/design/` (`CHARTE.md`, `tokens.json`, composants de référence). Elle fait foi pour Flutter et Next.js.
 Fond #050D1A (navy), jaune #F5A623 (actions), bleu #1E88E5, succès #22C55E, alerte #F59E0B, erreur #EF4444.
 Poppins (app), Inter (back-office). Inspiration "Liquid Glass". Barre de navigation à 5 onglets avec bouton Payer central.
 Les maquettes fournies servent d'inspiration couleurs/style, pas de spécification d'écrans.
@@ -65,7 +67,7 @@ Les maquettes fournies servent d'inspiration couleurs/style, pas de spécificati
 - Le contrat d'API (OpenAPI généré par FastAPI) fait foi pour le mobile et l'admin.
 
 ## Feuille de route
-Le backend se construit en suivant **`docs/BACKEND_PLAN.md`** (étapes B0 → B11), dans l'ordre.
+Le backend se construit en suivant **`backend/PLAN.md`** (étapes B0 → B11), dans l'ordre.
 Ne jamais commencer une étape avant que la précédente remplisse ses critères « Terminé quand ».
 À la fin de chaque étape : mettre à jour le tableau de bord en haut de ce fichier, commit et push.
 Pas de Flutter ni de Next.js avant la fin de B11.
@@ -75,7 +77,7 @@ Pas de Flutter ni de Next.js avant la fin de B11.
 - Ne jamais lire, chercher, lister ni modifier des fichiers en dehors de ce dossier (pas de recherche dans
   `Documents`, `C:\`, ni dans les anciens projets). Si quelque chose d'extérieur semble nécessaire : demander à Loick d'abord.
 - Les anciens projets (`elecpay-console`, `elecpay-api`) ne sont **pas** repris : le backend est reconstruit proprement
-  selon `docs/BACKEND_PLAN.md`.
+  selon `backend/PLAN.md`.
 - Seules exceptions autorisées hors du dossier : vérifier les outils installés (`python --version`, `git --version`,
   `docker --version`, `mysql --version`) et installer des paquets Python dans l'environnement virtuel du projet.
 

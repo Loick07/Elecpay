@@ -14,17 +14,17 @@ venv/
 htmlcov/
 
 # Flutter / Dart
-mobile/.dart_tool/
-mobile/build/
-mobile/.flutter-plugins*
-mobile/android/key.properties
+frontend/mobile/.dart_tool/
+frontend/mobile/build/
+frontend/mobile/.flutter-plugins*
+frontend/mobile/android/key.properties
 *.jks
 *.keystore
 
 # Node / Next.js
-admin/node_modules/
-admin/.next/
-admin/out/
+frontend/admin/node_modules/
+frontend/admin/.next/
+frontend/admin/out/
 
 # Divers
 .DS_Store

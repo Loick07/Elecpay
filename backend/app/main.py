@@ -6,11 +6,14 @@ Lancer en développement (depuis backend/) :  uvicorn app.main:app --reload
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import Settings, get_settings
+from app.core.config import API_PREFIX, Settings, get_settings
 from app.core.errors import ErrorResponse, register_error_handlers
+from app.core.rate_limit import RateLimiter
+from app.modules.auth.router import router as auth_router
+from app.modules.auth.web_router import router as auth_web_router
 from app.modules.health.router import router as health_router
+from app.modules.users.router import router as users_router
 
-API_PREFIX = "/api/v1"
 API_VERSION = "0.1.0"
 
 
@@ -37,14 +40,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_origins=settings.cors_origins,
         allow_credentials=True,  # cookies httpOnly du back-office
         allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-CSRF-Token"],
     )
 
     register_error_handlers(app)
+    # Compteurs de tentatives propres à cette application (voir app/core/rate_limit.py).
+    app.state.rate_limiter = RateLimiter()
     # Les routes qui dépendent de get_settings reçoivent la même configuration que l'app.
     app.dependency_overrides[get_settings] = lambda: settings
 
     app.include_router(health_router, prefix=API_PREFIX)
+    app.include_router(auth_router, prefix=API_PREFIX)
+    app.include_router(auth_web_router, prefix=API_PREFIX)
+    app.include_router(users_router, prefix=API_PREFIX)
 
     return app
 

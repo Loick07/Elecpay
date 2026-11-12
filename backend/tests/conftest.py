@@ -11,16 +11,33 @@ from contextlib import contextmanager
 import pytest
 from alembic import command
 from alembic.config import Config
+from argon2 import PasswordHasher
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 from sqlalchemy import Engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
+from app.core import security
 from app.core.config import Settings, get_settings
 from app.db.migrations import alembic_config as app_alembic_config
 from app.db.session import build_engine, get_db
 from app.main import create_app
+
+
+@pytest.fixture(scope="session", autouse=True)
+def fast_password_hashing() -> Iterator[None]:
+    """Argon2 allégé PENDANT LES TESTS uniquement.
+
+    Argon2 est volontairement lent (~0,3 s par vérification) pour décourager les attaques ;
+    les tests font des centaines de connexions. Même algorithme (Argon2id), même code testé,
+    seuls le temps et la mémoire sont réduits. L'application réelle garde les réglages forts.
+    """
+    real_hasher = security._hasher
+    security._hasher = PasswordHasher(time_cost=1, memory_cost=1024, parallelism=1)
+    yield
+    security._hasher = real_hasher
 
 
 @pytest.fixture(scope="session")
@@ -82,7 +99,13 @@ TEST_CORS_ORIGIN = "http://localhost:3000"
 def test_settings() -> Settings:
     """Configuration fixe des tests : ne dépend pas des réglages du .env du développeur."""
     return get_settings().model_copy(
-        update={"app_env": "test", "demo_mode": True, "cors_origins": [TEST_CORS_ORIGIN]}
+        update={
+            "app_env": "test",
+            "demo_mode": True,
+            "cors_origins": [TEST_CORS_ORIGIN],
+            # Secret propre aux tests, assez long pour HS256 (≥ 32 octets).
+            "jwt_secret": SecretStr("secret-de-test-elecpay-" + "x" * 48),
+        }
     )
 
 

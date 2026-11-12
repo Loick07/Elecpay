@@ -46,12 +46,30 @@ class AppError(Exception):
         code: str | None = None,
         status_code: int | None = None,
         details: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         self.message = message or self.message
         self.code = code or self.code
         self.status_code = status_code or self.status_code
         self.details = details or {}
+        # En-têtes HTTP à joindre, ex. Retry-After (429) ou WWW-Authenticate (401).
+        self.headers = headers
         super().__init__(self.message)
+
+
+class TooManyAttemptsError(AppError):
+    """Limite de tentatives atteinte (429). Indique combien de secondes attendre."""
+
+    status_code = status.HTTP_429_TOO_MANY_REQUESTS
+    code = "TOO_MANY_ATTEMPTS"
+    message = "Trop de tentatives. Réessayez dans quelques minutes."
+
+    def __init__(self, retry_after_seconds: int, message: str | None = None) -> None:
+        super().__init__(
+            message,
+            details={"retry_after_seconds": retry_after_seconds},
+            headers={"Retry-After": str(retry_after_seconds)},
+        )
 
 
 # Codes et messages pour les erreurs HTTP produites par FastAPI lui-même (route inconnue, etc.).
@@ -77,7 +95,7 @@ def error_response(
 
 
 async def handle_app_error(request: Request, exc: AppError) -> JSONResponse:
-    return error_response(exc.status_code, exc.code, exc.message, exc.details)
+    return error_response(exc.status_code, exc.code, exc.message, exc.details, exc.headers)
 
 
 async def handle_http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:

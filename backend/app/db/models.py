@@ -7,7 +7,7 @@ doit être importé ici.
 
 from app.db.base import Base
 from app.modules.audit.models import AuditLog
-from app.modules.auth.models import RefreshToken
+from app.modules.auth.models import PasswordResetCode, RefreshToken
 from app.modules.bills.models import Bill, BillLine
 from app.modules.consumption.models import MeterReading
 from app.modules.households.models import Household, HouseholdMember
@@ -28,6 +28,7 @@ __all__ = [
     "Meter",
     "MeterReading",
     "Notification",
+    "PasswordResetCode",
     "PaymentTransaction",
     "Receipt",
     "RefreshToken",

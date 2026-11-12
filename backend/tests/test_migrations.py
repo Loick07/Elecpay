@@ -10,7 +10,7 @@ from app.db.base import Base
 from app.db.types import StrictBigInteger
 from tests.conftest import alembic_config
 
-# Les 13 tables prévues par le plan (CLAUDE.md, backend/PLAN.md).
+# Les 13 tables prévues par le plan (CLAUDE.md, backend/PLAN.md) et celles ajoutées depuis.
 PLANNED_TABLES = {
     "users",
     "refresh_tokens",
@@ -25,6 +25,7 @@ PLANNED_TABLES = {
     "receipts",
     "notifications",
     "audit_logs",
+    "password_reset_codes",  # ajoutée en B3.5 (code SMS de réinitialisation, maquette client 4)
 }
 
 # Garde-fous métier écrits en triggers MySQL.

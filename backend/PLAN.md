@@ -179,6 +179,18 @@ Réalisé :
 
 Terminé quand : tests de tous les cas (mauvais mot de passe, compte désactivé, jeton expiré, refresh réutilisé, rôle insuffisant).
 
+Réalisé (guide pour Flutter et Next.js : `backend/docs/AUTHENTIFICATION.md`) :
+- Jeton d'accès JWT HS256 (15 min, algorithme imposé) ; refresh opaque 64 car. (empreinte SHA-256), rotatif,
+  familles, réutilisation → famille révoquée ; `current_user` relit le compte à chaque requête.
+- Routes ajoutées au plan : `POST /auth/logout-all` ; mode navigateur du back-office `POST /auth/web/{login,refresh,logout}`
+  (cookies httpOnly + Secure + SameSite=Strict, CSRF « double cookie » `X-CSRF-Token`, réservé à l'équipe).
+- Mot de passe oublié : table `password_reset_codes` (code HMAC, 10 min, 5 essais, usage unique), SMS via
+  `SmsSender` (simulé), code renvoyé en mode démo ; réinitialisation et changement → appareils déconnectés + audit.
+- Limitation des tentatives en mémoire (`app/core/rate_limit.py`), limites dans `app/modules/auth/rate_limits.py`.
+- Numéros normalisés en +242 (04, 05, 06, 22) ; mot de passe ≥ 8 car. avec lettre et chiffre.
+- À reprendre en B11 : IP réelle derrière un proxy (X-Forwarded-For), compteurs partagés si plusieurs processus.
+- Pour Flutter : un seul rafraîchissement à la fois. Pour Next.js : appeler l'API via le serveur Next (même site).
+
 ---
 
 ## B4 — Foyers, compteurs et délégation

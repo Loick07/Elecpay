@@ -18,6 +18,8 @@ ENV_FILE = BACKEND_DIR / ".env"
 INSECURE_JWT_SECRETS = {"", "change-me", "secret", "changeme"}
 MIN_JWT_SECRET_LENGTH = 32
 
+API_PREFIX = "/api/v1"  # préfixe de toutes les routes (versionnées)
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -36,6 +38,9 @@ class Settings(BaseSettings):
     jwt_secret: SecretStr  # SecretStr : jamais affiché en clair dans les logs ou les erreurs
     access_token_minutes: int = Field(default=15, ge=1, le=60)
     refresh_token_days: int = Field(default=30, ge=1, le=90)
+    # Cookies du back-office envoyés uniquement en HTTPS. À désactiver seulement pour un
+    # développement en HTTP qui ne passe pas par localhost.
+    auth_cookie_secure: bool = True
 
     # Intégrations (seuls les simulateurs existent pour l'instant)
     payment_provider: Literal["simulated"] = "simulated"
@@ -76,6 +81,8 @@ class Settings(BaseSettings):
     def check_production_safety(self) -> Self:
         if self.app_env != "production":
             return self
+        if not self.auth_cookie_secure:
+            raise ValueError("AUTH_COOKIE_SECURE doit rester à true en production (HTTPS)")
         secret = self.jwt_secret.get_secret_value()
         if secret.lower() in INSECURE_JWT_SECRETS or len(secret) < MIN_JWT_SECRET_LENGTH:
             raise ValueError(

@@ -115,5 +115,10 @@ un foyer, un compteur ou ses factures ; pas d'accès → 404). Invitations (comp
 avec N° branchement + N° client via `BillingSource`, historique de démo via `ConsumptionSource`
 (`app/integrations/`). Guide Flutter : `backend/docs/FOYERS_COMPTEURS.md`. 868 tests.
 
-**Prochaine étape : B5 — Consommation**, découpée en sous-étapes validées une par une par Loick.
+**B5 (consommation) ✅ terminé le 12/11/2026** — CI verte. Agrégation pure (`app/modules/consumption/aggregation.py`,
+7 granularités), deux coûts `energy_cost` / `estimated_total` (`costs.py`, moteur unique), routes `/meters/{id}/consumption`
+(+ `/summary`, `/days/{date}`) et `/meters/{id}/readings`. Pagination commune `app/core/pagination.py` (à réutiliser),
+calendrier `app/core/calendar.py`. Guide Flutter : `backend/docs/CONSOMMATION.md`. 992 tests.
+
+**Prochaine étape : B6 — Factures**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

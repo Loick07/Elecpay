@@ -16,6 +16,7 @@ from typing import Any
 from sqlalchemy import func, insert, select
 from sqlalchemy.orm import Session
 
+from app.core.calendar import add_months
 from app.core.security import hash_password
 from app.core.timezone import local_midnight_utc
 from app.modules.audit.models import AuditLog
@@ -28,7 +29,7 @@ from app.modules.payments.models import PaymentProvider, PaymentTransaction, Tra
 from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User
-from app.simulators.bills import BillingSettings, add_months, generate_bills
+from app.simulators.bills import BillingSettings, generate_bills
 from app.simulators.demo_dataset import CLIENTS, DEMO_PASSWORD, E2C_CENTERS, TEAM, DemoPerson
 from app.simulators.payments import BillOutcome, Payer, SimulatedAttempt, simulate_payments
 from app.simulators.persistence import (

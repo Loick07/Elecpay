@@ -6,11 +6,11 @@ from datetime import UTC, date, datetime, timedelta
 import pytest
 from sqlalchemy import func, select
 
+from app.core.calendar import add_months
 from app.core.timezone import local_date
 from app.modules.bills.models import Bill, BillLine, BillSource
 from app.simulators.bills import (
     BillingPeriod,
-    add_months,
     bill_reference,
     billing_periods,
     generate_bills,

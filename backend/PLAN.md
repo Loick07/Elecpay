@@ -239,6 +239,18 @@ Réalisé (guide pour Flutter : `backend/docs/FOYERS_COMPTEURS.md`) :
   quelques francs de la facture bimestrielle (troncature par ligne) : c'est attendu et documenté.
 - Estimation de fin de mois en kWh **et** en FCFA, avec le tarif en vigueur.
 
+Réalisé (guide pour Flutter : `backend/docs/CONSOMMATION.md`) :
+- Moteur d'agrégation pur (`app/modules/consumption/aggregation.py`) : 7 granularités calées sur le calendrier,
+  journée locale de Brazzaville ; états estimé / anomalie / incomplet / en cours ; total indépendant du découpage.
+- Deux coûts (choix du 12/11/2026) : `energy_cost` (énergie seule, maquette) et `estimated_total` (facture
+  estimée, RAV et timbre au prorata, 1 à 12 mois) via le moteur unique (`costs.py`) ; un bimestre estimé =
+  la facture émise au franc près ; tarif appliqué jour par jour.
+- Routes ajoutées au plan : `GET /meters/{id}/consumption/days/{date}` (onglet Jour : index, moyenne du même
+  jour, classement) ; comparaisons `last_year` / `previous` sur les mêmes journées relevées.
+- Pagination commune `app/core/pagination.py` (`Page[T]`, `paginate`), réutilisée par B6, B7 et B10.
+- Mesuré sur la base de démo : 40 à 130 ms par requête. Bug trouvé en vérification réelle et corrigé :
+  une comparaison sur plus de 12 mois provoquait une erreur 500.
+
 ---
 
 ## B6 — Factures

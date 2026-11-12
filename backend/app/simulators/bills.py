@@ -14,11 +14,11 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from typing import Protocol
 
+from app.core.calendar import MONTHS_PER_YEAR, add_months
 from app.core.timezone import CONGO_TZ, local_date
 from app.modules.bills.calculator import BillComputation, TariffLike, compute_bill
 from app.simulators.readings import SimulatedReading
 
-MONTHS_PER_YEAR = 12
 ISSUE_HOUR = time(8, 0)  # factures émises à 8 h, heure du Congo
 
 
@@ -51,12 +51,6 @@ class SimulatedBill:
     issued_at: datetime  # UTC
     due_date: date
     computation: BillComputation
-
-
-def add_months(day: date, months: int) -> date:
-    """Premier jour du mois situé `months` mois après celui de `day` (day doit être un 1er)."""
-    month_index = day.year * MONTHS_PER_YEAR + (day.month - 1) + months
-    return date(month_index // MONTHS_PER_YEAR, month_index % MONTHS_PER_YEAR + 1, 1)
 
 
 def billing_periods(first_day: date, last_day: date, months: int) -> list[BillingPeriod]:

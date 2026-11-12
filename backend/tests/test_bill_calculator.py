@@ -142,6 +142,27 @@ def test_total_is_always_the_sum_of_lines_and_never_negative():
         assert all(line.amount >= 0 for line in result.lines)
 
 
+# --- Énergie déjà calculée (estimations multi-tarifs, B5.2) -------------------------
+
+
+def test_energy_override_replaces_only_the_energy_line():
+    normal = compute_bill(571_000, 2, E2C)
+    overridden = compute_bill(571_000, 2, E2C, energy_override=30_000)
+    assert overridden.lines[0].amount == 30_000
+    assert overridden.lines[1:3] == normal.lines[1:3]  # frais fixes et RAV inchangés
+    assert overridden.amount_ht == 30_000 + 5_100
+    assert (
+        overridden.amount_tax
+        == 35_100 * 1_800 // 10_000 + (35_100 * 1_800 // 10_000) * 500 // 10_000
+    )
+
+
+@pytest.mark.parametrize("bad", [30_000.5, -1, True])
+def test_invalid_energy_override_is_refused(bad):
+    with pytest.raises((TypeError, ValueError)):
+        compute_bill(571_000, 2, E2C, energy_override=bad)
+
+
 # --- Entrées refusées ---------------------------------------------------------------
 
 

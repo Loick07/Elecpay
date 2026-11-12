@@ -89,8 +89,19 @@ def energy_amount(consumption_wh: int, price_per_kwh_milli: int) -> int:
     return consumption_wh * price_per_kwh_milli // (WH_PER_KWH * MILLI)
 
 
-def compute_bill(consumption_wh: int, months_count: int, tariff: TariffLike) -> BillComputation:
-    """Calcule les 6 lignes d'une facture E²C et ses totaux."""
+def compute_bill(
+    consumption_wh: int,
+    months_count: int,
+    tariff: TariffLike,
+    *,
+    energy_override: int | None = None,
+) -> BillComputation:
+    """Calcule les 6 lignes d'une facture E²C et ses totaux.
+
+    `energy_override` : montant de l'énergie déjà calculé (estimation sur une période où le
+    tarif a changé : chaque tranche de jours a son prix). Tout le reste (frais fixes, TVA,
+    C.A., redevances, troncatures) reste calculé ici, à l'identique.
+    """
     _require_int("consumption_wh", consumption_wh)
     _require_int("months_count", months_count, minimum=1)
     if months_count > MAX_MONTHS:
@@ -105,7 +116,10 @@ def compute_bill(consumption_wh: int, months_count: int, tariff: TariffLike) -> 
         if rate > BASIS_POINTS:
             raise ValueError(f"{name} : doit être ≤ {BASIS_POINTS} (100 %), reçu {rate}")
 
-    energy = energy_amount(consumption_wh, price)
+    if energy_override is None:
+        energy = energy_amount(consumption_wh, price)
+    else:
+        energy = _require_int("energy_override", energy_override)
     fixed = fixed_fee * months_count
     amount_ht = energy + fixed
     vat = amount_ht * vat_rate // BASIS_POINTS

@@ -104,5 +104,10 @@ Besoins des maquettes reportés aux étapes B3–B11 : tableau dans `backend/PLA
 `app/core/timezone.py`. Hypothèses : échéance = émission + 15 j, émission = fin de période + 3 j, pas de frais de retard.
 509 tests (~1 min).
 
-**Prochaine étape : B3 — Comptes et authentification**, découpée en sous-étapes validées une par une par Loick.
+**B3 (comptes et authentification) ✅ terminé le 12/11/2026** — CI verte. Routes `/auth/*`, `/auth/web/*` (back-office :
+cookies httpOnly + CSRF, réservé à l'équipe), `/me`, `/me/password`. Gardiens `current_user` / `require_role` dans
+`app/modules/auth/dependencies.py` (à utiliser pour toutes les routes suivantes). Limites de tentatives, audit,
+SMS simulé (`app/integrations/sms/`). Guide pour Flutter / Next.js : `backend/docs/AUTHENTIFICATION.md`. 736 tests.
+
+**Prochaine étape : B4 — Foyers, compteurs et délégation**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

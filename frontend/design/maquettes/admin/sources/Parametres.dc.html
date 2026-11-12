@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Paramètres et rôles</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+</style>
+</helmet>
+<div data-theme="light" style="min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="parametres" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<header><h1 style="margin: 0; font: 600 24px/32px var(--font-admin);">Paramètres et rôles</h1><p style="margin: 2px 0 0; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Vous êtes connectée en tant qu'Admin : les rôles, les tarifs et les intégrations ne sont modifiables que par un Super admin.</p></header>
+
+<div role="tablist" aria-label="Sections" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); align-self: flex-start;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+</div>
+
+<sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}">
+<section style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<div style="padding: 16px 18px 8px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;"><h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Équipe ElecPay · 3 membres</h2><button disabled style="min-height: 36px; padding: 0 14px; border-radius: 10px; border: none; background: var(--volt); color: var(--on-volt); font: 600 13px/20px var(--font-admin); opacity: 0.45; cursor: not-allowed;" title="Réservé au Super admin">Inviter un membre</button></div>
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin);">
+<thead><tr><th style="text-align: left; padding: 10px 18px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Membre</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Rôle</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Double authentification</th><th style="text-align: left; padding: 10px 18px 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Dernière connexion</th></tr></thead>
+<tbody>
+<tr><td style="padding: 12px 18px; border-bottom: 1px solid var(--line);"><span style="display: block; font-weight: 500;">Serge Bouanga</span><span style="font-size: 12px; color: var(--ink-muted);">+242 05 128 74 36</span></td><td style="padding: 12px; border-bottom: 1px solid var(--line);"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--volt-soft); color: var(--volt-text); font: 600 11px/14px var(--font-admin);">Super admin</span></td><td style="padding: 12px; border-bottom: 1px solid var(--line); color: var(--success); font-weight: 500;">Activée</td><td style="padding: 12px 18px 12px 12px; border-bottom: 1px solid var(--line); color: var(--ink-muted);">Hier 16:55</td></tr>
+<tr><td style="padding: 12px 18px; border-bottom: 1px solid var(--line);"><span style="display: block; font-weight: 500;">Christelle Mabiala <span style="color: var(--ink-muted); font-weight: 400;">(vous)</span></span><span style="font-size: 12px; color: var(--ink-muted);">+242 06 340 19 63</span></td><td style="padding: 12px; border-bottom: 1px solid var(--line);"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--current-soft); color: var(--current-text); font: 600 11px/14px var(--font-admin);">Admin</span></td><td style="padding: 12px; border-bottom: 1px solid var(--line); color: var(--success); font-weight: 500;">Activée</td><td style="padding: 12px 18px 12px 12px; border-bottom: 1px solid var(--line); color: var(--ink-muted);">Aujourd'hui 14:40</td></tr>
+<tr><td style="padding: 12px 18px;"><span style="display: block; font-weight: 500;">Patrick Moukala</span><span style="font-size: 12px; color: var(--ink-muted);">+242 06 511 02 77</span></td><td style="padding: 12px;"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--surface-2); color: var(--ink); font: 600 11px/14px var(--font-admin);">Support</span></td><td style="padding: 12px; color: var(--warning); font-weight: 500;">À activer</td><td style="padding: 12px 18px 12px 12px; color: var(--ink-muted);">Aujourd'hui 11:02</td></tr>
+</tbody></table>
+</section>
+</sc-if>
+
+<sc-if value="{{isPerm}}" hint-placeholder-val="{{false}}">
+<section style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<div style="padding: 16px 18px 8px;"><h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Ce que chaque rôle peut faire</h2><p style="margin: 2px 0 0; font: 400 12px/16px var(--font-admin); color: var(--ink-muted);">Contrôlé par le serveur, pas seulement par l'interface.</p></div>
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin);">
+<thead><tr><th style="text-align: left; padding: 10px 18px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Action</th><th style="text-align: center; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Support</th><th style="text-align: center; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Admin</th><th style="text-align: center; padding: 10px 18px 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Super admin</th></tr></thead>
+<tbody>
+<sc-for list="{{perms}}" as="p" hint-placeholder-count="9">
+<tr><td style="padding: 11px 18px; border-bottom: 1px solid var(--line);">{{p.label}}</td><td style="{{p.s1}}">{{p.v1}}</td><td style="{{p.s2}}">{{p.v2}}</td><td style="{{p.s3}}">{{p.v3}}</td></tr>
+</sc-for>
+</tbody></table>
+</section>
+</sc-if>
+
+<sc-if value="{{isTarif}}" hint-placeholder-val="{{false}}">
+<section style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<div style="padding: 16px 18px 8px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;"><div><h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Tarifs datés</h2><p style="margin: 2px 0 0; font: 400 12px/16px var(--font-admin); color: var(--ink-muted);">Une facture utilise toujours le tarif en vigueur pendant sa période. Deux tarifs ne peuvent pas se chevaucher.</p></div><button disabled style="min-height: 36px; padding: 0 14px; border-radius: 10px; border: none; background: var(--volt); color: var(--on-volt); font: 600 13px/20px var(--font-admin); opacity: 0.45; cursor: not-allowed;" title="Réservé au Super admin">Programmer un nouveau tarif</button></div>
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin); font-variant-numeric: tabular-nums;">
+<thead><tr><th style="text-align: left; padding: 10px 18px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Code</th><th style="text-align: right; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Prix du kWh</th><th style="text-align: right; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Frais fixes</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Validité</th><th style="text-align: left; padding: 10px 18px 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Statut</th></tr></thead>
+<tbody>
+<tr><td style="padding: 12px 18px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px;">TRF-2026-01</td><td style="padding: 12px; border-bottom: 1px solid var(--line); text-align: right; font-weight: 600;">49,08 FCFA</td><td style="padding: 12px; border-bottom: 1px solid var(--line); text-align: right;">1 000 FCFA/mois</td><td style="padding: 12px; border-bottom: 1px solid var(--line);">depuis le 1er janv. 2026</td><td style="padding: 12px 18px 12px 12px; border-bottom: 1px solid var(--line);"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--warning-soft); color: var(--warning); font: 600 11px/14px var(--font-admin);">En vigueur · hypothèse à confirmer</span></td></tr>
+<tr><td style="padding: 12px 18px; font-family: var(--font-mono); font-size: 12px;">TRF-2025-01</td><td style="padding: 12px; text-align: right; font-weight: 600;">[à confirmer]</td><td style="padding: 12px; text-align: right;">[à confirmer]</td><td style="padding: 12px;">1er janv. – 31 déc. 2025</td><td style="padding: 12px 18px 12px 12px;"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--surface-2); color: var(--ink-muted); font: 600 11px/14px var(--font-admin);">Clos</span></td></tr>
+</tbody></table>
+<p style="margin: 0; padding: 12px 18px 16px; font: 400 12px/16px var(--font-admin); color: var(--ink-muted);">Le prix de 49,08 FCFA/kWh vient d'une seule facture réelle. Il sera validé sur 5 à 10 factures E²C avant la mise en service.</p>
+</section>
+</sc-if>
+
+<sc-if value="{{isInteg}}" hint-placeholder-val="{{false}}">
+<section style="display: flex; flex-wrap: wrap; gap: 12px;">
+<sc-for list="{{integs}}" as="i" hint-placeholder-count="4">
+<div style="flex: 1 1 280px; padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;"><span style="font: 600 15px/22px var(--font-admin);">{{i.name}}</span><span style="{{i.badgeStyle}}">{{i.badge}}</span></div>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">{{i.desc}}</span>
+<span style="font: 500 12px/16px var(--font-mono); color: var(--ink-faint);">{{i.config}}</span>
+</div>
+</sc-for>
+</section>
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-radius: 14px; border: 1px dashed var(--current-text); background: var(--current-soft); font: 400 13px/20px var(--font-admin);"><strong style="font-weight: 600; color: var(--current-text);">Mode démo actif.</strong> Les clients voient le badge « Mode démo » et chaque reçu porte la mention. Il ne se désactive qu'une fois les vraies intégrations branchées et testées.</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'equipe' }; }
+  renderVals() {
+    const s = this.state;
+    const TB = [['equipe', 'Équipe'], ['perm', 'Permissions'], ['tarif', 'Tarifs'], ['integ', 'Intégrations']];
+    const tabs = TB.map((t) => {
+      const on = t[0] === s.tab;
+      return { label: t[1], on: on ? 'true' : 'false', pick: () => this.setState({ tab: t[0] }),
+        style: 'min-height: 36px; padding: 0 14px; border: none; border-radius: 9px; cursor: pointer; font: ' + (on ? '600' : '500') + ' 13px/20px var(--font-admin); color: ' + (on ? 'var(--ink)' : 'var(--ink-muted)') + '; background: ' + (on ? 'var(--surface-1)' : 'transparent') + ';' + (on ? ' box-shadow: var(--shadow-card);' : '') };
+    });
+    const P = [
+      ['Consulter clients, factures et transactions', 1, 1, 1],
+      ['Consulter le journal d’activité', 0, 1, 1],
+      ['Désactiver ou réactiver un compte client', 0, 1, 1],
+      ['Annuler une facture (avec motif)', 0, 1, 1],
+      ['Relancer la vérification d’une transaction', 0, 1, 1],
+      ['Envoyer une annonce', 0, 1, 1],
+      ['Modifier les tarifs', 0, 0, 1],
+      ['Attribuer des rôles, inviter un membre', 0, 0, 1],
+      ['Marquer une transaction comme réussie', 2, 2, 2]
+    ];
+    const cell = (v, last) => ({ v: v === 1 ? 'Oui' : v === 2 ? 'Jamais' : '—', s: 'padding: 11px ' + (last ? '18px 11px 12px' : '12px') + '; border-bottom: 1px solid var(--line); text-align: center; font-weight: 600; color: ' + (v === 1 ? 'var(--success)' : v === 2 ? 'var(--error-text)' : 'var(--ink-faint)') + ';' });
+    const perms = P.map((p) => { const a = cell(p[1]), b = cell(p[2]), c = cell(p[3], true); return { label: p[0], v1: a.v, s1: a.s, v2: b.v, s2: b.s, v3: c.v, s3: c.s }; });
+    const badge = (k) => 'display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + (k === 'sim' ? 'background: var(--current-soft); color: var(--current-text);' : 'background: var(--surface-2); color: var(--ink-muted);');
+    const integs = [
+      { name: 'MTN MoMo', badge: 'Simulateur', badgeStyle: badge('sim'), desc: 'Paiements simulés avec succès, échecs et délais. À brancher sur l’API officielle après accord commercial.', config: 'PAYMENT_PROVIDER=simulated' },
+      { name: 'Airtel Money', badge: 'Simulateur', badgeStyle: badge('sim'), desc: 'Même interface que MTN MoMo : le passage au réel ne change pas le reste de l’application.', config: 'PAYMENT_PROVIDER=simulated' },
+      { name: 'E²C · relevés et factures', badge: 'Simulateur', badgeStyle: badge('sim'), desc: 'Un relevé par jour et par compteur, factures calculées par ElecPay. À remplacer par les données E²C.', config: 'BILLING_SOURCE=simulated' },
+      { name: 'Notifications push', badge: 'Phase 2', badgeStyle: badge('p2'), desc: 'Firebase Cloud Messaging. En attendant, les alertes s’affichent dans l’application.', config: 'non configuré' }
+    ];
+    return { tabs, perms, integs, isTeam: s.tab === 'equipe', isPerm: s.tab === 'perm', isTarif: s.tab === 'tarif', isInteg: s.tab === 'integ' };
+  }
+}
+</script>
+</body>
+</html>

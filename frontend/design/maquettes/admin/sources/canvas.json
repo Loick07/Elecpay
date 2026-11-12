@@ -1,0 +1,27 @@
+{"v":3,"createdOnFiles":{"v":1,"at":"2026-11-12T01:30:00Z"},"title":"ElecPay — Maquettes back-office admin","launch":{"view":"canvas"},"pages":[],
+"boards":{
+"Main.dc.html":{"x":0,"y":0,"w":1440,"h":960,"title":"A1 · Tableau de bord","expand":"fill","is_interactive":true,"radius":12},
+"Utilisateurs.dc.html":{"x":1520,"y":0,"w":1440,"h":960,"title":"A2 · Utilisateurs","expand":"fill","is_interactive":true,"radius":12},
+"Utilisateur.dc.html":{"x":3040,"y":0,"w":1440,"h":960,"title":"A3 · Détail d'un utilisateur","expand":"fill","is_interactive":true,"radius":12},
+"Compteurs.dc.html":{"x":0,"y":1320,"w":1440,"h":960,"title":"A4 · Compteurs","expand":"fill","is_interactive":true,"radius":12},
+"Factures.dc.html":{"x":1520,"y":1320,"w":1440,"h":960,"title":"A5 · Factures","expand":"fill","is_interactive":true,"radius":12},
+"Facture.dc.html":{"x":3040,"y":1320,"w":1440,"h":960,"title":"A6 · Détail et traitement d'une facture","expand":"fill","is_interactive":true,"radius":12},
+"Transactions.dc.html":{"x":0,"y":2640,"w":1440,"h":960,"title":"A7 · Transactions","expand":"fill","is_interactive":true,"radius":12},
+"Transaction.dc.html":{"x":1520,"y":2640,"w":1440,"h":960,"title":"A8 · Détail et rapprochement d'une transaction","expand":"fill","is_interactive":true,"radius":12},
+"Notifications.dc.html":{"x":3040,"y":2640,"w":1440,"h":960,"title":"A9 · Notifications","expand":"fill","is_interactive":true,"radius":12},
+"Journal.dc.html":{"x":0,"y":3960,"w":1440,"h":960,"title":"A10 · Journal d'activité","expand":"fill","is_interactive":true,"radius":12},
+"Parametres.dc.html":{"x":1520,"y":3960,"w":1440,"h":960,"title":"A11 · Paramètres et rôles","expand":"fill","is_interactive":true,"radius":12},
+"Menu.dc.html":{"x":3600,"y":3960,"w":232,"h":960,"title":"Composant · Menu latéral","is_interactive":true,"radius":12}
+},
+"order":["Main.dc.html","Utilisateurs.dc.html","Utilisateur.dc.html","Compteurs.dc.html","Factures.dc.html","Facture.dc.html","Transactions.dc.html","Transaction.dc.html","Notifications.dc.html","Journal.dc.html","Parametres.dc.html","Menu.dc.html"],
+"notes":{
+"t1":{"x":0,"y":-280,"text":"1. Pilotage : tableau de bord et utilisateurs","kind":"title1","maxW":4480},
+"t2":{"x":0,"y":1040,"text":"2. Facturation : compteurs et factures","kind":"title1","maxW":4480},
+"t3":{"x":0,"y":2360,"text":"3. Paiements et communication","kind":"title1","maxW":4480},
+"t4":{"x":0,"y":3680,"text":"4. Contrôle : journal d'activité, paramètres et rôles","kind":"title1","maxW":2960},
+"n1":{"x":4560,"y":0,"w":360,"text":"Back-office web (Next.js), thème Jour par défaut, police Inter, barre latérale bleu nuit. Même API et mêmes statuts que l'application mobile. Utilisateur connecté : Christelle Mabiala, Admin. Toutes les données sont de démonstration.","fill":"blue"},
+"n2":{"x":4560,"y":1320,"w":360,"text":"Règles visibles à l'écran : une facture n'est jamais supprimée, seulement annulée avec un motif ; une facture payée ne peut plus être modifiée ; chaque action d'écriture est inscrite au journal.","fill":"orange"},
+"n3":{"x":4560,"y":2640,"w":360,"text":"Un administrateur ne peut jamais passer une transaction en « Réussie » à la main : seul l'opérateur le confirme. Le bouton disponible est « Relancer la vérification auprès de l'opérateur ».","fill":"orange"},
+"n4":{"x":3120,"y":4480,"w":360,"text":"Rôles : Support (lecture seule), Admin, Super admin. Seul le Super admin change les rôles et les tarifs. Prototype : liens entre écrans, filtres, annulation de facture et relance de vérification fonctionnent au clic.","fill":"blue"}
+},
+"designSystems":[{"title":"ElecPay","namespace":"elecpay","artifact":"https://claude.ai/artifact/R3gyZpbvCECZJys5KzQYoN","version":"1794441043-acd4","copiedAt":"2026-11-12T01:30:00Z"}]}

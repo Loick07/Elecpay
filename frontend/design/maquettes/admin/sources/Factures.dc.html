@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Factures</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+.bo-row:hover td{background:var(--surface-2)}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div data-theme="light" style="min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="factures" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+<div><h1 style="margin: 0; font: 600 24px/32px var(--font-admin);">Factures</h1><p style="margin: 2px 0 0; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Factures générées à partir des relevés et du tarif en vigueur · aucune facture n'est jamais supprimée</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Période : octobre 2026</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg>Exporter</button>
+</div>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px;"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Factures émises</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">1 380</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Montant facturé</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">15 862 400 FCFA</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Encaissé</span><span style="font: 600 20px/28px var(--font-admin); color: var(--success); font-variant-numeric: tabular-nums;">13 376 100 FCFA</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Reste à encaisser</span><span style="font: 600 20px/28px var(--font-admin); color: var(--warning); font-variant-numeric: tabular-nums;">2 486 300 FCFA</span></div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+<div role="tablist" aria-label="Filtrer par statut" style="display: flex; flex-wrap: wrap; gap: 6px;">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="5"><button role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button></sc-for>
+</div>
+<label style="margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 10px; background: var(--surface-1); border: 1px solid var(--line); min-width: 260px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input aria-label="Rechercher une facture" placeholder="Référence, client ou compteur" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 14px/20px var(--font-admin);"></label>
+</div>
+
+<div style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin); font-variant-numeric: tabular-nums;">
+<thead><tr>
+<th style="text-align: left; padding: 12px 16px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Référence</th>
+<th style="text-align: left; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Client · foyer</th>
+<th style="text-align: right; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Consommation</th>
+<th style="text-align: right; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Montant</th>
+<th style="text-align: left; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Échéance</th>
+<th style="text-align: left; padding: 12px 16px 12px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Statut</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="b" hint-placeholder-count="8">
+<tr class="bo-row">
+<td style="padding: 11px 16px; border-bottom: 1px solid var(--line); white-space: nowrap;"><a href="Facture.dc.html" style="font: 500 12px/18px var(--font-mono); color: var(--current-text);">{{b.ref}}</a></td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line);"><span style="display: block; font-weight: 500;">{{b.client}}</span><span style="font-size: 12px; color: var(--ink-muted);">{{b.home}}</span></td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap;">{{b.kwh}}</td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-weight: 600;">{{b.amount}}</td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; color: var(--ink-muted);">{{b.due}}</td>
+<td style="padding: 11px 16px 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap;"><span style="{{b.badgeStyle}}">{{b.status}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">{{countText}}</span>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'toutes' }; }
+  renderVals() {
+    const B = [
+      ['FAC-2026-10-004513', 'Loick Makosso', 'Boutique Tié-Tié · 0377-1209', '163,4 kWh', '9 870 FCFA', '30 nov.', 'apayer', ''],
+      ['FAC-2026-10-004512', 'Loick Makosso', 'Maison Mpita · 0412-8833', '212,4 kWh', '12 500 FCFA', '25 nov.', 'payee', 'le 12 nov.'],
+      ['FAC-2026-10-004377', 'Prisca Loemba', 'Maison Tchimbamba · 0301-5524', '268,9 kWh', '15 520 FCFA', '25 nov.', 'encours', ''],
+      ['FAC-2026-10-004290', 'Arsène Massamba', 'Villa Mpaka · 0588-0316', '512,0 kWh', '28 760 FCFA', '25 nov.', 'payee', 'le 9 nov.'],
+      ['FAC-2026-09-002210', 'Junior Ibara', 'Appartement Loandjili · 0219-7741', '121,7 kWh', '7 640 FCFA', '25 oct.', 'retard', ''],
+      ['FAC-2026-09-001988', 'Mireille Tchicaya', 'Maison Siafoumou · 0145-9930', '231,2 kWh', '13 520 FCFA', '25 oct.', 'retard', ''],
+      ['FAC-2026-10-003871', 'Arsène Massamba', 'Studio Mpaka · 0590-2287', '88,0 kWh', '5 920 FCFA', '25 nov.', 'annulee', 'facture en double'],
+      ['FAC-2026-10-004101', 'Grâce Ngoma', 'Maison Tié-Tié · 0233-6015', '176,5 kWh', '10 590 FCFA', '25 nov.', 'payee', 'le 6 nov.']
+    ];
+    const ST = {
+      apayer: ['À payer', 'background: var(--current-soft); color: var(--current-text);'],
+      encours: ['Paiement en cours', 'background: var(--warning-soft); color: var(--warning);'],
+      payee: ['Payée', 'background: var(--success-soft); color: var(--success);'],
+      retard: ['En retard', 'background: var(--error-soft); color: var(--error-text);'],
+      annulee: ['Annulée', 'background: var(--surface-2); color: var(--ink-muted);']
+    };
+    const s = this.state;
+    const F = [['toutes', 'Toutes'], ['apayer', 'À payer'], ['retard', 'En retard'], ['payee', 'Payées'], ['annulee', 'Annulées']];
+    const chips = F.map((c) => {
+      const on = c[0] === s.f;
+      return { label: c[1], on: on ? 'true' : 'false', pick: () => this.setState({ f: c[0] }),
+        style: 'min-height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font: 500 13px/20px var(--font-admin); color: var(--ink); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + ';' };
+    });
+    const keep = (b) => s.f === 'toutes' || b[6] === s.f || (s.f === 'apayer' && b[6] === 'encours');
+    const rows = B.filter(keep).map((b) => ({
+      ref: b[0], client: b[1], home: b[2], kwh: b[3], amount: b[4], due: b[5],
+      status: ST[b[6]][0] + (b[7] ? ' · ' + b[7] : ''),
+      badgeStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + ST[b[6]][1]
+    }));
+    return { chips, rows, countText: rows.length + ' factures affichées sur 1 380 · 20 par page' };
+  }
+}
+</script>
+</body>
+</html>

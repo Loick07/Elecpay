@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Détail et traitement d'une facture</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+textarea::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="factures" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<nav aria-label="Fil d'Ariane" style="font: 500 13px/20px var(--font-admin); color: var(--ink-muted);"><a href="Factures.dc.html" style="color: var(--volt-text);">Factures</a> › <span style="font-family: var(--font-mono); font-size: 12px;">FAC-2026-10-004513</span></nav>
+
+<sc-if value="{{cancelled}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 12px 16px; border-radius: 12px; background: var(--surface-2); font: 500 14px/20px var(--font-admin);">Facture annulée · motif : « {{reason}} ». Elle reste consultable ; le client a été prévenu et l'action est inscrite au journal.</div>
+</sc-if>
+
+<section style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 20px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;"><span style="font: 600 12px/16px var(--font-admin); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted);">Octobre 2026 · Boutique Tié-Tié</span><span style="{{statusStyle}}">{{status}}</span></div>
+<span style="{{amountStyle}}">9 870 <span style="font-size: 15px; font-weight: 500; color: var(--ink-muted);">FCFA</span></span>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Client : <a href="Utilisateur.dc.html" style="color: var(--current-text); font-weight: 500;">Loick Makosso</a> · échéance le 30 nov. 2026</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Télécharger le PDF</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Renvoyer au client</button>
+<button onClick="{{openDialog}}" aria-disabled="{{cancelledStr}}" style="{{cancelBtnStyle}}">Annuler la facture</button>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<section style="padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; font: 400 14px/20px var(--font-admin); font-variant-numeric: tabular-nums;">
+<h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Lignes de la facture</h2>
+<div style="display: flex; justify-content: space-between; gap: 12px;"><span>Énergie consommée <span style="color: var(--ink-muted);">· 163,4 kWh × 49,08 FCFA</span></span><span>8 020 FCFA</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px;"><span>Frais fixes d'abonnement <span style="color: var(--ink-muted);">· 9 kVA</span></span><span>1 000 FCFA</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px;"><span>Taxes et redevances</span><span>850 FCFA</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-weight: 600;"><span>Total</span><span>9 870 FCFA</span></div>
+<span style="font: 400 12px/16px var(--font-admin); color: var(--ink-faint);">Structure des lignes et tarif : hypothèse de travail, à confirmer sur de vraies factures E²C.</span>
+</section>
+<section style="padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; font: 400 13px/20px var(--font-admin); font-variant-numeric: tabular-nums;">
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Période</span><span style="font-weight: 500;">1er – 31 oct. 2026</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Compteur</span><span style="font-weight: 500; font-family: var(--font-mono); font-size: 12px;">0377-1209</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Index</span><span style="font-weight: 500;">26 998,9 → 27 162,3</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Tarif appliqué</span><span style="font-weight: 500;">TRF-2026-01 · depuis le 1er janv. 2026</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Source des relevés</span><span style="font-weight: 500;">Simulateur · 31 relevés, 0 estimé</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Payeurs autorisés</span><span style="font-weight: 500;">Loick Makosso, Grâce Ngoma</span></div>
+</section>
+<section style="padding: 14px 18px; border-radius: 14px; background: var(--surface-2); display: flex; gap: 10px; align-items: flex-start; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 018 0v4"></path></svg>
+<span>Les montants et les lignes ne se modifient pas à la main. Une erreur se corrige en annulant la facture avec un motif, puis en la régénérant à partir des relevés. Une facture payée ne peut plus être annulée.</span>
+</section>
+</div>
+
+<aside style="flex: 1 1 300px; min-width: 0; padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Historique</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px;">
+<sc-if value="{{cancelled}}" hint-placeholder-val="{{false}}">
+<li style="display: flex; gap: 10px;"><span style="width: 10px; height: 10px; margin-top: 5px; border-radius: 999px; background: var(--ink-muted); flex: none;"></span><span style="display: flex; flex-direction: column; font: 400 13px/20px var(--font-admin);"><span style="font-weight: 600;">Annulée par Christelle Mabiala</span><span style="color: var(--ink-muted);">À l'instant · « {{reason}} »</span></span></li>
+</sc-if>
+<li style="display: flex; gap: 10px;"><span style="width: 10px; height: 10px; margin-top: 5px; border-radius: 999px; background: var(--current); flex: none;"></span><span style="display: flex; flex-direction: column; font: 400 13px/20px var(--font-admin);"><span style="font-weight: 600;">Consultée par le client</span><span style="color: var(--ink-muted);">12 nov. 14:29 · application Android</span></span></li>
+<li style="display: flex; gap: 10px;"><span style="width: 10px; height: 10px; margin-top: 5px; border-radius: 999px; background: var(--current); flex: none;"></span><span style="display: flex; flex-direction: column; font: 400 13px/20px var(--font-admin);"><span style="font-weight: 600;">Notification « Nouvelle facture » envoyée</span><span style="color: var(--ink-muted);">5 nov. 06:11 · Loick Makosso, Grâce Ngoma</span></span></li>
+<li style="display: flex; gap: 10px;"><span style="width: 10px; height: 10px; margin-top: 5px; border-radius: 999px; background: var(--current); flex: none;"></span><span style="display: flex; flex-direction: column; font: 400 13px/20px var(--font-admin);"><span style="font-weight: 600;">Facture générée</span><span style="color: var(--ink-muted);">5 nov. 06:10 · automatique</span></span></li>
+</ol>
+<div style="padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px;">
+<span style="font: 600 13px/20px var(--font-admin);">Transactions liées</span>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Aucune tentative de paiement pour l'instant.</span>
+<span style="font: 400 12px/16px var(--font-admin); color: var(--ink-faint);">Rappel automatique prévu le 25 nov. (5 jours avant l'échéance).</span>
+</div>
+</aside>
+</div>
+</main>
+
+<sc-if value="{{dialog}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(5,13,26,0.45); display: grid; place-items: center; padding: 16px;">
+<section role="dialog" aria-modal="true" aria-label="Annuler la facture" style="width: 100%; max-width: 480px; box-sizing: border-box; padding: 22px; border-radius: 16px; background: var(--surface-1); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font: 600 18px/26px var(--font-admin);">Annuler la facture FAC-2026-10-004513 ?</h2>
+<p style="margin: 0; font: 400 14px/20px var(--font-admin); color: var(--ink-muted);">La facture ne sera pas supprimée : elle passera au statut « Annulée », le client ne pourra plus la payer et il sera prévenu.</p>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<label for="motif" style="font: 500 13px/20px var(--font-admin);">Motif de l'annulation (obligatoire)</label>
+<textarea id="motif" rows="3" onInput="{{type}}" placeholder="Ex. : index relevé erroné, régénération à partir du relevé de contrôle" style="resize: vertical; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 400 14px/20px var(--font-admin); outline: none;"></textarea>
+<span style="font: 400 12px/16px var(--font-admin); color: var(--ink-faint);">10 caractères minimum. Le motif apparaît au journal d'activité.</span>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 8px;">
+<button onClick="{{closeDialog}}" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Retour</button>
+<button onClick="{{confirm}}" style="{{confirmStyle}}">Annuler la facture</button>
+</div>
+</section>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { dialog: false, text: '', cancelled: false, reason: '' }; }
+  renderVals() {
+    const s = this.state;
+    const ok = s.text.trim().length >= 10;
+    return {
+      dialog: s.dialog, cancelled: s.cancelled, cancelledStr: s.cancelled ? 'true' : 'false', reason: s.reason,
+      status: s.cancelled ? 'Annulée' : 'À payer',
+      statusStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + (s.cancelled ? 'background: var(--surface-2); color: var(--ink-muted);' : 'background: var(--current-soft); color: var(--current-text);'),
+      amountStyle: 'font: 700 34px/40px var(--font-admin); letter-spacing: -0.02em; font-variant-numeric: tabular-nums;' + (s.cancelled ? ' color: var(--ink-faint); text-decoration: line-through;' : ''),
+      cancelBtnStyle: 'min-height: 40px; padding: 0 14px; border-radius: 10px; border: none; font: 500 14px/20px var(--font-admin); background: var(--error-soft); color: var(--error-text); cursor: ' + (s.cancelled ? 'not-allowed; opacity: 0.4;' : 'pointer;'),
+      openDialog: () => { if (!s.cancelled) this.setState({ dialog: true, text: '' }); },
+      closeDialog: () => this.setState({ dialog: false }),
+      type: (e) => this.setState({ text: e.target.value }),
+      confirm: () => { if (ok) this.setState({ dialog: false, cancelled: true, reason: s.text.trim() }); },
+      confirmStyle: 'min-height: 40px; padding: 0 14px; border-radius: 10px; border: none; font: 600 14px/20px var(--font-admin); background: var(--error); color: #FFFFFF; cursor: ' + (ok ? 'pointer' : 'not-allowed') + ';' + (ok ? '' : ' opacity: 0.45;')
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -55,7 +55,7 @@ payment_transactions, receipts, notifications, audit_logs.
 
 ## Design
 Charte UI/UX **validée** dans `frontend/design/` (`CHARTE.md`, `tokens.json`, composants de référence). Elle fait foi pour Flutter et Next.js.
-Maquettes des **16 écrans client validées** (12/11/2026) : `frontend/design/maquettes/README.md` (contenu, navigation, règles de l'écran Consommation, besoins backend).
+Maquettes **validées** (12/11/2026) : 16 écrans client (`frontend/design/maquettes/client/README.md`) et 11 écrans du back-office (`frontend/design/maquettes/admin/README.md`, avec la matrice des permissions). Elles décrivent aussi ce que chaque étape du backend doit fournir.
 Consommation « en direct » (onglet Direct) : uniquement avec compteur communicant ou capteur, simulée en démo, prévue en phase 2 ; ailleurs on n'écrit jamais « temps réel ».
 Fond #050D1A (navy), jaune #F5A623 (actions), bleu #1E88E5, succès #22C55E, alerte #F59E0B, erreur #EF4444.
 Poppins (app), Inter (back-office). Inspiration "Liquid Glass". Barre de navigation à 5 onglets avec bouton Payer central.

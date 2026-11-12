@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Transactions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+.bo-row:hover td{background:var(--surface-2)}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div data-theme="light" style="min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="transactions" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+<div><h1 style="margin: 0; font: 600 24px/32px var(--font-admin);">Transactions</h1><p style="margin: 2px 0 0; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Paiements Mobile Money · opérateurs simulés (MTN MoMo et Airtel Money à brancher)</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Aujourd'hui · 12 nov.</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Tous les opérateurs</button>
+</div>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<div style="flex: 1 1 160px; padding: 14px 18px;"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Encaissé aujourd'hui</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">412 760 FCFA</span></div>
+<div style="flex: 1 1 160px; padding: 14px 18px; border-left: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Réussies</span><span style="font: 600 20px/28px var(--font-admin); color: var(--success); font-variant-numeric: tabular-nums;">34</span></div>
+<div style="flex: 1 1 160px; padding: 14px 18px; border-left: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Échouées</span><span style="font: 600 20px/28px var(--font-admin); color: var(--error-text); font-variant-numeric: tabular-nums;">4</span></div>
+<div style="flex: 1 1 160px; padding: 14px 18px; border-left: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">En attente</span><span style="font: 600 20px/28px var(--font-admin); color: var(--warning); font-variant-numeric: tabular-nums;">4</span></div>
+<div style="flex: 1 1 160px; padding: 14px 18px; border-left: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Délai moyen de confirmation</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">38 s</span></div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+<div role="tablist" aria-label="Filtrer par statut" style="display: flex; flex-wrap: wrap; gap: 6px;">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="5"><button role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button></sc-for>
+</div>
+<label style="margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 10px; background: var(--surface-1); border: 1px solid var(--line); min-width: 260px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input aria-label="Rechercher une transaction" placeholder="Référence TX, référence opérateur, numéro" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 14px/20px var(--font-admin);"></label>
+</div>
+
+<div style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin); font-variant-numeric: tabular-nums;">
+<thead><tr>
+<th style="text-align: left; padding: 12px 16px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Référence</th>
+<th style="text-align: left; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Heure</th>
+<th style="text-align: left; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Payeur · facture</th>
+<th style="text-align: right; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Montant</th>
+<th style="text-align: left; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Opérateur · numéro</th>
+<th style="text-align: left; padding: 12px 16px 12px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Statut</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="t" hint-placeholder-count="8">
+<tr class="bo-row">
+<td style="padding: 11px 16px; border-bottom: 1px solid var(--line); white-space: nowrap;"><a href="Transaction.dc.html" style="font: 500 12px/18px var(--font-mono); color: var(--current-text);">{{t.ref}}</a></td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; color: var(--ink-muted);">{{t.time}}</td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line);"><span style="display: block; font-weight: 500;">{{t.payer}}</span><span style="font-size: 12px; color: var(--ink-muted);">{{t.bill}}</span></td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-weight: 600;">{{t.amount}}</td>
+<td style="padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap;">{{t.op}}</td>
+<td style="padding: 11px 16px 11px 12px; border-bottom: 1px solid var(--line);"><span style="{{t.badgeStyle}}">{{t.status}}</span><span style="display: block; margin-top: 2px; font-size: 12px; color: var(--ink-muted);">{{t.detail}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Les statuts viennent uniquement des opérateurs. Une transaction ne peut pas être passée en « Réussie » depuis le back-office.</span>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'toutes' }; }
+  renderVals() {
+    const T = [
+      ['TX-2026-004815', '14:31', 'Prisca Loemba', 'FAC-2026-10-004377 · Maison Tchimbamba', '15 520 FCFA', 'MTN MoMo · 06 •• •• 21 45', 'attente', 'PIN saisi, débit non confirmé · 14 min'],
+      ['TX-2026-004814', '14:26', 'Junior Ibara', 'FAC-2026-09-002210 · en retard', '7 640 FCFA', 'Airtel Money · 05 •• •• 67 92', 'echouee', 'solde insuffisant'],
+      ['TX-2026-004812', '14:32', 'Loick Makosso', 'FAC-2026-10-004512 · Maison Mpita', '12 500 FCFA', 'MTN MoMo · 06 •• •• 45 67', 'reussie', 'confirmée en 41 s'],
+      ['TX-2026-004811', '14:20', 'Loick Makosso', 'FAC-2026-10-004512 · Maison Mpita', '12 500 FCFA', 'Airtel Money · 06 •• •• 45 67', 'echouee', 'solde insuffisant'],
+      ['TX-2026-004808', '13:58', 'Junior Ibara', 'FAC-2026-09-002210 · en retard', '7 640 FCFA', 'Airtel Money · 05 •• •• 67 92', 'echouee', 'solde insuffisant'],
+      ['TX-2026-004806', '13:40', 'Arsène Massamba', 'FAC-2026-10-004295 · Studio Mpaka', '5 920 FCFA', 'MTN MoMo · 06 •• •• 33 18', 'reussie', 'confirmée en 29 s'],
+      ['TX-2026-004801', '12:15', 'Mireille Tchicaya', 'FAC-2026-09-001988 · en retard', '13 520 FCFA', 'MTN MoMo · 06 •• •• 47 51', 'expiree', 'code PIN non saisi en 10 min'],
+      ['TX-2026-004797', '11:52', 'Grâce Ngoma', 'FAC-2026-10-004101 · Maison Tié-Tié', '10 590 FCFA', 'Airtel Money · 05 •• •• 88 10', 'reussie', 'confirmée en 52 s']
+    ];
+    const ST = {
+      attente: ['En attente', 'background: var(--warning-soft); color: var(--warning);'],
+      reussie: ['Réussie', 'background: var(--success-soft); color: var(--success);'],
+      echouee: ['Échouée', 'background: var(--error-soft); color: var(--error-text);'],
+      expiree: ['Expirée', 'background: var(--surface-2); color: var(--ink-muted);']
+    };
+    const s = this.state;
+    const F = [['toutes', 'Toutes'], ['attente', 'En attente'], ['reussie', 'Réussies'], ['echouee', 'Échouées'], ['expiree', 'Expirées']];
+    const chips = F.map((c) => {
+      const on = c[0] === s.f;
+      return { label: c[1], on: on ? 'true' : 'false', pick: () => this.setState({ f: c[0] }),
+        style: 'min-height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font: 500 13px/20px var(--font-admin); color: var(--ink); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + ';' };
+    });
+    const rows = T.filter((t) => s.f === 'toutes' || t[6] === s.f).map((t) => ({
+      ref: t[0], time: t[1], payer: t[2], bill: t[3], amount: t[4], op: t[5], status: ST[t[6]][0], detail: t[7],
+      badgeStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + ST[t[6]][1]
+    }));
+    return { chips, rows };
+  }
+}
+</script>
+</body>
+</html>

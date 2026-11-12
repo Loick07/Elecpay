@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Détail d'un utilisateur</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+.bo-row:hover td{background:var(--surface-2)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="utilisateurs" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<nav aria-label="Fil d'Ariane" style="font: 500 13px/20px var(--font-admin); color: var(--ink-muted);"><a href="Utilisateurs.dc.html" style="color: var(--volt-text);">Utilisateurs</a> › Loick Makosso</nav>
+
+<sc-if value="{{off}}" hint-placeholder-val="{{false}}">
+<div role="status" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--error-soft); color: var(--error-text); font: 500 14px/20px var(--font-admin);">Compte désactivé à l'instant · motif : {{reason}}. Ses sessions ont été fermées et l'action est inscrite au journal.</div>
+</sc-if>
+
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<span style="width: 56px; height: 56px; border-radius: 999px; background: var(--current-soft); color: var(--current-text); display: grid; place-items: center; font: 600 18px/24px var(--font-admin);">LM</span>
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;"><h1 style="margin: 0; font: 600 22px/30px var(--font-admin);">Loick Makosso</h1><span style="{{statusStyle}}">{{status}}</span><span style="display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: var(--surface-2); color: var(--ink-muted); font: 600 11px/14px var(--font-admin);">Client</span></div>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted); font-variant-numeric: tabular-nums;">+242 06 123 45 67 · pas d'e-mail · inscrit le 3 mars 2025 · ID USR-000184</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Envoyer un lien de réinitialisation</button>
+<button onClick="{{openDialog}}" style="{{deactivateStyle}}">{{deactivateLabel}}</button>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+
+<section style="padding: 16px 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px;">
+<h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Foyers et compteurs</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+<a href="Compteurs.dc.html" style="flex: 1 1 240px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px;"><span style="font: 600 14px/20px var(--font-admin);">Maison Mpita</span><span style="font: 400 12px/16px var(--font-admin); color: var(--ink-muted);">Propriétaire · compteur <span style="font-family: var(--font-mono);">0412-8833</span> · 6 kVA</span><span style="font: 500 12px/16px var(--font-admin); color: var(--success);">À jour · octobre payé le 12 nov.</span></a>
+<a href="Compteurs.dc.html" style="flex: 1 1 240px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px;"><span style="font: 600 14px/20px var(--font-admin);">Boutique Tié-Tié</span><span style="font: 400 12px/16px var(--font-admin); color: var(--ink-muted);">Propriétaire · compteur <span style="font-family: var(--font-mono);">0377-1209</span> · 9 kVA · payeuse déléguée : Grâce Ngoma</span><span style="font: 500 12px/16px var(--font-admin); color: var(--current-text);">1 facture à payer avant le 30 nov.</span></a>
+</div>
+</section>
+
+<section style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow: hidden;">
+<div style="padding: 16px 18px 8px; display: flex; justify-content: space-between; align-items: baseline;"><h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Transactions récentes</h2><a href="Transactions.dc.html" style="font: 500 13px/20px var(--font-admin); color: var(--volt-text);">Tout voir</a></div>
+<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin); font-variant-numeric: tabular-nums;">
+<thead><tr><th style="text-align: left; padding: 10px 18px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Référence</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Facture</th><th style="text-align: right; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Montant</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Opérateur</th><th style="text-align: left; padding: 10px 18px 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Statut</th></tr></thead>
+<tbody>
+<tr class="bo-row"><td style="padding: 10px 18px; border-bottom: 1px solid var(--line);"><a href="Transaction.dc.html" style="font-family: var(--font-mono); font-size: 12px;">TX-2026-004812</a></td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line);">Octobre · Maison Mpita</td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right;">12 500 FCFA</td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line);">MTN MoMo</td><td style="padding: 10px 18px 10px 12px; border-bottom: 1px solid var(--line);"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--success-soft); color: var(--success); font: 600 11px/14px var(--font-admin);">Réussie · 12 nov. 14:32</span></td></tr>
+<tr class="bo-row"><td style="padding: 10px 18px; border-bottom: 1px solid var(--line);"><a href="Transaction.dc.html" style="font-family: var(--font-mono); font-size: 12px;">TX-2026-004811</a></td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line);">Octobre · Maison Mpita</td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right;">12 500 FCFA</td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line);">Airtel Money</td><td style="padding: 10px 18px 10px 12px; border-bottom: 1px solid var(--line);"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--error-soft); color: var(--error-text); font: 600 11px/14px var(--font-admin);">Échouée · solde insuffisant</span></td></tr>
+<tr class="bo-row"><td style="padding: 10px 18px; border-bottom: 1px solid var(--line);"><span style="font-family: var(--font-mono); font-size: 12px;">TX-2026-003977</span></td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line);">Septembre · Boutique Tié-Tié</td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right;">9 415 FCFA</td><td style="padding: 10px 12px; border-bottom: 1px solid var(--line);">Airtel Money · par Grâce Ngoma</td><td style="padding: 10px 18px 10px 12px; border-bottom: 1px solid var(--line);"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--success-soft); color: var(--success); font: 600 11px/14px var(--font-admin);">Réussie · 22 oct.</span></td></tr>
+<tr class="bo-row"><td style="padding: 10px 18px;"><span style="font-family: var(--font-mono); font-size: 12px;">TX-2026-003702</span></td><td style="padding: 10px 12px;">Septembre · Maison Mpita</td><td style="padding: 10px 12px; text-align: right;">11 240 FCFA</td><td style="padding: 10px 12px;">MTN MoMo</td><td style="padding: 10px 18px 10px 12px;"><span style="display: inline-flex; height: 22px; align-items: center; padding: 0 8px; border-radius: 6px; background: var(--success-soft); color: var(--success); font: 600 11px/14px var(--font-admin);">Réussie · 18 oct.</span></td></tr>
+</tbody></table></div>
+</section>
+</div>
+
+<div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<section style="padding: 16px 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Résumé</h2>
+<div style="display: flex; justify-content: space-between; font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">Payé en 2026</span><span style="font-weight: 600; font-variant-numeric: tabular-nums;">186 330 FCFA</span></div>
+<div style="display: flex; justify-content: space-between; font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">Reste à payer</span><span style="font-weight: 600; font-variant-numeric: tabular-nums;">9 870 FCFA</span></div>
+<div style="display: flex; justify-content: space-between; font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">Paiements non aboutis</span><span style="font-weight: 600;">2 sur 19</span></div>
+<div style="display: flex; justify-content: space-between; font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">Moyen préféré</span><span style="font-weight: 600;">MTN MoMo</span></div>
+</section>
+<section style="padding: 16px 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px;">
+<h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Sessions ouvertes</h2>
+<div style="display: flex; justify-content: space-between; gap: 8px; font: 400 13px/20px var(--font-admin);"><span>Android · Pointe-Noire</span><span style="color: var(--ink-muted);">{{session1}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 8px; font: 400 13px/20px var(--font-admin);"><span>Android · Brazzaville</span><span style="color: var(--ink-muted);">{{session2}}</span></div>
+</section>
+<section style="padding: 16px 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; justify-content: space-between; align-items: baseline;"><h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Journal du compte</h2><a href="Journal.dc.html" style="font: 500 13px/20px var(--font-admin); color: var(--volt-text);">Tout voir</a></div>
+<span style="font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">12 nov. 14:20 ·</span> paiement Airtel refusé par l'opérateur</span>
+<span style="font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">28 oct. ·</span> Grâce Ngoma ajoutée comme payeuse déléguée</span>
+<span style="font: 400 13px/20px var(--font-admin);"><span style="color: var(--ink-muted);">3 mars 2025 ·</span> compte créé depuis l'application</span>
+</section>
+</div>
+</div>
+</main>
+
+<sc-if value="{{dialog}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(5,13,26,0.45); display: grid; place-items: center; padding: 16px;">
+<section role="dialog" aria-modal="true" aria-label="Désactiver le compte" style="width: 100%; max-width: 460px; box-sizing: border-box; padding: 22px; border-radius: 16px; background: var(--surface-1); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font: 600 18px/26px var(--font-admin);">Désactiver le compte de Loick Makosso ?</h2>
+<p style="margin: 0; font: 400 14px/20px var(--font-admin); color: var(--ink-muted);">Il ne pourra plus se connecter ni payer. Ses factures et son historique sont conservés. Vous pourrez le réactiver.</p>
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 6px;">
+<legend style="padding: 0 0 6px; font: 500 13px/20px var(--font-admin);">Motif (obligatoire)</legend>
+<sc-for list="{{reasons}}" as="r" hint-placeholder-count="3"><button onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="{{r.style}}"><span style="{{r.dot}}"></span>{{r.label}}</button></sc-for>
+</fieldset>
+<div style="display: flex; justify-content: flex-end; gap: 8px;">
+<button onClick="{{closeDialog}}" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Annuler</button>
+<button onClick="{{confirm}}" style="{{confirmStyle}}">Désactiver</button>
+</div>
+</section>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { dialog: false, reason: '', off: false }; }
+  renderVals() {
+    const s = this.state;
+    const R = ['Demande du titulaire', 'Suspicion de fraude', 'Compte en double'];
+    const reasons = R.map((r) => {
+      const on = s.reason === r;
+      return { label: r, on: on ? 'true' : 'false', pick: () => this.setState({ reason: r }),
+        style: 'display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; border-radius: 10px; cursor: pointer; text-align: left; font: 400 14px/20px var(--font-admin); color: var(--ink); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + ';',
+        dot: 'width: 16px; height: 16px; border-radius: 999px; box-sizing: border-box; flex: none; border: ' + (on ? '5px solid var(--volt)' : '2px solid var(--ink-faint)') + ';' };
+    });
+    return {
+      reasons, dialog: s.dialog, off: s.off, reason: s.reason,
+      status: s.off ? 'Désactivé' : 'Actif',
+      statusStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + (s.off ? 'background: var(--surface-2); color: var(--ink-muted);' : 'background: var(--success-soft); color: var(--success);'),
+      session1: s.off ? 'fermée' : 'active · 14:31',
+      session2: s.off ? 'fermée' : 'active · 3 nov.',
+      deactivateLabel: s.off ? 'Réactiver le compte' : 'Désactiver le compte',
+      deactivateStyle: 'min-height: 40px; padding: 0 14px; border-radius: 10px; border: none; cursor: pointer; font: 500 14px/20px var(--font-admin); ' + (s.off ? 'background: var(--volt); color: var(--on-volt);' : 'background: var(--error-soft); color: var(--error-text);'),
+      openDialog: () => s.off ? this.setState({ off: false, reason: '' }) : this.setState({ dialog: true }),
+      closeDialog: () => this.setState({ dialog: false, reason: '' }),
+      confirm: () => { if (s.reason) this.setState({ dialog: false, off: true }); },
+      confirmStyle: 'min-height: 40px; padding: 0 14px; border-radius: 10px; border: none; font: 600 14px/20px var(--font-admin); background: var(--error); color: #FFFFFF; cursor: ' + (s.reason ? 'pointer' : 'not-allowed') + ';' + (s.reason ? '' : ' opacity: 0.45;')
+    };
+  }
+}
+</script>
+</body>
+</html>

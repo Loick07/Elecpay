@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Compteurs</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+.bo-row:hover td{background:var(--surface-2)}
+input::placeholder{color:var(--ink-faint)}
+</style>
+</helmet>
+<div data-theme="light" style="min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="compteurs" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+<div><h1 style="margin: 0; font: 600 24px/32px var(--font-admin);">Compteurs</h1><p style="margin: 2px 0 0; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Relevés reçus aujourd'hui à 06:00 · source : simulateur (E²C à brancher)</p></div>
+<label style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: var(--surface-1); border: 1px solid var(--line); min-width: 280px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input aria-label="Rechercher un compteur" placeholder="Référence, foyer ou titulaire" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--ink); font: 400 14px/20px var(--font-admin);"></label>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; gap: 12px;">
+<div style="flex: 1 1 180px; padding: 14px 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Compteurs rattachés</span><span style="font: 600 24px/30px var(--font-admin); font-variant-numeric: tabular-nums;">1 742</span></div>
+<div style="flex: 1 1 180px; padding: 14px 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Relevés reçus aujourd'hui</span><span style="font: 600 24px/30px var(--font-admin); font-variant-numeric: tabular-nums;">1 739 <span style="font-size: 13px; font-weight: 500; color: var(--ink-muted);">/ 1 742</span></span></div>
+<div style="flex: 1 1 180px; padding: 14px 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Anomalies ouvertes</span><span style="font: 600 24px/30px var(--font-admin); color: var(--warning); font-variant-numeric: tabular-nums;">3</span></div>
+<div style="flex: 1 1 180px; padding: 14px 16px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);"><span style="display: block; font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Inactifs</span><span style="font: 600 24px/30px var(--font-admin); font-variant-numeric: tabular-nums;">11</span></div>
+</section>
+
+<div role="tablist" aria-label="Filtrer les compteurs" style="display: flex; flex-wrap: wrap; gap: 6px;">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="4"><button role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button></sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<div style="flex: 2 1 560px; min-width: 0; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin); font-variant-numeric: tabular-nums;">
+<thead><tr>
+<th style="text-align: left; padding: 12px 16px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Compteur</th>
+<th style="text-align: left; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Foyer · titulaire</th>
+<th style="text-align: right; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Puissance</th>
+<th style="text-align: right; padding: 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Dernier index</th>
+<th style="text-align: left; padding: 12px 16px 12px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Relevé du jour</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="m" hint-placeholder-count="8">
+<tr class="bo-row" onClick="{{m.pick}}" style="{{m.rowStyle}}">
+<td style="padding: 10px 16px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; white-space: nowrap;">{{m.ref}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid var(--line);"><span style="display: block; font-weight: 500;">{{m.home}}</span><span style="color: var(--ink-muted); font-size: 12px;">{{m.owner}}</span></td>
+<td style="padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap;">{{m.kva}}</td>
+<td style="padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap;">{{m.index}}</td>
+<td style="padding: 10px 16px 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap;"><span style="{{m.badgeStyle}}">{{m.badge}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+
+<aside style="flex: 1 1 300px; min-width: 0; padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;"><span style="font: 500 13px/18px var(--font-mono);">{{sel.ref}}</span><span style="{{sel.badgeStyle}}">{{sel.badge}}</span></div>
+<div><h2 style="margin: 0; font: 600 16px/24px var(--font-admin);">{{sel.home}}</h2><span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">{{sel.owner}} · {{sel.kva}}</span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; font: 400 13px/20px var(--font-admin); font-variant-numeric: tabular-nums;">
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Index d'hier</span><span style="font-weight: 600;">{{sel.prev}}</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: var(--ink-muted);">Index d'aujourd'hui</span><span style="font-weight: 600;">{{sel.index}}</span></div>
+</div>
+<p style="margin: 0; padding: 12px; border-radius: 10px; background: var(--surface-2); font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">{{sel.note}}</p>
+<sc-if value="{{sel.anomaly}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: none; background: var(--volt); color: var(--on-volt); font: 600 14px/20px var(--font-admin); cursor: pointer;">Demander un relevé de contrôle</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Classer sans suite</button>
+</div>
+<span style="font: 400 12px/16px var(--font-admin); color: var(--ink-faint);">Un relevé en anomalie n'entre pas dans le calcul d'une facture tant qu'il n'est pas vérifié.</span>
+</sc-if>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { f: 'tous', sel: '0219-7741' }; }
+  renderVals() {
+    const M = [
+      { ref: '0412-8833', home: 'Maison Mpita', owner: 'Loick Makosso', kva: '6 kVA', prev: '18 736,0', index: '18 741,4', st: 'ok', note: 'Relevé reçu à 06:00. Consommation de la veille : 5,4 kWh. Octobre facturé : 18 452,0 → 18 664,4 kWh.' },
+      { ref: '0377-1209', home: 'Boutique Tié-Tié', owner: 'Loick Makosso', kva: '9 kVA', prev: '27 268,3', index: '27 279,6', st: 'ok', note: 'Relevé reçu à 06:00. Consommation de la veille : 11,3 kWh.' },
+      { ref: '0219-7741', home: 'Appartement Loandjili', owner: 'Junior Ibara', kva: '3 kVA', prev: '18 210,4', index: '18 198,2', st: 'baisse', note: 'Index en baisse de 12,2 kWh par rapport à hier. Causes possibles : erreur de relevé, compteur remplacé ou manipulé. Relevé marqué en anomalie automatiquement.' },
+      { ref: '0588-0316', home: 'Villa Mpaka', owner: 'Arsène Massamba', kva: '12 kVA', prev: '41 902,6', index: '—', st: 'manquant', note: 'Aucun relevé reçu ce matin. La consommation du jour sera estimée à partir des 7 derniers jours.' },
+      { ref: '0590-2287', home: 'Studio Mpaka', owner: 'Arsène Massamba', kva: '3 kVA', prev: '9 114,0', index: '—', st: 'manquant', note: 'Aucun relevé reçu ce matin. La consommation du jour sera estimée à partir des 7 derniers jours.' },
+      { ref: '0301-5524', home: 'Maison Tchimbamba', owner: 'Prisca Loemba', kva: '6 kVA', prev: '22 015,3', index: '22 024,0', st: 'ok', note: 'Relevé reçu à 06:00. Consommation de la veille : 8,7 kWh.' },
+      { ref: '0145-9930', home: 'Maison Siafoumou', owner: 'Mireille Tchicaya', kva: '6 kVA', prev: '15 880,2', index: '15 887,9', st: 'ok', note: 'Relevé reçu à 06:00. Consommation de la veille : 7,7 kWh.' },
+      { ref: '0099-4410', home: 'Ancien local Fond Tié-Tié', owner: 'Bienvenu Nkounkou', kva: '6 kVA', prev: '30 551,0', index: '30 551,0', st: 'inactif', note: 'Compte du titulaire désactivé le 8 nov. Le compteur ne génère plus de facture.' }
+    ];
+    const ST = {
+      ok: ['Reçu', 'background: var(--success-soft); color: var(--success);'],
+      baisse: ['Index en baisse', 'background: var(--error-soft); color: var(--error-text);'],
+      manquant: ['Manquant', 'background: var(--warning-soft); color: var(--warning);'],
+      inactif: ['Inactif', 'background: var(--surface-2); color: var(--ink-muted);']
+    };
+    const s = this.state;
+    const F = [['tous', 'Tous'], ['anomalies', 'Anomalies (3)'], ['inactif', 'Inactifs'], ['ok', 'Relevé reçu']];
+    const chips = F.map((c) => {
+      const on = c[0] === s.f;
+      return { label: c[1], on: on ? 'true' : 'false', pick: () => this.setState({ f: c[0] }),
+        style: 'min-height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font: 500 13px/20px var(--font-admin); color: var(--ink); border: 1px solid ' + (on ? 'var(--volt)' : 'var(--line)') + '; background: ' + (on ? 'var(--volt-soft)' : 'var(--surface-1)') + ';' };
+    });
+    const keep = (m) => s.f === 'tous' || (s.f === 'anomalies' ? (m.st === 'baisse' || m.st === 'manquant') : m.st === s.f);
+    const badgeStyle = (st) => 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + ST[st][1];
+    const rows = M.filter(keep).map((m) => ({
+      ref: m.ref, home: m.home, owner: m.owner, kva: m.kva, index: m.index === '—' ? '—' : m.index + ' kWh',
+      badge: ST[m.st][0], badgeStyle: badgeStyle(m.st),
+      pick: () => this.setState({ sel: m.ref }),
+      rowStyle: 'cursor: pointer;' + (m.ref === s.sel ? ' background: var(--volt-soft);' : '')
+    }));
+    const c = M.find((m) => m.ref === s.sel) || M[0];
+    const sel = { ref: c.ref, home: c.home, owner: c.owner, kva: c.kva, prev: c.prev + ' kWh', index: c.index === '—' ? 'non reçu' : c.index + ' kWh', note: c.note,
+      badge: ST[c.st][0], badgeStyle: badgeStyle(c.st), anomaly: c.st === 'baisse' };
+    return { chips, rows, sel };
+  }
+}
+</script>
+</body>
+</html>

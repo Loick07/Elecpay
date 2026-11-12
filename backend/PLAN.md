@@ -204,7 +204,7 @@ Terminé quand : tests de tous les cas (mauvais mot de passe, compte désactivé
   (succès, solde insuffisant, refus, délai dépassé, statut inconnu).
 - Verrou : une seule transaction `en_attente` par facture ; montant = montant de la facture, jamais choisi par le client.
 - Même `Idempotency-Key` → même transaction, jamais un double débit.
-- Expiration automatique des transactions en attente trop longtemps.
+- Expiration automatique des transactions en attente trop longtemps (10 min sans saisie du code PIN). Exception : PIN saisi mais débit non confirmé → reste `en_attente` jusqu'à la réponse de l'opérateur ou une relance admin (voir maquette admin A8).
 - Paiement pour un proche : autorisé si payeur délégué du foyer.
 
 Terminé quand : tests de double clic, double webhook, webhook mal signé, paiement d'une facture déjà payée, échec puis nouvelle tentative.

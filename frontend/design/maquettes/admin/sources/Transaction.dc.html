@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Détail et rapprochement d'une transaction</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/elecpay/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{color:inherit}
+@keyframes bo-spin{to{transform:rotate(1turn)}}
+@media (prefers-reduced-motion:reduce){.bo-spin{animation:none!important}}
+</style>
+</helmet>
+<div data-theme="light" style="min-height: 960px; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink); font-family: var(--font-admin);">
+<div style="flex: 1 1 232px; display: flex;"><dc-import name="Menu" active="transactions" hint-size="232px,960px"></dc-import></div>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
+<nav aria-label="Fil d'Ariane" style="font: 500 13px/20px var(--font-admin); color: var(--ink-muted);"><a href="Transactions.dc.html" style="color: var(--volt-text);">Transactions</a> › <span style="font-family: var(--font-mono); font-size: 12px;">TX-2026-004815</span></nav>
+
+<section style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 20px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;"><span style="font: 600 12px/16px var(--font-admin); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted);">MTN MoMo · 12 nov. 2026 à 14:31</span><span style="{{statusStyle}}">{{status}}</span></div>
+<span style="font: 700 34px/40px var(--font-admin); letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">15 520 <span style="font-size: 15px; font-weight: 500; color: var(--ink-muted);">FCFA</span></span>
+<span style="font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Payeur : <strong style="color: var(--ink); font-weight: 500;">Prisca Loemba</strong> · facture <a href="Facture.dc.html" style="font-family: var(--font-mono); font-size: 12px; color: var(--current-text);">FAC-2026-10-004377</a> · Maison Tchimbamba</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<sc-if value="{{canCheck}}" hint-placeholder-val="{{true}}">
+<button onClick="{{check}}" style="min-height: 40px; padding: 0 16px; border-radius: 10px; border: none; background: var(--volt); color: var(--on-volt); font: 600 14px/20px var(--font-admin); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 11-2.3-5.6M20 4v5h-5"></path></svg>Relancer la vérification auprès de l'opérateur</button>
+</sc-if>
+<sc-if value="{{checking}}" hint-placeholder-val="{{false}}">
+<span role="status" style="min-height: 40px; padding: 0 16px; border-radius: 10px; background: var(--surface-2); display: inline-flex; align-items: center; gap: 10px; font: 500 14px/20px var(--font-admin);"><span class="bo-spin" style="width: 16px; height: 16px; border-radius: 999px; border: 2px solid var(--current); border-right-color: transparent; animation: bo-spin 0.8s linear infinite;"></span>Interrogation de MTN MoMo…</span>
+</sc-if>
+<sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+<a href="Facture.dc.html" style="min-height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); display: inline-flex; align-items: center; font: 500 14px/20px var(--font-admin);">Voir le reçu EP-2026-000131</a>
+</sc-if>
+</div>
+</section>
+
+<sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 12px 16px; border-radius: 12px; background: var(--success-soft); color: var(--success); font: 500 14px/20px var(--font-admin);">MTN MoMo confirme le débit (référence MP261112.1431.C77812). La transaction passe en « Réussie », la facture en « Payée », le reçu est généré et la cliente est notifiée.</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+<div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+<section style="border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); overflow-x: auto;">
+<div style="padding: 16px 18px 6px;"><h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Rapprochement ElecPay ↔ opérateur</h2></div>
+<table style="width: 100%; border-collapse: collapse; font: 400 13px/18px var(--font-admin); font-variant-numeric: tabular-nums;">
+<thead><tr><th style="text-align: left; padding: 10px 18px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Élément</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">ElecPay</th><th style="text-align: left; padding: 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Opérateur</th><th style="text-align: left; padding: 10px 18px 10px 12px; font: 500 12px/16px var(--font-admin); color: var(--ink-muted); border-bottom: 1px solid var(--line);">Concordance</th></tr></thead>
+<tbody>
+<tr><td style="padding: 11px 18px; border-bottom: 1px solid var(--line);">Montant</td><td style="padding: 11px 12px; border-bottom: 1px solid var(--line);">15 520 FCFA</td><td style="padding: 11px 12px; border-bottom: 1px solid var(--line);">15 520 FCFA</td><td style="padding: 11px 18px 11px 12px; border-bottom: 1px solid var(--line); color: var(--success); font-weight: 600;">Identique</td></tr>
+<tr><td style="padding: 11px 18px; border-bottom: 1px solid var(--line);">Numéro débité</td><td style="padding: 11px 12px; border-bottom: 1px solid var(--line);">+242 06 778 21 45</td><td style="padding: 11px 12px; border-bottom: 1px solid var(--line);">+242 06 778 21 45</td><td style="padding: 11px 18px 11px 12px; border-bottom: 1px solid var(--line); color: var(--success); font-weight: 600;">Identique</td></tr>
+<tr><td style="padding: 11px 18px; border-bottom: 1px solid var(--line);">Référence</td><td style="padding: 11px 12px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px;">TX-2026-004815</td><td style="padding: 11px 12px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px;">MP261112.1431.C77812</td><td style="padding: 11px 18px 11px 12px; border-bottom: 1px solid var(--line); color: var(--success); font-weight: 600;">Liée</td></tr>
+<tr><td style="padding: 11px 18px;">Statut</td><td style="padding: 11px 12px;">{{ourStatus}}</td><td style="padding: 11px 12px;">{{opStatus}}</td><td style="{{matchStyle}}">{{match}}</td></tr>
+</tbody>
+</table>
+</section>
+
+<section style="padding: 14px 18px; border-radius: 14px; background: var(--surface-2); display: flex; gap: 10px; align-items: flex-start; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 018 0v4"></path></svg>
+<span>Il n'existe pas de bouton « Marquer comme payée » : seul l'opérateur confirme un paiement. Si l'opérateur répond « échec » alors que la cliente affirme avoir été débitée, ouvrez un litige avec sa preuve (SMS de l'opérateur) : il sera traité avec MTN MoMo.</span>
+</section>
+<button style="align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Ouvrir un litige</button>
+</div>
+
+<aside style="flex: 1 1 320px; min-width: 0; padding: 18px; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font: 600 15px/22px var(--font-admin);">Chronologie</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px;">
+<sc-for list="{{events}}" as="e" hint-placeholder-count="5">
+<li style="display: flex; gap: 10px;"><span style="{{e.dot}}"></span><span style="display: flex; flex-direction: column; font: 400 13px/20px var(--font-admin);"><span style="font-weight: 600;">{{e.title}}</span><span style="color: var(--ink-muted); font-variant-numeric: tabular-nums;">{{e.sub}}</span></span></li>
+</sc-for>
+</ol>
+<div style="padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; font: 400 12px/18px var(--font-admin); color: var(--ink-muted);">
+<span>Clé d'idempotence : <span style="font-family: var(--font-mono);">7f3c1e9a-52b4</span></span>
+<span>Facture verrouillée pendant la transaction : aucune seconde demande possible.</span>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 'pending' }; }
+  componentWillUnmount() { clearTimeout(this.t); }
+  renderVals() {
+    const st = this.state.step;
+    const done = st === 'done';
+    const ev = [
+      ['Demande créée par la cliente', '14:31:02 · application Android'],
+      ['Envoyée à MTN MoMo', '14:31:03 · réponse : demande acceptée'],
+      ['Code PIN saisi par la cliente', '14:31:40 · selon l’opérateur'],
+      ['Aucune confirmation de débit reçue', 'depuis 14:31 · webhook attendu'],
+      ['Vérification relancée par Christelle Mabiala', '14:40 · réponse : en cours de traitement']
+    ];
+    if (st !== 'pending') ev.push(['Vérification relancée par Christelle Mabiala', '14:45 · ' + (done ? 'réponse : débit confirmé' : 'en cours…')]);
+    if (done) { ev.push(['Transaction réussie · facture payée', '14:45 · reçu EP-2026-000131 généré']); }
+    const events = ev.map((e, i) => {
+      const last = i === ev.length - 1;
+      const color = done && last ? 'var(--success)' : (i === 3 && !done ? 'var(--warning)' : 'var(--current)');
+      return { title: e[0], sub: e[1], dot: 'width: 10px; height: 10px; margin-top: 5px; border-radius: 999px; flex: none; background: ' + color + ';' };
+    });
+    return {
+      events, done,
+      canCheck: st === 'pending', checking: st === 'checking',
+      check: () => { this.setState({ step: 'checking' }); this.t = setTimeout(() => this.setState({ step: 'done' }), 1600); },
+      status: done ? 'Réussie' : 'En attente · 14 min',
+      statusStyle: 'display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font: 600 11px/14px var(--font-admin); ' + (done ? 'background: var(--success-soft); color: var(--success);' : 'background: var(--warning-soft); color: var(--warning);'),
+      ourStatus: done ? 'Réussie' : 'En attente',
+      opStatus: done ? 'SUCCESSFUL · débit confirmé' : 'PENDING · PIN saisi, débit non confirmé',
+      match: done ? 'Rapprochée' : 'À vérifier',
+      matchStyle: 'padding: 11px 18px 11px 12px; font-weight: 600; color: ' + (done ? 'var(--success)' : 'var(--warning)') + ';'
+    };
+  }
+}
+</script>
+</body>
+</html>

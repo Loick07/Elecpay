@@ -97,5 +97,12 @@ Décisions : prix en millièmes de FCFA, puissance en VA, propriétaire = `house
 vues mensuelle / trimestrielle… en **estimation** (B5), facture officielle bimestrielle.
 Besoins des maquettes reportés aux étapes B3–B11 : tableau dans `backend/PLAN.md` (fin de B1).
 
-**Prochaine étape : B2 — Simulateurs et données de démo**, découpée en sous-étapes validées une par une par Loick.
+**B2 (simulateurs et données de démo) ✅ terminé le 12/11/2026** — CI verte. Moteur de calcul unique
+`app/modules/bills/calculator.py` (reproduit la vraie facture : 571 kWh → 40 384 FCFA) ; simulateurs dans `app/simulators/` ;
+`python -m scripts.reset_db && python -m scripts.seed` (~19 s, 13 comptes fictifs, mot de passe `Demo2026!`) ;
+`python -m scripts.daily_tick` (relevé quotidien idempotent). Argon2id dans `app/core/security.py`, UTC+1 dans
+`app/core/timezone.py`. Hypothèses : échéance = émission + 15 j, émission = fin de période + 3 j, pas de frais de retard.
+509 tests (~1 min).
+
+**Prochaine étape : B3 — Comptes et authentification**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

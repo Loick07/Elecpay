@@ -11,6 +11,7 @@ from app.core.errors import ErrorResponse, register_error_handlers
 from app.core.rate_limit import RateLimiter
 from app.modules.auth.router import router as auth_router
 from app.modules.auth.web_router import router as auth_web_router
+from app.modules.bills.router import router as bills_router
 from app.modules.consumption.readings_router import router as readings_router
 from app.modules.consumption.router import router as consumption_router
 from app.modules.health.router import router as health_router
@@ -63,6 +64,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(meters_router, prefix=API_PREFIX)
     app.include_router(consumption_router, prefix=API_PREFIX)
     app.include_router(readings_router, prefix=API_PREFIX)
+    app.include_router(bills_router, prefix=API_PREFIX)
 
     return app
 

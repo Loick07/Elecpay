@@ -8,9 +8,10 @@ from datetime import UTC, date, datetime
 import pytest
 
 from app.modules.bills.models import Bill, BillLine, BillSource, BillStatus
+from app.modules.bills.periods import bill_reference
 from app.modules.payments.models import PaymentProvider, PaymentTransaction, TransactionStatus
 from app.modules.receipts.models import Receipt
-from app.simulators.bills import bill_reference, generate_bills
+from app.simulators.bills import generate_bills
 from app.simulators.payments import (
     PAYMENT_TIMEOUT,
     BillOutcome,

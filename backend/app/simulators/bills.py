@@ -6,35 +6,18 @@ elle est entièrement couverte par les relevés et si sa date d'émission est pa
 
 Index de facturation : relevé de minuit (heure du Congo) au début du premier jour
 (ancien index) et au début du lendemain du dernier jour (nouvel index).
-Les montants viennent EXCLUSIVEMENT du moteur `compute_bill` (B2.1).
+Les montants viennent EXCLUSIVEMENT du moteur `compute_bill` (B2.1) ; périodes et dates
+viennent de `app/modules/bills/periods.py` (les mêmes que pour `generate_bill`).
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, time, timedelta
-from typing import Protocol
+from datetime import date, datetime, timedelta
 
-from app.core.calendar import MONTHS_PER_YEAR, add_months
-from app.core.timezone import CONGO_TZ, local_date
+from app.core.timezone import local_date
 from app.modules.bills.calculator import BillComputation, TariffLike, compute_bill
+from app.modules.bills.periods import BillingPeriod, billing_periods, issued_at
 from app.simulators.readings import SimulatedReading
-
-ISSUE_HOUR = time(8, 0)  # factures émises à 8 h, heure du Congo
-
-
-class BillingSettings(Protocol):
-    """Réglages de facturation nécessaires aux simulateurs (`Settings` convient tel quel)."""
-
-    billing_period_months: int
-    bill_issue_delay_days: int
-    bill_due_delay_days: int
-
-
-@dataclass(frozen=True, slots=True)
-class BillingPeriod:
-    start: date  # premier jour (inclus)
-    end: date  # dernier jour (inclus)
-    months_count: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,31 +34,6 @@ class SimulatedBill:
     issued_at: datetime  # UTC
     due_date: date
     computation: BillComputation
-
-
-def billing_periods(first_day: date, last_day: date, months: int) -> list[BillingPeriod]:
-    """Périodes calendaires complètes comprises entre `first_day` et `last_day` (inclus)."""
-    if months < 1 or MONTHS_PER_YEAR % months != 0:
-        raise ValueError(f"Durée de période invalide : {months} (doit diviser 12)")
-    # Premier début de période aligné (mois 1, 1 + n, 1 + 2n…) au plus tôt le first_day.
-    start = date(first_day.year, 1, 1)
-    while start < first_day:
-        start = add_months(start, months)
-    periods = []
-    while True:
-        next_start = add_months(start, months)
-        end = next_start - timedelta(days=1)
-        if end > last_day:
-            return periods
-        periods.append(BillingPeriod(start, end, months))
-        start = next_start
-
-
-def bill_reference(issue_day: date, sequence: int) -> str:
-    """Numéro de facture sur 14 chiffres, comme E²C : date d'émission AAAAMMJJ + 6 chiffres."""
-    if not 0 < sequence < 1_000_000:
-        raise ValueError("Le numéro de séquence doit être compris entre 1 et 999 999")
-    return f"{issue_day:%Y%m%d}{sequence:06d}"
 
 
 def generate_bills(
@@ -114,7 +72,7 @@ def generate_bills(
                 current_index_wh=current.index_wh,
                 consumption_wh=consumption,
                 billed_power_va=billed_power_va,
-                issued_at=datetime.combine(issue_day, ISSUE_HOUR, tzinfo=CONGO_TZ).astimezone(UTC),
+                issued_at=issued_at(issue_day),
                 due_date=issue_day + timedelta(days=due_delay_days),
                 computation=compute_bill(consumption, period.months_count, tariff),
             )

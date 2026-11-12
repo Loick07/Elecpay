@@ -18,3 +18,6 @@ cryptography==50.0.2   # requis par PyMySQL pour l'authentification MySQL 8 (cac
 # Sécurité
 PyJWT==2.15.1
 argon2-cffi==25.1.0
+
+# Documents
+fpdf2==2.8.9   # factures en PDF (pur Python, sans dépendance système)

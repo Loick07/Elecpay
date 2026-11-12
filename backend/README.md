@@ -43,6 +43,7 @@ La CI GitHub Actions (`.github/workflows/backend.yml`) lance Ruff, les migration
 - Authentification (mobile et back-office) : [`docs/AUTHENTIFICATION.md`](docs/AUTHENTIFICATION.md).
 - Foyers, membres et compteurs : [`docs/FOYERS_COMPTEURS.md`](docs/FOYERS_COMPTEURS.md).
 - Consommation (séries, résumé, relevés, pagination) : [`docs/CONSOMMATION.md`](docs/CONSOMMATION.md).
+- Factures (liste, reste à payer, détail, PDF) : [`docs/FACTURES.md`](docs/FACTURES.md).
 - Schéma, relations et garde-fous : [`docs/SCHEMA.md`](docs/SCHEMA.md). Calcul des factures E²C : [`docs/FACTURE_E2C.md`](docs/FACTURE_E2C.md).
 - Plusieurs règles métier sont des **triggers MySQL** (facture jamais supprimée, paiement terminé figé, audit intouchable…).
   Ils exigent l'option `log_bin_trust_function_creators=1`, déjà réglée dans `docker-compose.yml`.

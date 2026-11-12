@@ -2,8 +2,9 @@
 
 Pour chaque compteur actif :
 1. ajoute les relevés manquants jusqu'à minuit ce matin (rattrape les jours manqués) ;
-2. émet les factures des périodes terminées dont la date d'émission est arrivée ;
-puis passe « en retard » les factures impayées dont l'échéance est dépassée.
+2. émet les factures des périodes terminées dont la date d'émission est arrivée
+   (par `generate_bill`, le service unique de B6) ;
+puis passe « en retard » les factures impayées échues (`mark_overdue_bills`).
 
 Idempotent : relancé le même jour, il ne crée rien en double.
 Ne refacture JAMAIS une période qui a déjà une facture, même annulée (la correction
@@ -16,27 +17,22 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.timezone import local_date
-from app.modules.bills.models import Bill, BillStatus
+from app.modules.bills.errors import BillingError
+from app.modules.bills.models import Bill
+from app.modules.bills.notifications import bill_issued_notification
+from app.modules.bills.periods import BillingSettings, billing_periods, issue_day
+from app.modules.bills.service import generate_bill, mark_overdue_bills
 from app.modules.consumption.models import MeterReading
 from app.modules.households.models import Household
 from app.modules.meters.models import Meter, MeterStatus
 from app.modules.notifications.service import insert_notifications
-from app.modules.tariffs.models import Tariff
-from app.simulators.bills import BillingSettings, billing_periods, generate_bills
 from app.simulators.demo_dataset import profile_for
-from app.simulators.persistence import (
-    anomaly_notification,
-    bill_issued_notification,
-    bill_overdue_notification,
-    insert_bill,
-    insert_readings,
-    next_bill_sequence,
-)
-from app.simulators.readings import PROFILES, SimulatedReading, generate_readings
+from app.simulators.persistence import anomaly_notification, insert_readings
+from app.simulators.readings import PROFILES, generate_readings
 
 
 @dataclass
@@ -49,16 +45,6 @@ class TickReport:
 def tick_seed(meter_id: int, first_day: date) -> int:
     """Graine déterministe d'un passage : même compteur + même jour → mêmes relevés."""
     return meter_id * 1_000_000 + first_day.toordinal()
-
-
-def tariff_at(session: Session, day: date) -> Tariff | None:
-    """Tarif en vigueur à une date (périodes [valid_from, valid_to[, sans chevauchement)."""
-    return session.scalars(
-        select(Tariff)
-        .where(Tariff.valid_from <= day, or_(Tariff.valid_to.is_(None), Tariff.valid_to > day))
-        .order_by(Tariff.valid_from.desc())
-        .limit(1)
-    ).first()
 
 
 class _DailyTick:
@@ -127,86 +113,45 @@ class _DailyTick:
             query = query.where(MeterReading.is_anomaly.is_(False))
         return self.session.scalars(query.order_by(MeterReading.read_at.desc()).limit(1)).first()
 
-    # --- 2. Factures ----------------------------------------------------------------
+    # --- 2. Factures (toujours par generate_bill) ------------------------------------
 
     def _issue_due_bills(self, meter: Meter, owner_id: int | None) -> None:
-        readings = [
-            SimulatedReading(
-                read_at=r.read_at,
-                index_wh=r.index_wh,
-                consumption_wh=r.consumption_wh,
-                is_estimated=r.is_estimated,
-                is_anomaly=r.is_anomaly,
-                anomaly_reason=r.anomaly_reason,
+        first, last = self.session.execute(
+            select(func.min(MeterReading.read_at), func.max(MeterReading.read_at)).where(
+                MeterReading.meter_id == meter.id
             )
-            for r in self.session.scalars(
-                select(MeterReading)
-                .where(MeterReading.meter_id == meter.id)
-                .order_by(MeterReading.read_at)
-            )
-        ]
-        first_day = local_date(readings[0].read_at)
-        last_day = local_date(readings[-1].read_at) - timedelta(days=1)
+        ).one()
+        first_day = local_date(first)
+        last_day = local_date(last) - timedelta(days=1)  # dernière journée entièrement relevée
         if last_day < first_day:
             return
         already_billed = set(
             self.session.scalars(select(Bill.period_start).where(Bill.meter_id == meter.id))
-        )  # toutes les factures, annulées comprises
+        )  # toutes les factures, annulées comprises : on ne refacture jamais automatiquement
         for period in billing_periods(first_day, last_day, self.settings.billing_period_months):
-            issue_day = period.end + timedelta(days=self.settings.bill_issue_delay_days)
-            if period.start in already_billed or issue_day > self.today:
+            if period.start in already_billed or issue_day(period, self.settings) > self.today:
                 continue
-            tariff = tariff_at(self.session, period.start)
-            if tariff is None:
+            try:
+                issued = generate_bill(
+                    self.session, meter, period.start, today=self.today, settings=self.settings
+                )
+            except BillingError as problem:  # tarif absent, relevé manquant ou en anomalie…
                 self.report.skipped.append(
                     f"Compteur {meter.reference}, période du {period.start:%d/%m/%Y} : "
-                    "aucun tarif en vigueur"
+                    f"{problem.message}"
                 )
                 continue
-            window = [
-                r
-                for r in readings
-                if period.start <= local_date(r.read_at) <= period.end + timedelta(days=1)
-            ]
-            try:
-                (simulated,) = generate_bills(
-                    window,
-                    tariff,
-                    period_months=period.months_count,
-                    issue_delay_days=self.settings.bill_issue_delay_days,
-                    due_delay_days=self.settings.bill_due_delay_days,
-                    as_of=self.today,
-                    billed_power_va=meter.subscribed_power_va,
-                )
-            except ValueError as problem:  # relevé de facturation manquant ou en anomalie
-                self.report.skipped.append(f"Compteur {meter.reference} : {problem}")
-                continue
-            bill = insert_bill(
-                self.session,
-                meter_id=meter.id,
-                tariff_id=tariff.id,
-                simulated=simulated,
-                sequence=next_bill_sequence(self.session),
-            )
-            self.report.counts["bills"] += 1
-            if owner_id is not None:
-                self.notifications.append(bill_issued_notification(owner_id, bill))
+            if issued.created:
+                self.report.counts["bills"] += 1
+                if owner_id is not None:
+                    self.notifications.append(bill_issued_notification(owner_id, issued.bill))
 
     # --- 3. Retards -----------------------------------------------------------------
 
     def _mark_overdue_bills(self) -> None:
-        overdue = self.session.execute(
-            select(Bill, Household.owner_id)
-            .join(Meter, Meter.id == Bill.meter_id)
-            .outerjoin(Household, Household.id == Meter.household_id)
-            .where(and_(Bill.status == BillStatus.UNPAID, Bill.due_date < self.today))
-        ).all()
-        for bill, owner_id in overdue:
-            bill.status = BillStatus.OVERDUE
-            self.report.counts["overdue"] += 1
-            if owner_id is not None:
-                self.notifications.append(bill_overdue_notification(owner_id, bill))
-        self.session.flush()
+        overdue = mark_overdue_bills(self.session, today=self.today)
+        self.report.counts["overdue"] += len(overdue.bills)
+        self.report.counts["notifications"] += overdue.notifications
 
 
 def run_daily_tick(session: Session, *, today: date, settings: BillingSettings) -> TickReport:

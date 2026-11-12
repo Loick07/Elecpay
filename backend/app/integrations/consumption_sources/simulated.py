@@ -5,8 +5,8 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.integrations.consumption_sources.base import HistoryImport
+from app.modules.bills.periods import BillingSettings
 from app.modules.meters.models import Meter
-from app.simulators.bills import BillingSettings
 from app.simulators.history import backfill_meter_history
 
 

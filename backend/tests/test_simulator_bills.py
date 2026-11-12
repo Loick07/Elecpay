@@ -9,12 +9,8 @@ from sqlalchemy import func, select
 from app.core.calendar import add_months
 from app.core.timezone import local_date
 from app.modules.bills.models import Bill, BillLine, BillSource
-from app.simulators.bills import (
-    BillingPeriod,
-    bill_reference,
-    billing_periods,
-    generate_bills,
-)
+from app.modules.bills.periods import BillingPeriod, bill_reference, billing_periods
+from app.simulators.bills import generate_bills
 from app.simulators.readings import PROFILES, ProfileName, generate_readings
 from tests.factories import make_meter, make_tariff
 from tests.test_bill_calculator import E2C

@@ -14,8 +14,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B3 | Comptes et authentification | ✅ terminé (12/11/2026) |
 | B4 | Foyers, compteurs et délégation | ✅ terminé (12/11/2026) |
 | B5 | Consommation | ✅ terminé (12/11/2026) |
-| B6 | Factures | prochaine étape |
-| B7 | Paiements | à faire |
+| B6 | Factures | ✅ terminé (12/11/2026) |
+| B7 | Paiements | prochaine étape |
 | B8 | Reçus | à faire |
 | B9 | Notifications | à faire |
 | B10 | API d'administration | à faire |
@@ -25,15 +25,16 @@ Après B11 seulement : application Flutter, puis back-office Next.js.
 
 ## Point de reprise (mis à jour le 12/11/2026, fin de session)
 
-- **Terminé** : B0 → B5, tout commité et poussé, CI verte (dernier commit de code : `bfe22af`, B5).
-  992 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
-- **Reste** : B6 Factures, B7 Paiements, B8 Reçus, B9 Notifications, B10 API d'administration,
+- **Terminé** : B0 → B6, tout commité et poussé, CI verte.
+  1122 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : B7 Paiements, B8 Reçus, B9 Notifications, B10 API d'administration,
   B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
-- **Prochaine sous-étape** : proposer à Loick le **découpage de B6** (B6.1, B6.2…), l'expliquer en français
-  et attendre sa validation avant d'écrire du code. Points déjà connus pour B6 : service `generate_bill`
-  unique et idempotent, utilisé aussi par `scripts.daily_tick` ; liste filtrée avec la pagination commune ;
-  détail avec lignes et comparaison à la facture précédente ; PDF ; passage en retard ; facture payée immuable
-  (déjà garanti par les triggers de B1) ; accès via `meter_access` (payeur délégué compris).
+- **Prochaine sous-étape** : proposer à Loick le **découpage de B7** (B7.1, B7.2…), l'expliquer en français
+  et attendre sa validation avant d'écrire du code. Points déjà connus pour B7 : interface `PaymentProvider`
+  + `SimulatedProvider` ; clé d'idempotence ; une seule transaction `en_attente` par facture (trigger B1) ;
+  montant = celui de la facture ; facture `pending_payment` pendant le paiement (`can_pay` faux, déjà
+  géré par B6) ; webhook signé, seul à passer `reussie` ; colonne `operator` (MTN / Airtel) ; état
+  « PIN saisi » ; droit de payer = `HouseholdAccess.can_pay` (propriétaire ou payeur délégué).
 - **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
   vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
   CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
@@ -73,8 +74,11 @@ message trompeur pour un numéro vide.
 
 ### Notes reportées aux étapes suivantes
 
-- **B6** : faire passer l'émission des factures de `scripts.daily_tick` par `generate_bill`.
 - **B7** : colonne `operator` (MTN / Airtel) distincte de `provider` ; état « PIN saisi » sans expiration (A8).
+  Une facture `pending_payment` dont la transaction échoue ou expire doit revenir à `unpaid` (ou `overdue`
+  si l'échéance est passée : `displayed_status` le montre déjà à la lecture).
+- **B10** : réémettre la facture d'une période annulée (`generate_bill` refuse : `BILLING_PERIOD_CANCELLED`) ;
+  afficher les messages `BillingError` du relevé quotidien aux administrateurs.
 - **B11** : IP réelle derrière un proxy (`X-Forwarded-For`) ; compteurs de tentatives partagés si plusieurs
   processus ; durée de conservation du journal d'audit (loi congolaise).
 - **Flutter** : un seul rafraîchissement de jeton à la fois. **Next.js** : appeler l'API via le serveur Next
@@ -324,6 +328,31 @@ Réalisé (guide pour Flutter : `backend/docs/CONSOMMATION.md`) :
 - Structure et calculs conformes à `backend/docs/FACTURE_E2C.md` (troncature par ligne).
 - Passage automatique en `overdue` après échéance.
 - Facture payée : aucune modification possible (test).
+
+Réalisé (guide pour Flutter : `backend/docs/FACTURES.md`), sous-étapes validées une à une par Loick :
+- **B6.1** `generate_bill` (`app/modules/bills/service.py`) : unique endroit qui crée une facture (garde-fou
+  d'architecture testé) ; idempotent ; refuse une période annulée, non close, sans tarif, ou dont un relevé de
+  facturation manque / est en anomalie (erreurs `BillingError`). Périodes et dates dans `periods.py`.
+  Décisions : compteur détaché facturé (E²C facture le compteur) ; **numéro = AAAAMMJJ + séquence du jour
+  d'émission** ; émissions simultanées sérialisées par un verrou sur les numéros du jour ; tarif = celui du
+  premier jour de la période ; source `e2c` seulement si tous les relevés viennent d'E²C.
+- **B6.2** relevé quotidien, seed et import d'historique passent par `generate_bill` ; `mark_overdue_bills`
+  (seules les `unpaid`, lendemain de l'échéance, propriétaire prévenu). Seed vérifié identique au franc
+  près (144 factures, 6 284 343 FCFA) ; seuls les numéros changent. Textes des notifications de facture
+  dans `bills/notifications.py`, `format_fcfa` dans `app/core/money.py`.
+- **B6.3** `GET /bills` (`queries.py`) : filtres `status` (`to_pay` = impayées + en retard + en cours ;
+  annulées seulement sur demande), `household_id`, `meter_id`, `year` ; « reste à payer » (`outstanding`,
+  suit foyer et compteur, ignore statut et année) ; **retard affiché à la lecture** sans modifier la base ;
+  `can_pay` = propriétaire ou payeur délégué ET facture impayée ou en retard (jamais en cours de paiement).
+- **B6.4** `GET /bills/{id}` : lignes (valeurs exactes en entiers + valeurs d'affichage), index, tarif
+  (hypothèse signalée), comparaison avec la facture précédente non annulée du même compteur ; facture
+  annulée consultable avec son motif ; autre foyer = `404 BILL_NOT_FOUND`, comme une facture inexistante.
+- **B6.5** `GET /bills/{id}/pdf` (`pdf.py`, fpdf2) : mise en page E²C aux couleurs de la charte, bandeau
+  « Mode démo » si simulé, « seule la facture E²C fait foi », filigrane « ANNULÉE » ; généré à la demande,
+  jamais stocké, `Cache-Control: private, no-store`. Police Helvetica intégrée (latin-1).
+- **B6.6** tests d'acceptation `test_b6_acceptance.py` (cycle émission → retard par le relevé quotidien,
+  facture payée figée même en SQL brut, écrans 6 et 7 par rôle). Vérifié sur l'API lancée avec la base de
+  démo : liste 40–80 ms, détail 33–113 ms, PDF 60–150 ms (~3,4 Ko).
 
 ---
 

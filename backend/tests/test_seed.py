@@ -10,8 +10,9 @@ from datetime import date
 import pytest
 from sqlalchemy import func, select, text
 
+from app.core.money import format_fcfa
 from app.core.security import verify_password
-from app.core.timezone import local_midnight_utc
+from app.core.timezone import local_date, local_midnight_utc
 from app.modules.bills.models import Bill, BillLine, BillStatus
 from app.modules.households.models import Household, HouseholdMember
 from app.modules.meters.models import Meter
@@ -21,7 +22,6 @@ from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User, UserRole
 from app.simulators.demo_dataset import CLIENTS, DEMO_PASSWORD
-from app.simulators.persistence import format_fcfa
 from app.simulators.seeder import SeedError, history_start, seed_demo
 from scripts.reset_db import ResetRefusedError, reset_database
 from scripts.seed import parse_args
@@ -120,6 +120,19 @@ def test_tariff_is_the_assumption_from_the_real_bill(seeded):
     tariff = session.scalars(select(Tariff)).one()
     assert (tariff.price_per_kwh_milli, tariff.is_assumption) == (49_080, True)
     assert tariff.valid_from == history_start(TODAY, 2) == date(2025, 5, 1)
+
+
+def test_bill_numbers_follow_each_other_per_issue_day(seeded):
+    """Factures émises par `generate_bill` (B6) : AAAAMMJJ du jour d'émission + 1, 2, 3…"""
+    session, _ = seeded
+    by_day: dict[str, list[int]] = {}
+    for reference, issued_at in session.execute(
+        select(Bill.reference, Bill.issued_at).order_by(Bill.reference)
+    ):
+        assert reference[:8] == f"{local_date(issued_at):%Y%m%d}"
+        by_day.setdefault(reference[:8], []).append(int(reference[8:]))
+    for sequences in by_day.values():
+        assert sequences == list(range(1, len(sequences) + 1))
 
 
 def test_bills_paid_unpaid_and_overdue(seeded):

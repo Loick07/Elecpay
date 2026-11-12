@@ -10,11 +10,12 @@ from app.core.config import Settings
 from app.core.timezone import local_date, local_midnight_utc
 from app.modules.bills.calculator import compute_bill
 from app.modules.bills.models import Bill, BillLine, BillStatus
+from app.modules.bills.service import tariff_at
 from app.modules.consumption.models import MeterReading
 from app.modules.meters.models import MeterStatus
 from app.modules.notifications.models import Notification, NotificationType
 from app.simulators import daily
-from app.simulators.daily import run_daily_tick, tariff_at
+from app.simulators.daily import run_daily_tick
 from app.simulators.demo_dataset import profile_for
 from app.simulators.persistence import insert_readings
 from app.simulators.readings import PROFILES, ProfileName, generate_readings
@@ -174,6 +175,20 @@ def test_bill_is_issued_on_the_issue_date_not_before(db_session):
     assert tick(db_session, date(2026, 11, 3)).counts["bills"] == 1
 
 
+def test_bills_are_issued_by_the_single_billing_service(db_session, monkeypatch):
+    calls = []
+    real_generate_bill = daily.generate_bill
+
+    def spy(session, meter, period_start, **kwargs):
+        calls.append((meter.id, period_start))
+        return real_generate_bill(session, meter, period_start, **kwargs)
+
+    monkeypatch.setattr(daily, "generate_bill", spy)
+    _, meter = setup_meter(db_session)
+    tick(db_session, date(2026, 11, 3))
+    assert calls == [(meter.id, date(2026, 9, 1))]
+
+
 def test_issued_bill_is_computed_from_the_readings(db_session):
     owner, meter = setup_meter(db_session)
     tick(db_session, date(2026, 11, 3))
@@ -223,7 +238,25 @@ def test_no_tariff_means_no_bill_and_a_clear_message(db_session):
     db_session.flush()
     report = tick(db_session, date(2026, 11, 3))
     assert report.counts["bills"] == 0
-    assert any("aucun tarif" in message for message in report.skipped)
+    assert any(
+        "période du 01/09/2026" in message and "aucun tarif" in message.lower()
+        for message in report.skipped
+    )
+
+
+def test_a_missing_billing_reading_is_reported_and_the_tick_goes_on(db_session):
+    _, meter = setup_meter(db_session, first=date(2026, 8, 31))  # relevés dès le 31/08
+    (opening,) = [
+        r
+        for r in readings_of(db_session, meter)
+        if r.read_at == local_midnight_utc(date(2026, 9, 1))
+    ]
+    db_session.delete(opening)  # relevé de minuit le 01/09 (ancien index de sept.-oct.)
+    db_session.flush()
+    report = tick(db_session, date(2026, 11, 3))
+    assert report.counts["bills"] == 0
+    assert report.counts["readings"] == 3  # les relevés, eux, continuent
+    assert any("manquant au 01/09/2026" in message for message in report.skipped)
 
 
 # --- Retards ------------------------------------------------------------------------

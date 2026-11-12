@@ -62,6 +62,27 @@ def accessible_households(user: User) -> Select[tuple[Household]]:
     )
 
 
+def accessible_household_accesses(session: Session, user: User) -> dict[int, HouseholdAccess]:
+    """Tous les foyers visibles par `user`, avec son rôle dans chacun (clé : id du foyer)."""
+    member_roles = dict(
+        session.execute(
+            select(HouseholdMember.household_id, HouseholdMember.role).where(
+                HouseholdMember.user_id == user.id, HouseholdMember.status == MemberStatus.ACTIVE
+            )
+        ).all()
+    )
+    accesses = {}
+    for household in session.scalars(accessible_households(user).order_by(Household.id)):
+        if household.owner_id == user.id:
+            role = HouseholdRole.OWNER
+        elif member_roles.get(household.id) is MemberRole.PAYER:
+            role = HouseholdRole.PAYER
+        else:
+            role = HouseholdRole.VIEWER
+        accesses[household.id] = HouseholdAccess(household, role)
+    return accesses
+
+
 def household_access(session: Session, user: User, household_id: int) -> HouseholdAccess:
     """Le foyer et le rôle de `user` dedans. 404 si le foyer n'existe pas OU n'est pas à lui."""
     household = session.get(Household, household_id)

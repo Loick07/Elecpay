@@ -17,10 +17,14 @@ from sqlalchemy import func, insert, select
 from sqlalchemy.orm import Session
 
 from app.core.calendar import add_months
+from app.core.money import format_fcfa
 from app.core.security import hash_password
 from app.core.timezone import local_midnight_utc
 from app.modules.audit.models import AuditLog
 from app.modules.bills.models import Bill, BillStatus
+from app.modules.bills.notifications import bill_issued_notification, bill_overdue_notification
+from app.modules.bills.periods import BillingSettings
+from app.modules.bills.service import generate_bill
 from app.modules.households.models import Household, HouseholdMember, MemberRole, MemberStatus
 from app.modules.meters.models import Meter
 from app.modules.notifications.models import NotificationType
@@ -29,17 +33,10 @@ from app.modules.payments.models import PaymentProvider, PaymentTransaction, Tra
 from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User
-from app.simulators.bills import BillingSettings, generate_bills
+from app.simulators.bills import generate_bills
 from app.simulators.demo_dataset import CLIENTS, DEMO_PASSWORD, E2C_CENTERS, TEAM, DemoPerson
 from app.simulators.payments import BillOutcome, Payer, SimulatedAttempt, simulate_payments
-from app.simulators.persistence import (
-    anomaly_notification,
-    bill_issued_notification,
-    bill_overdue_notification,
-    format_fcfa,
-    insert_bill,
-    insert_readings,
-)
+from app.simulators.persistence import anomaly_notification, insert_readings
 from app.simulators.readings import PROFILES, generate_readings
 
 HISTORY_MONTHS = 18
@@ -81,7 +78,6 @@ class _Seeder:
         self.first_day = history_start(today, settings.billing_period_months)
         self.report = SeedReport(self.first_day, today - timedelta(days=1))
         self.users: dict[str, User] = {}
-        self.bill_sequence = 0
         self.successes: list[tuple[SimulatedAttempt, PaymentTransaction]] = []
         self.notifications: list[dict[str, Any]] = []
 
@@ -237,14 +233,20 @@ class _Seeder:
             self._bill_with_payments(meter, owner, story)
 
     def _bill_with_payments(self, meter: Meter, owner: User, story) -> None:
-        self.bill_sequence += 1
-        bill = insert_bill(
+        # La facture est émise par le service unique ; le scénario de paiement a été écrit
+        # à partir du simulateur : les deux doivent tomber d'accord au franc près.
+        bill = generate_bill(
             self.session,
-            meter_id=meter.id,
-            tariff_id=self.tariff.id,
-            simulated=story.bill,
-            sequence=self.bill_sequence,
-        )
+            meter,
+            story.bill.period_start,
+            today=self.today,
+            settings=self.settings,
+        ).bill
+        if bill.amount_total != story.bill.computation.amount_total:
+            raise SeedError(
+                f"Facture {bill.reference} : {bill.amount_total} FCFA émis, "
+                f"{story.bill.computation.amount_total} FCFA attendus par le scénario"
+            )
         self.report.counts["bill_lines"] += len(story.bill.computation.lines)
 
         for attempt in story.attempts:

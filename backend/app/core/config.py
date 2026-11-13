@@ -47,6 +47,13 @@ class Settings(BaseSettings):
     billing_source: Literal["simulated"] = "simulated"
     demo_mode: bool = True
 
+    # Paiements Mobile Money
+    # Secret partagé avec le prestataire pour signer ses webhooks (HMAC-SHA256). Vide : tout
+    # webhook est refusé. Obligatoire (≥ 32 caractères) en production.
+    payment_webhook_secret: SecretStr = SecretStr("")
+    # Sans saisie du code PIN dans ce délai, la transaction expire (« PIN saisi » : jamais).
+    payment_timeout_minutes: int = Field(default=10, ge=1, le=60)
+
     # Facturation (voir backend/docs/FACTURE_E2C.md). E²C facture tous les 2 mois, périodes
     # calées sur le calendrier (janvier-février, mars-avril…). Délais : hypothèses à vérifier.
     billing_period_months: int = 2  # 1, 2, 3, 4, 6 ou 12 (doit diviser 12)
@@ -88,6 +95,11 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"JWT_SECRET doit faire au moins {MIN_JWT_SECRET_LENGTH} caractères aléatoires "
                 "en production"
+            )
+        if len(self.payment_webhook_secret.get_secret_value()) < MIN_JWT_SECRET_LENGTH:
+            raise ValueError(
+                f"PAYMENT_WEBHOOK_SECRET doit faire au moins {MIN_JWT_SECRET_LENGTH} caractères "
+                "aléatoires en production"
             )
         uses_simulation = "simulated" in (self.payment_provider, self.billing_source)
         if uses_simulation and not self.demo_mode:

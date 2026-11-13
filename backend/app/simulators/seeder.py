@@ -30,6 +30,7 @@ from app.modules.meters.models import Meter
 from app.modules.notifications.models import NotificationType
 from app.modules.notifications.service import insert_notifications, notification_row
 from app.modules.payments.models import PaymentProvider, PaymentTransaction, TransactionStatus
+from app.modules.payments.operators import operator_for_phone
 from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User
@@ -42,6 +43,7 @@ from app.simulators.readings import PROFILES, generate_readings
 HISTORY_MONTHS = 18
 DEFAULT_SEED = 2026
 RECENT_EVENTS = timedelta(days=45)  # échecs et anomalies récents → notifications
+PIN_ENTRY_DELAY = timedelta(seconds=20)
 
 
 class SeedError(RuntimeError):
@@ -264,10 +266,16 @@ class _Seeder:
 
     def _transaction(self, bill: Bill, attempt: SimulatedAttempt) -> None:
         payer = self.users[attempt.payer_key]
+        operator = operator_for_phone(attempt.phone_number)
+        if operator is None:
+            raise SeedError(
+                f"Numéro sans Mobile Money dans le jeu de démo : {attempt.phone_number}"
+            )
         transaction = PaymentTransaction(
             bill_id=bill.id,
             payer_id=payer.id,
             provider=PaymentProvider.SIMULATED,
+            operator=operator,
             phone_number=attempt.phone_number,
             amount=attempt.amount,
             idempotency_key=attempt.idempotency_key,
@@ -279,6 +287,10 @@ class _Seeder:
         self.session.add(transaction)
         self.session.flush()  # naît « en attente », comme une vraie transaction
         transaction.status = attempt.status
+        if attempt.pin_entered:  # PIN saisi peu après la demande
+            transaction.pin_entered_at = min(
+                attempt.initiated_at + PIN_ENTRY_DELAY, attempt.finished_at
+            )
         transaction.confirmed_at = attempt.confirmed_at
         transaction.provider_ref = attempt.provider_ref
         transaction.failure_reason = attempt.failure_reason

@@ -87,12 +87,54 @@ def test_unknown_provider_is_refused(db_session):
     with expect_db_rejection(db_session, "ck_payment_transactions_provider"):
         db_session.execute(
             text(
-                "INSERT INTO payment_transactions (bill_id, payer_id, provider, phone_number,"
-                " amount, status, idempotency_key, initiated_at, expires_at, created_at,"
-                " updated_at) VALUES (:b, :p, 'orange', '+242060000001', :a, 'en_attente',"
-                " 'cle-orange', NOW(6), NOW(6) + INTERVAL 10 MINUTE, NOW(6), NOW(6))"
+                "INSERT INTO payment_transactions (bill_id, payer_id, provider, operator,"
+                " phone_number, amount, status, idempotency_key, initiated_at, expires_at,"
+                " created_at, updated_at) VALUES (:b, :p, 'orange', 'mtn', '+242060000001', :a,"
+                " 'en_attente', 'cle-orange', NOW(6), NOW(6) + INTERVAL 10 MINUTE, NOW(6), NOW(6))"
             ),
             {"b": bill.id, "p": payer.id, "a": bill.amount_total},
+        )
+
+
+def test_unknown_operator_is_refused(db_session):
+    bill = make_bill(db_session)
+    payer = make_user(db_session)
+    with expect_db_rejection(db_session, "ck_payment_transactions_operator"):
+        db_session.execute(
+            text(
+                "INSERT INTO payment_transactions (bill_id, payer_id, provider, operator,"
+                " phone_number, amount, status, idempotency_key, initiated_at, expires_at,"
+                " created_at, updated_at) VALUES (:b, :p, 'simulated', 'orange', '+242060000001',"
+                " :a, 'en_attente', 'cle-op', NOW(6), NOW(6) + INTERVAL 10 MINUTE, NOW(6), NOW(6))"
+            ),
+            {"b": bill.id, "p": payer.id, "a": bill.amount_total},
+        )
+
+
+# --- Code PIN saisi (B7.1) ------------------------------------------------------------------
+
+
+def test_pin_entry_is_recorded_while_pending(db_session):
+    transaction = make_transaction(db_session)
+    transaction.pin_entered_at = PAYMENT_START + timedelta(seconds=5)
+    db_session.flush()
+    confirm(db_session, transaction)  # puis le débit est confirmé
+
+
+def test_pin_entry_never_changes_once_recorded(db_session):
+    transaction = make_transaction(db_session)
+    transaction.pin_entered_at = PAYMENT_START + timedelta(seconds=5)
+    db_session.flush()
+    for value in (None, PAYMENT_START + timedelta(seconds=9)):
+        with expect_db_rejection(db_session, "payment_content_immutable"):
+            update_transaction(db_session, transaction, pin_entered_at=value)
+
+
+def test_pin_cannot_be_entered_before_the_request(db_session):
+    transaction = make_transaction(db_session)
+    with expect_db_rejection(db_session, "ck_payment_transactions_pin_after_initiation"):
+        update_transaction(
+            db_session, transaction, pin_entered_at=PAYMENT_START - timedelta(seconds=1)
         )
 
 
@@ -236,7 +278,12 @@ def test_failed_payment_can_never_be_turned_into_success(db_session):
 
 @pytest.mark.parametrize(
     "values",
-    [{"amount": 1}, {"phone_number": "+242069999999"}, {"bill_id": 999_999}],
+    [
+        {"amount": 1},
+        {"phone_number": "+242069999999"},
+        {"bill_id": 999_999},
+        {"operator": "airtel"},  # B7.1 : l'opérateur est fixé à la création
+    ],
 )
 def test_pending_transaction_content_never_changes(db_session, values):
     transaction = make_transaction(db_session)

@@ -107,14 +107,36 @@ def test_production_rejects_weak_jwt_secret(secret):
         make_settings(app_env="production", jwt_secret=secret)
 
 
+def production(**overrides) -> Settings:
+    values = {
+        "app_env": "production",
+        "jwt_secret": STRONG_SECRET,
+        "payment_webhook_secret": STRONG_SECRET,
+    } | overrides
+    return make_settings(**values)
+
+
 def test_production_with_simulation_requires_demo_mode():
     with pytest.raises(ValidationError, match="DEMO_MODE"):
-        make_settings(app_env="production", jwt_secret=STRONG_SECRET, demo_mode=False)
+        production(demo_mode=False)
+
+
+@pytest.mark.parametrize("secret", ["", "short-secret"])
+def test_production_requires_a_strong_webhook_secret(secret):
+    with pytest.raises(ValidationError, match="PAYMENT_WEBHOOK_SECRET"):
+        production(payment_webhook_secret=secret)
 
 
 def test_valid_production_configuration():
-    settings = make_settings(app_env="production", jwt_secret=STRONG_SECRET, demo_mode=True)
+    settings = production(demo_mode=True)
     assert settings.is_production is True
+
+
+def test_payment_defaults():
+    settings = make_settings()
+    assert settings.payment_webhook_secret.get_secret_value() == ""  # webhooks refusés
+    assert settings.payment_timeout_minutes == 10
+    assert "PAYMENT_WEBHOOK_SECRET" not in repr(settings)
 
 
 def test_weak_secret_is_tolerated_in_development():

@@ -9,6 +9,7 @@ Garanties assurées PAR LA BASE (contraintes + triggers MySQL) :
 - même clé d'idempotence → impossible de créer une deuxième transaction ;
 - montant = montant total de la facture (jamais choisi par le client) ;
 - une transaction naît `en_attente`, et une fois terminée elle ne change plus ;
+- opérateur, numéro, montant… sont fixés à la création ; « PIN saisi » ne s'efface jamais ;
 - une transaction n'est jamais supprimée.
 """
 
@@ -24,9 +25,19 @@ from app.modules.users.models import PHONE_LENGTH, PHONE_PATTERN
 
 
 class PaymentProvider(StrEnum):
+    """Qui traite réellement le paiement (l'intégration utilisée)."""
+
     SIMULATED = "simulated"  # mode démo
     MTN = "mtn"  # MTN Mobile Money (à brancher)
     AIRTEL = "airtel"  # Airtel Money (à brancher)
+
+
+class MobileOperator(StrEnum):
+    """L'opérateur choisi par l'abonné (écran 8). En démo, `provider` vaut `simulated` :
+    l'opérateur est affiché, mais aucun débit réel n'a lieu chez lui."""
+
+    MTN = "mtn"  # MTN MoMo
+    AIRTEL = "airtel"  # Airtel Money
 
 
 class TransactionStatus(StrEnum):
@@ -50,6 +61,7 @@ class PaymentTransaction(IdMixin, TimestampMixin, Base):
         CheckConstraint("CHAR_LENGTH(TRIM(idempotency_key)) > 0", name="idempotency_key_not_blank"),
         CheckConstraint("expires_at > initiated_at", name="expires_after_initiation"),
         CheckConstraint("confirmed_at >= initiated_at", name="confirmed_after_initiation"),
+        CheckConstraint("pin_entered_at >= initiated_at", name="pin_after_initiation"),
         # Réussie ⇔ date de confirmation + référence du prestataire.
         CheckConstraint(
             "(status = 'reussie' AND confirmed_at IS NOT NULL AND provider_ref IS NOT NULL)"
@@ -69,6 +81,7 @@ class PaymentTransaction(IdMixin, TimestampMixin, Base):
     # Qui paie : le titulaire ou un payeur délégué du foyer (vérifié par le service).
     payer_id: Mapped[int] = mapped_column(foreign_key("users.id"), index=True)
     provider: Mapped[PaymentProvider] = mapped_column(enum_type(PaymentProvider, "provider"))
+    operator: Mapped[MobileOperator] = mapped_column(enum_type(MobileOperator, "operator"))
     phone_number: Mapped[str] = mapped_column(String(PHONE_LENGTH))  # numéro Mobile Money débité
     amount: Mapped[int] = mapped_column(StrictBigInteger())  # FCFA = total de la facture
     status: Mapped[TransactionStatus] = mapped_column(
@@ -78,6 +91,9 @@ class PaymentTransaction(IdMixin, TimestampMixin, Base):
     provider_ref: Mapped[str | None] = mapped_column(String(64))
     failure_reason: Mapped[str | None] = mapped_column(String(255))
     initiated_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    # Le payeur a saisi son code PIN : la transaction n'expire plus d'elle-même, elle attend
+    # la réponse de l'opérateur (maquette admin A8). Fixé une fois, jamais modifié.
+    pin_entered_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     confirmed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     expires_at: Mapped[datetime] = mapped_column(UTCDateTime())
 

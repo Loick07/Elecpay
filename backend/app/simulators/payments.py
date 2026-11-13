@@ -32,6 +32,7 @@ FAILURE_REASONS = (
     "Code PIN incorrect",
 )
 EXPIRY_REASON = "Délai de confirmation dépassé (code PIN non saisi)"
+PIN_FAILURES = frozenset({"Solde insuffisant", "Code PIN incorrect"})  # échecs après saisie du PIN
 
 
 class BillOutcome(StrEnum):
@@ -61,6 +62,11 @@ class SimulatedAttempt:
     provider_ref: str | None = None
     failure_reason: str | None = None
     receipt_verification_code: str | None = None  # seulement si réussie
+
+    @property
+    def pin_entered(self) -> bool:
+        """Le payeur a saisi son code PIN (réussite, solde insuffisant, PIN incorrect)."""
+        return self.status is TransactionStatus.SUCCEEDED or self.failure_reason in PIN_FAILURES
 
     @property
     def finished_at(self) -> datetime:

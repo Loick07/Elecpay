@@ -10,6 +10,7 @@ import pytest
 from app.modules.bills.models import Bill, BillLine, BillSource, BillStatus
 from app.modules.bills.periods import bill_reference
 from app.modules.payments.models import PaymentProvider, PaymentTransaction, TransactionStatus
+from app.modules.payments.operators import operator_for_phone
 from app.modules.receipts.models import Receipt
 from app.simulators.bills import generate_bills
 from app.simulators.payments import (
@@ -206,6 +207,7 @@ def test_history_is_accepted_by_the_database_and_its_triggers(db_session):
                 bill_id=bill.id,
                 payer_id=user_ids[attempt.payer_key],
                 provider=PaymentProvider.SIMULATED,
+                operator=operator_for_phone(attempt.phone_number),
                 phone_number=attempt.phone_number,
                 amount=attempt.amount,
                 idempotency_key=attempt.idempotency_key,

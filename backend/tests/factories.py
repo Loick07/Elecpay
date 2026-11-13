@@ -19,7 +19,12 @@ from app.modules.consumption.models import MeterReading, ReadingSource
 from app.modules.households.models import Household, HouseholdMember, MemberRole
 from app.modules.meters.models import Meter
 from app.modules.notifications.models import Notification, NotificationType
-from app.modules.payments.models import PaymentProvider, PaymentTransaction, TransactionStatus
+from app.modules.payments.models import (
+    MobileOperator,
+    PaymentProvider,
+    PaymentTransaction,
+    TransactionStatus,
+)
 from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User
@@ -235,6 +240,7 @@ def make_transaction(
         "bill_id": bill.id,
         "payer_id": payer.id,
         "provider": PaymentProvider.SIMULATED,
+        "operator": MobileOperator.MTN,
         "phone_number": "+242060000001",
         "amount": bill.amount_total,
         "idempotency_key": str(uuid.uuid4()),

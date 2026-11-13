@@ -106,6 +106,8 @@ def test_settings() -> Settings:
             "cors_origins": [TEST_CORS_ORIGIN],
             # Secret propre aux tests, assez long pour HS256 (≥ 32 octets).
             "jwt_secret": SecretStr("secret-de-test-elecpay-" + "x" * 48),
+            "payment_webhook_secret": SecretStr("webhooks-de-test-elecpay-" + "w" * 40),
+            "payment_provider": "simulated",
         }
     )
 

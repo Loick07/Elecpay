@@ -52,6 +52,7 @@ jobs:
       TEST_DATABASE_URL: mysql+pymysql://elecpay:elecpay@127.0.0.1:3306/elecpay_test?charset=utf8mb4
       JWT_SECRET: ci-only-secret-not-used-anywhere-else
       PAYMENT_PROVIDER: simulated
+      PAYMENT_WEBHOOK_SECRET: ci-only-webhook-secret-not-used-anywhere-else
       BILLING_SOURCE: simulated
       DEMO_MODE: "true"
       CORS_ORIGINS: http://localhost:3000

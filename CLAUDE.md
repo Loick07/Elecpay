@@ -1,4 +1,4 @@
-# ElecPay — instructions pour Claude
+JE # ElecPay — instructions pour Claude
 
 ## Le projet
 ElecPay est un vrai produit (MVP à déployer et vendre), pas seulement un projet de soutenance.
@@ -126,5 +126,13 @@ pour les retards. Routes `/bills` (filtres, reste à payer, retard affiché à l
 comparaison), `/bills/{id}/pdf` (fpdf2, « Mode démo »). Numéro de facture = AAAAMMJJ + séquence du jour.
 Guide Flutter : `backend/docs/FACTURES.md`. 1122 tests.
 
-**Prochaine étape : B7 — Paiements**, découpée en sous-étapes validées une par une par Loick.
+**B7 (paiements) ✅ terminé le 13/11/2026** — CI verte. Interface `PaymentProvider` + prestataire simulé
+(`app/integrations/payment_providers/`, numéros de test « … 00 00 0N », webhooks HMAC). Routes `POST /payments`
+(`Idempotency-Key` obligatoire, verrou de facture), `GET /payments/{id}` (suivi : état chez le prestataire puis
+expiration à 10 min sans PIN), `GET /payments` (historique), `POST /webhooks/payments/{provider}` (signé).
+`apply_provider_update` (`app/modules/payments/confirmation.py`) est la seule voie vers « réussie ».
+Commandes `scripts.check_pending_payments` et `scripts.send_payment_webhook`. Guide Flutter :
+`backend/docs/PAIEMENTS.md`. 1276 tests.
+
+**Prochaine étape : B8 — Reçus**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

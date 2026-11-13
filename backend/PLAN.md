@@ -15,26 +15,27 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B4 | Foyers, compteurs et délégation | ✅ terminé (12/11/2026) |
 | B5 | Consommation | ✅ terminé (12/11/2026) |
 | B6 | Factures | ✅ terminé (12/11/2026) |
-| B7 | Paiements | prochaine étape |
-| B8 | Reçus | à faire |
+| B7 | Paiements | ✅ terminé (13/11/2026) |
+| B8 | Reçus | prochaine étape |
 | B9 | Notifications | à faire |
 | B10 | API d'administration | à faire |
 | B11 | Durcissement et contrat d'API | à faire |
 
 Après B11 seulement : application Flutter, puis back-office Next.js.
 
-## Point de reprise (mis à jour le 12/11/2026, fin de session)
+## Point de reprise (mis à jour le 13/11/2026)
 
-- **Terminé** : B0 → B6, tout commité et poussé, CI verte.
-  1122 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
-- **Reste** : B7 Paiements, B8 Reçus, B9 Notifications, B10 API d'administration,
+- **Terminé** : B0 → B7, tout commité et poussé, CI verte.
+  1276 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : B8 Reçus, B9 Notifications, B10 API d'administration,
   B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
-- **Prochaine sous-étape** : proposer à Loick le **découpage de B7** (B7.1, B7.2…), l'expliquer en français
-  et attendre sa validation avant d'écrire du code. Points déjà connus pour B7 : interface `PaymentProvider`
-  + `SimulatedProvider` ; clé d'idempotence ; une seule transaction `en_attente` par facture (trigger B1) ;
-  montant = celui de la facture ; facture `pending_payment` pendant le paiement (`can_pay` faux, déjà
-  géré par B6) ; webhook signé, seul à passer `reussie` ; colonne `operator` (MTN / Airtel) ; état
-  « PIN saisi » ; droit de payer = `HouseholdAccess.can_pay` (propriétaire ou payeur délégué).
+- **Prochaine sous-étape** : proposer à Loick le **découpage de B8** (B8.1, B8.2…), l'expliquer en français
+  et attendre sa validation avant d'écrire du code. Points déjà connus pour B8 : le reçu naît dans
+  `_succeed` (`app/modules/payments/confirmation.py`), seul endroit où une transaction devient réussie, dans
+  la même transaction SQL ; numéro `EP-AAAA-000123` séquentiel par année (verrou comme les numéros de
+  facture) ; code de vérification tiré avec `secrets` ; table et triggers déjà en place depuis B1 (reçu
+  seulement pour un paiement réussi, jamais modifié sauf ajout du PDF) ; seed : reçus déjà générés (B2) ;
+  la notification « Paiement réussi » pourra dire « Reçu disponible » ; PDF avec fpdf2 comme la facture.
 - **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
   vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
   CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
@@ -56,7 +57,7 @@ message trompeur pour un numéro vide.
   **`httpx2`** (Starlette déprécie l'ancien paquet `httpx`).
 - **Règle de dépendance** : un module métier (`app/modules/*`) n'importe **jamais** `app.simulators`.
   Les versions simulées des intégrations (`app/integrations/*/simulated.py`) le peuvent. Le métier ne
-  connaît que les interfaces (`BillingSource`, `ConsumptionSource`, `SmsSender`, bientôt `PaymentProvider`).
+  connaît que les interfaces (`BillingSource`, `ConsumptionSource`, `SmsSender`, `PaymentProvider`).
 - **Socle partagé** : `app/core/` (config, erreurs, validation des saisies, calendrier, fuseau UTC+1,
   pagination, limitation des tentatives, contexte de requête) ; notifications créées par
   `app/modules/notifications/service.py` ; audit par `app/modules/audit/service.py` (refuse les secrets).
@@ -74,13 +75,19 @@ message trompeur pour un numéro vide.
 
 ### Notes reportées aux étapes suivantes
 
-- **B7** : colonne `operator` (MTN / Airtel) distincte de `provider` ; état « PIN saisi » sans expiration (A8).
-  Une facture `pending_payment` dont la transaction échoue ou expire doit revenir à `unpaid` (ou `overdue`
-  si l'échéance est passée : `displayed_status` le montre déjà à la lecture).
+- **B8** : créer le reçu dans `_succeed` (voir le point de reprise).
 - **B10** : réémettre la facture d'une période annulée (`generate_bill` refuse : `BILLING_PERIOD_CANCELLED`) ;
-  afficher les messages `BillingError` du relevé quotidien aux administrateurs.
+  afficher les messages `BillingError` du relevé quotidien aux administrateurs ;
+  **interdire d'annuler une facture qui a un paiement en cours** (sinon un succès tardif ne peut plus la
+  marquer payée : `payment.bill_not_payable` au journal) ; rapprochement A8 : lister les anomalies du
+  journal (`payment.provider_conflict`, `payment.amount_mismatch`) ; « Relancer la vérification » =
+  `refresh_transaction` (`app/modules/payments/tracking.py`), jamais de passage manuel à « réussie ».
 - **B11** : IP réelle derrière un proxy (`X-Forwarded-For`) ; compteurs de tentatives partagés si plusieurs
-  processus ; durée de conservation du journal d'audit (loi congolaise).
+  processus ; durée de conservation du journal d'audit (loi congolaise) ; planifier
+  `scripts.check_pending_payments` toutes les minutes au déploiement ; limiter la fréquence des
+  `check_status` vers un vrai prestataire (le suivi de l'écran 9 interroge toutes les 2-3 s).
+- **Avant la mise en production** : confirmer les préfixes MTN (06) / Airtel (05, 04)
+  (`app/modules/payments/operators.py`) ; brancher MTN MoMo et Airtel Money derrière `PaymentProvider`.
 - **Flutter** : un seul rafraîchissement de jeton à la fois. **Next.js** : appeler l'API via le serveur Next
   (cookies `SameSite=Strict`) et recopier `elecpay_csrf` dans `X-CSRF-Token`.
 - Les autres besoins des maquettes à placer dans les étapes : tableau en fin de section B1.
@@ -374,6 +381,36 @@ Réalisé (guide pour Flutter : `backend/docs/FACTURES.md`), sous-étapes valid�
 - Paiement pour un proche : autorisé si payeur délégué du foyer.
 
 Terminé quand : tests de double clic, double webhook, webhook mal signé, paiement d'une facture déjà payée, échec puis nouvelle tentative.
+
+Réalisé (guide pour Flutter : `backend/docs/PAIEMENTS.md`), sous-étapes validées une à une par Loick :
+- **B7.1** interface `PaymentProvider` (`app/integrations/payment_providers/`) et prestataire simulé :
+  le débit avance avec le temps (PIN à 5 s, résultat à 10 s), sans processus en arrière-plan ; webhooks
+  HMAC-SHA256 (`X-ElecPay-Signature`, refus après 5 min : rejeu). Migration : `operator` (MTN / Airtel,
+  distinct de `provider`) et `pin_entered_at`, figés par le trigger. `PAYMENT_WEBHOOK_SECRET` (obligatoire en
+  production), `PAYMENT_TIMEOUT_MINUTES`. Opérateurs : 06 → MTN, 05/04 → Airtel (**hypothèse à confirmer**).
+  Décision du 13/11/2026 : scénarios réservés aux **numéros de test « … 00 00 0N »** (02 solde insuffisant,
+  03 refus, 04 PIN jamais saisi, 05 PIN sans confirmation, 06 injoignable) ; tout autre numéro réussit
+  (la règle « 2 derniers chiffres » faisait échouer en permanence les comptes de démo …01 02 à …01 06).
+- **B7.2** `POST /payments` (`service.py`) : `Idempotency-Key` obligatoire (même demande → même transaction,
+  `200` ; autre demande → `409`) ; montant de la facture, jamais envoyé ; verrou FOR UPDATE de la facture,
+  facture « paiement en cours » ; droits = `can_pay` ; numéro cohérent avec l'opérateur ; prestataire
+  injoignable → transaction `echouee` et facture toujours payable ; 10 demandes / 15 min ; audit (numéro masqué).
+- **B7.3** `apply_provider_update` (`confirmation.py`) : seule voie vers « réussie » (webhook signé
+  `POST /webhooks/payments/{provider}` ou suivi d'état) ; idempotent (double webhook) ; échec → facture de
+  nouveau payable (`unpaid` / `overdue`) ; notifications au payeur et au titulaire ; montant différent ou
+  nouvelle contradictoire → rien n'est appliqué, anomalie au journal d'audit (rapprochement A8).
+  Commande `scripts.send_payment_webhook`.
+- **B7.4** `GET /payments/{id}` (`tracking.py`) : à chaque lecture d'une transaction en attente, état demandé
+  au prestataire puis expiration (10 min sans PIN ; PIN saisi : jamais) ; une nouvelle demande sur une
+  facture « paiement en cours » fait d'abord le point (jamais de facture bloquée) ; visible par le payeur et
+  les membres du foyer ; commande planifiée `scripts.check_pending_payments`.
+- **B7.5** `GET /payments` (`history.py`) : historique des foyers (lecteurs compris) + ses propres paiements ;
+  filtres `status`, `bill_id`, `household_id`, `month` (heure de Brazzaville) ; `payer_name`, numéros des
+  autres masqués ; aucun appel au prestataire.
+- **B7.6** tests d'acceptation `test_b7_acceptance.py` (critères « Terminé quand », parcours payeur délégué
+  écrans 8 → 9 → 12, aucune route ni requête SQL ne force un succès). Vérifié sur l'API lancée avec la base
+  de démo : lancement 110–126 ms, suivi 41–75 ms (PIN à 6 s, succès à 10 s), historique 57–71 ms.
+  Bug trouvé par les tests : l'horloge lue deux fois (échéance à 10 min + 3 µs), corrigé.
 
 ---
 

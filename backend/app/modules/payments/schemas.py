@@ -74,4 +74,8 @@ class PaymentPublic(BaseModel):
     payer_id: int
     payer_name: str = Field(description="Qui a payé (titulaire ou payeur délégué)")
     is_mine: bool = Field(description="C'est moi qui ai lancé ce paiement")
+    receipt_id: int | None = Field(
+        description="Reçu du paiement réussi (écran 10 : `GET /receipts/{id}`), sinon None"
+    )
+    receipt_number: str | None = Field(examples=["EP-2026-000123"])
     source: str = Field(description="« simulated » en mode démo : aucun débit réel")

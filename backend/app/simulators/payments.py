@@ -20,11 +20,14 @@ from datetime import datetime, timedelta
 from enum import StrEnum
 
 from app.modules.payments.models import TransactionStatus
+from app.modules.receipts.service import VERIFICATION_CODE_ALPHABET  # même alphabet qu'en vrai
 from app.simulators.bills import SimulatedBill
 
 PAYMENT_TIMEOUT = timedelta(minutes=10)  # sans saisie du code PIN, la transaction expire
-VERIFICATION_CODE_ALPHABET = string.ascii_uppercase + string.digits
 VERIFICATION_CODE_LENGTH = 12
+# Alphabet des tirages de B2. On tire TOUJOURS dans celui-ci (sinon la suite des tirages, donc
+# tout le jeu de démo, changerait), puis on convertit chaque caractère dans l'alphabet des reçus.
+DRAW_ALPHABET = string.ascii_uppercase + string.digits
 
 FAILURE_REASONS = (
     "Solde insuffisant",
@@ -214,7 +217,11 @@ def _failed_attempt(
 def _successful_attempt(
     bill: SimulatedBill, payer: Payer, at: datetime, rng: random.Random
 ) -> SimulatedAttempt:
-    code = "".join(rng.choice(VERIFICATION_CODE_ALPHABET) for _ in range(VERIFICATION_CODE_LENGTH))
+    drawn = (rng.choice(DRAW_ALPHABET) for _ in range(VERIFICATION_CODE_LENGTH))
+    code = "".join(
+        VERIFICATION_CODE_ALPHABET[DRAW_ALPHABET.index(char) % len(VERIFICATION_CODE_ALPHABET)]
+        for char in drawn
+    )
     return SimulatedAttempt(
         **_base_attempt(bill, payer, at, rng),
         status=TransactionStatus.SUCCEEDED,

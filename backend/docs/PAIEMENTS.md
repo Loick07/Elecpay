@@ -1,7 +1,7 @@
 # Paiements Mobile Money — guide pour l'application mobile
 
 Complète le contrat OpenAPI (`/docs`). Écrans concernés : « Paiement » (maquette client 8),
-« Confirmation en attente » (9) et « Historique des paiements » (12). Le reçu (10) arrive avec B8.
+« Confirmation en attente » (9) et « Historique des paiements » (12). Le reçu (10) : `RECUS.md`.
 Routes préfixées par `/api/v1`. **Mode démo : aucun débit réel** (`source: simulated`, badge « Mode démo »).
 
 ## Le parcours
@@ -17,7 +17,7 @@ Routes préfixées par `/api/v1`. **Mode démo : aucun débit réel** (`source: 
    |---------------|--------------------------------------------------|-------|
    | `requested`   | invite envoyée, saisissez votre code PIN          | non   |
    | `pin_entered` | code saisi, en attente de l'opérateur             | non   |
-   | `succeeded`   | paiement réussi (le reçu viendra avec B8)          | oui   |
+   | `succeeded`   | paiement réussi → ouvrir le reçu (`receipt_id`)    | oui   |
    | `failed`      | échec + `failure_reason`, bouton « Réessayer »     | oui   |
    | `expired`     | délai dépassé (PIN non saisi), bouton « Réessayer »| oui   |
 

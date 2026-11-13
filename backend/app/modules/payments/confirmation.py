@@ -36,6 +36,7 @@ from app.modules.meters.models import Meter
 from app.modules.notifications.service import insert_notifications
 from app.modules.payments.models import PaymentTransaction, TransactionStatus
 from app.modules.payments.notifications import payment_failed_row, payment_succeeded_rows
+from app.modules.receipts.service import issue_receipt
 from app.modules.users.models import User
 
 DEFAULT_FAILURE = "Paiement refusé par l'opérateur"
@@ -120,11 +121,13 @@ def _succeed(session, transaction, bill, update, at, origin) -> Applied:
     else:  # facture annulée entre-temps : l'argent est pris, à régulariser par un admin
         _audit(session, "payment.bill_not_payable", transaction, origin, bill_status=bill.status)
     session.flush()
+    receipt = issue_receipt(session, transaction)  # même transaction SQL que le succès
     payer = session.get(User, transaction.payer_id)
     insert_notifications(
-        session, payment_succeeded_rows(transaction, bill, payer, _owner_id(session, bill))
+        session,
+        payment_succeeded_rows(transaction, bill, payer, _owner_id(session, bill), receipt),
     )
-    _audit(session, "payment.succeeded", transaction, origin)
+    _audit(session, "payment.succeeded", transaction, origin, receipt=receipt.number)
     return Applied(transaction, Outcome.SUCCEEDED)
 
 

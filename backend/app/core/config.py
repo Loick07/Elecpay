@@ -54,6 +54,17 @@ class Settings(BaseSettings):
     # Sans saisie du code PIN dans ce délai, la transaction expire (« PIN saisi » : jamais).
     payment_timeout_minutes: int = Field(default=10, ge=1, le=60)
 
+    # Reçus : adresse de la vérification publique, imprimée dans le QR code du reçu PDF
+    # (suivie de « /<code> »). Par défaut, la route de l'API ; une page web plus tard.
+    receipt_verify_url: str = "http://127.0.0.1:8000/api/v1/receipts/verify"
+
+    @field_validator("receipt_verify_url")
+    @classmethod
+    def verify_url_is_http(cls, value: str) -> str:
+        if not value.startswith(("http://", "https://")):
+            raise ValueError("doit commencer par http:// ou https://")
+        return value.rstrip("/")
+
     # Facturation (voir backend/docs/FACTURE_E2C.md). E²C facture tous les 2 mois, périodes
     # calées sur le calendrier (janvier-février, mars-avril…). Délais : hypothèses à vérifier.
     billing_period_months: int = 2  # 1, 2, 3, 4, 6 ou 12 (doit diviser 12)
@@ -101,6 +112,8 @@ class Settings(BaseSettings):
                 f"PAYMENT_WEBHOOK_SECRET doit faire au moins {MIN_JWT_SECRET_LENGTH} caractères "
                 "aléatoires en production"
             )
+        if not self.receipt_verify_url.startswith("https://"):
+            raise ValueError("RECEIPT_VERIFY_URL doit être en https:// en production")
         uses_simulation = "simulated" in (self.payment_provider, self.billing_source)
         if uses_simulation and not self.demo_mode:
             raise ValueError(

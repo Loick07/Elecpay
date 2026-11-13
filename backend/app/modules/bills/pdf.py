@@ -90,7 +90,9 @@ def bill_filename(bill: BillDetail) -> str:
     return f"facture-{bill.reference}.pdf"
 
 
-class _BillPdf(FPDF):
+class ElecPayPdf(FPDF):
+    """Page A4 d'un document ElecPay (facture, reçu) : marges et pied de page communs."""
+
     def __init__(self, footer_text: str) -> None:
         super().__init__(orientation="portrait", unit="mm", format="A4")
         self.footer_text = footer_text
@@ -112,7 +114,7 @@ class _BillPdf(FPDF):
 def render_bill_pdf(bill: BillDetail, *, generated_at: datetime, demo_mode: bool) -> bytes:
     """Le PDF de la facture, en octets. `generated_at` : instant UTC de la génération."""
     generated = local(generated_at)
-    pdf = _BillPdf(
+    pdf = ElecPayPdf(
         f"Généré par ElecPay le {generated:%d/%m/%Y à %H:%M} (heure de Brazzaville). "
         "Copie d'information : seule la facture E²C fait foi."
     )

@@ -20,4 +20,5 @@ PyJWT==2.15.1
 argon2-cffi==25.1.0
 
 # Documents
-fpdf2==2.8.9   # factures en PDF (pur Python, sans dépendance système)
+fpdf2==2.8.9   # factures et reçus en PDF (pur Python, sans dépendance système)
+segno==1.6.6   # QR code de vérification des reçus (pur Python, sans dépendance)

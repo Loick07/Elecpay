@@ -112,8 +112,22 @@ def production(**overrides) -> Settings:
         "app_env": "production",
         "jwt_secret": STRONG_SECRET,
         "payment_webhook_secret": STRONG_SECRET,
+        "receipt_verify_url": "https://elecpay.cg/verifier",
     } | overrides
     return make_settings(**values)
+
+
+def test_receipt_verification_address():
+    assert make_settings().receipt_verify_url == "http://127.0.0.1:8000/api/v1/receipts/verify"
+    trimmed = make_settings(receipt_verify_url="https://elecpay.cg/verifier/")
+    assert trimmed.receipt_verify_url == "https://elecpay.cg/verifier"
+    with pytest.raises(ValidationError, match="http"):
+        make_settings(receipt_verify_url="ftp://elecpay.cg/verifier")
+
+
+def test_production_requires_an_https_receipt_address():
+    with pytest.raises(ValidationError, match="RECEIPT_VERIFY_URL"):
+        production(receipt_verify_url="http://elecpay.cg/verifier")
 
 
 def test_production_with_simulation_requires_demo_mode():

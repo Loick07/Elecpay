@@ -20,6 +20,7 @@ from app.modules.households.router import router as households_router
 from app.modules.meters.router import router as meters_router
 from app.modules.payments.router import router as payments_router
 from app.modules.payments.router import webhooks_router as payment_webhooks_router
+from app.modules.receipts.router import router as receipts_router
 from app.modules.users.router import router as users_router
 
 API_VERSION = "0.1.0"
@@ -69,6 +70,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(bills_router, prefix=API_PREFIX)
     app.include_router(payments_router, prefix=API_PREFIX)
     app.include_router(payment_webhooks_router, prefix=API_PREFIX)
+    app.include_router(receipts_router, prefix=API_PREFIX)
 
     return app
 

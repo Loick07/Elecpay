@@ -1,5 +1,6 @@
 """Une transaction telle que l'abonné la voit (écrans 9 et 12)."""
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.validation import mask_phone
@@ -11,6 +12,7 @@ from app.modules.payments.common import public_reference
 from app.modules.payments.models import PaymentProvider, PaymentTransaction, TransactionStatus
 from app.modules.payments.operators import OPERATOR_LABELS
 from app.modules.payments.schemas import PaymentPublic, PaymentStep
+from app.modules.receipts.models import Receipt
 from app.modules.users.models import User
 
 FINAL_STEPS = {
@@ -38,6 +40,13 @@ def payment_public(
     household = session.get(Household, meter.household_id) if meter.household_id else None
     payer = session.get(User, transaction.payer_id)
     mine = transaction.payer_id == viewer.id
+    receipt = (
+        session.execute(
+            select(Receipt.id, Receipt.number).where(Receipt.transaction_id == transaction.id)
+        ).first()
+        if transaction.status is TransactionStatus.SUCCEEDED
+        else None
+    )
     return PaymentPublic(
         id=transaction.id,
         reference=public_reference(transaction),
@@ -62,6 +71,8 @@ def payment_public(
         payer_id=transaction.payer_id,
         payer_name=payer.full_name,
         is_mine=mine,
+        receipt_id=receipt.id if receipt else None,
+        receipt_number=receipt.number if receipt else None,
         source=(
             "simulated"
             if transaction.provider is PaymentProvider.SIMULATED

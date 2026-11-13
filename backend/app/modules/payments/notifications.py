@@ -1,4 +1,4 @@
-"""Textes des notifications de paiement (B7.3). Le reçu viendra avec B8."""
+"""Textes des notifications de paiement (B7.3, reçu ajouté en B8)."""
 
 from typing import Any
 
@@ -8,15 +8,23 @@ from app.modules.bills.queries import bill_period_label
 from app.modules.notifications.models import NotificationType
 from app.modules.notifications.service import notification_row
 from app.modules.payments.models import PaymentTransaction
+from app.modules.receipts.models import Receipt
 from app.modules.users.models import User
 
 
-def _data(transaction: PaymentTransaction) -> dict[str, Any]:
-    return {"bill_id": transaction.bill_id, "transaction_id": transaction.id}
+def _data(transaction: PaymentTransaction, receipt: Receipt | None = None) -> dict[str, Any]:
+    data = {"bill_id": transaction.bill_id, "transaction_id": transaction.id}
+    if receipt is not None:
+        data["receipt_id"] = receipt.id  # l'application ouvre le reçu (écran 10)
+    return data
 
 
 def payment_succeeded_rows(
-    transaction: PaymentTransaction, bill: Bill, payer: User, owner_id: int | None
+    transaction: PaymentTransaction,
+    bill: Bill,
+    payer: User,
+    owner_id: int | None,
+    receipt: Receipt,
 ) -> list[dict[str, Any]]:
     """Le payeur est prévenu ; le titulaire aussi, si quelqu'un d'autre a payé pour lui."""
     period = bill_period_label(bill.period_start, bill.period_end)
@@ -27,8 +35,9 @@ def payment_succeeded_rows(
             payer.id,
             NotificationType.PAYMENT_SUCCEEDED,
             "Paiement réussi",
-            f"Paiement de {amount} confirmé pour la facture {period}.",
-            _data(transaction),
+            f"Paiement de {amount} confirmé pour la facture {period}. "
+            f"Reçu {receipt.number} disponible.",
+            _data(transaction, receipt),
             at=at,
         )
     ]
@@ -38,8 +47,9 @@ def payment_succeeded_rows(
                 owner_id,
                 NotificationType.PAYMENT_SUCCEEDED,
                 "Facture payée",
-                f"{payer.full_name} a payé votre facture {period} ({amount}).",
-                _data(transaction),
+                f"{payer.full_name} a payé votre facture {period} ({amount}). "
+                f"Reçu {receipt.number}.",
+                _data(transaction, receipt),
                 at=at,
             )
         )

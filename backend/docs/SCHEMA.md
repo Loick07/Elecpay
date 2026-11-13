@@ -74,6 +74,9 @@ erDiagram
         string status "en_attente reussie echouee expiree"
         string idempotency_key UK
         bigint amount "= total de la facture"
+        string provider "simulated mtn airtel (qui traite)"
+        string operator "mtn airtel (choisi par l'abonné, B7)"
+        datetime pin_entered_at "PIN saisi : n'expire plus (B7)"
     }
     receipts {
         string number UK "EP-2026-000123"
@@ -105,7 +108,7 @@ Ces règles tiennent même si un futur code est bogué ou si quelqu'un écrit du
 | Une seule facture active par compteur et par période | colonne calculée `active_period_start` + unicité |
 | Une seule transaction en attente, une seule réussie par facture | colonnes calculées `pending_bill_id` / `succeeded_bill_id` + unicité |
 | Montant payé = total de la facture ; facture payée ou annulée non payable | trigger `trg_payment_transactions_insert` |
-| Transaction terminée figée (aucun admin ne peut forcer un succès) | trigger `trg_payment_transactions_update` |
+| Transaction terminée figée (aucun admin ne peut forcer un succès) ; opérateur, numéro, montant fixés à la création ; « PIN saisi » jamais effacé (B7) | trigger `trg_payment_transactions_update` |
 | Reçu seulement pour un paiement réussi, jamais modifié (sauf ajout du PDF) | triggers `trg_receipts_*` |
 | Journal d'audit jamais modifié ni supprimé | triggers `trg_audit_logs_*` |
 

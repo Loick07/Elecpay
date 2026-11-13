@@ -13,6 +13,7 @@ from app.core.validation import CongoPhone
 from app.modules.payments.models import MobileOperator, TransactionStatus
 
 IDEMPOTENCY_KEY_PATTERN = r"^[A-Za-z0-9_-]{8,64}$"
+MONTH_PATTERN = r"^20[0-9]{2}-(0[1-9]|1[0-2])$"  # AAAA-MM (2000 à 2099)
 
 
 class PaymentCreate(BaseModel):
@@ -54,6 +55,11 @@ class PaymentPublic(BaseModel):
     )
     bill_id: int
     bill_reference: str
+    bill_period_label: str = Field(examples=["Juil.-Août 2026"])
+    meter_id: int
+    meter_reference: str = Field(description="N° Branchement")
+    household_id: int | None = Field(description="None si le compteur est détaché depuis")
+    household_name: str | None
     amount: int = Field(description="FCFA (= total de la facture)")
     operator: MobileOperator
     operator_label: str = Field(examples=["MTN MoMo"])
@@ -66,5 +72,6 @@ class PaymentPublic(BaseModel):
     confirmed_at: datetime | None
     expires_at: datetime = Field(description="Sans code PIN saisi avant cette heure : expirée")
     payer_id: int
+    payer_name: str = Field(description="Qui a payé (titulaire ou payeur délégué)")
     is_mine: bool = Field(description="C'est moi qui ai lancé ce paiement")
     source: str = Field(description="« simulated » en mode démo : aucun débit réel")

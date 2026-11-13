@@ -1,19 +1,22 @@
-"""Routes des paiements. Aucune logique ici : tout est dans `PaymentService`."""
+"""Routes des paiements. Aucune logique ici : `PaymentService`, `PaymentHistory`, webhooks."""
 
-from fastapi import APIRouter, Depends, Header, Request, Response, status
+from fastapi import APIRouter, Depends, Header, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.core.errors import ErrorResponse
+from app.core.pagination import Page, PageParams, page_params
 from app.core.rate_limit import Limit, RateLimiter, get_rate_limiter
 from app.core.request_context import RequestContext, request_context
 from app.db.session import get_db
 from app.integrations.payment_providers.base import PaymentProvider
 from app.integrations.payment_providers.factory import get_payment_provider
 from app.modules.auth.dependencies import current_user
-from app.modules.bills.models import Bill
+from app.modules.payments.history import PaymentHistory
+from app.modules.payments.models import TransactionStatus
 from app.modules.payments.schemas import (
     IDEMPOTENCY_KEY_PATTERN,
+    MONTH_PATTERN,
     PaymentCreate,
     PaymentPublic,
     WebhookAck,
@@ -74,8 +77,38 @@ def create_payment(
     )
     if not initiated.created:
         response.status_code = status.HTTP_200_OK
-    transaction = initiated.transaction
-    return payment_public(transaction, db.get(Bill, transaction.bill_id), user)
+    return payment_public(db, initiated.transaction, user)
+
+
+@router.get(
+    "",
+    response_model=Page[PaymentPublic],
+    summary="Historique des paiements (écran 12), du plus récent au plus ancien",
+    description="Paiements des factures de mes foyers (lecteurs compris) et mes propres "
+    "paiements. Réussis, échoués (avec le motif), expirés et en cours ; `payer_name` dit "
+    "qui a payé (titulaire ou payeur délégué). Filtres combinables : `status`, `bill_id`, "
+    "`household_id`, `month` (AAAA-MM, heure de Brazzaville). Pagination : `page`, `size`.",
+    responses={404: {"model": ErrorResponse, "description": "Foyer ou facture introuvable"}},
+)
+def list_payments(
+    params: PageParams = Depends(page_params),
+    status_filter: TransactionStatus | None = Query(default=None, alias="status"),
+    bill_id: int | None = Query(default=None, ge=1),
+    household_id: int | None = Query(default=None, ge=1),
+    month: str | None = Query(
+        default=None, pattern=MONTH_PATTERN, examples=["2026-10"], description="AAAA-MM"
+    ),
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> Page[PaymentPublic]:
+    return PaymentHistory(db).list(
+        user,
+        params,
+        status=status_filter,
+        bill_id=bill_id,
+        household_id=household_id,
+        month=month,
+    )
 
 
 @router.get(
@@ -97,7 +130,7 @@ def get_payment(
     provider: PaymentProvider = Depends(get_payment_provider),
 ) -> PaymentPublic:
     transaction = PaymentService(db, provider, settings).track(user, payment_id)
-    return payment_public(transaction, db.get(Bill, transaction.bill_id), user)
+    return payment_public(db, transaction, user)
 
 
 async def raw_body(request: Request) -> bytes:

@@ -30,6 +30,8 @@ copy .env.example .env          # puis adapter si besoin (jamais commité)
 | Appliquer les migrations | `.venv\Scripts\alembic upgrade head` |
 | **Recréer la base de démo** | `.venv\Scripts\python -m scripts.reset_db` puis `.venv\Scripts\python -m scripts.seed` |
 | Relevé quotidien (faire « vivre » la démo) | `.venv\Scripts\python -m scripts.daily_tick` (une fois par jour ; `--today AAAA-MM-JJ` pour simuler une date) |
+| Paiements en attente (expirations) | `.venv\Scripts\python -m scripts.check_pending_payments` (toutes les minutes en production) |
+| Envoyer un webhook de paiement signé (démo) | `.venv\Scripts\python -m scripts.send_payment_webhook <id_transaction> [--state failed]` (exige `PAYMENT_WEBHOOK_SECRET` dans `.env`) |
 
 Données de démo : 18 mois de relevés, factures, paiements et reçus **simulés**, personnes fictives.
 Tous les comptes de démo ont le mot de passe `Demo2026!` (liste affichée par `scripts.seed`).
@@ -44,6 +46,7 @@ La CI GitHub Actions (`.github/workflows/backend.yml`) lance Ruff, les migration
 - Foyers, membres et compteurs : [`docs/FOYERS_COMPTEURS.md`](docs/FOYERS_COMPTEURS.md).
 - Consommation (séries, résumé, relevés, pagination) : [`docs/CONSOMMATION.md`](docs/CONSOMMATION.md).
 - Factures (liste, reste à payer, détail, PDF) : [`docs/FACTURES.md`](docs/FACTURES.md).
+- Paiements Mobile Money (lancer, suivre, historique, numéros de test) : [`docs/PAIEMENTS.md`](docs/PAIEMENTS.md).
 - Schéma, relations et garde-fous : [`docs/SCHEMA.md`](docs/SCHEMA.md). Calcul des factures E²C : [`docs/FACTURE_E2C.md`](docs/FACTURE_E2C.md).
 - Plusieurs règles métier sont des **triggers MySQL** (facture jamais supprimée, paiement terminé figé, audit intouchable…).
   Ils exigent l'option `log_bin_trust_function_creators=1`, déjà réglée dans `docker-compose.yml`.

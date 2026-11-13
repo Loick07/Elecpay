@@ -12,7 +12,7 @@ from app.modules.bills.models import Bill, BillLine
 from app.modules.consumption.models import MeterReading
 from app.modules.households.models import Household, HouseholdMember
 from app.modules.meters.models import Meter
-from app.modules.notifications.models import Notification
+from app.modules.notifications.models import Notification, NotificationPreference
 from app.modules.payments.models import PaymentTransaction
 from app.modules.receipts.models import Receipt
 from app.modules.tariffs.models import Tariff
@@ -28,6 +28,7 @@ __all__ = [
     "Meter",
     "MeterReading",
     "Notification",
+    "NotificationPreference",
     "PasswordResetCode",
     "PaymentTransaction",
     "Receipt",

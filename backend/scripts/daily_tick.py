@@ -13,6 +13,7 @@ import argparse
 import sys
 from datetime import UTC, date, datetime
 
+import app.db.models  # noqa: F401 — enregistre TOUTES les tables (clés étrangères des insertions)
 from app.core.config import Settings, get_settings
 from app.core.timezone import local_date
 from app.db.session import get_sessionmaker
@@ -45,6 +46,9 @@ def print_report(report: TickReport) -> None:
     print(f"  relevés ajoutés     {counts['readings']:>5}  (anomalies : {counts['anomalies']})")
     print(f"  factures émises     {counts['bills']:>5}")
     print(f"  passées en retard   {counts['overdue']:>5}")
+    print(f"  rappels de retard   {counts['overdue_reminders']:>5}")
+    print(f"  rappels d'échéance  {counts['due_soon']:>5}")
+    print(f"  conso inhabituelle  {counts['high_consumption']:>5}")
     print(f"  notifications       {counts['notifications']:>5}")
     for message in report.skipped:
         print(f"  ⚠ {message}")

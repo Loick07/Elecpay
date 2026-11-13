@@ -15,6 +15,7 @@ import sys
 import urllib.error
 import urllib.request
 
+import app.db.models  # noqa: F401 — enregistre TOUTES les tables (clés étrangères des insertions)
 from app.core.config import API_PREFIX, Settings, get_settings
 from app.db.base import utcnow
 from app.db.session import get_sessionmaker

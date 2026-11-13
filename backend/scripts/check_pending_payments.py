@@ -13,6 +13,7 @@ from collections import Counter
 
 from sqlalchemy.orm import Session
 
+import app.db.models  # noqa: F401 — enregistre TOUTES les tables (clés étrangères des insertions)
 from app.core.config import get_settings
 from app.db.base import utcnow
 from app.db.session import get_sessionmaker

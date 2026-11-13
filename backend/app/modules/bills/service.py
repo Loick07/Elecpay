@@ -54,8 +54,8 @@ from app.modules.bills.periods import (
     issue_day,
     issued_at,
 )
+from app.modules.bills.reminders import bill_recipients
 from app.modules.consumption.models import MeterReading, ReadingSource
-from app.modules.households.models import Household
 from app.modules.meters.models import Meter
 from app.modules.notifications.service import insert_notifications
 from app.modules.tariffs.models import Tariff
@@ -155,26 +155,25 @@ def mark_overdue_bills(session: Session, *, today: date) -> OverdueReport:
     """Passe « en retard » les factures impayées dont l'échéance est dépassée.
 
     Le jour même de l'échéance, la facture n'est pas encore en retard. Une facture payée,
-    annulée ou en cours de paiement n'est jamais concernée. Le propriétaire du foyer est
-    prévenu (personne si le compteur est détaché). Idempotent. Pas de commit.
+    annulée ou en cours de paiement n'est jamais concernée. Sont prévenus le titulaire du foyer
+    et ses payeurs délégués (personne si le compteur est détaché). Idempotent. Pas de commit.
+    Les rappels suivants (tous les 7 jours) : `reminders.send_overdue_reminders`.
     """
-    rows = session.execute(
-        select(Bill, Household.owner_id)
-        .join(Meter, Meter.id == Bill.meter_id)
-        .outerjoin(Household, Household.id == Meter.household_id)
+    bills = session.scalars(
+        select(Bill)
         .where(Bill.status == BillStatus.UNPAID, Bill.due_date < today)
         .order_by(Bill.id)
-        .with_for_update(of=Bill)
+        .with_for_update()
     ).all()
     notifications = []
-    for bill, owner_id in rows:
+    for bill in bills:
         bill.status = BillStatus.OVERDUE
-        if owner_id is not None:
-            notifications.append(bill_overdue_notification(owner_id, bill))
+        notifications += [
+            bill_overdue_notification(user_id, bill) for user_id in bill_recipients(session, bill)
+        ]
     session.flush()
     return OverdueReport(
-        bills=[bill for bill, _ in rows],
-        notifications=insert_notifications(session, notifications),
+        bills=list(bills), notifications=insert_notifications(session, notifications)
     )
 
 

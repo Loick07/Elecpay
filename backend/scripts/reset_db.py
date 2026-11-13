@@ -9,6 +9,7 @@ import sys
 
 from sqlalchemy.engine import make_url
 
+import app.db.models  # noqa: F401 — enregistre TOUTES les tables (règle commune aux commandes)
 from app.core.config import Settings, get_settings
 from app.db.migrations import rebuild_database
 

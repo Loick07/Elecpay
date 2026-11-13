@@ -10,6 +10,47 @@ from app.modules.notifications.models import NotificationType
 from app.modules.notifications.service import notification_row
 
 OVERDUE_NOTICE_HOUR = timedelta(hours=9)  # le lendemain de l'échéance, à 9 h (heure du Congo)
+DUE_SOON_NOTICE_HOUR = timedelta(hours=8)  # rappels d'échéance à 8 h (heure du Congo)
+
+
+def _amount_and_place(bill: Bill, place: str | None) -> str:
+    where = f"{place} : " if place else ""
+    return f"{where}{format_fcfa(bill.amount_total)}"
+
+
+def bill_due_soon_notification(
+    user_id: int, bill: Bill, *, today, place: str | None
+) -> dict[str, Any]:
+    """« Échéance dans 5 jours » … puis « Échéance aujourd'hui » (écran 13)."""
+    days_left = (bill.due_date - today).days
+    if days_left == 0:
+        title, stage = "Échéance aujourd'hui", "due_day"
+        when = "aujourd'hui"
+    else:
+        title = f"Échéance dans {days_left} jour{'s' if days_left > 1 else ''}"
+        stage, when = "before", f"avant le {bill.due_date:%d/%m/%Y}"
+    return notification_row(
+        user_id,
+        NotificationType.BILL_DUE_SOON,
+        title,
+        f"{_amount_and_place(bill, place)} à payer {when}.",
+        {"bill_id": bill.id, "stage": stage},
+        at=local_midnight_utc(today) + DUE_SOON_NOTICE_HOUR,
+    )
+
+
+def bill_overdue_reminder(user_id: int, bill: Bill, *, today, place: str | None) -> dict[str, Any]:
+    """Rappel de retard, tous les 7 jours tant que la facture n'est pas payée (maquette A9)."""
+    days_late = (today - bill.due_date).days
+    return notification_row(
+        user_id,
+        NotificationType.BILL_OVERDUE,
+        "Rappel : facture en retard",
+        f"{_amount_and_place(bill, place)}, en retard de {days_late} jours "
+        f"(échéance du {bill.due_date:%d/%m/%Y}).",
+        {"bill_id": bill.id, "stage": "reminder"},
+        at=local_midnight_utc(today) + OVERDUE_NOTICE_HOUR,
+    )
 
 
 def bill_issued_notification(user_id: int, bill: Bill) -> dict[str, Any]:

@@ -1,6 +1,8 @@
 # Schéma de la base ElecPay (B1)
 
-13 tables, MySQL 8.4, créées par 6 migrations Alembic (`backend/alembic/versions/`).
+13 tables, MySQL 8.4, créées par 6 migrations Alembic (`backend/alembic/versions/`) ; ajoutées depuis :
+`password_reset_codes` (B3), colonnes `operator` / `pin_entered_at` des paiements (B7),
+`notification_preferences` et le type `high_consumption` (B9).
 Conventions : `id` BIGINT auto-incrémenté ; `created_at` / `updated_at` en UTC (microsecondes) ;
 montants en FCFA entiers ; énergie en Wh entiers ; prix en millièmes de FCFA ; taux en points de base.
 Calculs de facture : voir [`FACTURE_E2C.md`](FACTURE_E2C.md).
@@ -23,6 +25,7 @@ erDiagram
     users ||--o{ payment_transactions : "payeur"
     payment_transactions ||--o| receipts : "reçu si réussie"
     users ||--o{ notifications : "destinataire"
+    users ||--o| notification_preferences : "interrupteurs (B9)"
     users |o--o{ audit_logs : "auteur (null = système)"
     refresh_tokens |o--o| refresh_tokens : "remplacé par"
 
@@ -83,9 +86,15 @@ erDiagram
         string verification_code UK
     }
     notifications {
-        string type
+        string type "dont high_consumption (B9)"
         json data_json
         datetime read_at "null = non lue"
+    }
+    notification_preferences {
+        bigint user_id UK "pas de ligne = valeurs par défaut"
+        bool due_soon "true par défaut"
+        bool payments "true par défaut"
+        bool high_consumption "false par défaut"
     }
     audit_logs {
         string action "domaine.verbe"

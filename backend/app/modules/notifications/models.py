@@ -4,7 +4,16 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any
 
-from sqlalchemy import JSON, CheckConstraint, Index, String
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    CheckConstraint,
+    Index,
+    String,
+    UniqueConstraint,
+    false,
+    true,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, IdMixin, TimestampMixin, UTCDateTime
@@ -18,7 +27,8 @@ class NotificationType(StrEnum):
     PAYMENT_SUCCEEDED = "payment_succeeded"
     PAYMENT_FAILED = "payment_failed"
     INVITATION_RECEIVED = "invitation_received"  # invitation dans un foyer
-    CONSUMPTION_ANOMALY = "consumption_anomaly"  # consommation anormale
+    CONSUMPTION_ANOMALY = "consumption_anomaly"  # relevé anormal (index en baisse…)
+    HIGH_CONSUMPTION = "high_consumption"  # jour au-dessus de la moyenne (B9, désactivable)
     ANNOUNCEMENT = "announcement"  # annonce envoyée par un administrateur
 
 
@@ -42,3 +52,19 @@ class Notification(IdMixin, TimestampMixin, Base):
     # none_as_null : Python None → SQL NULL (sinon SQLAlchemy écrirait le texte JSON « null »).
     data_json: Mapped[dict[str, Any] | None] = mapped_column(JSON(none_as_null=True))
     read_at: Mapped[datetime | None] = mapped_column(UTCDateTime())  # NULL = non lue
+
+
+class NotificationPreference(IdMixin, TimestampMixin, Base):
+    """Interrupteurs « Me prévenir » de l'écran 14 (B9.2). Pas de ligne = valeurs par défaut.
+
+    Seules ces trois familles d'alertes se coupent ; les autres messages (nouvelle facture,
+    retard, invitation, relevé anormal, annonces de l'équipe) sont toujours envoyés.
+    """
+
+    __tablename__ = "notification_preferences"
+    __table_args__ = (UniqueConstraint("user_id"),)
+
+    user_id: Mapped[int] = mapped_column(foreign_key("users.id"))
+    due_soon: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    payments: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    high_consumption: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())

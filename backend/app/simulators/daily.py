@@ -4,7 +4,8 @@ Pour chaque compteur actif :
 1. ajoute les relevés manquants jusqu'à minuit ce matin (rattrape les jours manqués) ;
 2. émet les factures des périodes terminées dont la date d'émission est arrivée
    (par `generate_bill`, le service unique de B6) ;
-puis passe « en retard » les factures impayées échues (`mark_overdue_bills`).
+puis lance les tâches quotidiennes de production (`run_daily_alerts`, B9.3) : passage en
+retard, rappels de retard et d'échéance, consommation inhabituelle.
 
 Idempotent : relancé le même jour, il ne crée rien en double.
 Ne refacture JAMAIS une période qui a déjà une facture, même annulée (la correction
@@ -25,10 +26,11 @@ from app.modules.bills.errors import BillingError
 from app.modules.bills.models import Bill
 from app.modules.bills.notifications import bill_issued_notification
 from app.modules.bills.periods import BillingSettings, billing_periods, issue_day
-from app.modules.bills.service import generate_bill, mark_overdue_bills
+from app.modules.bills.service import generate_bill
 from app.modules.consumption.models import MeterReading
 from app.modules.households.models import Household
 from app.modules.meters.models import Meter, MeterStatus
+from app.modules.notifications.daily_alerts import run_daily_alerts
 from app.modules.notifications.service import insert_notifications
 from app.simulators.demo_dataset import profile_for
 from app.simulators.persistence import anomaly_notification, insert_readings
@@ -63,10 +65,14 @@ class _DailyTick:
             owner_id = self._owner_id(meter)
             if self._add_missing_readings(meter, owner_id):
                 self._issue_due_bills(meter, owner_id)
-        self._mark_overdue_bills()
         self.report.counts["notifications"] += insert_notifications(
             self.session, self.notifications
         )
+        # Retards, rappels et alertes : les mêmes qu'en production (scripts.daily_alerts).
+        alerts = run_daily_alerts(self.session, today=self.today)
+        self.report.counts["overdue"] += alerts["overdue"]
+        for kind in ("overdue_reminders", "due_soon", "high_consumption", "notifications"):
+            self.report.counts[kind] += alerts[kind]
         self.session.flush()
         return self.report
 
@@ -145,13 +151,6 @@ class _DailyTick:
                 self.report.counts["bills"] += 1
                 if owner_id is not None:
                     self.notifications.append(bill_issued_notification(owner_id, issued.bill))
-
-    # --- 3. Retards -----------------------------------------------------------------
-
-    def _mark_overdue_bills(self) -> None:
-        overdue = mark_overdue_bills(self.session, today=self.today)
-        self.report.counts["overdue"] += len(overdue.bills)
-        self.report.counts["notifications"] += overdue.notifications
 
 
 def run_daily_tick(session: Session, *, today: date, settings: BillingSettings) -> TickReport:

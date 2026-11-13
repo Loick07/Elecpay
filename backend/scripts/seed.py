@@ -13,6 +13,7 @@ import sys
 import time
 from datetime import UTC, date, datetime
 
+import app.db.models  # noqa: F401 — enregistre TOUTES les tables (clés étrangères des insertions)
 from app.core.config import get_settings
 from app.core.timezone import local_date
 from app.db.session import get_sessionmaker

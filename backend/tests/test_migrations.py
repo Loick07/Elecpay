@@ -26,6 +26,7 @@ PLANNED_TABLES = {
     "notifications",
     "audit_logs",
     "password_reset_codes",  # ajoutée en B3.5 (code SMS de réinitialisation, maquette client 4)
+    "notification_preferences",  # ajoutée en B9.2 (interrupteurs « Me prévenir », maquette 14)
 }
 
 # Garde-fous métier écrits en triggers MySQL.

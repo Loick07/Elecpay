@@ -18,6 +18,8 @@ from app.modules.health.router import router as health_router
 from app.modules.households.router import invitations_router
 from app.modules.households.router import router as households_router
 from app.modules.meters.router import router as meters_router
+from app.modules.notifications.router import preferences_router as notification_prefs_router
+from app.modules.notifications.router import router as notifications_router
 from app.modules.payments.router import router as payments_router
 from app.modules.payments.router import webhooks_router as payment_webhooks_router
 from app.modules.receipts.router import router as receipts_router
@@ -71,6 +73,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(payments_router, prefix=API_PREFIX)
     app.include_router(payment_webhooks_router, prefix=API_PREFIX)
     app.include_router(receipts_router, prefix=API_PREFIX)
+    app.include_router(notifications_router, prefix=API_PREFIX)
+    app.include_router(notification_prefs_router, prefix=API_PREFIX)
 
     return app
 

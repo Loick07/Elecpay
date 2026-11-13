@@ -1,4 +1,4 @@
-JE # ElecPay — instructions pour Claude
+# ElecPay — instructions pour Claude
 
 ## Le projet
 ElecPay est un vrai produit (MVP à déployer et vendre), pas seulement un projet de soutenance.
@@ -140,5 +140,12 @@ code de vérification de 12 caractères (`secrets`, sans 0/O/1/I/L). Routes `/re
 téléphone toujours masqué), `/receipts/{id}/pdf` (QR code `segno` vers `RECEIPT_VERIFY_URL`), `/receipts/verify/{code}`
 (publique, sans nom ni téléphone, limitée par IP). Guide Flutter : `backend/docs/RECUS.md`. 1336 tests.
 
-**Prochaine étape : B9 — Notifications**, découpée en sous-étapes validées une par une par Loick.
+**B9 (notifications) ✅ terminé le 13/11/2026** — CI verte. Routes `/notifications` (groupes aujourd'hui /
+cette semaine / plus tôt, lu, tout lu, `unread-count`) et `/me/notification-preferences` (interrupteurs de l'écran 14,
+appliqués dans `insert_notifications`, passage obligé de toute notification). Alertes quotidiennes `run_daily_alerts`
+(retard + rappel tous les 7 jours, échéance J-5 et jour J, consommation inhabituelle) ; commande de production
+`scripts.daily_alerts`. Toutes les commandes importent `app.db.models` (testé processus par processus).
+Guide Flutter : `backend/docs/NOTIFICATIONS.md`. 1414 tests.
+
+**Prochaine étape : B10 — API d'administration**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

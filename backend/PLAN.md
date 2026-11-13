@@ -17,27 +17,23 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B6 | Factures | ✅ terminé (12/11/2026) |
 | B7 | Paiements | ✅ terminé (13/11/2026) |
 | B8 | Reçus | ✅ terminé (13/11/2026) |
-| B9 | Notifications | prochaine étape |
-| B10 | API d'administration | à faire |
+| B9 | Notifications | ✅ terminé (13/11/2026) |
+| B10 | API d'administration | prochaine étape |
 | B11 | Durcissement et contrat d'API | à faire |
 
 Après B11 seulement : application Flutter, puis back-office Next.js.
 
 ## Point de reprise (mis à jour le 13/11/2026)
 
-- **Terminé** : B0 → B8, tout commité et poussé, CI verte.
-  1336 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
-- **Reste** : B9 Notifications, B10 API d'administration, B11 Durcissement et contrat d'API.
-  Puis Flutter, puis Next.js.
-- **Prochaine sous-étape** : proposer à Loick le **découpage de B9** (B9.1, B9.2…), l'expliquer en français
-  et attendre sa validation avant d'écrire du code. Points déjà connus pour B9 : la table `notifications`
-  existe (B1) et se remplit déjà (nouvelle facture, retard, paiement réussi / échoué avec le reçu, invitation,
-  relevé anormal) via `notification_row` / `insert_notifications` (`app/modules/notifications/service.py`) ;
-  manque l'événement « échéance proche » (`BILL_DUE_SOON`, à émettre par le relevé quotidien) ; routes
-  `GET /notifications` (groupées Aujourd'hui / Cette semaine / Plus tôt, maquette 13),
-  `POST /notifications/{id}/read`, `POST /notifications/read-all`, `GET /notifications/unread-count` ;
-  préférences d'alertes de l'écran 14 (table + migration, tableau de fin de B1) ; annonces ciblées A9
-  (B9 / B10) ; push FCM en phase 2.
+- **Terminé** : B0 → B9, tout commité et poussé, CI verte.
+  1414 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : B10 API d'administration, B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
+- **Prochaine sous-étape** : proposer à Loick le **découpage de B10** (B10.1, B10.2…), l'expliquer en
+  français et attendre sa validation avant d'écrire du code. Points déjà connus pour B10 : 11 écrans du
+  back-office et matrice des permissions dans `frontend/design/maquettes/admin/README.md` ; gardiens
+  `require_role` (B3) et connexion web par cookies + CSRF (B3) ; journal d'audit `app/modules/audit/service.py`
+  (chaque écriture admin) ; tableau des besoins de fin de B1 (anomalies de relevé A4, litiges A8,
+  désactivation avec motif A3, double authentification A11, annonces A9) ; notes B10 ci-dessous.
 - **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
   vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
   CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
@@ -47,6 +43,8 @@ Après B11 seulement : application Flutter, puis back-office Next.js.
 | Étape | Symptôme | Cause | Correction |
 |---|---|---|---|
 | B5.6 | `GET /meters/{id}/consumption?granularity=bimester` sur 18 mois → **erreur 500** | la comparaison chiffrait une « facture estimée » de 18 mois d'un bloc, refusée par `compute_bill` (12 mois au plus) | au-delà de 12 mois, seul `energy_cost` est calculé (`estimated_total = null`) ; 2 tests de non-régression (`test_consumption_costs.py`, `test_b5_acceptance.py`) |
+| B8.3 | reçu PDF : code et adresse **dessinés par-dessus le QR code** | après un texte sur plusieurs lignes, fpdf2 revient à la marge gauche | chaque ligne replacée à droite du QR code (vu en regardant le rendu) |
+| B9.3 | `python -m scripts.daily_alerts` → **plantage** à la première notification | la commande seule ne chargeait pas tous les modèles (table `users` inconnue de SQLAlchemy) ; même défaut caché dans `check_pending_payments` | toutes les commandes importent `app.db.models` ; `test_scripts_standalone.py` les lance chacune dans un processus neuf |
 
 Bugs trouvés par les tests pendant la session (tous corrigés, avec un test) : `downgrade` Alembic qui
 supprimait un index utilisé par une clé étrangère ; CHECK « anomalie ⇔ motif » contourné par NULL ;
@@ -77,8 +75,6 @@ message trompeur pour un numéro vide.
 
 ### Notes reportées aux étapes suivantes
 
-- **B9** : les notifications existantes ont parfois une date passée (seed, relevé qui rattrape des
-  jours) : trier par `created_at`, pas par `id`.
 - **Avant la mise en production (reçus)** : renseigner `RECEIPT_VERIFY_URL` (https, page web publique
   de vérification), sinon le QR code mène à l'API locale.
 - **B10** : réémettre la facture d'une période annulée (`generate_bill` refuse : `BILLING_PERIOD_CANCELLED`) ;
@@ -86,10 +82,14 @@ message trompeur pour un numéro vide.
   **interdire d'annuler une facture qui a un paiement en cours** (sinon un succès tardif ne peut plus la
   marquer payée : `payment.bill_not_payable` au journal) ; rapprochement A8 : lister les anomalies du
   journal (`payment.provider_conflict`, `payment.amount_mismatch`) ; « Relancer la vérification » =
-  `refresh_transaction` (`app/modules/payments/tracking.py`), jamais de passage manuel à « réussie ».
+  `refresh_transaction` (`app/modules/payments/tracking.py`), jamais de passage manuel à « réussie » ;
+  annonces A9 (tous, factures en retard, un quartier, un client ; programmation ; taux de lecture) :
+  notifications de type `announcement` créées par `insert_notifications`, toujours envoyées ; interrupteurs
+  généraux des alertes automatiques (A9) à brancher dans `run_daily_alerts`.
 - **B11** : IP réelle derrière un proxy (`X-Forwarded-For`) ; compteurs de tentatives partagés si plusieurs
   processus ; durée de conservation du journal d'audit (loi congolaise) ; planifier
-  `scripts.check_pending_payments` toutes les minutes au déploiement ; limiter la fréquence des
+  `scripts.check_pending_payments` toutes les minutes et `scripts.daily_alerts` chaque matin au
+  déploiement ; limiter la fréquence des
   `check_status` vers un vrai prestataire (le suivi de l'écran 9 interroge toutes les 2-3 s).
 - **Avant la mise en production** : confirmer les préfixes MTN (06) / Airtel (05, 04)
   (`app/modules/payments/operators.py`) ; brancher MTN MoMo et Airtel Money derrière `PaymentProvider`.
@@ -464,6 +464,27 @@ Réalisé (guide pour Flutter : `backend/docs/RECUS.md`), sous-étapes validées
 
 Événements : nouvelle facture, échéance proche, facture en retard, paiement réussi / échoué, invitation reçue, consommation anormale.
 (Envoi push FCM : phase 2.)
+
+Réalisé (guide pour Flutter : `backend/docs/NOTIFICATIONS.md`), sous-étapes validées une à une par Loick :
+- **B9.1** routes de l'écran 13 (`app/modules/notifications/queries.py`) : liste triée par date de l'événement,
+  `group` today / this_week (depuis lundi) / earlier en heure de Brazzaville, `data` pour ouvrir le bon écran,
+  `unread_count` ; `unread-count` ; lu / tout lu (idempotents) ; une notification n'est visible qu'à partir de
+  son heure ; celle d'un autre = `404 NOTIFICATION_NOT_FOUND`.
+- **B9.2** interrupteurs de l'écran 14 : table `notification_preferences` (pas de ligne = défauts : échéances
+  et paiements activés, consommation inhabituelle coupée), `GET` / `PATCH /me/notification-preferences` ;
+  appliqués dans `insert_notifications`, passage obligé de toute notification : une alerte coupée n'est pas
+  créée ; le reste est toujours envoyé. Migration : table + type `high_consumption`.
+- **B9.3** alertes quotidiennes (`run_daily_alerts`, `app/modules/notifications/daily_alerts.py`) : passage en
+  retard, rappels de retard tous les 7 jours, échéance à 5 jours puis le jour même (`bills/reminders.py`),
+  consommation inhabituelle > moyenne des 30 jours + 30 % (`consumption/alerts.py`). Destinataires des alertes
+  de facture : titulaire + payeurs délégués (premier avis de retard B6 aligné). Commande de production
+  `scripts.daily_alerts` (le relevé de démo appelle la même fonction).
+- **B9.4** tests d'acceptation `test_b9_acceptance.py` (de l'événement à l'écran 13, interrupteurs réglés par
+  l'API, chaque événement du plan a une source). Vérifié sur la base de démo : 13 rappels d'échéance à J-5,
+  rien en double à la relance, 11 factures en retard à J+1, 15 rappels à J+8.
+  **Bug trouvé en conditions réelles** : `scripts.daily_alerts` (et `check_pending_payments`, au premier
+  paiement réussi) plantait lancé seul, faute d'avoir chargé tous les modèles ; toutes les commandes
+  importent `app.db.models` et `test_scripts_standalone.py` les lance chacune dans un processus neuf.
 
 ---
 

@@ -16,8 +16,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B5 | Consommation | ✅ terminé (12/11/2026) |
 | B6 | Factures | ✅ terminé (12/11/2026) |
 | B7 | Paiements | ✅ terminé (13/11/2026) |
-| B8 | Reçus | prochaine étape |
-| B9 | Notifications | à faire |
+| B8 | Reçus | ✅ terminé (13/11/2026) |
+| B9 | Notifications | prochaine étape |
 | B10 | API d'administration | à faire |
 | B11 | Durcissement et contrat d'API | à faire |
 
@@ -25,17 +25,19 @@ Après B11 seulement : application Flutter, puis back-office Next.js.
 
 ## Point de reprise (mis à jour le 13/11/2026)
 
-- **Terminé** : B0 → B7, tout commité et poussé, CI verte.
-  1276 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
-- **Reste** : B8 Reçus, B9 Notifications, B10 API d'administration,
-  B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
-- **Prochaine sous-étape** : proposer à Loick le **découpage de B8** (B8.1, B8.2…), l'expliquer en français
-  et attendre sa validation avant d'écrire du code. Points déjà connus pour B8 : le reçu naît dans
-  `_succeed` (`app/modules/payments/confirmation.py`), seul endroit où une transaction devient réussie, dans
-  la même transaction SQL ; numéro `EP-AAAA-000123` séquentiel par année (verrou comme les numéros de
-  facture) ; code de vérification tiré avec `secrets` ; table et triggers déjà en place depuis B1 (reçu
-  seulement pour un paiement réussi, jamais modifié sauf ajout du PDF) ; seed : reçus déjà générés (B2) ;
-  la notification « Paiement réussi » pourra dire « Reçu disponible » ; PDF avec fpdf2 comme la facture.
+- **Terminé** : B0 → B8, tout commité et poussé, CI verte.
+  1336 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : B9 Notifications, B10 API d'administration, B11 Durcissement et contrat d'API.
+  Puis Flutter, puis Next.js.
+- **Prochaine sous-étape** : proposer à Loick le **découpage de B9** (B9.1, B9.2…), l'expliquer en français
+  et attendre sa validation avant d'écrire du code. Points déjà connus pour B9 : la table `notifications`
+  existe (B1) et se remplit déjà (nouvelle facture, retard, paiement réussi / échoué avec le reçu, invitation,
+  relevé anormal) via `notification_row` / `insert_notifications` (`app/modules/notifications/service.py`) ;
+  manque l'événement « échéance proche » (`BILL_DUE_SOON`, à émettre par le relevé quotidien) ; routes
+  `GET /notifications` (groupées Aujourd'hui / Cette semaine / Plus tôt, maquette 13),
+  `POST /notifications/{id}/read`, `POST /notifications/read-all`, `GET /notifications/unread-count` ;
+  préférences d'alertes de l'écran 14 (table + migration, tableau de fin de B1) ; annonces ciblées A9
+  (B9 / B10) ; push FCM en phase 2.
 - **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
   vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
   CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
@@ -75,7 +77,10 @@ message trompeur pour un numéro vide.
 
 ### Notes reportées aux étapes suivantes
 
-- **B8** : créer le reçu dans `_succeed` (voir le point de reprise).
+- **B9** : les notifications existantes ont parfois une date passée (seed, relevé qui rattrape des
+  jours) : trier par `created_at`, pas par `id`.
+- **Avant la mise en production (reçus)** : renseigner `RECEIPT_VERIFY_URL` (https, page web publique
+  de vérification), sinon le QR code mène à l'API locale.
 - **B10** : réémettre la facture d'une période annulée (`generate_bill` refuse : `BILLING_PERIOD_CANCELLED`) ;
   afficher les messages `BillingError` du relevé quotidien aux administrateurs ;
   **interdire d'annuler une facture qui a un paiement en cours** (sinon un succès tardif ne peut plus la
@@ -424,6 +429,28 @@ Réalisé (guide pour Flutter : `backend/docs/PAIEMENTS.md`), sous-étapes valid
 | GET | `/receipts/verify/{code}` | vérification publique d'un reçu |
 
 - Créé automatiquement à la confirmation du paiement ; numéro séquentiel `EP-2026-000123` ; mention « mode démo » tant que c'est simulé.
+
+Réalisé (guide pour Flutter : `backend/docs/RECUS.md`), sous-étapes validées une à une par Loick :
+- **B8.1** `issue_receipt` (`app/modules/receipts/service.py`) : seul créateur de reçu, appelé dans
+  `_succeed` (même transaction SQL que le succès) ; idempotent ; numéro `EP-AAAA-NNNNNN` par année
+  d'émission (heure de Brazzaville), qui continue après le seed, verrou sur le dernier numéro ; code de
+  vérification de 12 caractères tirés avec `secrets`, alphabet sans 0/O/1/I/L, affiché en groupes de 4 ;
+  notification « Reçu … disponible » (`receipt_id` dans les données). Le seed tire toujours avec l'ancien
+  alphabet puis convertit : jeu de démo identique à B6 (même empreinte).
+- **B8.2** `GET /receipts` (filtres `household_id`, `year`) et `GET /receipts/{id}` (`queries.py`) : mêmes
+  accès que les paiements ; numéro de téléphone **toujours masqué** (un reçu se partage, comme sur la
+  maquette) ; `GET /payments/{id}` et l'historique portent `receipt_id` / `receipt_number`.
+- **B8.3** `GET /receipts/{id}/pdf` (`pdf.py`, fpdf2 + `segno`) : style de la facture (gabarit commun
+  `ElecPayPdf`), bandeau « Mode démo », QR code vectoriel vers `RECEIPT_VERIFY_URL/<code>` (https obligatoire
+  en production), généré à la demande.
+- **B8.4** `GET /receipts/verify/{code}` (`verification.py`), **sans connexion** : le minimum (numéro, date,
+  montant, période, compteur masqué `0412-••33`, mode démo), ni nom ni téléphone ; code inconnu → toujours
+  `404 RECEIPT_CODE_UNKNOWN` ; 30 vérifications / 15 min par IP ; déclarée avant `/{receipt_id}`.
+- **B8.5** tests d'acceptation `test_b8_acceptance.py` (parcours payer → reçu → PDF → vérification publique,
+  un reçu par succès, numéros qui se suivent, mode démo partout, reçu intouchable). Vérifié sur l'API
+  lancée avec la base de démo : liste 36–66 ms, PDF 54–112 ms (~4,5 Ko), vérification 37 ms.
+  Défauts trouvés et corrigés : seed décalé par le changement d'alphabet ; texte du PDF dessiné par-dessus
+  le QR code (vu en regardant le rendu).
 
 ---
 

@@ -134,5 +134,11 @@ expiration à 10 min sans PIN), `GET /payments` (historique), `POST /webhooks/pa
 Commandes `scripts.check_pending_payments` et `scripts.send_payment_webhook`. Guide Flutter :
 `backend/docs/PAIEMENTS.md`. 1276 tests.
 
-**Prochaine étape : B8 — Reçus**, découpée en sous-étapes validées une par une par Loick.
+**B8 (reçus) ✅ terminé le 13/11/2026** — CI verte. `issue_receipt` (`app/modules/receipts/service.py`),
+seul créateur de reçu, appelé au succès d'un paiement (même transaction SQL) ; numéro `EP-AAAA-NNNNNN` par année,
+code de vérification de 12 caractères (`secrets`, sans 0/O/1/I/L). Routes `/receipts`, `/receipts/{id}` (numéro de
+téléphone toujours masqué), `/receipts/{id}/pdf` (QR code `segno` vers `RECEIPT_VERIFY_URL`), `/receipts/verify/{code}`
+(publique, sans nom ni téléphone, limitée par IP). Guide Flutter : `backend/docs/RECUS.md`. 1336 tests.
+
+**Prochaine étape : B9 — Notifications**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

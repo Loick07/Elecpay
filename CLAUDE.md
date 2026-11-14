@@ -147,5 +147,15 @@ appliqués dans `insert_notifications`, passage obligé de toute notification). 
 `scripts.daily_alerts`. Toutes les commandes importent `app.db.models` (testé processus par processus).
 Guide Flutter : `backend/docs/NOTIFICATIONS.md`. 1414 tests.
 
-**Prochaine étape : B10 — API d'administration**, découpée en sous-étapes validées une par une par Loick.
+**B10 (API d'administration) ✅ terminé le 14/11/2026** — CI verte. 11 écrans du back-office sous
+`/api/v1/admin` (`app/modules/admin/`). Chaque route se déclare avec `admin_route(…, Permission.X)` (niveaux
+staff / admin / super_admin, mention `x-permission` du contrat) ; chaque écriture passe par
+`record_admin_action` (journal avec IP et navigateur, testé route par route contre le contrat OpenAPI).
+Nouveautés : traitement des anomalies de relevé, litiges (`payment_disputes`), annonces (`announcements`,
+commande `scripts.send_announcements`), alertes automatiques activables (`alert_settings`), réémission d'une
+facture annulée par `generate_bill(..., reissue_at=…)`, « Relancer la vérification » par
+`apply_provider_update` (jamais de « marquer comme payée »). 2FA de l'équipe : reportée en B11.
+Guide Next.js : `backend/docs/ADMIN.md`. 1823 tests.
+
+**Prochaine étape : B11 — Durcissement et contrat d'API**, découpée en sous-étapes validées une par une par Loick.
 Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.

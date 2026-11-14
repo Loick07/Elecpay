@@ -18,22 +18,20 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B7 | Paiements | ✅ terminé (13/11/2026) |
 | B8 | Reçus | ✅ terminé (13/11/2026) |
 | B9 | Notifications | ✅ terminé (13/11/2026) |
-| B10 | API d'administration | prochaine étape |
-| B11 | Durcissement et contrat d'API | à faire |
+| B10 | API d'administration | ✅ terminé (14/11/2026) |
+| B11 | Durcissement et contrat d'API | prochaine étape |
 
 Après B11 seulement : application Flutter, puis back-office Next.js.
 
-## Point de reprise (mis à jour le 13/11/2026)
+## Point de reprise (mis à jour le 14/11/2026)
 
-- **Terminé** : B0 → B9, tout commité et poussé, CI verte.
-  1414 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
-- **Reste** : B10 API d'administration, B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
-- **Prochaine sous-étape** : proposer à Loick le **découpage de B10** (B10.1, B10.2…), l'expliquer en
-  français et attendre sa validation avant d'écrire du code. Points déjà connus pour B10 : 11 écrans du
-  back-office et matrice des permissions dans `frontend/design/maquettes/admin/README.md` ; gardiens
-  `require_role` (B3) et connexion web par cookies + CSRF (B3) ; journal d'audit `app/modules/audit/service.py`
-  (chaque écriture admin) ; tableau des besoins de fin de B1 (anomalies de relevé A4, litiges A8,
-  désactivation avec motif A3, double authentification A11, annonces A9) ; notes B10 ci-dessous.
+- **Terminé** : B0 → B10, tout commité et poussé, CI verte.
+  1823 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
+- **Prochaine sous-étape** : proposer à Loick le **découpage de B11** (B11.1, B11.2…), l'expliquer en
+  français et attendre sa validation avant d'écrire du code. Points déjà connus pour B11 : section B11
+  ci-dessous et notes « B11 » reportées (double authentification de l'équipe, requêtes par ligne des
+  listes admin, tâches planifiées, messages `BillingError` aux administrateurs…).
 - **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
   vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
   CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
@@ -45,6 +43,7 @@ Après B11 seulement : application Flutter, puis back-office Next.js.
 | B5.6 | `GET /meters/{id}/consumption?granularity=bimester` sur 18 mois → **erreur 500** | la comparaison chiffrait une « facture estimée » de 18 mois d'un bloc, refusée par `compute_bill` (12 mois au plus) | au-delà de 12 mois, seul `energy_cost` est calculé (`estimated_total = null`) ; 2 tests de non-régression (`test_consumption_costs.py`, `test_b5_acceptance.py`) |
 | B8.3 | reçu PDF : code et adresse **dessinés par-dessus le QR code** | après un texte sur plusieurs lignes, fpdf2 revient à la marge gauche | chaque ligne replacée à droite du QR code (vu en regardant le rendu) |
 | B9.3 | `python -m scripts.daily_alerts` → **plantage** à la première notification | la commande seule ne chargeait pas tous les modèles (table `users` inconnue de SQLAlchemy) ; même défaut caché dans `check_pending_payments` | toutes les commandes importent `app.db.models` ; `test_scripts_standalone.py` les lance chacune dans un processus neuf |
+| B10.6 | chronologie A8 d'un paiement de démo **sans « débit confirmé » ni « expiration »** | les paiements de démo n'ont pas de ligne au journal | repli sur les dates de la transaction (`confirmed_at`, `expires_at`) ; test de non-régression |
 
 Bugs trouvés par les tests pendant la session (tous corrigés, avec un test) : `downgrade` Alembic qui
 supprimait un index utilisé par une clé étrangère ; CHECK « anomalie ⇔ motif » contourné par NULL ;
@@ -77,20 +76,18 @@ message trompeur pour un numéro vide.
 
 - **Avant la mise en production (reçus)** : renseigner `RECEIPT_VERIFY_URL` (https, page web publique
   de vérification), sinon le QR code mène à l'API locale.
-- **B10** : réémettre la facture d'une période annulée (`generate_bill` refuse : `BILLING_PERIOD_CANCELLED`) ;
-  afficher les messages `BillingError` du relevé quotidien aux administrateurs ;
-  **interdire d'annuler une facture qui a un paiement en cours** (sinon un succès tardif ne peut plus la
-  marquer payée : `payment.bill_not_payable` au journal) ; rapprochement A8 : lister les anomalies du
-  journal (`payment.provider_conflict`, `payment.amount_mismatch`) ; « Relancer la vérification » =
-  `refresh_transaction` (`app/modules/payments/tracking.py`), jamais de passage manuel à « réussie » ;
-  annonces A9 (tous, factures en retard, un quartier, un client ; programmation ; taux de lecture) :
-  notifications de type `announcement` créées par `insert_notifications`, toujours envoyées ; interrupteurs
-  généraux des alertes automatiques (A9) à brancher dans `run_daily_alerts`.
 - **B11** : IP réelle derrière un proxy (`X-Forwarded-For`) ; compteurs de tentatives partagés si plusieurs
   processus ; durée de conservation du journal d'audit (loi congolaise) ; planifier
-  `scripts.check_pending_payments` toutes les minutes et `scripts.daily_alerts` chaque matin au
-  déploiement ; limiter la fréquence des
+  `scripts.check_pending_payments` et `scripts.send_announcements` toutes les minutes et
+  `scripts.daily_alerts` chaque matin au déploiement ; limiter la fréquence des
   `check_status` vers un vrai prestataire (le suivi de l'écran 9 interroge toutes les 2-3 s).
+  Reportés de B10 : **double authentification de l'équipe** (A11, `two_factor = not_available`) ;
+  afficher aux administrateurs les messages `BillingError` du relevé quotidien (pas encore fait) ;
+  requêtes par ligne des listes admin (Utilisateurs A2 : 251–406 ms sur la démo) à regrouper.
+- **Plus tard (produit)** : tarif par compteur (aujourd'hui un seul code de tarif : `tariff_at` ignore le
+  code) ; supprimer un tarif futur jamais utilisé ; renseigner `PAYMENT_WEBHOOK_SECRET` dans chaque `.env`
+  (absent du `.env` local : webhooks refusés, la vérification par l'opérateur marche). Journal A10 de la
+  démo : se remplit avec les vraies actions faites pendant la démo (rien d'inventé).
 - **Avant la mise en production** : confirmer les préfixes MTN (06) / Airtel (05, 04)
   (`app/modules/payments/operators.py`) ; brancher MTN MoMo et Airtel Money derrière `PaymentProvider`.
 - **Flutter** : un seul rafraîchissement de jeton à la fois. **Next.js** : appeler l'API via le serveur Next
@@ -501,6 +498,44 @@ Réalisé (guide pour Flutter : `backend/docs/NOTIFICATIONS.md`), sous-étapes v
 | Journaux | `GET /audit-logs` filtrés | admin, super_admin |
 
 Chaque action d'écriture admin → une ligne `audit_logs` (test).
+
+Réalisé (guide pour Next.js : `backend/docs/ADMIN.md`), sous-étapes validées une à une par Loick :
+- **B10.1** permissions : `admin_route(router, méthode, chemin, Permission.X)` (contrôle du rôle + mention
+  `x-permission` du contrat), niveaux staff / admin / super_admin, matrice A11 (`GET /admin/permissions`),
+  `record_admin_action` (auteur de l'équipe + IP + navigateur) ; un test parcourt chaque route `/admin` du
+  contrat pour chaque rôle.
+- **B10.2** tableau de bord A1 `GET /admin/stats` (agrégats SQL, heure de Brazzaville) : encaissé du mois
+  comparé au mois précédent au même moment, impayés, taux d'échec 7 j, transactions en attente,
+  encaissements 30 j, dernière période par statut, « À surveiller », activité de l'équipe.
+- **B10.3** utilisateurs A2/A3 : liste filtrée (clients, payeurs délégués, équipe), détail, désactiver (motif,
+  ferme les sessions) / réactiver, code de réinitialisation par SMS (jamais montré à l'équipe), export CSV
+  (admin, 10 000 lignes, journalisé) ; numéros masqués pour le support.
+- **B10.4** compteurs A4 : état du jour (reçu, anomalie, manquant, inactif), traitement des anomalies de
+  relevé (colonnes `anomaly_status`… + CHECK, migration ; contrôle demandé / classée sans suite, le relevé
+  n'est jamais modifié), détacher / rattacher (refusé pendant un paiement en cours).
+- **B10.5** factures A5/A6 : totaux du mois d'émission, détail (lignes, tarif, source des relevés, payeurs,
+  transactions, historique), annuler (motif ≥ 10, refusé si payée ou paiement en cours), **réémettre** une
+  période annulée par `generate_bill(..., reissue_at=…)` (nouveau numéro, émise ce jour, 15 jours pour payer,
+  « Facture corrigée »), export CSV.
+- **B10.6** transactions A7/A8 : indicateurs du jour, rapprochement (comparaison ElecPay ↔ opérateur d'après
+  la dernière vérification), « Relancer la vérification » = `check_status` + `apply_provider_update`
+  (seule voie vers « réussie »), litiges (table `payment_disputes`, un seul ouvert, clos = figé, ne change
+  jamais la transaction ; 2 triggers), « à rapprocher » = anomalie signalée et aucun litige clos.
+- **B10.7** annonces A9 (table `announcements` : tous, factures en retard, un quartier, un client ;
+  envoi par `send_announcement`, programmation par `scripts.send_announcements`, taux de lecture) et
+  interrupteurs généraux des alertes (table `alert_settings`, branchés dans `run_daily_alerts` ; le passage
+  en retard se fait toujours).
+- **B10.8** journal A10 `GET /admin/audit-logs` (filtres type, action, auteur, élément, période ; avant /
+  après, IP, navigateur), lecture seule (aucune route, et la base l'interdit).
+- **B10.9** paramètres A11 : équipe (inviter : code SMS pour choisir son mot de passe ; changer un rôle,
+  effet immédiat), tarifs datés (nouvelle version d'un tarif existant, au plus tôt demain, la version en
+  cours s'arrête à cette date), intégrations (sans secret). 2FA : B11.
+- **B10.10** tests d'acceptation `test_b10_acceptance.py` : chaque route d'écriture appelée et sa ligne de
+  journal vérifiée, liste comparée au contrat OpenAPI, aucune route « marquer comme payée ». Vérifié sur
+  l'API lancée avec la base de démo à chaque sous-étape (listes 289–562 ms, détails 51–91 ms), puis base de
+  démo recréée (144 factures, 161 transactions, inchangées). Défauts trouvés et corrigés : CHECK MySQL
+  impossible sur une colonne auto-incrémentée (`alert_settings`) ; clé `code` refusée par le journal
+  (secrets) pour un tarif → `tariff_code` ; chronologie A8 des paiements de démo.
 
 ---
 

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import API_PREFIX, Settings, get_settings
 from app.core.errors import ErrorResponse, register_error_handlers
 from app.core.rate_limit import RateLimiter
+from app.modules.admin.router import router as admin_router
 from app.modules.auth.router import router as auth_router
 from app.modules.auth.web_router import router as auth_web_router
 from app.modules.bills.router import router as bills_router
@@ -75,6 +76,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(receipts_router, prefix=API_PREFIX)
     app.include_router(notifications_router, prefix=API_PREFIX)
     app.include_router(notification_prefs_router, prefix=API_PREFIX)
+    app.include_router(admin_router, prefix=API_PREFIX)
 
     return app
 

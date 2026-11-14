@@ -250,26 +250,31 @@ class BillQueries:
         )
 
     def _lines(self, bill: Bill) -> list[BillLinePublic]:
-        lines = self.session.scalars(
-            select(BillLine).where(BillLine.bill_id == bill.id).order_by(BillLine.position)
+        return bill_line_items(self.session, bill)
+
+
+def bill_line_items(session: Session, bill: Bill) -> list[BillLinePublic]:
+    """Les lignes d'une facture, dans l'ordre (mêmes données pour l'abonné et l'équipe)."""
+    lines = session.scalars(
+        select(BillLine).where(BillLine.bill_id == bill.id).order_by(BillLine.position)
+    )
+    return [
+        BillLinePublic(
+            position=line.position,
+            kind=line.kind,
+            label=line.label,
+            quantity_milli=line.quantity_milli,
+            quantity=_from_milli(line.quantity_milli),
+            unit=line.unit,
+            unit_price_milli=line.unit_price_milli,
+            unit_price=_from_milli(line.unit_price_milli),
+            rate_bp=line.rate_bp,
+            rate_percent=None if line.rate_bp is None else line.rate_bp / 100,
+            base_amount=line.base_amount,
+            amount=line.amount,
         )
-        return [
-            BillLinePublic(
-                position=line.position,
-                kind=line.kind,
-                label=line.label,
-                quantity_milli=line.quantity_milli,
-                quantity=_from_milli(line.quantity_milli),
-                unit=line.unit,
-                unit_price_milli=line.unit_price_milli,
-                unit_price=_from_milli(line.unit_price_milli),
-                rate_bp=line.rate_bp,
-                rate_percent=None if line.rate_bp is None else line.rate_bp / 100,
-                base_amount=line.base_amount,
-                amount=line.amount,
-            )
-            for line in lines
-        ]
+        for line in lines
+    ]
 
 
 def kwh(wh: int) -> float:

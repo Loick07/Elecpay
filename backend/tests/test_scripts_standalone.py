@@ -26,7 +26,13 @@ CHECK = (
 
 
 def test_every_command_is_checked():
-    assert {"daily_alerts", "daily_tick", "check_pending_payments", "seed"} <= set(COMMANDS)
+    assert {
+        "daily_alerts",
+        "daily_tick",
+        "check_pending_payments",
+        "send_announcements",
+        "seed",
+    } <= set(COMMANDS)
 
 
 @pytest.mark.parametrize("command", COMMANDS)

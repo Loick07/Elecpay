@@ -1,8 +1,9 @@
 # Schéma de la base ElecPay (B1)
 
-13 tables, MySQL 8.4, créées par 6 migrations Alembic (`backend/alembic/versions/`) ; ajoutées depuis :
+13 tables à l'origine (18 aujourd'hui), MySQL 8.4, créées par 6 migrations Alembic (`backend/alembic/versions/`) ; ajoutées depuis :
 `password_reset_codes` (B3), colonnes `operator` / `pin_entered_at` des paiements (B7),
-`notification_preferences` et le type `high_consumption` (B9).
+`notification_preferences` et le type `high_consumption` (B9), traitement des anomalies de relevé
+(colonnes `anomaly_*`), `payment_disputes`, `announcements` et `alert_settings` (B10).
 Conventions : `id` BIGINT auto-incrémenté ; `created_at` / `updated_at` en UTC (microsecondes) ;
 montants en FCFA entiers ; énergie en Wh entiers ; prix en millièmes de FCFA ; taux en points de base.
 Calculs de facture : voir [`FACTURE_E2C.md`](FACTURE_E2C.md).
@@ -27,6 +28,12 @@ erDiagram
     users ||--o{ notifications : "destinataire"
     users ||--o| notification_preferences : "interrupteurs (B9)"
     users |o--o{ audit_logs : "auteur (null = système)"
+    users |o--o{ meter_readings : "anomalie traitée par (B10)"
+    payment_transactions ||--o{ payment_disputes : "litiges (B10)"
+    users ||--o{ payment_disputes : "ouvert / clos par"
+    users ||--o{ announcements : "rédigée par (B10)"
+    users |o--o{ announcements : "client visé"
+    announcements ||--o{ notifications : "une par destinataire (data_json)"
     refresh_tokens |o--o| refresh_tokens : "remplacé par"
 
     users {
@@ -55,6 +62,7 @@ erDiagram
         bigint index_wh
         bigint consumption_wh
         bool is_anomaly "avec motif obligatoire"
+        string anomaly_status "null control_requested dismissed (B10)"
     }
     tariffs {
         string code
@@ -101,6 +109,22 @@ erDiagram
         json before_json
         json after_json
     }
+    payment_disputes {
+        string status "open closed"
+        string resolution "no_debit refunded debit_confirmed"
+        bigint open_transaction_id UK "un seul litige ouvert"
+    }
+    announcements {
+        string audience "all overdue district client"
+        string status "scheduled sent cancelled"
+        int recipients "fixé à l'envoi"
+    }
+    alert_settings {
+        string scope UK "global : une seule ligne"
+        bool due_soon
+        bool overdue
+        bool high_consumption
+    }
 ```
 
 ## Garde-fous assurés par la base
@@ -120,6 +144,9 @@ Ces règles tiennent même si un futur code est bogué ou si quelqu'un écrit du
 | Transaction terminée figée (aucun admin ne peut forcer un succès) ; opérateur, numéro, montant fixés à la création ; « PIN saisi » jamais effacé (B7) | trigger `trg_payment_transactions_update` |
 | Reçu seulement pour un paiement réussi, jamais modifié (sauf ajout du PDF) | triggers `trg_receipts_*` |
 | Journal d'audit jamais modifié ni supprimé | triggers `trg_audit_logs_*` |
+| Traitement d'anomalie seulement sur un relevé en anomalie, toujours avec auteur et date (B10) | `CHECK` sur `meter_readings` |
+| Litige jamais supprimé, figé une fois clos, un seul ouvert par transaction (B10) | triggers `trg_payment_disputes_*` + colonne calculée `open_transaction_id` |
+| Annonce : cible complète, chaque état avec ses dates (B10) | `CHECK` sur `announcements` |
 
 Les triggers exigent l'option MySQL `log_bin_trust_function_creators=1`
 (activée dans `docker-compose.yml` et dans la CI).

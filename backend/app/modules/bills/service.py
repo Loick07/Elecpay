@@ -15,7 +15,11 @@ Règles :
 - garde-fou : consommation facturée = somme des relevés journaliers entre ces deux index ;
 - tarif : celui en vigueur au premier jour de la période ;
 - idempotent : si la période a déjà une facture active, on la renvoie sans rien créer ;
-  si sa seule facture a été annulée, on refuse (la refacturer relève de l'administration).
+  si sa seule facture a été annulée, on refuse (la refacturer relève de l'administration) ;
+- réémission par l'administration (`reissue_at`, B10.5) : seulement pour une période dont la
+  facture a été annulée. Mêmes règles de calcul (tarif du début de période, relevés de
+  facturation actuels) ; la nouvelle facture est numérotée et datée au jour de la réémission
+  et a son propre délai de paiement (réémission + `bill_due_delay_days`).
 
 Concurrence : deux émissions simultanées sont mises en file par un verrou sur les numéros
 du jour d'émission ; au pire MySQL annule l'une des deux (interblocage), jamais de doublon :
@@ -24,14 +28,15 @@ Ne valide pas la transaction (pas de commit) : c'est à l'appelant de le faire.
 """
 
 from dataclasses import asdict, dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import case, func, insert, or_, select
 from sqlalchemy.orm import Session
 
-from app.core.timezone import local_midnight_utc
+from app.core.timezone import local_date, local_midnight_utc
 from app.modules.bills.calculator import compute_bill
 from app.modules.bills.errors import (
+    BillingNothingToReissueError,
     BillingPeriodCancelledError,
     BillingPeriodNotClosedError,
     BillingReadingAnomalyError,
@@ -84,10 +89,12 @@ def generate_bill(
     *,
     today: date,
     settings: BillingSettings,
+    reissue_at: datetime | None = None,
 ) -> IssuedBill:
     """Émet (ou retrouve) la facture du compteur pour la période qui commence le `period_start`.
 
     `today` : date locale du jour (Brazzaville). Lève une `BillingError` si c'est impossible.
+    `reissue_at` : instant de la réémission d'une période annulée (administration seulement).
     """
     months = settings.billing_period_months
     if not is_period_start(period_start, months):
@@ -95,18 +102,21 @@ def generate_bill(
             details={"period_start": period_start.isoformat(), "months": months}
         )
     period = billing_period(period_start, months)
-    day = issue_day(period, settings)
+    normal_day = issue_day(period, settings)
     details = _details(meter, period)
-    if day > today:
-        raise BillingPeriodNotClosedError(details=details | {"issue_date": day.isoformat()})
+    if normal_day > today:
+        raise BillingPeriodNotClosedError(details=details | {"issue_date": normal_day.isoformat()})
+    day = normal_day if reissue_at is None else local_date(reissue_at)
 
     sequence = _lock_next_sequence(session, day)  # met en file les émissions du même jour
     existing = _existing_bills(session, meter, period)
     active = [bill for bill in existing if bill.status is not BillStatus.CANCELLED]
     if active:
         return IssuedBill(active[0], created=False)
-    if existing:
+    if reissue_at is None and existing:
         raise BillingPeriodCancelledError(details=details)
+    if reissue_at is not None and not existing:
+        raise BillingNothingToReissueError(details=details)
 
     tariff = tariff_at(session, period.start)
     if tariff is None:
@@ -132,8 +142,12 @@ def generate_bill(
         amount_tax=computation.amount_tax,
         amount_fees=computation.amount_fees,
         amount_total=computation.amount_total,
-        due_date=due_date(period, settings),
-        issued_at=issued_at(day),
+        due_date=(
+            due_date(period, settings)
+            if reissue_at is None
+            else day + timedelta(days=settings.bill_due_delay_days)
+        ),
+        issued_at=issued_at(day) if reissue_at is None else reissue_at,
         status=BillStatus.UNPAID,
         source=source,
     )
@@ -151,13 +165,14 @@ class OverdueReport:
     notifications: int
 
 
-def mark_overdue_bills(session: Session, *, today: date) -> OverdueReport:
+def mark_overdue_bills(session: Session, *, today: date, notify: bool = True) -> OverdueReport:
     """Passe « en retard » les factures impayées dont l'échéance est dépassée.
 
     Le jour même de l'échéance, la facture n'est pas encore en retard. Une facture payée,
     annulée ou en cours de paiement n'est jamais concernée. Sont prévenus le titulaire du foyer
-    et ses payeurs délégués (personne si le compteur est détaché). Idempotent. Pas de commit.
-    Les rappels suivants (tous les 7 jours) : `reminders.send_overdue_reminders`.
+    et ses payeurs délégués (personne si le compteur est détaché), sauf si l'équipe a coupé
+    l'alerte de retard (`notify=False`, A9 : le statut change quand même). Idempotent. Pas de
+    commit. Les rappels suivants (tous les 7 jours) : `reminders.send_overdue_reminders`.
     """
     bills = session.scalars(
         select(Bill)
@@ -168,6 +183,8 @@ def mark_overdue_bills(session: Session, *, today: date) -> OverdueReport:
     notifications = []
     for bill in bills:
         bill.status = BillStatus.OVERDUE
+        if not notify:
+            continue
         notifications += [
             bill_overdue_notification(user_id, bill) for user_id in bill_recipients(session, bill)
         ]

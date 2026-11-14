@@ -44,6 +44,11 @@ class BillingPeriodCancelledError(BillingError):
     message = "La facture de cette période a été annulée : elle n'est pas réémise automatiquement."
 
 
+class BillingNothingToReissueError(BillingError):
+    code = "BILLING_NOTHING_TO_REISSUE"
+    message = "Aucune facture annulée pour cette période : rien à réémettre."
+
+
 class NoTariffError(BillingError):
     code = "NO_TARIFF"
     message = "Aucun tarif en vigueur au début de la période."

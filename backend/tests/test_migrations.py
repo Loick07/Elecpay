@@ -27,6 +27,9 @@ PLANNED_TABLES = {
     "audit_logs",
     "password_reset_codes",  # ajoutée en B3.5 (code SMS de réinitialisation, maquette client 4)
     "notification_preferences",  # ajoutée en B9.2 (interrupteurs « Me prévenir », maquette 14)
+    "payment_disputes",  # ajoutée en B10.6 (litiges, maquette admin A8)
+    "announcements",  # ajoutée en B10.7 (annonces de l'équipe, maquette admin A9)
+    "alert_settings",  # ajoutée en B10.7 (alertes automatiques activables, A9)
 }
 
 # Garde-fous métier écrits en triggers MySQL.
@@ -46,6 +49,8 @@ EXPECTED_TRIGGERS = {
     "trg_receipts_no_delete",
     "trg_audit_logs_no_update",
     "trg_audit_logs_no_delete",
+    "trg_payment_disputes_no_delete",  # B10.6 : un litige n'est jamais supprimé
+    "trg_payment_disputes_closed_immutable",  # B10.6 : clos, il ne change plus
 }
 
 # Index exigés par le plan : (table, colonnes dans l'ordre).

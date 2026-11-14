@@ -7,6 +7,9 @@ Utilisé par le relevé quotidien de démo (`scripts.daily_tick`) et, en product
 3. rappels d'échéance (5 jours avant, puis le jour même) ;
 4. consommation inhabituelle (journée d'hier).
 Idempotent : relancé le même jour, rien n'est fait deux fois. Pas de commit.
+
+Les interrupteurs généraux de l'équipe (A9, B10.7) coupent une famille d'alertes pour toute
+la plateforme ; le passage en retard, lui, se fait toujours (c'est un statut, pas une alerte).
 """
 
 from collections import Counter
@@ -14,6 +17,7 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
+from app.modules.announcements.alerts import alert_switches
 from app.modules.bills.reminders import send_due_soon_reminders, send_overdue_reminders
 from app.modules.bills.service import mark_overdue_bills
 from app.modules.consumption.alerts import send_high_consumption_alerts
@@ -21,13 +25,17 @@ from app.modules.consumption.alerts import send_high_consumption_alerts
 
 def run_daily_alerts(session: Session, *, today: date) -> Counter:
     """Compteurs : factures passées en retard et notifications créées, par sorte."""
+    switches = alert_switches(session)
     counts: Counter = Counter()
-    overdue = mark_overdue_bills(session, today=today)
+    overdue = mark_overdue_bills(session, today=today, notify=switches.overdue)
     counts["overdue"] = len(overdue.bills)
     counts["overdue_notices"] = overdue.notifications
-    counts["overdue_reminders"] = send_overdue_reminders(session, today=today)
-    counts["due_soon"] = send_due_soon_reminders(session, today=today)
-    counts["high_consumption"] = send_high_consumption_alerts(session, today=today)
+    if switches.overdue:
+        counts["overdue_reminders"] = send_overdue_reminders(session, today=today)
+    if switches.due_soon:
+        counts["due_soon"] = send_due_soon_reminders(session, today=today)
+    if switches.high_consumption:
+        counts["high_consumption"] = send_high_consumption_alerts(session, today=today)
     counts["notifications"] = (
         counts["overdue_notices"]
         + counts["overdue_reminders"]

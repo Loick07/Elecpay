@@ -6,10 +6,12 @@ doit être importé ici.
 """
 
 from app.db.base import Base
+from app.modules.announcements.models import AlertSettings, Announcement
 from app.modules.audit.models import AuditLog
 from app.modules.auth.models import PasswordResetCode, RefreshToken
 from app.modules.bills.models import Bill, BillLine
 from app.modules.consumption.models import MeterReading
+from app.modules.disputes.models import PaymentDispute
 from app.modules.households.models import Household, HouseholdMember
 from app.modules.meters.models import Meter
 from app.modules.notifications.models import Notification, NotificationPreference
@@ -19,6 +21,8 @@ from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User
 
 __all__ = [
+    "AlertSettings",
+    "Announcement",
     "AuditLog",
     "Base",
     "Bill",
@@ -30,6 +34,7 @@ __all__ = [
     "Notification",
     "NotificationPreference",
     "PasswordResetCode",
+    "PaymentDispute",
     "PaymentTransaction",
     "Receipt",
     "RefreshToken",

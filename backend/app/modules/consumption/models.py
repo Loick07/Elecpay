@@ -16,6 +16,13 @@ class ReadingSource(StrEnum):
     E2C = "e2c"  # reçu d'E²C (quand l'intégration existera)
 
 
+class AnomalyStatus(StrEnum):
+    """Traitement d'un relevé en anomalie par l'équipe (B10.4, maquette A4). NULL = ouverte."""
+
+    CONTROL_REQUESTED = "control_requested"  # relevé de contrôle demandé (à E²C demain)
+    DISMISSED = "dismissed"  # classée sans suite (le relevé reste exclu des factures)
+
+
 class MeterReading(IdMixin, TimestampMixin, Base):
     """Un relevé : l'index du compteur à un instant donné.
 
@@ -39,6 +46,16 @@ class MeterReading(IdMixin, TimestampMixin, Base):
             " AND CHAR_LENGTH(TRIM(anomaly_reason)) > 0)",
             name="anomaly_has_reason",
         ),
+        # Un traitement n'existe que sur une anomalie, avec son auteur et sa date (B10.4).
+        CheckConstraint(
+            "anomaly_status IS NULL OR is_anomaly = 1", name="anomaly_status_needs_anomaly"
+        ),
+        CheckConstraint(
+            "(anomaly_status IS NULL AND anomaly_handled_by IS NULL AND anomaly_handled_at IS NULL)"
+            " OR (anomaly_status IS NOT NULL AND anomaly_handled_by IS NOT NULL"
+            " AND anomaly_handled_at IS NOT NULL)",
+            name="anomaly_handling_complete",
+        ),
     )
 
     meter_id: Mapped[int] = mapped_column(foreign_key("meters.id"))
@@ -49,3 +66,10 @@ class MeterReading(IdMixin, TimestampMixin, Base):
     is_estimated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     is_anomaly: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     anomaly_reason: Mapped[str | None] = mapped_column(String(255))
+    # Traitement par l'équipe (B10.4). NULL = anomalie ouverte (ou pas d'anomalie).
+    anomaly_status: Mapped[AnomalyStatus | None] = mapped_column(
+        enum_type(AnomalyStatus, "anomaly_status")
+    )
+    anomaly_handled_by: Mapped[int | None] = mapped_column(foreign_key("users.id"))
+    anomaly_handled_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    anomaly_note: Mapped[str | None] = mapped_column(String(255))

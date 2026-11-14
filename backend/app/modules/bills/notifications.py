@@ -65,6 +65,20 @@ def bill_issued_notification(user_id: int, bill: Bill) -> dict[str, Any]:
     )
 
 
+def bill_reissued_notification(user_id: int, bill: Bill, cancelled: Bill) -> dict[str, Any]:
+    """Facture réémise par l'administration après annulation (B10.5)."""
+    return notification_row(
+        user_id,
+        NotificationType.BILL_ISSUED,
+        "Facture corrigée",
+        f"Facture {bill.period_start:%m/%Y}–{bill.period_end:%m/%Y} corrigée : "
+        f"{format_fcfa(bill.amount_total)}, à payer avant le {bill.due_date:%d/%m/%Y}. "
+        f"Elle remplace la facture {cancelled.reference}, annulée.",
+        {"bill_id": bill.id, "replaces_bill_id": cancelled.id},
+        at=bill.issued_at,
+    )
+
+
 def bill_overdue_notification(user_id: int, bill: Bill) -> dict[str, Any]:
     return notification_row(
         user_id,

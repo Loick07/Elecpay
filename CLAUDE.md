@@ -62,7 +62,8 @@ Maquettes **validées** (12/11/2026) : 16 écrans client (`frontend/design/maque
 Consommation « en direct » (onglet Direct) : uniquement avec compteur communicant ou capteur, simulée en démo, prévue en phase 2 ; ailleurs on n'écrit jamais « temps réel ».
 Fond #050D1A (navy), jaune #F5A623 (actions), bleu #1E88E5, succès #22C55E, alerte #F59E0B, erreur #EF4444.
 Poppins (app), Inter (back-office). Inspiration "Liquid Glass". Barre de navigation à 5 onglets avec bouton Payer central.
-Les maquettes fournies servent d'inspiration couleurs/style, pas de spécification d'écrans.
+Les **maquettes validées** (`frontend/design/maquettes/`) sont la **spécification des écrans** : contenu, ordre, textes, états et interactions. Les fichiers `sources/*.dc.html` se lisent comme du HTML (styles en ligne = valeurs exactes, script `data-dc-script` = données et comportements). Les images envoyées au tout début du projet n'étaient qu'une inspiration de couleurs.
+Pour les factures, en cas d'écart, `backend/docs/FACTURES.md` et `FACTURE_E2C.md` font foi (facture bimestrielle, 6 lignes E²C).
 
 ## Méthode de travail
 - Avancer **étape par étape** : backend solide et testé d'abord, puis Flutter, puis Next.js, puis design final.

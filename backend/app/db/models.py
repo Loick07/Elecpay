@@ -8,10 +8,16 @@ doit être importé ici.
 from app.db.base import Base
 from app.modules.announcements.models import AlertSettings, Announcement
 from app.modules.audit.models import AuditLog
-from app.modules.auth.models import PasswordResetCode, RefreshToken
+from app.modules.auth.models import (
+    PasswordResetCode,
+    RefreshToken,
+    TwoFactorBackupCode,
+    TwoFactorSecret,
+)
 from app.modules.bills.models import Bill, BillLine
 from app.modules.consumption.models import MeterReading
 from app.modules.disputes.models import PaymentDispute
+from app.modules.emails.models import EmailVerificationCode, OutboxEmail
 from app.modules.households.models import Household, HouseholdMember
 from app.modules.meters.models import Meter
 from app.modules.notifications.models import Notification, NotificationPreference
@@ -27,17 +33,21 @@ __all__ = [
     "Base",
     "Bill",
     "BillLine",
+    "EmailVerificationCode",
     "Household",
     "HouseholdMember",
     "Meter",
     "MeterReading",
     "Notification",
     "NotificationPreference",
+    "OutboxEmail",
     "PasswordResetCode",
     "PaymentDispute",
     "PaymentTransaction",
     "Receipt",
     "RefreshToken",
     "Tariff",
+    "TwoFactorBackupCode",
+    "TwoFactorSecret",
     "User",
 ]

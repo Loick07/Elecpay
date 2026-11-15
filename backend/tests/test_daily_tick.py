@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 
 from app.core.config import Settings
 from app.core.timezone import local_date, local_midnight_utc
+from app.modules.audit.models import AuditLog
 from app.modules.bills.calculator import compute_bill
 from app.modules.bills.models import Bill, BillLine, BillStatus
 from app.modules.bills.service import tariff_at
@@ -242,6 +243,17 @@ def test_no_tariff_means_no_bill_and_a_clear_message(db_session):
         "période du 01/09/2026" in message and "aucun tarif" in message.lower()
         for message in report.skipped
     )
+
+
+def test_an_unissued_bill_is_journaled_for_the_team(db_session):
+    _, meter = setup_meter(db_session)
+    tariff_at(db_session, date(2026, 9, 1)).valid_from = date(2026, 12, 1)
+    db_session.flush()
+    tick(db_session, date(2026, 11, 3))
+    log = db_session.scalars(select(AuditLog).where(AuditLog.action == "bill.issue_failed")).one()
+    assert (log.entity_type, log.entity_id, log.actor_id) == ("meter", meter.id, None)
+    assert log.after_json["period_start"] == "2026-09-01"
+    assert log.after_json["error"] == "NO_TARIFF"
 
 
 def test_a_missing_billing_reading_is_reported_and_the_tick_goes_on(db_session):

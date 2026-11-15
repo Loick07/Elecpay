@@ -11,7 +11,8 @@
   date. Les factures déjà émises ne changent jamais (montants figés) ; le tarif d'une facture
   est celui en vigueur au premier jour de sa période.
 - Intégrations (admin+) : état des simulateurs et des services branchés, sans aucun secret.
-- 2FA : B11.
+- Double authentification (B11.3) : état de chaque membre ; réinitialisation par un super admin
+  (téléphone perdu), qui ferme les sessions du membre.
 """
 
 import secrets
@@ -42,7 +43,10 @@ from app.modules.admin.settings_schemas import (
     TeamInvited,
     TeamMember,
 )
+from app.modules.auth.errors import TwoFactorStateError
+from app.modules.auth.models import TwoFactorSecret
 from app.modules.auth.passwords import PasswordService
+from app.modules.auth.two_factor import TwoFactorService
 from app.modules.bills.models import Bill
 from app.modules.tariffs.models import Tariff
 from app.modules.users.models import User, UserRole
@@ -167,6 +171,31 @@ class AdminSettings:
             before={"role": before.value},
             after={"role": role.value, "reason": data.reason},
         )
+        self.session.commit()
+        return self._member(member)
+
+    def reset_two_factor(
+        self,
+        actor: User,
+        member_id: int,
+        reason: str,
+        context: RequestContext,
+        settings: Settings,
+    ) -> TeamMember:
+        """Téléphone perdu (B11.3) : la 2FA du membre est effacée et ses sessions fermées ; il
+        la réactive à sa prochaine connexion (obligatoire pour admin et super admin)."""
+        member = self.session.get(User, member_id)
+        if member is None or member.role not in STAFF_ROLES:
+            raise TeamMemberNotFoundError()
+        if member.id == actor.id:
+            raise TeamActionError(
+                "Vous ne pouvez pas réinitialiser votre propre double authentification : "
+                "demandez-le à un autre super admin."
+            )
+        try:
+            TwoFactorService(self.session, settings, self.now).reset(actor, member, reason, context)
+        except TwoFactorStateError as error:
+            raise TeamActionError(error.message) from error
         self.session.commit()
         return self._member(member)
 
@@ -300,8 +329,12 @@ class AdminSettings:
             )
         )
 
-    @staticmethod
-    def _member(member: User) -> TeamMember:
+    def _member(self, member: User) -> TeamMember:
+        secret = self.session.scalars(
+            select(TwoFactorSecret).where(TwoFactorSecret.user_id == member.id)
+        ).first()
+        state = None if secret is None else secret.enabled_at is not None
+        two_factor = {None: "disabled", False: "pending", True: "enabled"}[state]
         return TeamMember(
             id=member.id,
             full_name=member.full_name,
@@ -312,7 +345,7 @@ class AdminSettings:
             invited_at=member.created_at,
             last_login_at=member.last_login_at,
             invitation_pending=member.last_login_at is None,
-            two_factor="not_available",
+            two_factor=two_factor,
         )
 
     @staticmethod

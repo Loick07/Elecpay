@@ -1,0 +1,13 @@
+# Jamais dans l'image : secrets, environnement local, caches, tests.
+.env
+.env.*
+!.env.example
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+.ruff_cache/
+tests/
+docs/
+PLAN.md
+openapi.json

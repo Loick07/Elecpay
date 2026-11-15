@@ -61,13 +61,26 @@ Prévoir qu'un champ de `data` puisse manquer (ou `data` vide) : ouvrir alors la
 | `due_soon` | Échéances — 5 jours avant, puis le jour même | activé |
 | `payments` | Paiements — réussis, échoués, reçus disponibles | activé |
 | `high_consumption` | Consommation inhabituelle — un jour au-dessus de la moyenne de 30 % | **désactivé** |
+| `email_receipts` | Recevoir mes reçus par e-mail (B11.4) | activé (adresse vérifiée requise) |
 
-- `PATCH` avec un seul champ, ex. `{"payments": false}` ; la réponse renvoie les trois valeurs.
+- `PATCH` avec un seul champ, ex. `{"payments": false}` ; la réponse renvoie toutes les valeurs.
 - Une alerte coupée **n'est pas créée** (elle ne réapparaît pas si on la réactive plus tard).
 - Couper « Paiements » ne change rien au paiement lui-même : le reçu est créé, et le titulaire est
   quand même prévenu si c'est un délégué qui a payé.
 - Toujours envoyés (pas d'interrupteur) : nouvelle facture, retard, invitation, relevé inhabituel,
   annonces de l'équipe.
+
+## Reçus par e-mail (B11.4)
+
+- **Vérifier l'adresse d'abord** (profil : `email_verified_at` vide = non vérifiée) :
+  `POST /me/email/verification` envoie un code à 6 chiffres (15 min ; en démo, le code est aussi dans
+  `demo_code`), puis `POST /me/email/verification/confirm` `{"code": "…"}`. Changer d'e-mail
+  (`PATCH /me`) annule la vérification : la redemander.
+- Ensuite, à chaque paiement réussi, un e-mail « Paiement reçu » part avec le **reçu PDF joint**, à la
+  personne qui a payé et au titulaire du foyer si c'est un payeur délégué. Il part en différé (moins
+  d'une minute en production) ; le reçu reste toujours disponible dans l'application (écran 10).
+- Codes : `409 EMAIL_MISSING` (pas d'e-mail au profil), `409 EMAIL_ALREADY_VERIFIED`,
+  `400 EMAIL_CODE_INVALID`, `429` (3 codes par heure), `503 EMAIL_UNAVAILABLE` (réessayer plus tard).
 
 ## Codes d'erreur
 

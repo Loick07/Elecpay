@@ -14,7 +14,11 @@ from datetime import UTC, datetime, timedelta
 
 import jwt
 
-from app.modules.auth.errors import TokenExpiredError, TokenInvalidError
+from app.modules.auth.errors import (
+    TokenExpiredError,
+    TokenInvalidError,
+    TwoFactorChallengeInvalidError,
+)
 
 ALGORITHM = "HS256"  # imposé à la vérification : un jeton signé autrement est refusé
 ISSUER = "elecpay-api"
@@ -82,6 +86,47 @@ def decode_access_token(token: str, *, secret: str) -> AccessClaims:
         issued_at=datetime.fromtimestamp(payload["iat"], UTC),
         expires_at=datetime.fromtimestamp(payload["exp"], UTC),
     )
+
+
+CHALLENGE_TYPE = "2fa_challenge"
+
+
+def create_challenge_token(
+    user_id: int, *, secret: str, minutes: int, now: datetime | None = None
+) -> tuple[str, datetime]:
+    """Jeton de l'étape 2 de la connexion (après un mot de passe correct, avant le code).
+
+    Il ne donne accès à RIEN d'autre que la route de saisie du code : son type le distingue
+    d'un jeton d'accès, que `decode_access_token` refuse.
+    """
+    issued_at = (now or datetime.now(UTC)).replace(microsecond=0)
+    expires_at = issued_at + timedelta(minutes=minutes)
+    payload = {
+        "sub": str(user_id),
+        "type": CHALLENGE_TYPE,
+        "jti": uuid.uuid4().hex,
+        "iss": ISSUER,
+        "iat": issued_at,
+        "exp": expires_at,
+    }
+    return jwt.encode(payload, secret, algorithm=ALGORITHM), expires_at
+
+
+def decode_challenge_token(token: str, *, secret: str) -> int:
+    """Identifiant du membre, ou `TwoFactorChallengeInvalidError` (expiré, falsifié…)."""
+    try:
+        payload = jwt.decode(
+            token,
+            secret,
+            algorithms=[ALGORITHM],
+            issuer=ISSUER,
+            options={"require": ["sub", "exp", "iat", "jti", "iss"]},
+        )
+        if payload.get("type") != CHALLENGE_TYPE:
+            raise TwoFactorChallengeInvalidError()
+        return int(payload["sub"])
+    except (jwt.InvalidTokenError, TypeError, ValueError) as error:
+        raise TwoFactorChallengeInvalidError() from error
 
 
 def new_refresh_token() -> str:

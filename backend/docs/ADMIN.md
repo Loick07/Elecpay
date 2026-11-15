@@ -71,11 +71,27 @@ journées et mois en **heure de Brazzaville**. Montants en **FCFA entiers**, én
 - **Alertes automatiques** : couper une alerte arrête les notifications pour toute la plateforme ;
   une facture échue passe quand même « en retard ».
 - **Équipe** : l'invité reçoit un code par SMS pour choisir son mot de passe (jamais montré à l'équipe) ;
-  `invitation_pending` tant qu'il ne s'est pas connecté. Double authentification : B11
-  (`two_factor = not_available`).
+  `invitation_pending` tant qu'il ne s'est pas connecté.
+- **Double authentification** (obligatoire pour admin et super admin, facultative pour le support) :
+  - connexion : si la réponse de `POST /auth/web/login` contient `two_factor_required: true`, afficher
+    la saisie du code puis `POST /auth/web/login/2fa` avec `challenge_token` (5 min) et le code à 6
+    chiffres ou un code de secours ;
+  - `403 TWO_FACTOR_SETUP_REQUIRED` sur `/admin` : envoyer vers « Sécurité » —
+    `POST /me/2fa/setup` (QR code `qr_svg`), puis `POST /me/2fa/enable` (premier code) ; afficher les
+    10 codes de secours **une seule fois** ;
+  - onglet Équipe : `two_factor` = enabled / pending / disabled ; téléphone perdu :
+    `POST /admin/team/{id}/2fa/reset` (super admin, motif ; ferme les sessions du membre).
 - **Tarifs** : nouvelle version d'un tarif existant, au plus tôt demain ; la version en cours s'arrête à
   cette date. Les factures émises ne changent jamais.
 - **Intégrations** : simulateurs en démo (`simulated`), push `phase_2` ; aucun secret renvoyé.
+
+## « À surveiller » du tableau de bord (A1)
+
+`kind` : `stuck_payment` (paiement en attente > 10 min), `repeated_failures` (≥ 2 échecs
+aujourd'hui pour une personne), `reading_anomalies` (relevés anormaux, relevés manquants),
+`long_overdue` (retard > 30 jours), `unissued_bills` (facture que le relevé quotidien n'a pas pu
+émettre, B11.5), `failed_emails` (reçu par e-mail abandonné après 6 essais, B11.5). Ouvrir l'écran
+indiqué par `entity_type` / `entity_id`. Guide de mise en ligne : `docs/DEPLOIEMENT.md`.
 
 ## Tâches planifiées (production)
 
@@ -83,8 +99,12 @@ journées et mois en **heure de Brazzaville**. Montants en **FCFA entiers**, én
 |---|---|
 | `python -m scripts.check_pending_payments` | toutes les minutes |
 | `python -m scripts.send_announcements` | toutes les minutes |
+| `python -m scripts.send_emails` | toutes les minutes (reçus par e-mail, B11.4) |
 | `python -m scripts.daily_alerts` | chaque matin |
 
 ## Comptes de démo
 
 Mot de passe `Demo2026!` : super admin `+242060000001`, admin `+242060000002`, support `+242060000003`.
+Admin et super admin de démo : double authentification déjà active, secret de démonstration
+`ELECPAYDEMO2FASECRETPOURLESTESTS` (imprimé par `scripts.seed`) à ajouter une fois dans
+l'application d'authentification.

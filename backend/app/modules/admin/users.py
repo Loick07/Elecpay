@@ -14,7 +14,7 @@ l'équipe.
 
 import csv
 import io
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Callable
 from datetime import date, datetime
 
@@ -87,6 +87,22 @@ class ExportTooLargeError(AppError):
     message = f"Plus de {EXPORT_LIMIT} lignes : précisez la recherche ou les filtres."
 
 
+def unpaid_summary(bills: list[Bill], today: date) -> UnpaidSummary:
+    overdue = [
+        bill
+        for bill in bills
+        if bill.status is BillStatus.OVERDUE
+        or (bill.status is BillStatus.UNPAID and bill.due_date < today)
+    ]
+    return UnpaidSummary(
+        count=len(bills),
+        amount=sum(bill.amount_total for bill in bills),
+        overdue_count=len(overdue),
+        pending_payment_count=sum(b.status is BillStatus.PENDING_PAYMENT for b in bills),
+        oldest_overdue_days=max(((today - b.due_date).days for b in overdue), default=None),
+    )
+
+
 def shown_phone(phone: str, viewer: User) -> str:
     """Le support voit les numéros masqués ; admin et super admin en entier (décision B10)."""
     return mask_phone(phone) if viewer.role is UserRole.SUPPORT else phone
@@ -117,7 +133,7 @@ class AdminUsers:
         ).all()
         today = local_date(self.now())
         return AdminUserList(
-            items=[self._row(user, viewer, today) for user in users],
+            items=self._rows(users, viewer, today),
             total=total,
             page=params.page,
             size=params.size,
@@ -158,8 +174,7 @@ class AdminUsers:
                 "statut",
             ]
         )
-        for user in self.session.scalars(query.order_by(User.id)):
-            row = self._row(user, viewer, today)
+        for row in self._rows(self.session.scalars(query.order_by(User.id)).all(), viewer, today):
             writer.writerow(
                 [
                     row.id,
@@ -341,41 +356,55 @@ class AdminUsers:
         )
 
     def _unpaid(self, household_ids: list[int], today: date) -> UnpaidSummary:
-        bills = self._bills_to_pay(household_ids)
-        overdue = [
-            bill
-            for bill in bills
-            if bill.status is BillStatus.OVERDUE
-            or (bill.status is BillStatus.UNPAID and bill.due_date < today)
-        ]
-        return UnpaidSummary(
-            count=len(bills),
-            amount=sum(bill.amount_total for bill in bills),
-            overdue_count=len(overdue),
-            pending_payment_count=sum(b.status is BillStatus.PENDING_PAYMENT for b in bills),
-            oldest_overdue_days=max(((today - b.due_date).days for b in overdue), default=None),
-        )
+        return unpaid_summary(self._bills_to_pay(household_ids), today)
 
-    def _row(self, user: User, viewer: User, today: date) -> AdminUserRow:
-        owned = self._owned_household_ids(user)
-        memberships = self.session.scalars(
-            select(HouseholdMember).where(
-                HouseholdMember.user_id == user.id, HouseholdMember.status == MemberStatus.ACTIVE
+    def _rows(self, users: list[User], viewer: User, today: date) -> list[AdminUserRow]:
+        """Les lignes de la liste en 3 requêtes groupées pour TOUTE la page (B11.5), au lieu de
+        3 requêtes par personne : foyers possédés, appartenances actives, factures à payer."""
+        ids = [user.id for user in users]
+        if not ids:
+            return []
+        owned: dict[int, list[int]] = defaultdict(list)
+        for household_id, owner_id in self.session.execute(
+            select(Household.id, Household.owner_id).where(Household.owner_id.in_(ids))
+        ):
+            owned[owner_id].append(household_id)
+        memberships: dict[int, list[tuple[int, MemberRole]]] = defaultdict(list)
+        for user_id, household_id, role in self.session.execute(
+            select(
+                HouseholdMember.user_id, HouseholdMember.household_id, HouseholdMember.role
+            ).where(HouseholdMember.user_id.in_(ids), HouseholdMember.status == MemberStatus.ACTIVE)
+        ):
+            memberships[user_id].append((household_id, role))
+        all_owned = [household for households in owned.values() for household in households]
+        bills_by_household: dict[int, list[Bill]] = defaultdict(list)
+        if all_owned:
+            for bill, household_id in self.session.execute(
+                select(Bill, Meter.household_id)
+                .join(Meter, Meter.id == Bill.meter_id)
+                .where(Meter.household_id.in_(all_owned), Bill.status.in_(TO_PAY))
+            ):
+                bills_by_household[household_id].append(bill)
+        return [
+            AdminUserRow(
+                id=user.id,
+                full_name=user.full_name,
+                phone=shown_phone(user.phone, viewer),
+                email=user.email,
+                role=user.role,
+                is_delegated_payer=any(
+                    role is MemberRole.PAYER for _, role in memberships[user.id]
+                ),
+                households=len(set(owned[user.id]) | {h for h, _ in memberships[user.id]}),
+                unpaid=unpaid_summary(
+                    [bill for h in owned[user.id] for bill in bills_by_household[h]], today
+                ),
+                last_login_at=user.last_login_at,
+                is_active=user.is_active,
+                created_at=user.created_at,
             )
-        ).all()
-        return AdminUserRow(
-            id=user.id,
-            full_name=user.full_name,
-            phone=shown_phone(user.phone, viewer),
-            email=user.email,
-            role=user.role,
-            is_delegated_payer=any(m.role is MemberRole.PAYER for m in memberships),
-            households=len(set(owned) | {m.household_id for m in memberships}),
-            unpaid=self._unpaid(owned, today),
-            last_login_at=user.last_login_at,
-            is_active=user.is_active,
-            created_at=user.created_at,
-        )
+            for user in users
+        ]
 
     def _households(self, user: User, today: date) -> list[HouseholdLine]:
         rows: list[tuple[Household, HouseholdRole]] = [

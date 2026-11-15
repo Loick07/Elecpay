@@ -51,6 +51,9 @@ class NotificationPreferences(BaseModel):
     high_consumption: bool = Field(
         description="Consommation inhabituelle : un jour au-dessus de la moyenne de 30 %"
     )
+    email_receipts: bool = Field(
+        description="Recevoir mes reçus par e-mail (adresse vérifiée requise ; reçu PDF joint)"
+    )
 
 
 class PreferencesUpdate(BaseModel):
@@ -61,6 +64,7 @@ class PreferencesUpdate(BaseModel):
     due_soon: bool | None = None
     payments: bool | None = None
     high_consumption: bool | None = None
+    email_receipts: bool | None = None
 
     @model_validator(mode="after")
     def something_to_change(self) -> Self:

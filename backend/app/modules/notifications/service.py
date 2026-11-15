@@ -25,7 +25,12 @@ SWITCHES: dict[str, frozenset[NotificationType]] = {
     "payments": frozenset({NotificationType.PAYMENT_SUCCEEDED, NotificationType.PAYMENT_FAILED}),
     "high_consumption": frozenset({NotificationType.HIGH_CONSUMPTION}),
 }
-DEFAULTS: dict[str, bool] = {"due_soon": True, "payments": True, "high_consumption": False}
+DEFAULTS: dict[str, bool] = {
+    "due_soon": True,
+    "payments": True,
+    "high_consumption": False,
+    "email_receipts": True,  # B11.4 : reçus par e-mail (pas une notification de l'application)
+}
 SWITCH_OF = {kind: switch for switch, kinds in SWITCHES.items() for kind in kinds}
 
 

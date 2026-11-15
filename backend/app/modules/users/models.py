@@ -29,12 +29,18 @@ class User(IdMixin, TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(f"REGEXP_LIKE(phone, '{PHONE_PATTERN}', 'c')", name="phone_format"),
         CheckConstraint("CHAR_LENGTH(TRIM(full_name)) > 0", name="full_name_not_blank"),
+        # Une adresse vérifiée existe forcément (B11.4).
+        CheckConstraint(
+            "email_verified_at IS NULL OR email IS NOT NULL", name="verified_email_exists"
+        ),
     )
 
     phone: Mapped[str] = mapped_column(String(PHONE_LENGTH), unique=True)
     # Unicité insensible à la casse grâce à la collation utf8mb4_0900_ai_ci.
     # Plusieurs comptes peuvent ne pas avoir d'e-mail (NULL n'entre pas en conflit).
     email: Mapped[str | None] = mapped_column(String(254), unique=True)
+    # Prouvée par un code reçu à cette adresse (B11.4) ; remise à NULL si l'e-mail change.
+    email_verified_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     full_name: Mapped[str] = mapped_column(String(120))
     password_hash: Mapped[str] = mapped_column(String(255))  # hash Argon2, jamais le mot de passe
     role: Mapped[UserRole] = mapped_column(enum_type(UserRole, "role"), default=UserRole.CLIENT)

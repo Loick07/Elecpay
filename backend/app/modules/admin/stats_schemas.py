@@ -74,7 +74,8 @@ class WatchItem(BaseModel):
     """Un point « À surveiller », avec de quoi ouvrir le bon écran."""
 
     kind: str = Field(
-        description="stuck_payment, repeated_failures, reading_anomalies, long_overdue"
+        description="stuck_payment, repeated_failures, reading_anomalies, long_overdue, "
+        "unissued_bills, failed_emails"
     )
     title: str
     detail: str

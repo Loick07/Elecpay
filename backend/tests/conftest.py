@@ -108,6 +108,13 @@ def test_settings() -> Settings:
             "jwt_secret": SecretStr("secret-de-test-elecpay-" + "x" * 48),
             "payment_webhook_secret": SecretStr("webhooks-de-test-elecpay-" + "w" * 40),
             "payment_provider": "simulated",
+            "two_factor_key": SecretStr("cle-2fa-de-test-elecpay-" + "k" * 40),
+            # Les tests du back-office utilisent des admins sans 2FA ; l'obligation (B11.3) est
+            # testée à part (test_two_factor.py), en la remettant à true.
+            "team_2fa_required": False,
+            "trusted_proxies": [],
+            "rate_limit_per_minute": 300,
+            "log_format": None,
         }
     )
 

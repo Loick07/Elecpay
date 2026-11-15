@@ -135,6 +135,21 @@ async def handle_unexpected_error(request: Request, exc: Exception) -> JSONRespo
     )
 
 
+def install_error_guard(app: FastAPI) -> None:
+    """Filet AU PLUS PRÈS des routes (premier middleware ajouté) : une erreur inattendue devient
+    ici une réponse 500 au format commun, qui traverse ensuite les autres couches. Ainsi la
+    réponse porte l'identifiant de requête, les en-têtes de sécurité et CORS, et la ligne
+    d'erreur du journal est reliée à la requête (sinon Starlette la traite tout à
+    l'extérieur, après eux)."""
+
+    @app.middleware("http")
+    async def error_guard(request: Request, call_next):
+        try:
+            return await call_next(request)
+        except Exception as exc:  # noqa: BLE001 — c'est précisément le rôle de ce filet
+            return await handle_unexpected_error(request, exc)
+
+
 def register_error_handlers(app: FastAPI) -> None:
     # Starlette type ces handlers avec `Exception` ; chacun reçoit bien le type enregistré.
     app.add_exception_handler(AppError, handle_app_error)  # type: ignore[arg-type]

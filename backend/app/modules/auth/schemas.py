@@ -1,6 +1,7 @@
 """Schémas d'API de l'authentification (ce qui entre et ce qui sort)."""
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -97,3 +98,60 @@ class TokenResponse(BaseModel):
     refresh_token: str
     refresh_expires_at: datetime
     user: UserPublic
+
+
+# --- Double authentification de l'équipe (B11.3) ------------------------------------------
+
+
+class TwoFactorChallenge(BaseModel):
+    """Mot de passe correct, mais un code est demandé (membre de l'équipe avec la 2FA)."""
+
+    two_factor_required: Literal[True] = True
+    challenge_token: str = Field(description="À renvoyer avec le code ; valable 5 minutes")
+    expires_at: datetime
+    methods: list[str] = Field(default=["totp", "backup_code"])
+
+
+class TwoFactorLoginRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_token: str = Field(min_length=20, max_length=1000)
+    code: str = Field(
+        min_length=6,
+        max_length=12,
+        description="6 chiffres de l'application, ou un code de secours « ABCD-EFGH »",
+        examples=["123456"],
+    )
+
+
+class TwoFactorStatus(BaseModel):
+    enabled: bool
+    pending_setup: bool = Field(description="QR code affiché, premier code pas encore saisi")
+    required: bool = Field(description="Obligatoire pour mon rôle (admin, super admin)")
+    enabled_at: datetime | None
+    backup_codes_left: int
+
+
+class TwoFactorSetupResponse(BaseModel):
+    secret: str = Field(description="À saisir à la main si le QR code ne peut pas être scanné")
+    otpauth_uri: str = Field(description="Contenu du QR code (Google Authenticator, etc.)")
+    qr_svg: str = Field(description="QR code prêt à afficher (SVG)")
+
+
+class TwoFactorCodeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(pattern=r"^[0-9]{6}$", examples=["123456"])
+
+
+class TwoFactorDisableRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    password: str = Field(min_length=1, max_length=128)
+    code: str = Field(pattern=r"^[0-9]{6}$")
+
+
+class BackupCodesResponse(BaseModel):
+    backup_codes: list[str] = Field(
+        description="À noter et garder en lieu sûr : montrés UNE seule fois, un usage chacun"
+    )

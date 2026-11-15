@@ -25,6 +25,8 @@ copy .env.example .env          # puis adapter si besoin (jamais commité)
 |---|---|
 | Lancer l'API | `.venv\Scripts\python -m uvicorn app.main:app --reload` → http://127.0.0.1:8000/docs |
 | Tests | `.venv\Scripts\python -m pytest` |
+| Couverture des tests | `.venv\Scripts\python -m pytest --cov=app/modules --cov=app/integrations` (objectif ≥ 80 %) |
+| Exporter le contrat d'API | `.venv\Scripts\python -m scripts.export_openapi` → `openapi.json` (à relancer après tout changement de route ; un test le vérifie) |
 | Qualité | `.venv\Scripts\ruff check .` et `.venv\Scripts\ruff format .` |
 | Nouvelle migration | `.venv\Scripts\alembic revision --autogenerate -m "description"` |
 | Appliquer les migrations | `.venv\Scripts\alembic upgrade head` |
@@ -32,10 +34,15 @@ copy .env.example .env          # puis adapter si besoin (jamais commité)
 | Relevé quotidien (faire « vivre » la démo) | `.venv\Scripts\python -m scripts.daily_tick` (une fois par jour ; `--today AAAA-MM-JJ` pour simuler une date) |
 | Alertes quotidiennes (retards, rappels, consommation inhabituelle) | `.venv\Scripts\python -m scripts.daily_alerts` (chaque matin en production ; déjà inclus dans `daily_tick` en démo) |
 | Paiements en attente (expirations) | `.venv\Scripts\python -m scripts.check_pending_payments` (toutes les minutes en production) |
+| Annonces programmées | `.venv\Scripts\python -m scripts.send_announcements` (toutes les minutes en production) |
+| Reçus par e-mail | `.venv\Scripts\python -m scripts.send_emails` (toutes les minutes en production ; simulés en démo) |
+| Image Docker de l'API | `docker build -t elecpay-api .` (mise en ligne : `docs/DEPLOIEMENT.md`) |
 | Envoyer un webhook de paiement signé (démo) | `.venv\Scripts\python -m scripts.send_payment_webhook <id_transaction> [--state failed]` (exige `PAYMENT_WEBHOOK_SECRET` dans `.env`) |
 
 Données de démo : 18 mois de relevés, factures, paiements et reçus **simulés**, personnes fictives.
 Tous les comptes de démo ont le mot de passe `Demo2026!` (liste affichée par `scripts.seed`).
+Admin et super admin de démo : double authentification déjà active, secret de démonstration affiché
+par `scripts.seed`, à ajouter une fois dans une application d'authentification (Google Authenticator…).
 `reset_db` et `seed` refusent de tourner avec `APP_ENV=production`.
 
 Les tests utilisent la base `elecpay_test` (créée par `docker/mysql/init/`), jamais la base de développement.

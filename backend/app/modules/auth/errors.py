@@ -88,6 +88,40 @@ class SamePasswordError(AppError):
     message = "Le nouveau mot de passe doit être différent de l'actuel."
 
 
+class TwoFactorCodeInvalidError(AppError):
+    """Code faux, déjà utilisé ou code de secours inconnu : une seule erreur, volontairement."""
+
+    status_code = status.HTTP_401_UNAUTHORIZED
+    code = "TWO_FACTOR_CODE_INVALID"
+    message = "Code de vérification incorrect."
+
+
+class TwoFactorChallengeInvalidError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    code = "TWO_FACTOR_CHALLENGE_INVALID"
+    message = "Étape de connexion expirée : saisissez à nouveau votre mot de passe."
+
+
+class TwoFactorSetupRequiredError(AppError):
+    status_code = status.HTTP_403_FORBIDDEN
+    code = "TWO_FACTOR_SETUP_REQUIRED"
+    message = (
+        "Activez la double authentification pour accéder au back-office (Paramètres > Sécurité)."
+    )
+
+
+class TwoFactorStateError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    code = "TWO_FACTOR_STATE"
+    message = "Action impossible dans l'état actuel de la double authentification."
+
+
+class TwoFactorRequiredForRoleError(AppError):
+    status_code = status.HTTP_403_FORBIDDEN
+    code = "TWO_FACTOR_REQUIRED_FOR_ROLE"
+    message = "La double authentification est obligatoire pour votre rôle."
+
+
 class ResetCodeInvalidError(AppError):
     """Code faux, expiré, déjà utilisé ou trop d'essais : une seule erreur, volontairement."""
 

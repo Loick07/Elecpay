@@ -22,6 +22,7 @@ from typing import Any
 from fastapi import APIRouter, Depends
 
 from app.modules.auth.dependencies import require_role
+from app.modules.auth.two_factor import require_team_two_factor
 from app.modules.users.models import UserRole
 
 
@@ -79,7 +80,12 @@ def admin_route(
     Le gardien est ajouté aux `dependencies` de la route : il s'exécute avant tout le reste
     (un client reçoit 403 même si sa requête est mal formée).
     """
-    dependencies = [Depends(require_role(*ROLES[permission])), *options.pop("dependencies", [])]
+    dependencies = [
+        Depends(require_role(*ROLES[permission])),
+        # Admin et super admin : double authentification active (B11.3), sinon 403.
+        Depends(require_team_two_factor),
+        *options.pop("dependencies", []),
+    ]
     openapi_extra = {OPENAPI_KEY: permission.value} | options.pop("openapi_extra", {})
     return router.api_route(
         path,

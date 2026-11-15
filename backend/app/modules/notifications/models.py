@@ -68,3 +68,5 @@ class NotificationPreference(IdMixin, TimestampMixin, Base):
     due_soon: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     payments: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     high_consumption: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # « Recevoir mes reçus par e-mail » (B11.4) : activé par défaut, adresse vérifiée requise.
+    email_receipts: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())

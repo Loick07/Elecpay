@@ -18,6 +18,9 @@ class UserPublic(BaseModel):
     full_name: str
     phone: str
     email: str | None
+    email_verified_at: datetime | None = Field(
+        default=None, description="NULL : adresse pas encore vérifiée (aucun reçu par e-mail)"
+    )
     role: UserRole
     is_active: bool
     last_login_at: datetime | None

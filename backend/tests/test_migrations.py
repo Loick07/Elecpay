@@ -30,6 +30,10 @@ PLANNED_TABLES = {
     "payment_disputes",  # ajoutée en B10.6 (litiges, maquette admin A8)
     "announcements",  # ajoutée en B10.7 (annonces de l'équipe, maquette admin A9)
     "alert_settings",  # ajoutée en B10.7 (alertes automatiques activables, A9)
+    "two_factor_secrets",  # ajoutée en B11.3 (double authentification de l'équipe, A11)
+    "two_factor_backup_codes",  # ajoutée en B11.3 (codes de secours)
+    "email_verification_codes",  # ajoutée en B11.4 (vérification de l'adresse e-mail)
+    "email_outbox",  # ajoutée en B11.4 (récapitulatif de paiement par e-mail)
 }
 
 # Garde-fous métier écrits en triggers MySQL.

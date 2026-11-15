@@ -13,8 +13,9 @@ facture « paiement en cours », et la commande `scripts.check_pending_payments`
 planifiée, toutes les minutes en production).
 """
 
+import threading
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -30,16 +31,51 @@ from app.modules.payments.models import PaymentTransaction, TransactionStatus
 from app.modules.payments.notifications import payment_failed_row
 
 EXPIRY_REASON = "Délai de confirmation dépassé (code PIN non saisi)"
+CHECK_STATUS_EVERY = timedelta(seconds=5)
+
+
+class StatusCheckThrottle:
+    """Au plus une demande d'état au prestataire par transaction toutes les 5 s (B11.5).
+
+    L'écran 9 interroge toutes les 2 à 3 s : sans cela, chaque client en attente ferait des
+    dizaines d'appels par minute à MTN / Airtel. Mesuré avec l'horloge du SERVICE (la même que
+    l'expiration), en mémoire du processus, comme les autres limites (Redis exclu pour l'instant).
+    """
+
+    def __init__(self) -> None:
+        self._last: dict[int, datetime] = {}
+        self._lock = threading.Lock()
+
+    def allow(self, transaction_id: int, now: datetime) -> bool:
+        with self._lock:
+            last = self._last.get(transaction_id)
+            if last is not None and now - last < CHECK_STATUS_EVERY:
+                return False
+            self._last[transaction_id] = now
+            if len(self._last) > 10_000:  # transactions terminées depuis longtemps : on oublie
+                self._last = {
+                    tid: at for tid, at in self._last.items() if now - at < timedelta(hours=1)
+                }
+            return True
 
 
 def refresh_transaction(
-    session: Session, provider: PaymentProvider, transaction_id: int, *, now: datetime
+    session: Session,
+    provider: PaymentProvider,
+    transaction_id: int,
+    *,
+    now: datetime,
+    ask_provider: bool = True,
 ) -> PaymentTransaction:
-    """Fait le point sur la transaction (voir le module). Pas de commit."""
+    """Fait le point sur la transaction (voir le module). Pas de commit.
+
+    `ask_provider=False` : on ne contacte pas le prestataire cette fois (fréquence limitée,
+    B11.5), mais l'expiration est quand même vérifiée.
+    """
     transaction = session.get(PaymentTransaction, transaction_id)
     if transaction.status is not TransactionStatus.PENDING:
         return transaction
-    if transaction.provider_ref is not None:
+    if ask_provider and transaction.provider_ref is not None:
         bill = session.get(Bill, transaction.bill_id)
         try:
             update = provider.check_status(

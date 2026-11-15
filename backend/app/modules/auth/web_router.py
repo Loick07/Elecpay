@@ -19,9 +19,19 @@ from app.modules.auth.cookies import (
     verify_csrf,
 )
 from app.modules.auth.errors import NotAuthenticatedError
-from app.modules.auth.router import TOO_MANY, login_with_limits
-from app.modules.auth.schemas import LoginRequest, WebSessionResponse
-from app.modules.auth.service import AuthService
+from app.modules.auth.router import (
+    TOO_MANY,
+    challenge_response,
+    login_with_limits,
+    two_factor_with_limits,
+)
+from app.modules.auth.schemas import (
+    LoginRequest,
+    TwoFactorChallenge,
+    TwoFactorLoginRequest,
+    WebSessionResponse,
+)
+from app.modules.auth.service import AuthService, PendingTwoFactor
 from app.modules.auth.sessions import IssuedTokens
 from app.modules.users.models import UserRole
 from app.modules.users.schemas import UserPublic
@@ -42,10 +52,12 @@ def web_session(issued: IssuedTokens, response: Response, settings: Settings) ->
 
 @router.post(
     "/login",
-    response_model=WebSessionResponse,
+    response_model=WebSessionResponse | TwoFactorChallenge,
     summary="Connexion au back-office (cookies httpOnly)",
     description="Dépose les cookies `elecpay_access`, `elecpay_refresh` (httpOnly) et "
-    "`elecpay_csrf` (à recopier dans l'en-tête `X-CSRF-Token` des requêtes qui modifient).",
+    "`elecpay_csrf` (à recopier dans l'en-tête `X-CSRF-Token` des requêtes qui modifient). "
+    "Avec la double authentification : aucun cookie, mais `two_factor_required: true` et un "
+    "`challenge_token`, à compléter avec `POST /auth/web/login/2fa`.",
     responses={
         401: {"model": ErrorResponse, "description": "Numéro ou mot de passe incorrect"},
         403: {"model": ErrorResponse, "description": "Compte désactivé, ou réservé à l'équipe"},
@@ -59,8 +71,33 @@ def web_login(
     settings: Settings = Depends(get_settings),
     context: RequestContext = Depends(request_context),
     limiter: RateLimiter = Depends(get_rate_limiter),
+) -> WebSessionResponse | TwoFactorChallenge:
+    outcome = login_with_limits(data, db, settings, context, limiter, allowed_roles=TEAM_ROLES)
+    if isinstance(outcome, PendingTwoFactor):
+        return challenge_response(outcome)
+    return web_session(outcome, response, settings)
+
+
+@router.post(
+    "/login/2fa",
+    response_model=WebSessionResponse,
+    summary="Connexion au back-office, étape 2 : code de double authentification",
+    description="Dépose les cookies de session une fois le code accepté.",
+    responses={
+        401: {"model": ErrorResponse, "description": "Code incorrect ou étape expirée"},
+        403: {"model": ErrorResponse, "description": "Compte désactivé"},
+        429: TOO_MANY,
+    },
+)
+def web_login_two_factor(
+    data: TwoFactorLoginRequest,
+    response: Response,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+    context: RequestContext = Depends(request_context),
+    limiter: RateLimiter = Depends(get_rate_limiter),
 ) -> WebSessionResponse:
-    issued = login_with_limits(data, db, settings, context, limiter, allowed_roles=TEAM_ROLES)
+    issued = two_factor_with_limits(data, db, settings, context, limiter, allowed_roles=TEAM_ROLES)
     return web_session(issued, response, settings)
 
 

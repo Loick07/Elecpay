@@ -1,9 +1,12 @@
 # Schéma de la base ElecPay (B1)
 
-13 tables à l'origine (18 aujourd'hui), MySQL 8.4, créées par 6 migrations Alembic (`backend/alembic/versions/`) ; ajoutées depuis :
+13 tables à l'origine (22 aujourd'hui), MySQL 8.4, créées par 6 migrations Alembic (`backend/alembic/versions/`) ; ajoutées depuis :
 `password_reset_codes` (B3), colonnes `operator` / `pin_entered_at` des paiements (B7),
 `notification_preferences` et le type `high_consumption` (B9), traitement des anomalies de relevé
-(colonnes `anomaly_*`), `payment_disputes`, `announcements` et `alert_settings` (B10).
+(colonnes `anomaly_*`), `payment_disputes`, `announcements` et `alert_settings` (B10),
+`two_factor_secrets` et `two_factor_backup_codes` (double authentification de l'équipe, secret chiffré),
+`email_verification_codes`, `email_outbox`, `users.email_verified_at` et l'interrupteur
+`email_receipts` (reçus par e-mail) (B11).
 Conventions : `id` BIGINT auto-incrémenté ; `created_at` / `updated_at` en UTC (microsecondes) ;
 montants en FCFA entiers ; énergie en Wh entiers ; prix en millièmes de FCFA ; taux en points de base.
 Calculs de facture : voir [`FACTURE_E2C.md`](FACTURE_E2C.md).
@@ -147,6 +150,8 @@ Ces règles tiennent même si un futur code est bogué ou si quelqu'un écrit du
 | Traitement d'anomalie seulement sur un relevé en anomalie, toujours avec auteur et date (B10) | `CHECK` sur `meter_readings` |
 | Litige jamais supprimé, figé une fois clos, un seul ouvert par transaction (B10) | triggers `trg_payment_disputes_*` + colonne calculée `open_transaction_id` |
 | Annonce : cible complète, chaque état avec ses dates (B10) | `CHECK` sur `announcements` |
+| Une seule 2FA par membre ; jamais deux fois le même reçu par e-mail à la même personne (B11) | unicité `two_factor_secrets.user_id`, `email_outbox (kind, receipt_id, user_id)` |
+| Une adresse vérifiée existe forcément (B11) | `CHECK` sur `users` |
 
 Les triggers exigent l'option MySQL `log_bin_trust_function_creators=1`
 (activée dans `docker-compose.yml` et dans la CI).

@@ -20,6 +20,9 @@ FORGOT_PER_IP = Limit(10, HOUR)
 RESET_ATTEMPTS_PER_IP = Limit(10, 15 * MINUTES)
 # Inscription : pas de création massive de comptes.
 REGISTER_PER_IP = Limit(5, HOUR)
+# Double authentification (B11.3) : 5 codes faux par membre, puis attente (1 million de codes
+# possibles : sans limite, on finirait par deviner).
+TWO_FACTOR_FAILURES_PER_USER = Limit(5, 15 * MINUTES)
 
 
 def ip_key(action: str, context: RequestContext) -> str:

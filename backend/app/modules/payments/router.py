@@ -124,12 +124,14 @@ def list_payments(
 )
 def get_payment(
     payment_id: int,
+    request: Request,
     user: User = Depends(current_user),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
     provider: PaymentProvider = Depends(get_payment_provider),
 ) -> PaymentPublic:
-    transaction = PaymentService(db, provider, settings).track(user, payment_id)
+    throttle = request.app.state.status_check_throttle
+    transaction = PaymentService(db, provider, settings).track(user, payment_id, throttle)
     return payment_public(db, transaction, user)
 
 

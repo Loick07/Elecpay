@@ -16,7 +16,7 @@ from app.integrations.sms.base import SmsSender
 from app.integrations.sms.factory import get_sms_sender
 from app.modules.auth import rate_limits as limits
 from app.modules.auth.dependencies import current_user
-from app.modules.auth.errors import InvalidCredentialsError
+from app.modules.auth.errors import InvalidCredentialsError, TwoFactorCodeInvalidError
 from app.modules.auth.passwords import RESET_CODE_TTL, PasswordService
 from app.modules.auth.schemas import (
     ForgotPasswordRequest,
@@ -27,9 +27,12 @@ from app.modules.auth.schemas import (
     RegisterRequest,
     ResetPasswordRequest,
     TokenResponse,
+    TwoFactorChallenge,
+    TwoFactorLoginRequest,
 )
-from app.modules.auth.service import AuthService
+from app.modules.auth.service import AuthService, PendingTwoFactor
 from app.modules.auth.sessions import IssuedTokens
+from app.modules.auth.tokens import decode_challenge_token
 from app.modules.users.models import User, UserRole
 from app.modules.users.schemas import UserPublic
 
@@ -71,10 +74,19 @@ def register(
     return token_response(issued, settings)
 
 
+def challenge_response(pending: PendingTwoFactor) -> TwoFactorChallenge:
+    return TwoFactorChallenge(
+        challenge_token=pending.challenge_token, expires_at=pending.expires_at
+    )
+
+
 @router.post(
     "/login",
-    response_model=TokenResponse,
+    response_model=TokenResponse | TwoFactorChallenge,
     summary="Se connecter (téléphone + mot de passe)",
+    description="Clients : renvoie les jetons. Membre de l'équipe avec la double "
+    "authentification : renvoie `two_factor_required: true` et un `challenge_token` (5 min), "
+    "à compléter avec `POST /auth/login/2fa`.",
     responses={
         401: {"model": ErrorResponse, "description": "Numéro ou mot de passe incorrect"},
         403: {"model": ErrorResponse, "description": "Compte désactivé"},
@@ -87,8 +99,32 @@ def login(
     settings: Settings = Depends(get_settings),
     context: RequestContext = Depends(request_context),
     limiter: RateLimiter = Depends(get_rate_limiter),
+) -> TokenResponse | TwoFactorChallenge:
+    outcome = login_with_limits(data, db, settings, context, limiter)
+    if isinstance(outcome, PendingTwoFactor):
+        return challenge_response(outcome)
+    return token_response(outcome, settings)
+
+
+@router.post(
+    "/login/2fa",
+    response_model=TokenResponse,
+    summary="Connexion, étape 2 : code de double authentification (équipe)",
+    description="Code à 6 chiffres de l'application d'authentification, ou un code de secours "
+    "(usage unique). 5 codes faux au plus en 15 minutes.",
+    responses={
+        401: {"model": ErrorResponse, "description": "Code incorrect ou étape expirée"},
+        429: TOO_MANY,
+    },
+)
+def login_two_factor(
+    data: TwoFactorLoginRequest,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+    context: RequestContext = Depends(request_context),
+    limiter: RateLimiter = Depends(get_rate_limiter),
 ) -> TokenResponse:
-    issued = login_with_limits(data, db, settings, context, limiter)
+    issued = two_factor_with_limits(data, db, settings, context, limiter)
     return token_response(issued, settings)
 
 
@@ -99,7 +135,7 @@ def login_with_limits(
     context: RequestContext,
     limiter: RateLimiter,
     allowed_roles: frozenset[UserRole] | None = None,
-) -> IssuedTokens:
+) -> IssuedTokens | PendingTwoFactor:
     """Connexion avec les limites de tentatives (partagée par l'app mobile et le back-office :
     les mêmes compteurs s'appliquent, quel que soit le chemin)."""
     phone_key = limits.phone_key("login", data.phone)
@@ -107,13 +143,39 @@ def login_with_limits(
     # Le numéro est bloqué après 5 ÉCHECS, même si la 6e tentative a le bon mot de passe.
     limiter.check(phone_key, limits.LOGIN_FAILURES_PER_PHONE)
     try:
-        issued = AuthService(db, settings).login(
-            data.phone, data.password, context.user_agent, allowed_roles
+        outcome = AuthService(db, settings).login(
+            data.phone, data.password, context.user_agent, allowed_roles, context
         )
     except InvalidCredentialsError:
         limiter.record(phone_key, limits.LOGIN_FAILURES_PER_PHONE)
         raise
     limiter.reset(phone_key)  # une connexion réussie efface les échecs de ce numéro
+    return outcome
+
+
+def two_factor_with_limits(
+    data: TwoFactorLoginRequest,
+    db: Session,
+    settings: Settings,
+    context: RequestContext,
+    limiter: RateLimiter,
+    allowed_roles: frozenset[UserRole] | None = None,
+) -> IssuedTokens:
+    """Étape 2 avec ses limites : 5 codes faux par membre (15 min), et les tentatives par IP."""
+    limiter.consume(limits.ip_key("login", context), limits.LOGIN_ATTEMPTS_PER_IP)
+    user_id = decode_challenge_token(
+        data.challenge_token, secret=settings.jwt_secret.get_secret_value()
+    )
+    user_key = f"2fa:user:{user_id}"
+    limiter.check(user_key, limits.TWO_FACTOR_FAILURES_PER_USER)
+    try:
+        issued = AuthService(db, settings).complete_two_factor(
+            data.challenge_token, data.code, context.user_agent, allowed_roles, context
+        )
+    except TwoFactorCodeInvalidError:
+        limiter.record(user_key, limits.TWO_FACTOR_FAILURES_PER_USER)
+        raise
+    limiter.reset(user_key)
     return issued
 
 

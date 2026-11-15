@@ -5,3 +5,5 @@ pytest==9.2.0
 httpx2==2.16.0   # client HTTP du TestClient (Starlette déprécie l'ancien paquet httpx)
 ruff==0.17.4
 pypdf==6.21.4    # lecture du texte des PDF générés, dans les tests seulement
+pytest-cov==7.1.0  # couverture des tests (objectif ≥ 80 % sur app/modules et app/integrations)
+coverage==7.17.3

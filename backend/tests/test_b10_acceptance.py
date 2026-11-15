@@ -24,6 +24,7 @@ from app.integrations.payment_providers.simulated import SimulatedPaymentProvide
 from app.integrations.sms.factory import get_sms_sender
 from app.integrations.sms.simulated import SimulatedSmsSender
 from app.modules.audit.models import AuditLog
+from app.modules.auth.models import TwoFactorSecret
 from app.modules.bills.models import BillStatus
 from app.modules.bills.service import generate_bill
 from app.modules.households.models import MemberRole, MemberStatus
@@ -69,6 +70,7 @@ WRITE_ROUTES = {
     "PUT /api/v1/admin/alert-settings": "alerts.settings",
     "POST /api/v1/admin/team/invite": "team.invite",
     "PUT /api/v1/admin/team/{member_id}/role": "team.role",
+    "POST /api/v1/admin/team/{member_id}/2fa/reset": "team.two_factor_reset",  # B11.3
     "POST /api/v1/admin/tariffs": "tariff.create",
 }
 
@@ -99,6 +101,10 @@ def world(db_session, app):
     boss = make_user(db_session, role=UserRole.SUPER_ADMIN, full_name="Serge Bouanga")
     admin = make_user(db_session, role=UserRole.ADMIN, full_name="Christelle Mabiala")
     support = make_user(db_session, role=UserRole.SUPPORT, full_name="Patrick Moukala")
+    secured = make_user(db_session, role=UserRole.SUPPORT, full_name="Membre avec 2FA")
+    db_session.add(
+        TwoFactorSecret(user_id=secured.id, secret_encrypted="v1:test", enabled_at=utcnow())
+    )
     arnaud = make_user(db_session, full_name="Arnaud Mavoungou", phone="+242061110001")
     grace = make_user(db_session, full_name="Grâce Ngoma", phone="+242051110002")
     home = make_household(db_session, arnaud, name="Maison Mpita", district="Mpita")
@@ -145,6 +151,7 @@ def world(db_session, app):
         "boss": boss,
         "admin": admin,
         "support": support,
+        "secured": secured,
         "arnaud": arnaud,
         "grace": grace,
         "home": home,
@@ -310,6 +317,14 @@ def test_every_admin_write_leaves_its_line_in_the_journal(client, auth_headers, 
         world["boss"],
         "team.role",
         {"role": "admin", "reason": "Nouvelle mission confiée"},
+    )
+    call(
+        "POST",
+        f"/team/{world['secured'].id}/2fa/reset",
+        boss,
+        world["boss"],
+        "team.two_factor_reset",
+        {"reason": "Téléphone perdu, identité vérifiée"},
     )
     call(
         "POST",

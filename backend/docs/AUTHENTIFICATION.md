@@ -59,6 +59,26 @@ Règles pour le back-office :
   appelle directement une autre adresse.
 - Envoyer les requêtes avec les cookies (`credentials: "include"` côté navigateur).
 
+### Double authentification de l'équipe (B11.3)
+
+- Si la réponse de `POST /auth/web/login` (ou `/auth/login`) contient `two_factor_required: true`,
+  aucune session n'est ouverte : afficher la saisie du code, puis `POST /auth/web/login/2fa`
+  (`/auth/login/2fa` côté jetons) avec `{"challenge_token", "code"}`. Le défi vaut 5 minutes ; le
+  code est celui de l'application d'authentification (6 chiffres) ou un code de secours `ABCD-EFGH`.
+- Erreurs : `401 TWO_FACTOR_CODE_INVALID` (code faux ou déjà utilisé), `401
+  TWO_FACTOR_CHALLENGE_INVALID` (défi expiré : recommencer par le mot de passe), `429` (5 codes faux
+  en 15 min).
+- Admin et super admin sans 2FA : toute route `/admin` répond `403 TWO_FACTOR_SETUP_REQUIRED` →
+  écran « Sécurité » : `POST /me/2fa/setup` (QR code `qr_svg`), `POST /me/2fa/enable` (premier code,
+  renvoie 10 codes de secours à montrer une seule fois), `GET /me/2fa` (état).
+- Démo : les comptes admin et super admin ont une 2FA déjà active (secret imprimé par `scripts.seed`).
+
+### Identifiant de requête
+
+Chaque réponse porte `X-Request-ID` (lisible aussi par le navigateur). En cas d'erreur, l'afficher
+discrètement (« Référence : … ») : l'équipe retrouve aussitôt la requête dans les journaux.
+Les applications peuvent aussi envoyer le leur (8 à 64 caractères `A-Z a-z 0-9 . _ -`).
+
 ## Codes d'erreur (format commun `{"error": {"code", "message", "details"}}`)
 
 | Code | Statut | Quand | Que faire |

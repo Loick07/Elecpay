@@ -31,6 +31,7 @@ def test_every_command_is_checked():
         "daily_tick",
         "check_pending_payments",
         "send_announcements",
+        "send_emails",
         "seed",
     } <= set(COMMANDS)
 

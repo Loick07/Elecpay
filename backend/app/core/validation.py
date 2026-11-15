@@ -84,6 +84,14 @@ def normalize_email(raw: str) -> str:
     return email
 
 
+def mask_email(email: str) -> str:
+    """« grace.ngoma@example.com » → « g***@example.com » (journaux : jamais en entier)."""
+    local_part, _, domain = email.partition("@")
+    if not local_part or not domain:
+        return "***"
+    return f"{local_part[0]}***@{domain}"
+
+
 FULL_NAME_MIN_LENGTH = 2
 FULL_NAME_MAX_LENGTH = 120
 

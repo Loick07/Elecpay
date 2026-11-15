@@ -18,6 +18,11 @@ from app.core.config import get_settings
 from app.core.timezone import local_date
 from app.db.session import get_sessionmaker
 from app.simulators.demo_dataset import DEMO_PASSWORD
+from app.simulators.demo_two_factor import (
+    DEMO_TOTP_SECRET,
+    demo_provisioning_uri,
+    enable_demo_two_factor,
+)
 from app.simulators.seeder import DEFAULT_SEED, SeedError, SeedReport, seed_demo
 
 
@@ -70,12 +75,23 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with get_sessionmaker()() as session:
             report = seed_demo(session, today=args.today, settings=settings, seed=args.seed)
+            secured = enable_demo_two_factor(session, settings)
             session.commit()
     except SeedError as error:
         print(error, file=sys.stderr)
         return 1
     print_report(report, time.perf_counter() - started)
+    print_two_factor(secured)
     return 0
+
+
+def print_two_factor(secured) -> None:
+    print("\nDouble authentification (DÉMO) déjà activée pour :")
+    for member in secured:
+        print(f"  {member.phone}  {member.role.value:<12} {member.full_name}")
+    print(f"  Secret à ajouter UNE fois dans votre application : {DEMO_TOTP_SECRET}")
+    print(f"  (ou ce lien en QR code : {demo_provisioning_uri()})")
+    print("  Un seul ajout suffit : le même secret sert aux deux comptes de démo.")
 
 
 if __name__ == "__main__":

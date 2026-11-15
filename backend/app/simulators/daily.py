@@ -22,6 +22,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.timezone import local_date
+from app.modules.audit.service import record
 from app.modules.bills.errors import BillingError
 from app.modules.bills.models import Bill
 from app.modules.bills.notifications import bill_issued_notification
@@ -145,6 +146,19 @@ class _DailyTick:
                 self.report.skipped.append(
                     f"Compteur {meter.reference}, période du {period.start:%d/%m/%Y} : "
                     f"{problem.message}"
+                )
+                # Au journal, pour l'équipe (tableau de bord A1, B11.5) : sinon personne ne le voit.
+                record(
+                    self.session,
+                    action="bill.issue_failed",
+                    entity_type="meter",
+                    entity_id=meter.id,
+                    actor_id=None,
+                    after={
+                        "period_start": period.start.isoformat(),
+                        "error": problem.code,
+                        "message": problem.message,
+                    },
                 )
                 continue
             if issued.created:

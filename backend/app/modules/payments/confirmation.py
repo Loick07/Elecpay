@@ -31,6 +31,7 @@ from app.core.timezone import local_date
 from app.integrations.payment_providers.base import ProviderState, ProviderUpdate
 from app.modules.audit.service import record
 from app.modules.bills.models import Bill, BillStatus
+from app.modules.emails.receipts import enqueue_receipt_emails
 from app.modules.households.models import Household
 from app.modules.meters.models import Meter
 from app.modules.notifications.service import insert_notifications
@@ -122,6 +123,9 @@ def _succeed(session, transaction, bill, update, at, origin) -> Applied:
         _audit(session, "payment.bill_not_payable", transaction, origin, bill_status=bill.status)
     session.flush()
     receipt = issue_receipt(session, transaction)  # même transaction SQL que le succès
+    # Récapitulatif par e-mail (B11.4) : seulement mis en file ici, envoyé plus tard par
+    # `scripts.send_emails` ; une panne d'e-mail ne peut jamais bloquer un paiement.
+    enqueue_receipt_emails(session, transaction, bill, receipt, now=at)
     payer = session.get(User, transaction.payer_id)
     insert_notifications(
         session,

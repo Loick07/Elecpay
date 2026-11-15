@@ -112,9 +112,22 @@ def production(**overrides) -> Settings:
         "app_env": "production",
         "jwt_secret": STRONG_SECRET,
         "payment_webhook_secret": STRONG_SECRET,
+        "two_factor_key": "cle-2fa-de-production-" + "q" * 40,  # différente de JWT_SECRET
+        "team_2fa_required": True,
         "receipt_verify_url": "https://elecpay.cg/verifier",
     } | overrides
     return make_settings(**values)
+
+
+@pytest.mark.parametrize("key", ["", "trop-courte", STRONG_SECRET])  # STRONG_SECRET = JWT_SECRET
+def test_production_requires_a_distinct_two_factor_key(key):
+    with pytest.raises(ValidationError, match="TWO_FACTOR_KEY"):
+        production(two_factor_key=key)
+
+
+def test_production_requires_team_two_factor():
+    with pytest.raises(ValidationError, match="TEAM_2FA_REQUIRED"):
+        production(team_2fa_required=False)
 
 
 def test_receipt_verification_address():

@@ -57,7 +57,7 @@ def test_team_lists_staff_only(client, auth_headers, team):
     assert response.status_code == 200, response.text
     names = {member["full_name"] for member in response.json()}
     assert names == {"Serge Bouanga", "Christelle Mabiala", "Patrick Moukala"}
-    assert {member["two_factor"] for member in response.json()} == {"not_available"}
+    assert {member["two_factor"] for member in response.json()} == {"disabled"}
     assert client.get(f"{ADMIN}/team", headers=auth_headers(team["support"])).status_code == 403
 
 

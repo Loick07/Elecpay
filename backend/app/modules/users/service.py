@@ -41,6 +41,9 @@ class UserService:
         before = {field: getattr(user, field) for field in changes}
         for field, value in changes.items():
             setattr(user, field, value)
+        if "email" in changes:
+            # Nouvelle adresse : plus aucun reçu ne part tant qu'elle n'est pas vérifiée (B11.4).
+            user.email_verified_at = None
         try:
             self.session.flush()
         except IntegrityError as error:  # e-mail pris entre-temps par quelqu'un d'autre

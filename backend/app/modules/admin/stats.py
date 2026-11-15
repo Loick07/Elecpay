@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 from app.core.calendar import add_months
 from app.core.money import format_fcfa
 from app.core.timezone import local_date, local_midnight_utc
+from app.core.validation import mask_email
 from app.db.base import utcnow
 from app.modules.admin.activity import action_label
 from app.modules.admin.meters import not_dismissed
@@ -43,6 +44,7 @@ from app.modules.audit.models import AuditLog
 from app.modules.bills.models import Bill, BillStatus
 from app.modules.bills.queries import bill_period_label, displayed_status, is_overdue
 from app.modules.consumption.models import MeterReading
+from app.modules.emails.models import EmailStatus, OutboxEmail
 from app.modules.meters.models import Meter, MeterStatus
 from app.modules.payments.common import public_reference
 from app.modules.payments.models import PaymentTransaction, TransactionStatus
@@ -237,6 +239,73 @@ class AdminStatsService:
             *self._repeated_failures(today),
             *self._reading_anomalies(now, today),
             *self._long_overdue(today),
+            *self._unissued_bills(now),
+            *self._failed_emails(now),
+        ]
+
+    def _unissued_bills(self, now: datetime) -> list[WatchItem]:
+        """Factures que le relevé quotidien n'a pas pu émettre ces 7 derniers jours, et toujours
+        pas émises (B11.5). Chaque erreur est au journal : `bill.issue_failed`."""
+        failures = self.session.execute(
+            select(AuditLog, Meter.reference)
+            .join(Meter, Meter.id == AuditLog.entity_id)
+            .where(
+                AuditLog.action == "bill.issue_failed",
+                AuditLog.entity_type == "meter",
+                AuditLog.created_at >= now - timedelta(days=7),
+            )
+            .order_by(AuditLog.created_at.desc())
+        ).all()
+        latest: dict[tuple[int, str], tuple[AuditLog, str]] = {}
+        for log, reference in failures:
+            latest.setdefault((log.entity_id, log.after_json["period_start"]), (log, reference))
+        open_failures = [
+            (log, reference)
+            for (meter_id, start), (log, reference) in latest.items()
+            if not self.session.scalar(
+                select(func.count())
+                .select_from(Bill)
+                .where(Bill.meter_id == meter_id, Bill.period_start == date.fromisoformat(start))
+            )
+        ]
+        if not open_failures:
+            return []
+        log, reference = open_failures[0]
+        count = len(open_failures)
+        s = "s" if count > 1 else ""
+        return [
+            WatchItem(
+                kind="unissued_bills",
+                title=f"{count} facture{s} non émise{s}",
+                detail=f"Compteur {reference} : {log.after_json['message']}",
+                entity_type="meter",
+                entity_id=log.entity_id,
+            )
+        ]
+
+    def _failed_emails(self, now: datetime) -> list[WatchItem]:
+        """Récapitulatifs de paiement abandonnés après 6 essais (B11.4), sur 7 jours."""
+        failed = self.session.scalars(
+            select(OutboxEmail)
+            .where(
+                OutboxEmail.status == EmailStatus.FAILED,
+                OutboxEmail.updated_at >= now - timedelta(days=7),
+            )
+            .order_by(OutboxEmail.updated_at.desc())
+        ).all()
+        if not failed:
+            return []
+        count = len(failed)
+        s = "s" if count > 1 else ""
+        return [
+            WatchItem(
+                kind="failed_emails",
+                title=f"{count} e-mail{s} de reçu non envoyé{s}",
+                detail=f"Service d'envoi en échec · {mask_email(failed[0].to_email)} · "
+                "le reçu reste disponible dans l'application",
+                entity_type="user",
+                entity_id=failed[0].user_id,
+            )
         ]
 
     def _stuck_payments(self, now: datetime) -> list[WatchItem]:

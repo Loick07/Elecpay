@@ -22,6 +22,7 @@ from app.modules.admin.settings_schemas import (
     TeamInvite,
     TeamInvited,
     TeamMember,
+    TwoFactorReset,
 )
 from app.modules.auth.dependencies import current_user
 from app.modules.users.models import User
@@ -37,7 +38,7 @@ REFUSED = {409: {"model": ErrorResponse, "description": "Action refusée"}}
     Permission.ADMIN,
     response_model=list[TeamMember],
     summary="Équipe (A11) : membres, rôle, dernière connexion, invitation en attente",
-    description="Double authentification : prévue en B11 (`two_factor` = not_available).",
+    description="`two_factor` : enabled, pending (QR code affiché, pas confirmée) ou disabled.",
 )
 def list_team(db: Session = Depends(get_db)) -> list[TeamMember]:
     return AdminSettings(db).team()
@@ -86,6 +87,29 @@ def change_role(
     context: RequestContext = Depends(request_context),
 ) -> TeamMember:
     return AdminSettings(db).change_role(actor, member_id, data, context)
+
+
+@admin_route(
+    router,
+    "POST",
+    "/team/{member_id}/2fa/reset",
+    Permission.SUPER_ADMIN,
+    response_model=TeamMember,
+    summary="Réinitialiser la double authentification d'un membre (téléphone perdu)",
+    description="Motif obligatoire. Efface sa 2FA et ses codes de secours, ferme toutes ses "
+    "sessions ; il la réactive à sa prochaine connexion. Jamais sur soi-même. Inscrit au "
+    "journal.",
+    responses=REFUSED | {404: {"model": ErrorResponse, "description": "Membre introuvable"}},
+)
+def reset_two_factor(
+    member_id: int,
+    data: TwoFactorReset,
+    actor: User = Depends(current_user),
+    db: Session = Depends(get_db),
+    context: RequestContext = Depends(request_context),
+    settings: Settings = Depends(get_settings),
+) -> TeamMember:
+    return AdminSettings(db).reset_two_factor(actor, member_id, data.reason, context, settings)
 
 
 @admin_route(

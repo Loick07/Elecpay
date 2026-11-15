@@ -46,7 +46,7 @@ from app.modules.payments.models import PaymentProvider as ProviderName
 from app.modules.payments.models import PaymentTransaction, TransactionStatus
 from app.modules.payments.operators import operator_for_phone
 from app.modules.payments.schemas import PaymentCreate
-from app.modules.payments.tracking import refresh_transaction
+from app.modules.payments.tracking import StatusCheckThrottle, refresh_transaction
 from app.modules.users.models import User
 
 PROVIDER_UNAVAILABLE = "Service de paiement injoignable : aucun débit n'a été demandé."
@@ -211,11 +211,15 @@ class PaymentService:
 
     # --- Suivi (écran 9) --------------------------------------------------------------------
 
-    def track(self, user: User, transaction_id: int) -> PaymentTransaction:
+    def track(
+        self, user: User, transaction_id: int, throttle: StatusCheckThrottle | None = None
+    ) -> PaymentTransaction:
         """La transaction à jour : le payeur, ou tout membre du foyer de la facture.
 
         Si elle est en attente, on fait le point avec le prestataire (et l'expiration).
         Une transaction d'un autre foyer répond comme une transaction inexistante.
+        `throttle` : au plus une demande au prestataire par transaction toutes les 5 s (B11.5),
+        alors que l'écran 9 interroge toutes les 2 à 3 s ; entre deux, l'état connu est renvoyé.
         """
         transaction = self.session.get(PaymentTransaction, transaction_id)
         if transaction is None:
@@ -226,8 +230,10 @@ class PaymentService:
                 meter_access(self.session, user, bill.meter_id)
             except MeterNotFoundError as error:
                 raise PaymentNotFoundError() from error
+        now = self.now()
+        ask = throttle is None or throttle.allow(transaction_id, now)
         transaction = refresh_transaction(
-            self.session, self.provider, transaction_id, now=self.now()
+            self.session, self.provider, transaction_id, now=now, ask_provider=ask
         )
         self.session.commit()
         return transaction

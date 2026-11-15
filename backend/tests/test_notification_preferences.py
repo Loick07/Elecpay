@@ -27,7 +27,8 @@ from tests.factories import (
 )
 
 URL = "/api/v1/me/notification-preferences"
-DEFAULTS = {"due_soon": True, "payments": True, "high_consumption": False}
+# email_receipts : ajouté en B11.4 (reçus par e-mail, activé par défaut).
+DEFAULTS = {"due_soon": True, "payments": True, "high_consumption": False, "email_receipts": True}
 AT = datetime(2026, 11, 12, 9, tzinfo=UTC)
 
 
@@ -61,7 +62,7 @@ def test_only_the_switches_sent_change(client, auth_headers, db_session):
     first = client.patch(URL, json={"payments": False}, headers=headers)
     assert first.json() == DEFAULTS | {"payments": False}
     second = client.patch(URL, json={"high_consumption": True}, headers=headers)
-    assert second.json() == {"due_soon": True, "payments": False, "high_consumption": True}
+    assert second.json() == DEFAULTS | {"payments": False, "high_consumption": True}
     assert client.get(URL, headers=headers).json() == second.json()
 
 

@@ -21,6 +21,7 @@ from app.modules.bills.models import BillStatus
 from app.modules.households.models import MemberRole, MemberStatus
 from app.modules.notifications.models import Notification, NotificationType
 from app.modules.payments.models import PaymentTransaction, TransactionStatus
+from app.modules.payments.service import PaymentService
 from app.modules.payments.tracking import expire_if_due
 from tests.db_helpers import expect_db_rejection
 from tests.factories import make_bill, make_household, make_member, make_meter, make_user
@@ -47,12 +48,24 @@ def clock():
 
 
 @pytest.fixture
-def provider(app, test_settings, clock):
-    """Le prestataire simulé de l'API, avec une horloge réglable."""
+def provider(app, test_settings, clock, monkeypatch):
+    """Le prestataire simulé de l'API, avec une horloge réglable.
+
+    Le service de paiement suit la MÊME horloge : « 6 s plus tard » vaut pour les deux (sinon la
+    limite d'une demande d'état toutes les 5 s, B11.5, verrait les suivis à la même seconde).
+    """
     simulated = SimulatedPaymentProvider(
         test_settings.payment_webhook_secret.get_secret_value(), now=clock
     )
     app.dependency_overrides[get_payment_provider] = lambda: simulated
+    original = PaymentService.__init__
+    monkeypatch.setattr(
+        PaymentService,
+        "__init__",
+        lambda self, session, provider, settings, now=None: original(
+            self, session, provider, settings, clock
+        ),
+    )
     return simulated
 
 

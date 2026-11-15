@@ -39,8 +39,9 @@ class TeamMember(BaseModel):
     last_login_at: datetime | None
     invitation_pending: bool = Field(description="Jamais connecté : mot de passe pas encore choisi")
     two_factor: str = Field(
-        description="Double authentification : « not_available » jusqu'à B11",
-        examples=["not_available"],
+        description="Double authentification : enabled, pending (QR affiché, pas confirmée) "
+        "ou disabled",
+        examples=["enabled"],
     )
 
 
@@ -56,6 +57,12 @@ class TeamInvite(BaseModel):
 class TeamInvited(BaseModel):
     member: TeamMember
     sms_sent_to: str = Field(description="Numéro masqué ; le code n'est jamais montré à l'équipe")
+
+
+class TwoFactorReset(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: Note = Field(examples=["Téléphone perdu, identité vérifiée par appel"])
 
 
 class RoleChange(BaseModel):

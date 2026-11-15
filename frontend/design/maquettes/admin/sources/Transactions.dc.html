@@ -77,14 +77,14 @@ class Component extends DCLogic {
   constructor(props) { super(props); this.state = { f: 'toutes' }; }
   renderVals() {
     const T = [
-      ['TX-2026-004815', '14:31', 'Prisca Loemba', 'FAC-2026-10-004377 · Maison Tchimbamba', '15 520 FCFA', 'MTN MoMo · 06 •• •• 21 45', 'attente', 'PIN saisi, débit non confirmé · 14 min'],
-      ['TX-2026-004814', '14:26', 'Junior Ibara', 'FAC-2026-09-002210 · en retard', '7 640 FCFA', 'Airtel Money · 05 •• •• 67 92', 'echouee', 'solde insuffisant'],
-      ['TX-2026-004812', '14:32', 'Loick Makosso', 'FAC-2026-10-004512 · Maison Mpita', '12 500 FCFA', 'MTN MoMo · 06 •• •• 45 67', 'reussie', 'confirmée en 41 s'],
-      ['TX-2026-004811', '14:20', 'Loick Makosso', 'FAC-2026-10-004512 · Maison Mpita', '12 500 FCFA', 'Airtel Money · 06 •• •• 45 67', 'echouee', 'solde insuffisant'],
-      ['TX-2026-004808', '13:58', 'Junior Ibara', 'FAC-2026-09-002210 · en retard', '7 640 FCFA', 'Airtel Money · 05 •• •• 67 92', 'echouee', 'solde insuffisant'],
-      ['TX-2026-004806', '13:40', 'Arsène Massamba', 'FAC-2026-10-004295 · Studio Mpaka', '5 920 FCFA', 'MTN MoMo · 06 •• •• 33 18', 'reussie', 'confirmée en 29 s'],
-      ['TX-2026-004801', '12:15', 'Mireille Tchicaya', 'FAC-2026-09-001988 · en retard', '13 520 FCFA', 'MTN MoMo · 06 •• •• 47 51', 'expiree', 'code PIN non saisi en 10 min'],
-      ['TX-2026-004797', '11:52', 'Grâce Ngoma', 'FAC-2026-10-004101 · Maison Tié-Tié', '10 590 FCFA', 'Airtel Money · 05 •• •• 88 10', 'reussie', 'confirmée en 52 s']
+      ['TX-2026-004815', '14:31', 'Prisca Loemba', '20261103000096 · Maison Tchimbamba', '38 575 FCFA', 'MTN MoMo · 06 •• •• 21 45', 'attente', 'PIN saisi, débit non confirmé · 14 min'],
+      ['TX-2026-004814', '14:26', 'Junior Ibara', '20260903000057 · en retard', '21 652 FCFA', 'Airtel Money · 05 •• •• 67 92', 'echouee', 'solde insuffisant'],
+      ['TX-2026-004812', '14:32', 'Loick Makosso', '20261103000127 · Maison Mpita', '31 420 FCFA', 'MTN MoMo · 06 •• •• 45 67', 'reussie', 'confirmée en 41 s'],
+      ['TX-2026-004811', '14:20', 'Loick Makosso', '20261103000127 · Maison Mpita', '31 420 FCFA', 'Airtel Money · 06 •• •• 45 67', 'echouee', 'solde insuffisant'],
+      ['TX-2026-004808', '13:58', 'Junior Ibara', '20260903000057 · en retard', '21 652 FCFA', 'Airtel Money · 05 •• •• 67 92', 'echouee', 'solde insuffisant'],
+      ['TX-2026-004806', '13:40', 'Arsène Massamba', '20261103000042 · Studio Mpaka', '17 333 FCFA', 'MTN MoMo · 06 •• •• 33 18', 'reussie', 'confirmée en 29 s'],
+      ['TX-2026-004801', '12:15', 'Mireille Tchicaya', '20260903000031 · en retard', '34 490 FCFA', 'MTN MoMo · 06 •• •• 47 51', 'expiree', 'code PIN non saisi en 10 min'],
+      ['TX-2026-004797', '11:52', 'Grâce Ngoma', '20261103000064 · Maison Tié-Tié', '27 604 FCFA', 'Airtel Money · 05 •• •• 88 10', 'reussie', 'confirmée en 52 s']
     ];
     const ST = {
       attente: ['En attente', 'background: var(--warning-soft); color: var(--warning);'],

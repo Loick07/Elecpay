@@ -437,10 +437,11 @@ class Component extends DCLogic {
       }
       const rmax = Math.max.apply(null, rows.map((r) => r.s)) || 1;
       out.rows = rows.map((r, i) => ({ title: r.title, sub: r.sub, val: kwh(r.s), go: r.go, style: rowStyle(i, true), estStyle: estStyle(r.est), meter: meter(r.s, rmax) }));
-      if (!partial && cmp([y, m, 1], [2026, 10, 1]) < 0) {
+      if (!partial && cmp([y, m - (m % 2), 1], [2026, 9, 1]) < 0) {
         out.hasBill = true;
-        out.billHref = (y === 2026 && m === 9) ? 'Facture.dc.html' : 'Factures.dc.html';
-        out.billText = 'Voir la facture de ' + MN[m] + ' ' + y;
+        const b0 = m - (m % 2);
+        out.billHref = (y === 2026 && b0 === 8) ? 'Facture.dc.html' : 'Factures.dc.html';
+        out.billText = 'Voir la facture de ' + MN[b0] + '–' + MN[b0 + 1] + ' ' + y + ' (bimestrielle)';
       }
     }
 

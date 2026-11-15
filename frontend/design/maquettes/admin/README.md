@@ -45,6 +45,10 @@ Thème Jour par défaut, police Inter, menu latéral bleu nuit (thème Nuit), la
 
 Une règle ajoutée par ces maquettes : une transaction dont le code PIN a été saisi mais dont le débit n'est pas confirmé reste « en attente » (pas d'expiration automatique) jusqu'à la réponse de l'opérateur ou une relance.
 
+## Factures
+
+Factures **bimestrielles** (comme E²C), 6 lignes : consommation, droit à la consommation, TVA 18 %, C.A. (5 % de la TVA), RAV, timbre. Exemple de la maquette A6 : Boutique Tié-Tié, sept.–oct. 2026, 321,4 kWh → 25 818 FCFA. En cas d'écart avec le backend, `backend/docs/FACTURES.md` et `FACTURE_E2C.md` font foi.
+
 ## À fixer
 
 Tarif réel et structure des taxes (5 à 10 factures E²C), durée de conservation du journal (loi congolaise sur les données personnelles), noms réels de l'équipe (ceux des maquettes sont des exemples).

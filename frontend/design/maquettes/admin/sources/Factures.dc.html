@@ -22,18 +22,18 @@ input::placeholder{color:var(--ink-faint)}
 
 <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 18px;">
 <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
-<div><h1 style="margin: 0; font: 600 24px/32px var(--font-admin);">Factures</h1><p style="margin: 2px 0 0; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Factures générées à partir des relevés et du tarif en vigueur · aucune facture n'est jamais supprimée</p></div>
+<div><h1 style="margin: 0; font: 600 24px/32px var(--font-admin);">Factures</h1><p style="margin: 2px 0 0; font: 400 13px/20px var(--font-admin); color: var(--ink-muted);">Factures bimestrielles comme E²C, calculées à partir des relevés et du tarif en vigueur · aucune facture n'est jamais supprimée</p></div>
 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Période : octobre 2026</button>
+<button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer;">Période : 2026</button>
 <button style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-1); color: var(--ink); font: 500 14px/20px var(--font-admin); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg>Exporter</button>
 </div>
 </header>
 
 <section style="display: flex; flex-wrap: wrap; border-radius: 14px; background: var(--surface-1); border: 1px solid var(--line);">
-<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px;"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Factures émises</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">1 380</span></div>
-<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Montant facturé</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">15 862 400 FCFA</span></div>
-<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Encaissé</span><span style="font: 600 20px/28px var(--font-admin); color: var(--success); font-variant-numeric: tabular-nums;">13 376 100 FCFA</span></div>
-<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Reste à encaisser</span><span style="font: 600 20px/28px var(--font-admin); color: var(--warning); font-variant-numeric: tabular-nums;">2 486 300 FCFA</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px;"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Factures émises (sept.–oct.)</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">1 380</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Montant facturé</span><span style="font: 600 20px/28px var(--font-admin); font-variant-numeric: tabular-nums;">39 612 300 FCFA</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Encaissé</span><span style="font: 600 20px/28px var(--font-admin); color: var(--success); font-variant-numeric: tabular-nums;">33 402 700 FCFA</span></div>
+<div style="flex: 1 1 180px; padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--line);"><span style="font: 500 12px/16px var(--font-admin); color: var(--ink-muted);">Reste à encaisser</span><span style="font: 600 20px/28px var(--font-admin); color: var(--warning); font-variant-numeric: tabular-nums;">6 133 500 FCFA</span></div>
 </section>
 
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
@@ -76,14 +76,14 @@ class Component extends DCLogic {
   constructor(props) { super(props); this.state = { f: 'toutes' }; }
   renderVals() {
     const B = [
-      ['FAC-2026-10-004513', 'Loick Makosso', 'Boutique Tié-Tié · 0377-1209', '163,4 kWh', '9 870 FCFA', '30 nov.', 'apayer', ''],
-      ['FAC-2026-10-004512', 'Loick Makosso', 'Maison Mpita · 0412-8833', '212,4 kWh', '12 500 FCFA', '25 nov.', 'payee', 'le 12 nov.'],
-      ['FAC-2026-10-004377', 'Prisca Loemba', 'Maison Tchimbamba · 0301-5524', '268,9 kWh', '15 520 FCFA', '25 nov.', 'encours', ''],
-      ['FAC-2026-10-004290', 'Arsène Massamba', 'Villa Mpaka · 0588-0316', '512,0 kWh', '28 760 FCFA', '25 nov.', 'payee', 'le 9 nov.'],
-      ['FAC-2026-09-002210', 'Junior Ibara', 'Appartement Loandjili · 0219-7741', '121,7 kWh', '7 640 FCFA', '25 oct.', 'retard', ''],
-      ['FAC-2026-09-001988', 'Mireille Tchicaya', 'Maison Siafoumou · 0145-9930', '231,2 kWh', '13 520 FCFA', '25 oct.', 'retard', ''],
-      ['FAC-2026-10-003871', 'Arsène Massamba', 'Studio Mpaka · 0590-2287', '88,0 kWh', '5 920 FCFA', '25 nov.', 'annulee', 'facture en double'],
-      ['FAC-2026-10-004101', 'Grâce Ngoma', 'Maison Tié-Tié · 0233-6015', '176,5 kWh', '10 590 FCFA', '25 nov.', 'payee', 'le 6 nov.']
+      ['20261103000128', 'Loick Makosso', 'Boutique Tié-Tié · 0377-1209', '321,4 kWh', '25 818 FCFA', '18 nov.', 'apayer', ''],
+      ['20261103000127', 'Loick Makosso', 'Maison Mpita · 0412-8833', '417,4 kWh', '31 420 FCFA', '18 nov.', 'payee', 'le 12 nov.'],
+      ['20261103000096', 'Prisca Loemba', 'Maison Tchimbamba · 0301-5524', '540,0 kWh', '38 575 FCFA', '18 nov.', 'encours', ''],
+      ['20261103000085', 'Arsène Massamba', 'Villa Mpaka · 0588-0316', '1 020,0 kWh', '66 585 FCFA', '18 nov.', 'payee', 'le 9 nov.'],
+      ['20260903000057', 'Junior Ibara', 'Appartement Loandjili · 0219-7741', '250,0 kWh', '21 652 FCFA', '18 sept.', 'retard', ''],
+      ['20260903000031', 'Mireille Tchicaya', 'Maison Siafoumou · 0145-9930', '470,0 kWh', '34 490 FCFA', '18 sept.', 'retard', ''],
+      ['20261103000041', 'Arsène Massamba', 'Studio Mpaka · 0590-2287', '176,0 kWh', '17 333 FCFA', '18 nov.', 'annulee', 'facture en double'],
+      ['20261103000064', 'Grâce Ngoma', 'Maison Tié-Tié · 0233-6015', '352,0 kWh', '27 604 FCFA', '18 nov.', 'payee', 'le 6 nov.']
     ];
     const ST = {
       apayer: ['À payer', 'background: var(--current-soft); color: var(--current-text);'],

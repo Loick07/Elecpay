@@ -15,7 +15,7 @@
 | 4 | Mot de passe oublié | `MotDePasse.dc.html` | 3 étapes : numéro → code à 6 chiffres + nouveau mot de passe (code affiché en mode démo) → confirmation, autres appareils déconnectés. |
 | 5 | Accueil | `Main.dc.html` | Carte verre de la facture la plus urgente (montant, échéance, Détail / Payer), consommation du mois en cours + estimation, activité récente, cloche des notifications. |
 | 6 | Mes factures | `Factures.dc.html` | Reste à payer tous foyers, filtres Toutes / À payer / Payées / En retard (état vide), factures groupées par mois. |
-| 7 | Détail de la facture | `Facture.dc.html` | Montant, échéance, période, ancien / nouvel index, référence, détail ligne par ligne, comparaison au mois précédent, PDF et Payer collés en bas. |
+| 7 | Détail de la facture | `Facture.dc.html` | Facture **bimestrielle** comme E²C : montant, échéance, période de 2 mois, ancien / nouvel index, N° de facture, date d'émission, les 6 lignes E²C (consommation, droit à la consommation, TVA, C.A., RAV, timbre) avec le total hors taxes, comparaison à la facture précédente, PDF et Payer collés en bas. |
 | 8 | Paiement | `Paiement.dc.html` | Feuille du bas : MTN MoMo / Airtel Money, numéro modifiable (payer pour un proche), montant non modifiable. |
 | 9 | Confirmation en attente | `Attente.dc.html` | « Confirmez sur votre téléphone », 3 étapes, référence TX, interdiction de repayer. |
 | 10 | Reçu | `Recu.dc.html` | Paiement réussi, reçu numéroté EP-…, code de vérification, Mode démo, Télécharger / Partager. |
@@ -57,4 +57,8 @@
 
 ## Données de démonstration
 
-Foyers « Maison Mpita » (compteur 0412-8833, 6 kVA) et « Boutique Tié-Tié » (0377-1209, 9 kVA, Grâce Ngoma payeuse déléguée). Facture d'octobre 2026 = 212,4 kWh × 49,08 FCFA + 1 000 frais fixes + 1 075 taxes = 12 500 FCFA. Index 18 452,0 → 18 664,4. Tarif et lignes de facture à confirmer sur de vraies factures E²C.
+Foyers « Maison Mpita » (compteur 0412-8833, 6 kVA) et « Boutique Tié-Tié » (0377-1209, 9 kVA, Grâce Ngoma payeuse déléguée).
+
+Factures **bimestrielles**, calculées comme la vraie facture E²C (`backend/docs/FACTURE_E2C.md`, décimales coupées à chaque ligne). Maison Mpita, septembre–octobre 2026 : 417,4 kWh × 49,08 = 20 485 + droit à la consommation 2 × 2 550 = 5 100 → 25 585 HT ; TVA 18 % = 4 605 ; C.A. 5 % de la TVA = 230 ; RAV 1 000 ; timbre 0 → **31 420 FCFA**. Émise le 3 nov., échéance le 18 nov., index 18 247,0 → 18 664,4, N° 20261103000127. Boutique Tié-Tié : 321,4 kWh → 25 818 FCFA.
+
+**En cas d'écart entre une maquette et le backend sur les factures, `backend/docs/FACTURES.md` et `FACTURE_E2C.md` font foi.** Les vues mois / semaine / jour de l'écran Consommation restent des estimations ; seule la facture bimestrielle est officielle.

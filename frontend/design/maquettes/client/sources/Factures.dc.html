@@ -26,9 +26,9 @@ a{color:inherit;text-decoration:none}a:hover{color:inherit}
 <section style="margin: 16px 16px 0; padding: 16px; border-radius: 20px; background: var(--surface-1); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
 <div style="display: flex; flex-direction: column; gap: 2px;">
 <span style="font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted);">Reste à payer · 2 foyers</span>
-<span style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums;">22 370 <span style="font-size: 13px; font-weight: 500; color: var(--ink-muted); letter-spacing: 0;">FCFA</span></span>
+<span style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums;">57 238 <span style="font-size: 13px; font-weight: 500; color: var(--ink-muted); letter-spacing: 0;">FCFA</span></span>
 </div>
-<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted); text-align: right;">2 factures<br>avant le 30 nov.</span>
+<span style="font: 400 13px/20px var(--font-app); color: var(--ink-muted); text-align: right;">2 factures<br>avant le 18 nov.</span>
 </section>
 
 <div role="tablist" aria-label="Filtrer les factures" style="margin: 16px 0 0; padding: 0 16px; display: flex; gap: 8px; overflow-x: auto;">
@@ -78,12 +78,12 @@ class Component extends DCLogic {
   constructor(props) { super(props); this.state = { filter: 'toutes' }; }
   renderVals() {
     const BILLS = [
-      { month: 'Octobre 2026', home: 'Maison Mpita', amount: '12 500 FCFA', st: 'apayer', sub: 'Échéance le 25 nov.' },
-      { month: 'Octobre 2026', home: 'Boutique Tié-Tié', amount: '9 870 FCFA', st: 'apayer', sub: 'Échéance le 30 nov.' },
-      { month: 'Septembre 2026', home: 'Maison Mpita', amount: '11 240 FCFA', st: 'payee', sub: 'Payée le 18 oct.' },
-      { month: 'Septembre 2026', home: 'Boutique Tié-Tié', amount: '9 415 FCFA', st: 'payee', sub: 'Payée le 22 oct. par Grâce Ngoma' },
-      { month: 'Août 2026', home: 'Maison Mpita', amount: '10 615 FCFA', st: 'payee', sub: 'Payée le 16 sept.' },
-      { month: 'Août 2026', home: 'Boutique Tié-Tié', amount: '8 960 FCFA', st: 'payee', sub: 'Payée le 20 sept.' }
+      { month: 'Septembre – octobre 2026', home: 'Maison Mpita', amount: '31 420 FCFA', st: 'apayer', sub: '417,4 kWh · échéance le 18 nov.' },
+      { month: 'Septembre – octobre 2026', home: 'Boutique Tié-Tié', amount: '25 818 FCFA', st: 'apayer', sub: '321,4 kWh · échéance le 18 nov.' },
+      { month: 'Juillet – août 2026', home: 'Maison Mpita', amount: '31 281 FCFA', st: 'payee', sub: 'Payée le 10 sept.' },
+      { month: 'Juillet – août 2026', home: 'Boutique Tié-Tié', amount: '24 570 FCFA', st: 'payee', sub: 'Payée le 12 sept. par Grâce Ngoma' },
+      { month: 'Mai – juin 2026', home: 'Maison Mpita', amount: '34 256 FCFA', st: 'payee', sub: 'Payée le 8 juil.' },
+      { month: 'Mai – juin 2026', home: 'Boutique Tié-Tié', amount: '25 152 FCFA', st: 'payee', sub: 'Payée le 10 juil.' }
     ];
     const ST = {
       apayer: { label: 'À payer', bg: 'var(--current-soft)', fg: 'var(--current-text)' },

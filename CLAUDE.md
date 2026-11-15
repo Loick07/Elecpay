@@ -44,6 +44,9 @@ Ne jamais présenter une donnée simulée comme réelle.
 ## Tables prévues
 users, refresh_tokens, households, household_members, meters, meter_readings, tariffs, bills, bill_lines,
 payment_transactions, receipts, notifications, audit_logs.
+Ajoutées en cours de route (22 au total, voir `backend/docs/SCHEMA.md`) : password_reset_codes,
+notification_preferences, payment_disputes, announcements, alert_settings, two_factor_secrets,
+two_factor_backup_codes, email_verification_codes, email_outbox.
 
 ## Écrans
 - Client (16) : splash, connexion, inscription, mot de passe oublié, tableau de bord, liste factures, détail facture,
@@ -157,5 +160,16 @@ facture annulée par `generate_bill(..., reissue_at=…)`, « Relancer la vérif
 `apply_provider_update` (jamais de « marquer comme payée »). 2FA de l'équipe : reportée en B11.
 Guide Next.js : `backend/docs/ADMIN.md`. 1823 tests.
 
-**Prochaine étape : B11 — Durcissement et contrat d'API**, découpée en sous-étapes validées une par une par Loick.
-Méthode : chaque étape Bx est découpée en Bx.1, Bx.2… ; expliquer en français, attendre la validation entre chaque.
+**B11 (durcissement et contrat d'API) ✅ terminé le 15/11/2026** — CI verte. **Le backend est terminé.**
+Sécurité HTTP (`app/core/http_security.py` : en-têtes, limite 300 requêtes / min / IP, IP réelle seulement via
+`TRUSTED_PROXIES`) ; journaux JSON masqués avec `X-Request-ID` (`app/core/logs.py`) ; double authentification
+TOTP de l'équipe (obligatoire pour admin et super admin, secret chiffré, `TWO_FACTOR_KEY` ; démo : secret public
+imprimé par le seed) ; « Paiement reçu » par e-mail avec le reçu PDF (adresse vérifiée, file `email_outbox`,
+`scripts.send_emails`) ; contrat `backend/openapi.json` (`scripts.export_openapi`, testé à jour) ; `Dockerfile` ;
+guide `backend/docs/DEPLOIEMENT.md`. Parcours client et admin complets testés et joués sur l'API réelle.
+1945 tests, couverture 99 %.
+
+**Prochaine étape : l'application Flutter** (`frontend/mobile/`), découpée en étapes et sous-étapes validées une
+par une par Loick, comme le backend. Première chose à faire : proposer ce plan et attendre sa validation.
+Références : maquettes client, charte, `backend/openapi.json`, guides `backend/docs/*.md`.
+Méthode : chaque étape est découpée en sous-étapes ; expliquer en français, attendre la validation entre chaque.

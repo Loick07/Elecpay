@@ -19,19 +19,20 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | B8 | Reçus | ✅ terminé (13/11/2026) |
 | B9 | Notifications | ✅ terminé (13/11/2026) |
 | B10 | API d'administration | ✅ terminé (14/11/2026) |
-| B11 | Durcissement et contrat d'API | prochaine étape |
+| B11 | Durcissement et contrat d'API | ✅ terminé (15/11/2026) |
 
-Après B11 seulement : application Flutter, puis back-office Next.js.
+**Le backend est terminé** (B0 → B11). Suite : application Flutter, puis back-office Next.js.
 
-## Point de reprise (mis à jour le 14/11/2026)
+## Point de reprise (mis à jour le 15/11/2026)
 
-- **Terminé** : B0 → B10, tout commité et poussé, CI verte.
-  1823 tests, Ruff au vert, `alembic check` sans écart. Détails de chaque étape dans sa section « Réalisé ».
-- **Reste** : B11 Durcissement et contrat d'API. Puis Flutter, puis Next.js.
-- **Prochaine sous-étape** : proposer à Loick le **découpage de B11** (B11.1, B11.2…), l'expliquer en
-  français et attendre sa validation avant d'écrire du code. Points déjà connus pour B11 : section B11
-  ci-dessous et notes « B11 » reportées (double authentification de l'équipe, requêtes par ligne des
-  listes admin, tâches planifiées, messages `BillingError` aux administrateurs…).
+- **Terminé** : B0 → B11, tout commité et poussé, CI verte.
+  1945 tests, couverture 99 % (`app/modules`, `app/integrations`), Ruff au vert, `alembic check`
+  sans écart. Contrat d'API : `backend/openapi.json`. Détails de chaque étape dans sa section « Réalisé ».
+- **Reste** : l'application Flutter (`frontend/mobile/`), puis le back-office Next.js (`frontend/admin/`).
+- **Prochaine sous-étape** : proposer à Loick le **plan de l'application Flutter** (étapes et sous-étapes,
+  comme pour le backend), l'expliquer en français et attendre sa validation avant d'écrire du code.
+  Références : maquettes client (`frontend/design/maquettes/client/README.md`), charte (`frontend/design/`),
+  contrat `backend/openapi.json`, guides `backend/docs/*.md` (écrits pour Flutter).
 - **Méthode** : chaque étape découpée en sous-étapes validées une à une ; tests et Ruff avant de dire « fini » ;
   vérification en conditions réelles (API lancée sur la base de démo) en fin d'étape ; commit + push +
   CI + tableaux de bord à la fin de l'étape, annoncés en tête de message (« ✅ Commit et push faits »).
@@ -44,6 +45,7 @@ Après B11 seulement : application Flutter, puis back-office Next.js.
 | B8.3 | reçu PDF : code et adresse **dessinés par-dessus le QR code** | après un texte sur plusieurs lignes, fpdf2 revient à la marge gauche | chaque ligne replacée à droite du QR code (vu en regardant le rendu) |
 | B9.3 | `python -m scripts.daily_alerts` → **plantage** à la première notification | la commande seule ne chargeait pas tous les modèles (table `users` inconnue de SQLAlchemy) ; même défaut caché dans `check_pending_payments` | toutes les commandes importent `app.db.models` ; `test_scripts_standalone.py` les lance chacune dans un processus neuf |
 | B10.6 | chronologie A8 d'un paiement de démo **sans « débit confirmé » ni « expiration »** | les paiements de démo n'ont pas de ligne au journal | repli sur les dates de la transaction (`confirmed_at`, `expires_at`) ; test de non-régression |
+| B11.1 | en-tête **`server: uvicorn`** renvoyé à chaque réponse (révèle le serveur) | réglage par défaut d'uvicorn | `--no-server-header` dans le `Dockerfile` (vérifié sur le conteneur lancé) |
 
 Bugs trouvés par les tests pendant la session (tous corrigés, avec un test) : `downgrade` Alembic qui
 supprimait un index utilisé par une clé étrangère ; CHECK « anomalie ⇔ motif » contourné par NULL ;
@@ -76,14 +78,10 @@ message trompeur pour un numéro vide.
 
 - **Avant la mise en production (reçus)** : renseigner `RECEIPT_VERIFY_URL` (https, page web publique
   de vérification), sinon le QR code mène à l'API locale.
-- **B11** : IP réelle derrière un proxy (`X-Forwarded-For`) ; compteurs de tentatives partagés si plusieurs
-  processus ; durée de conservation du journal d'audit (loi congolaise) ; planifier
-  `scripts.check_pending_payments` et `scripts.send_announcements` toutes les minutes et
-  `scripts.daily_alerts` chaque matin au déploiement ; limiter la fréquence des
-  `check_status` vers un vrai prestataire (le suivi de l'écran 9 interroge toutes les 2-3 s).
-  Reportés de B10 : **double authentification de l'équipe** (A11, `two_factor = not_available`) ;
-  afficher aux administrateurs les messages `BillingError` du relevé quotidien (pas encore fait) ;
-  requêtes par ligne des listes admin (Utilisateurs A2 : 251–406 ms sur la démo) à regrouper.
+- **Au déploiement** (voir `docs/DEPLOIEMENT.md`) : planifier les 4 tâches ; renseigner
+  `TRUSTED_PROXIES` ; plusieurs instances de l'API → compteurs de limites partagés (aujourd'hui en
+  mémoire du processus) ; durée de conservation du journal d'audit à fixer (loi congolaise) ; brancher un
+  vrai service d'e-mails derrière `EmailSender` (mail en texte, une version HTML pourra suivre).
 - **Plus tard (produit)** : tarif par compteur (aujourd'hui un seul code de tarif : `tariff_at` ignore le
   code) ; supprimer un tarif futur jamais utilisé ; renseigner `PAYMENT_WEBHOOK_SECRET` dans chaque `.env`
   (absent du `.env` local : webhooks refusés, la vérification par l'opérateur marche). Journal A10 de la
@@ -550,3 +548,35 @@ Réalisé (guide pour Next.js : `backend/docs/ADMIN.md`), sous-étapes validées
 
 Terminé quand : le backend permet de faire **tout** le parcours client et admin uniquement depuis `/docs`, sans erreur.
 C'est le feu vert pour commencer Flutter.
+
+Réalisé (guide de mise en ligne : `backend/docs/DEPLOIEMENT.md`), sous-étapes validées une à une par Loick :
+- **B11.1** sécurité HTTP (`app/core/http_security.py`) : en-têtes (nosniff, DENY, no-referrer, CSP stricte
+  sauf `/docs`, `no-store`, HSTS en production) ; limite globale `RATE_LIMIT_PER_MINUTE` (300 / min / IP,
+  sauf santé, webhooks, préliminaires CORS ; 429 au format commun) ; IP réelle par `X-Forwarded-For`
+  seulement depuis `TRUSTED_PROXIES` (`resolve_client_ip`) ; CORS : origines nues, https en production.
+- **B11.2** journaux (`app/core/logs.py`) : JSON en production, `X-Request-ID` par requête (repris s'il est
+  sûr), journal d'accès sans paramètres (celui d'uvicorn coupé), masquage de tout ce qui sort (numéros,
+  jetons, mots de passe, secrets, traces comprises) ; filet `install_error_guard` : une 500 porte aussi
+  l'identifiant et les en-têtes de sécurité.
+- **B11.3** double authentification de l'équipe (TOTP RFC 6238 maison `app/core/totp.py`, secret chiffré
+  AES-256-GCM `app/core/secret_box.py`, `TWO_FACTOR_KEY`) : connexion en deux étapes (mobile et web, défi
+  de 5 min), anti-rejeu, 5 codes faux / 15 min, 10 codes de secours, obligatoire pour admin et super admin
+  (`require_team_two_factor` dans `admin_route`), réinitialisation par un super admin ; connexions de
+  l'équipe au journal. Démo : 2FA déjà active pour admin et super admin (secret public imprimé par le seed).
+- **B11.4** « Paiement reçu » par e-mail : adresse vérifiée par code (`/me/email/verification`), mise en
+  file dans la transaction du succès (`email_outbox`), envoi par `scripts.send_emails` avec le reçu PDF
+  joint (payeur + titulaire), nouvelles tentatives, interrupteur `email_receipts` ; interface
+  `EmailSender` + simulateur.
+- **B11.5** finitions : factures non émises (`bill.issue_failed`) et e-mails abandonnés dans « À
+  surveiller » ; liste Utilisateurs en 3 requêtes par page (53–179 ms au lieu de 251–406 ms) ; une
+  demande d'état au prestataire par paiement toutes les 5 s au plus (horloge du service).
+- **B11.6** contrat `backend/openapi.json` (`scripts.export_openapi`, test « à jour », indépendant des
+  réglages) ; `Dockerfile` (non-root, sans en-tête `server`, contrôle de santé, testé sur la base locale) ;
+  guide de déploiement (variables, migrations, proxy, 4 tâches planifiées).
+- **B11.7** parcours complets `test_b11_journeys.py` (client : inscription → compteur → consommation →
+  facture → e-mail vérifié → paiement → reçu → historique → e-mail ; admin : 2FA → tableau de bord →
+  utilisateurs → annulation → journal), **joués aussi sur l'API réelle** (démo) sans erreur ;
+  couverture **99 %** sur `app/modules` et `app/integrations` (objectif 80 %).
+  Défauts trouvés et corrigés pendant B11 : 500 sans identifiant ni en-têtes de sécurité ; limite des
+  demandes d'état d'abord mesurée avec l'horloge réelle ; clé « code » refusée par le journal pour un tarif
+  (B10) ; CHECK impossible sur une colonne auto-incrémentée (B10).

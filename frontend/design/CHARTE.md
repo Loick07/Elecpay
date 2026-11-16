@@ -29,7 +29,7 @@ Le verre (fond translucide, flou d'arrière-plan 24px, liseré 1px `glass-border
 
 ## Typographie
 
-- **Poppins** dans l'application mobile, **Inter** dans le back-office, **JetBrains Mono** pour les références (facture, transaction, reçu, compteur). Polices Google Fonts (`google_fonts` en Flutter, `next/font` en Next.js).
+- **Poppins** dans l'application mobile, **Inter** dans le back-office, **JetBrains Mono** pour les références (facture, transaction, reçu, compteur). Polices Google Fonts (licence SIL OFL) : **embarquées** dans l'application Flutter (Poppins + JetBrains Mono dans `frontend/mobile/assets/fonts/`, pas de `google_fonts`, donc aucun téléchargement et un affichage correct hors ligne), `next/font` en Next.js.
 - Tous les montants et chiffres alignés utilisent les **chiffres tabulaires** (`FontFeature.tabularFigures()` en Flutter, `tabular-nums` en CSS).
 - L'échelle est fixe : `amount-hero`, `display`, `h1`, `h2`, `amount`, `body`, `body-strong`, `body-sm`, `caption`, `overline`. On n'invente pas de taille intermédiaire.
 - L'application suit la taille de texte du téléphone jusqu'à 130 % sans casser la mise en page.

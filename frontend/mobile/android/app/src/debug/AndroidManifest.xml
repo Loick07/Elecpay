@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Nécessaire en développement : l'outil Flutter communique avec l'application (rechargement
+         à chaud, points d'arrêt). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Développement SEULEMENT : HTTP en clair permis, pour joindre l'API locale du PC
+         (http://127.0.0.1:8000 via « adb reverse », ou http://<IP du PC>:8000 en Wi-Fi). -->
+    <application
+        android:usesCleartextTraffic="true"
+        tools:replace="android:usesCleartextTraffic"/>
+</manifest>

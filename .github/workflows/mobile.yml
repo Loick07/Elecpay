@@ -1,0 +1,77 @@
+# Intégration continue de l'application Flutter (client Android).
+# Lancée seulement quand l'application change (ou la charte dont son thème est généré).
+name: Mobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/mobile/**"
+      - "frontend/design/tokens.json" # le thème Flutter est généré depuis ce fichier
+      - ".github/workflows/mobile.yml"
+  pull_request:
+    paths:
+      - "frontend/mobile/**"
+      - "frontend/design/tokens.json"
+      - ".github/workflows/mobile.yml"
+  workflow_dispatch: # lancement manuel depuis l'onglet Actions
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze-test-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: frontend/mobile
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # Gradle (construction Android) demande un JDK : le même que sur le PC de développement.
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+          cache-dependency-path: |
+            frontend/mobile/android/*.gradle*
+            frontend/mobile/android/gradle/wrapper/gradle-wrapper.properties
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.47.5"
+          cache: true
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Format du code
+        run: dart format --output=none --set-exit-if-changed lib test tool
+
+      - name: Analyse (flutter analyze)
+        run: flutter analyze
+
+      - name: Thème à jour avec la charte (tokens.json)
+        run: flutter test test/core/theme/tokens_test.dart --plain-name "tokens.g.dart est à jour"
+
+      - name: Tests (flutter test)
+        run: flutter test
+
+      - name: Construire l'APK release
+        run: flutter build apk --release
+
+      # Taille de l'APK dans les journaux et dans le résumé ; HTTP en clair interdit en release.
+      - name: Vérifier l'APK release (taille, HTTP en clair)
+        run: |
+          dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk --cleartext=false
+          size=$(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)
+          echo "### APK release : $size (toutes architectures, non optimisé avant F10)" >> "$GITHUB_STEP_SUMMARY"

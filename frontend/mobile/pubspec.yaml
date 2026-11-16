@@ -23,6 +23,7 @@ dependencies:
   intl: 0.20.3                 # formats français (dates, nombres)
   flutter_animate: 4.5.2       # animations de la charte
   skeletonizer: 3.0.0          # squelettes de chargement
+  path_provider: 2.1.6         # dossier privé de l'application (cache hors ligne)
   # Pas de google_fonts : la police Poppins est EMBARQUÉE (assets/fonts), hors ligne et sans
   # téléchargement au premier lancement (décision de Loick, 15/11/2026).
 

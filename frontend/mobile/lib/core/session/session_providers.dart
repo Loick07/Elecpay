@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../cache/cache_store.dart';
 import '../config/app_config.dart';
 import '../network/api_client.dart';
 import 'auth_interceptor.dart';
@@ -12,10 +13,18 @@ final tokenStoreProvider = Provider<TokenStore>((ref) => SecureTokenStore());
 
 /// Le gestionnaire de session, unique pour toute l'application.
 final sessionManagerProvider = Provider<SessionManager>((ref) {
-  final manager = SessionManager(
-    store: ref.watch(tokenStoreProvider),
-    publicApi: ApiClient(ref.watch(apiDioProvider)),
-  );
+  final cache = ref.watch(cacheStoreProvider);
+  final manager =
+      SessionManager(
+          store: ref.watch(tokenStoreProvider),
+          publicApi: ApiClient(ref.watch(apiDioProvider)),
+        )
+        // Un seul compte en cache à la fois ; à la déconnexion, son cache est effacé.
+        // (Session expirée : le cache est gardé pour la reconnexion du même utilisateur.)
+        ..onSignedIn = cache.keepOnly
+        ..onEnded = (userId, reason) async {
+          if (reason == SessionEndReason.loggedOut) await cache.clearUser(userId);
+        };
   ref.onDispose(manager.dispose);
   return manager;
 });

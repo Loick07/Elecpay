@@ -140,6 +140,7 @@ session · F1.4 cache hors ligne · F1.5 page Diagnostic, jalon sur le télépho
   `tool/apk_check.dart` ;
 - F1.4 : cache en fichiers JSON (dossier privé, sans chiffrement), **rangé par identifiant d'utilisateur** ;
   une **liste explicite de ce qui n'est jamais mis en cache**, dont `GET /payments/{id}`, avec un test ;
+  session expirée : cache gardé, mais **rien ne s'affiche** avant la reconnexion du même compte (test) ;
 - F1.5 : page Diagnostic visible en debug et en profile, **jamais en release**, avec un test qui le prouve.
 
 ### F2 — Composants de la charte et formats
@@ -167,6 +168,9 @@ ouverture du bon écran.
 Reste à payer tous foyers, filtres, regroupement par mois, état vide ; détail **bimestriel** avec les 6 lignes
 E²C, index, comparaison à la facture précédente ; PDF à ouvrir et partager.
 
+Règle validée le 16/11/2026 (aussi pour F6) : en mode hors ligne (factures affichées depuis le cache), le
+bouton **Payer** est **désactivé**, avec la mention « Connexion nécessaire pour payer ». Un test le vérifie.
+
 ### F6 — Paiement, reçus et historique (écrans 8, 9, 10, 12)
 
 Feuille MTN MoMo / Airtel Money (numéro modifiable : payer pour un proche ; montant non modifiable ;
@@ -176,6 +180,9 @@ code de vérification, Mode démo, télécharger / partager) ; historique par mo
 Règle validée le 16/11/2026 : en cas d'`ApiTimeout` où la requête a pu atteindre l'API
 (`mayHaveReachedServer`), ne **jamais** afficher « échoué ». Afficher « Statut à vérifier », consulter
 `GET /payments/{id}`, et ne relancer qu'avec **la même clé d'idempotence**.
+
+Hors ligne : bouton **Payer** désactivé, « Connexion nécessaire pour payer » (règle de F5), sur la feuille
+de paiement comme sur le bouton central de la barre du bas.
 
 ### F7 — Consommation (écran 11)
 

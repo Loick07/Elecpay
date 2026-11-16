@@ -76,6 +76,12 @@ class SessionManager extends ChangeNotifier {
   Future<StoredTokens?>? _restoring;
   Future<String>? _refreshing;
 
+  /// Appelé après l'ouverture d'une session (le cache des AUTRES comptes est effacé).
+  Future<void> Function(int userId)? onSignedIn;
+
+  /// Appelé quand une session se termine, avec son propriétaire (déconnexion : son cache est effacé).
+  Future<void> Function(int userId, SessionEndReason reason)? onEnded;
+
   SessionState get state => _state;
 
   /// Jetons de la session, lus depuis le stockage au premier appel.
@@ -111,6 +117,7 @@ class SessionManager extends ChangeNotifier {
     await _store.write(tokens);
     _tokens = tokens;
     _restoring = Future.value(tokens);
+    await onSignedIn?.call(tokens.userId);
     _setState(SessionActive(tokens.userId));
   }
 
@@ -152,9 +159,17 @@ class SessionManager extends ChangeNotifier {
   /// Termine la session : jetons effacés du téléphone. Sans effet si elle est déjà terminée.
   Future<void> end(SessionEndReason reason) async {
     if (_state is SessionEnded && _tokens == null) return;
+    final owner = _tokens?.userId;
     _tokens = null;
     _restoring = Future.value();
     await _store.clear();
+    if (owner != null) {
+      try {
+        await onEnded?.call(owner, reason);
+      } on Object {
+        // Le nettoyage (cache) ne doit jamais empêcher la fin de session.
+      }
+    }
     _setState(SessionEnded(reason));
   }
 

@@ -60,10 +60,14 @@ class FakeAuthBackend {
   /// Expire tous les jetons d'accès en cours (comme 15 minutes plus tard).
   void expireAccessTokens() => validAccess.clear();
 
+  /// Compte renvoyé par la connexion (42 par défaut, comme les jetons de [SessionHarness]).
+  int loginUserId = 42;
+
   Map<String, Object?> tokenResponse(int n) => {
     ..._api.sample('TokenResponse'),
     'access_token': 'at-$n',
     'refresh_token': 'rt-$n',
+    'user': {..._api.sample('UserPublic'), 'id': loginUserId},
   };
 
   FakeReply _handle(RequestOptions request) {

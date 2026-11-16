@@ -46,11 +46,27 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
 
 - Chaque étape est découpée en sous-étapes (F0.1, F0.2…), expliquées en français et validées une à une
   par Loick avant de passer à la suivante.
-- À la fin de chaque étape : `flutter analyze` sans remarque, tests au vert, **vérification sur le
-  téléphone Android de Loick** branché à l'API de démo, mise à jour des tableaux de bord (ce fichier et
-  `CLAUDE.md`), deux commits (l'étape, puis les tableaux de bord), push, CI vérifiée, annoncés en tête de
-  message (« ✅ Commit et push faits »).
+- **Chaque sous-étape validée par Loick est commitée et poussée aussitôt** (elle passe en CI) ; décidé le
+  16/11/2026 à partir de F1.1. Les tableaux de bord (ce fichier et `CLAUDE.md`) ne sont mis à jour qu'à la
+  fin de l'étape, dans un dernier commit. Chaque push est annoncé en tête de message (« ✅ Commit et push
+  faits ») avec le résultat de la CI.
+- Avant chaque commit : `flutter analyze` sans remarque, format, tests au vert.
 - Chaque fonctionnalité livrée avec ses tests (widgets et logique), y compris les cas d'erreur.
+
+### Jalons de vérification sur le téléphone (décidés le 16/11/2026)
+
+Entre deux jalons, on avance avec les tests et la CI, comme pour le backend : **pas de test sur le
+téléphone à chaque sous-étape**. Les tests ne voient pas si un écran déborde sur un petit téléphone, si
+l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, sur l'itel A05s de Loick.
+
+| Jalon | Ce qu'on vérifie sur l'itel |
+|---|---|
+| Fin de F1 | connexion de démo, hors ligne, déconnexion |
+| Fin de F3 | premiers vrais écrans : connexion, inscription |
+| Mi-parcours (tableau de bord, factures : F4–F5) | rendu, fluidité, lisibilité |
+| Fin de F10 | APK release installé à la main + backend en ligne en HTTPS |
+
+Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.
 
 ## Références (elles font foi)
 
@@ -111,6 +127,21 @@ de la charte et montre que l'API de démo répond (badge « Mode démo »).
   gardée sur le téléphone et affichée sans réseau, avec la mention « Hors ligne · données du … » ;
   jamais d'action d'argent (paiement) hors ligne.
 
+Découpage validé le 16/11/2026 : F1.1 modèles et contrat · F1.2 client Dio et erreurs · F1.3 jetons et
+session · F1.4 cache hors ligne · F1.5 page Diagnostic, jalon sur le téléphone et clôture. Ajouts validés
+(à ne pas oublier) :
+- délais réglés à un seul endroit (`ApiSettings` : 15 s connexion, 30 s réponse) ; `X-Request-ID` envoyé
+  par l'application, référence affichée = celle renvoyée par l'API, sinon celle envoyée (F1.2 ✅) ;
+- aucune relance automatique d'une requête qui modifie quelque chose, sauf le rejeu après un
+  rafraîchissement du jeton (F1.2 ✅, F1.3) ;
+- `UserRole.unknown` sans aucun droit (F1.1 ✅) ;
+- F1.3 : les deux nouveaux jetons **enregistrés avant** de rejouer les requêtes ;
+- `android:allowBackup="false"` (ni le cache ni le stockage sécurisé dans les sauvegardes), vérifié par
+  `tool/apk_check.dart` ;
+- F1.4 : cache en fichiers JSON (dossier privé, sans chiffrement), **rangé par identifiant d'utilisateur** ;
+  une **liste explicite de ce qui n'est jamais mis en cache**, dont `GET /payments/{id}`, avec un test ;
+- F1.5 : page Diagnostic visible en debug et en profile, **jamais en release**, avec un test qui le prouve.
+
 ### F2 — Composants de la charte et formats
 
 - Les composants de `frontend/design/components/` : bouton, champ de saisie, badge de statut, squelette,
@@ -141,6 +172,10 @@ E²C, index, comparaison à la facture précédente ; PDF à ouvrir et partager.
 Feuille MTN MoMo / Airtel Money (numéro modifiable : payer pour un proche ; montant non modifiable ;
 clé d'idempotence), suivi en 3 étapes, interdiction de repayer pendant un paiement en cours ; reçu (numéro,
 code de vérification, Mode démo, télécharger / partager) ; historique par mois avec motifs d'échec.
+
+Règle validée le 16/11/2026 : en cas d'`ApiTimeout` où la requête a pu atteindre l'API
+(`mayHaveReachedServer`), ne **jamais** afficher « échoué ». Afficher « Statut à vérifier », consulter
+`GET /payments/{id}`, et ne relancer qu'avec **la même clé d'idempotence**.
 
 ### F7 — Consommation (écran 11)
 

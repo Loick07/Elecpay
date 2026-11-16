@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
+import 'api_client.dart';
 
-/// État de l'API (`GET /api/v1/health`). Le client complet (jetons, erreurs, cache) arrive en F1 ;
-/// ici, seulement de quoi savoir si l'API répond et si elle est en mode démo.
+/// État de l'API (`GET /api/v1/health`) : l'API répond-elle, et est-elle en mode démo ?
 @immutable
 sealed class ApiHealth {
   const ApiHealth();
@@ -32,6 +32,9 @@ class HealthService {
   final Dio _dio;
   final AppConfig _config;
 
+  @visibleForTesting
+  Dio get dio => _dio;
+
   Future<ApiHealth> check() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -50,19 +53,9 @@ class HealthService {
   }
 }
 
-/// Client HTTP minimal de F0 (délais courts : on veut savoir vite si l'API répond).
-final healthDioProvider = Provider<Dio>(
-  (ref) => Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 10),
-      headers: {'Accept': 'application/json'},
-    ),
-  ),
-);
-
+/// Même client HTTP que le reste de l'application (mêmes délais, même identifiant de requête).
 final healthServiceProvider = Provider<HealthService>(
-  (ref) => HealthService(ref.watch(healthDioProvider), ref.watch(appConfigProvider)),
+  (ref) => HealthService(ref.watch(apiDioProvider), ref.watch(appConfigProvider)),
 );
 
 /// État de l'API au démarrage ; `ref.invalidate(apiHealthProvider)` pour réessayer.

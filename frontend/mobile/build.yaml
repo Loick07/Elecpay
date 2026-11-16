@@ -1,0 +1,16 @@
+# Réglages du générateur de modèles (freezed + json_serializable), communs à tous les modèles.
+# Seuls les fichiers de lib/ sont traités ; lib/core/theme/tokens.g.dart vient de notre propre outil
+# (tool/generate_tokens.dart) et n'est jamais touché par build_runner.
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          - lib/**
+      json_serializable:
+        generate_for:
+          - lib/**
+        options:
+          field_rename: snake  # champs Dart en camelCase <-> clés JSON de l'API en snake_case
+          checked: true        # erreur claire (champ, type) si l'API renvoie une donnée inattendue
+          explicit_to_json: true

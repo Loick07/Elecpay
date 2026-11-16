@@ -54,8 +54,18 @@ jobs:
       - name: Installer les dépendances
         run: flutter pub get
 
+      # Les fichiers *.g.dart / *.freezed.dart sont commités : ils doivent correspondre aux modèles.
+      - name: Code généré à jour (freezed / json_serializable)
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          git status --porcelain -- .
+          test -z "$(git status --porcelain -- .)" || { echo "::error::Relancer build_runner et commiter le code généré"; exit 1; }
+
+      # Le code généré (*.g.dart, *.freezed.dart) suit le format de son générateur : exclu ici.
       - name: Format du code
-        run: dart format --output=none --set-exit-if-changed lib test tool
+        run: |
+          git ls-files '*.dart' | grep -vE '\.(g|freezed)\.dart$' \
+            | xargs dart format --output=none --set-exit-if-changed
 
       - name: Analyse (flutter analyze)
         run: flutter analyze

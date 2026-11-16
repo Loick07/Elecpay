@@ -2,11 +2,16 @@
     <!-- Appels à l'API ElecPay (aussi dans la version livrée). -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- usesCleartextTraffic="false" : HTTP en clair INTERDIT dans la version livrée (HTTPS seulement).
-         Il est permis uniquement en développement (src/debug et src/profile). -->
+         Il est permis uniquement en développement (src/debug et src/profile).
+         allowBackup="false" : ni les jetons (stockage sécurisé) ni le cache hors ligne ne partent dans
+         les sauvegardes Android ; dataExtractionRules : rien non plus en sauvegarde cloud ni en
+         transfert d'appareil à appareil (Android 12+). Vérifié dans l'APK par tool/apk_check.dart. -->
     <application
         android:label="ElecPay"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"

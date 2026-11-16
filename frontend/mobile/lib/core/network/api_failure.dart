@@ -132,6 +132,15 @@ final class RequestCancelled extends ApiFailure {
   String get message => 'Opération annulée.';
 }
 
+/// La session a pris fin (rafraîchissement refusé, jeton invalide ou rejoué) : jetons effacés,
+/// retour à l'écran de connexion (F3 : écran « session expirée »).
+final class SessionExpired extends ApiFailure {
+  const SessionExpired({super.reference});
+
+  @override
+  String get message => 'Votre session a expiré. Reconnectez-vous pour continuer.';
+}
+
 /// Réponse illisible ou différente du contrat d'API.
 final class UnexpectedResponse extends ApiFailure {
   const UnexpectedResponse({this.statusCode, super.reference});

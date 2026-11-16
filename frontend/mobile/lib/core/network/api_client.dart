@@ -8,8 +8,8 @@ import 'api_failure.dart';
 import 'api_settings.dart';
 import 'request_id.dart';
 
-/// Le client HTTP unique de l'application : adresse de l'API, délais (`ApiSettings`),
-/// identifiant de requête. Les jetons s'ajoutent en F1.3 (intercepteur de session).
+/// Un client HTTP de l'application : adresse de l'API, délais (`ApiSettings`), identifiant de
+/// requête. Le client des routes protégées y ajoute la session (`core/session/session_providers.dart`).
 Dio createApiDio(AppConfig config) => Dio(
   BaseOptions(
     baseUrl: config.apiRoot,
@@ -19,26 +19,31 @@ Dio createApiDio(AppConfig config) => Dio(
   ),
 )..interceptors.add(RequestIdInterceptor());
 
+/// Client SANS session : santé de l'API, connexion, rafraîchissement, déconnexion.
+/// Les écrans utilisent `authenticatedApiProvider` (core/session/session_providers.dart).
 final apiDioProvider = Provider<Dio>((ref) => createApiDio(ref.watch(appConfigProvider)));
-
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(apiDioProvider)));
 
 /// Appels à l'API avec une seule règle d'erreur : tout échec devient une [ApiFailure].
 ///
 /// AUCUNE relance automatique ici : une requête qui modifie quelque chose (POST, PATCH, DELETE)
-/// part une seule fois. Le seul rejeu permis est celui qui suit un rafraîchissement du jeton (F1.3).
+/// part une seule fois. Le seul rejeu permis est celui qui suit un rafraîchissement du jeton
+/// (`AuthInterceptor`).
 class ApiClient {
   ApiClient(this._dio);
 
   final Dio _dio;
+
+  /// Marque une route publique (sans jeton) : l'intercepteur de session la laisse passer.
+  static const publicRequest = 'elecpay.publicRequest';
 
   /// Lecture d'un objet JSON, décodé par `decode` (ex. `UserPublic.fromJson`).
   Future<T> getObject<T>(
     String path,
     T Function(Map<String, dynamic> json) decode, {
     Map<String, Object?>? query,
+    bool authenticated = true,
   }) => _send(
-    () => _dio.get<Object?>(path, queryParameters: query),
+    () => _dio.get<Object?>(path, queryParameters: query, options: _options(authenticated)),
     (data) => decode(_asObject(data)),
   );
 
@@ -48,24 +53,25 @@ class ApiClient {
     T Function(Map<String, dynamic> json) decode, {
     Object? body,
     Map<String, String>? headers,
+    bool authenticated = true,
   }) => _send(
-    () => _dio.post<Object?>(
-      path,
-      data: _json(body),
-      options: Options(headers: headers),
-    ),
+    () => _dio.post<Object?>(path, data: _json(body), options: _options(authenticated, headers)),
     (data) => decode(_asObject(data)),
   );
 
   /// Envoi sans contenu attendu en réponse (ex. 204 de `POST /auth/logout`).
-  Future<void> postNoContent(String path, {Object? body, Map<String, String>? headers}) => _send(
-    () => _dio.post<Object?>(
-      path,
-      data: _json(body),
-      options: Options(headers: headers),
-    ),
+  Future<void> postNoContent(
+    String path, {
+    Object? body,
+    Map<String, String>? headers,
+    bool authenticated = true,
+  }) => _send(
+    () => _dio.post<Object?>(path, data: _json(body), options: _options(authenticated, headers)),
     (_) {},
   );
+
+  static Options _options(bool authenticated, [Map<String, String>? headers]) =>
+      Options(headers: headers, extra: {publicRequest: !authenticated});
 
   /// Corps prêt pour le réseau : Dio n'appelle PAS `toJson()` d'un modèle freezed (il enverrait
   /// un corps invalide). On passe donc par `jsonEncode`, qui l'appelle, puis on relit le JSON.
@@ -79,6 +85,7 @@ class ApiClient {
     try {
       response = await call();
     } on DioException catch (error) {
+      // Une ApiFailure déjà décidée par un intercepteur (ex. SessionExpired) passe telle quelle.
       throw error.error is ApiFailure ? error.error! as ApiFailure : ApiFailure.fromDio(error);
     }
     try {

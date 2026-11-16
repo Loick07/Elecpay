@@ -87,9 +87,18 @@ Ne jamais lancer l'API en `--host 0.0.0.0` sur un Wi-Fi public.
 ## Sécurité
 
 - L'adresse de l'API se choisit à la compilation (`--dart-define=API_BASE_URL=…`). En **release**,
-  seule une adresse `https://` est acceptée : l'application refuse de démarrer sinon.
-- Le HTTP en clair (`http://`) n'est permis qu'en debug et en profile (manifestes Android
-  `src/debug` et `src/profile`) ; l'APK de production l'interdit.
+  seule une adresse `https://` est acceptée (`AppConfig`) : sinon l'application affiche
+  « Configuration invalide : La version livrée exige une API en https:// » et ne fait aucun appel.
+  **C'est ce contrôle qui protège les appels de l'application.**
+- Le manifeste Android n'autorise le HTTP en clair qu'en debug et en profile (`src/debug`, `src/profile`) ;
+  l'APK release l'interdit (vérifié en CI par `tool/apk_check.dart`). Ce réglage ne protège que le code
+  natif Android : **le client HTTP de Dart (Dio) ne le respecte pas.**
+
+Vérifié sur l'itel A05s le 16/11/2026 :
+- avec un APK profile dont le manifeste interdit le HTTP en clair (Android l'a bien enregistré : pas de
+  drapeau `USES_CLEARTEXT_TRAFFIC`), l'application a quand même joint `http://127.0.0.1:8000`. Le manifeste
+  ne suffit donc pas ;
+- l'APK release compilé avec `http://127.0.0.1:8000` affiche « Configuration invalide » au démarrage.
 
 ## Problèmes fréquents
 

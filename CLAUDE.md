@@ -180,7 +180,8 @@ Flutter 3.47 (Android, `cg.elecpay.client`, `minSdk 24`), polices embarquées, t
 (`tool/generate_tokens.dart`, testé à jour), `API_BASE_URL` au lancement (https exigé en release par `AppConfig`,
 HTTP en clair seulement en debug / profile, contrôlé dans l'APK par `tool/apk_check.dart`), écran de démarrage
 avec badge « Mode démo ». Téléphone : guide `frontend/mobile/docs/TELEPHONE.md`, script `tool/telephone.ps1`
-(USB `adb reverse` ; sur l'itel A05s de Loick : `flutter run --profile`). Reste à jouer sur le téléphone quand
-l'USB sera stable : l'expérience cleartext et la capture de l'APK release (voir `frontend/mobile/PLAN.md`).
+(USB `adb reverse` ; sur l'itel A05s de Loick : `flutter run --profile`). Vérifié sur le téléphone : Dio ignore
+`usesCleartextTraffic`, donc **`AppConfig` est le seul vrai verrou contre le HTTP en clair** (l'APK release avec
+`http://` affiche « Configuration invalide ») ; ne jamais l'affaiblir.
 
 **Prochaine étape : F1** (accès à l'API et cache hors ligne) : proposer d'abord son découpage.

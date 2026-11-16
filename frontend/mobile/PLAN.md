@@ -37,9 +37,9 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   - Vérifié sur l'itel A05s de Loick (Android 13, 32 bits) : « API joignable » + « MODE DÉMO », et l'écran
     d'erreur avec « Réessayer ». Sur ce téléphone, `flutter run --profile` (l'APK debug de 200 Mo fait
     décrocher l'USB).
-- **Reste à faire dès que l'USB est stable** (nouveau câble, sinon débogage sans fil) :
-  - l'expérience « manifeste profile à `false` » : Dart applique-t-il `usesCleartextTraffic` ?
-  - la capture de l'APK release lancé avec `http://` (il doit afficher « Configuration invalide »).
+  - Vérifié sur le téléphone (nouveau câble USB, 16/11/2026) : Dio **ignore** `usesCleartextTraffic` (un APK
+    au manifeste interdisant le HTTP en clair a joint l'API en `http://`) ; le vrai verrou est `AppConfig`, et
+    l'APK release compilé avec `http://` affiche bien « Configuration invalide ». Détails : `docs/TELEPHONE.md`.
 - **Prochaine étape : F1** (accès à l'API et cache hors ligne). Proposer d'abord son découpage.
 
 ## Méthode (la même que pour le backend)

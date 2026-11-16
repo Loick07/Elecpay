@@ -15,7 +15,8 @@ Deux grands dossiers, à ne jamais mélanger : **`backend/`** (API, base, simula
 - `backend/` — API **commune** client + admin : Python 3.14, FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, PyMySQL,
   PyJWT + Argon2, Pytest + HTTPX, Ruff. Monolithe modulaire (`app/modules/<domaine>`).
 - `frontend/mobile/` — application **client** Flutter : Riverpod, GoRouter, Dio, freezed/json_serializable,
-  flutter_secure_storage, fl_chart, intl, flutter_animate, skeletonizer, google_fonts.
+  flutter_secure_storage, fl_chart, intl, flutter_animate, skeletonizer ; polices embarquées
+  (Poppins + JetBrains Mono, pas de google_fonts).
 - `frontend/admin/` — **back-office web Next.js** (App Router, TypeScript, Tailwind + shadcn/ui, TanStack Query/Table,
   React Hook Form + Zod, Recharts). L'admin n'est PAS dans l'app Flutter.
 - Base : MySQL 8 dans Docker (`docker-compose.yml`, port 3307 pour éviter XAMPP).
@@ -170,7 +171,16 @@ imprimé par le seed) ; « Paiement reçu » par e-mail avec le reçu PDF (adres
 guide `backend/docs/DEPLOIEMENT.md`. Parcours client et admin complets testés et joués sur l'API réelle.
 1945 tests, couverture 99 %.
 
-**Prochaine étape : l'application Flutter** (`frontend/mobile/`), découpée en étapes et sous-étapes validées une
-par une par Loick, comme le backend. Première chose à faire : proposer ce plan et attendre sa validation.
+**Application Flutter** (`frontend/mobile/`) : feuille de route **`frontend/mobile/PLAN.md`** (F0 → F10, validée
+le 15/11/2026), même méthode que le backend (sous-étapes expliquées en français et validées une à une).
 Références : maquettes client, charte, `backend/openapi.json`, guides `backend/docs/*.md`.
-Méthode : chaque étape est découpée en sous-étapes ; expliquer en français, attendre la validation entre chaque.
+
+**F0 (socle et accès à l'API depuis le téléphone) ✅ terminé le 16/11/2026** — CI `Mobile` verte.
+Flutter 3.47 (Android, `cg.elecpay.client`, `minSdk 24`), polices embarquées, thème généré depuis `tokens.json`
+(`tool/generate_tokens.dart`, testé à jour), `API_BASE_URL` au lancement (https exigé en release par `AppConfig`,
+HTTP en clair seulement en debug / profile, contrôlé dans l'APK par `tool/apk_check.dart`), écran de démarrage
+avec badge « Mode démo ». Téléphone : guide `frontend/mobile/docs/TELEPHONE.md`, script `tool/telephone.ps1`
+(USB `adb reverse` ; sur l'itel A05s de Loick : `flutter run --profile`). Reste à jouer sur le téléphone quand
+l'USB sera stable : l'expérience cleartext et la capture de l'APK release (voir `frontend/mobile/PLAN.md`).
+
+**Prochaine étape : F1** (accès à l'API et cache hors ligne) : proposer d'abord son découpage.

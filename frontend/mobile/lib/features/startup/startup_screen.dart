@@ -7,6 +7,7 @@ import '../../core/network/api_health.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/tokens.g.dart';
 import '../../core/widgets/demo_badge.dart';
+import '../diagnostic/diagnostic_access.dart';
 
 /// Écran de démarrage PROVISOIRE (F0) : vérifie que l'API répond (`/health`) et affiche le badge
 /// « Mode démo ». Il deviendra le Splash de la maquette (écran 1) en F3.
@@ -32,8 +33,17 @@ class StartupScreen extends ConsumerWidget {
                 AsyncError() => const _Unreachable(address: null),
                 _ => Text('Connexion à ElecPay…', style: AppText.body.copyWith(color: c.inkMuted)),
               },
-              if (kDebugMode) ...[
+              if (diagnosticsEnabled) ...[
                 const SizedBox(height: Space.s8),
+                TextButton(
+                  onPressed: () => context.push('/diagnostic'),
+                  child: Text(
+                    'Diagnostic',
+                    style: AppText.bodyStrong.copyWith(color: c.currentText),
+                  ),
+                ),
+              ],
+              if (kDebugMode)
                 TextButton(
                   onPressed: () => context.push('/charte'),
                   child: Text(
@@ -41,7 +51,6 @@ class StartupScreen extends ConsumerWidget {
                     style: AppText.bodyStrong.copyWith(color: c.currentText),
                   ),
                 ),
-              ],
             ],
           ),
         ),

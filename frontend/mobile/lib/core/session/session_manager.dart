@@ -84,6 +84,10 @@ class SessionManager extends ChangeNotifier {
 
   SessionState get state => _state;
 
+  /// Nombre de rafraîchissements de jeton réussis depuis le lancement (affiché par la page Diagnostic).
+  int get refreshCount => _refreshCount;
+  int _refreshCount = 0;
+
   /// Jetons de la session, lus depuis le stockage au premier appel.
   Future<StoredTokens?> currentTokens() async {
     if (_state is SessionUnknown) await (_restoring ??= _restore());
@@ -153,6 +157,7 @@ class SessionManager extends ChangeNotifier {
     final fresh = StoredTokens.fromResponse(response);
     await _store.write(fresh);
     _tokens = fresh;
+    _refreshCount++;
     return fresh.accessToken;
   }
 

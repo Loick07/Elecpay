@@ -1,9 +1,14 @@
 # Lancer l'application sur un téléphone Android
 
-L'application parle à l'API ElecPay qui tourne sur le PC. Deux façons de relier le téléphone :
-**par USB (recommandé)** ou par Wi-Fi.
+L'application parle à l'API ElecPay qui tourne sur le PC. Trois façons de relier le téléphone :
 
-## Avant tout (les deux options)
+| Méthode | Quand |
+|---|---|
+| **Débogage sans fil + `adb reverse`** | **recommandée pour l'itel A05s** (décidé au jalon F1, 16/11/2026) |
+| USB + `adb reverse` | téléphone dont le câble tient (l'itel décroche pendant les installations) |
+| Wi-Fi direct (sans adb) | téléphone sans débogage, ou démonstration sans PC branché |
+
+## Avant tout (toutes les méthodes)
 
 1. Base de démo et API lancées (voir `backend/README.md`) :
    ```powershell
@@ -15,7 +20,37 @@ L'application parle à l'API ElecPay qui tourne sur le PC. Deux façons de relie
 2. Sur le téléphone : Options pour les développeurs → **Débogage USB** activé
    (et, sur certaines marques comme itel / Xiaomi, **Installer via USB** activé).
 
-## Option 1 — USB avec `adb reverse` (recommandée)
+## Méthode recommandée pour l'itel — débogage sans fil + `adb reverse`
+
+Sur l'itel A05s, le câble USB décroche pendant les installations (« offline », `failed to install`),
+même après un changement de câble. En débogage sans fil, le jalon F1 s'est joué sans une seule coupure.
+`adb reverse` fonctionne aussi sans fil : l'application garde `http://127.0.0.1:8000`, **sans pare-feu
+à ouvrir** et sans API exposée sur le réseau.
+
+1. PC et téléphone sur **le même Wi-Fi**.
+2. Sur le téléphone : *Options pour les développeurs* → **Débogage sans fil** → activer.
+3. **Associer** (une seule fois par PC) : « Associer l'appareil avec un code d'association » affiche une
+   adresse `IP:port` et un code à 6 chiffres :
+   ```powershell
+   adb pair 192.168.1.81:41527 783578     # adresse et code de la fenêtre d'association
+   ```
+4. **Se connecter** (à chaque session) avec l'adresse de l'écran principal « Débogage sans fil »
+   (son port est différent, et il change quand le débogage sans fil est relancé) :
+   ```powershell
+   adb connect 192.168.1.81:44509
+   ```
+5. Puis comme en USB :
+   ```powershell
+   cd frontend\mobile
+   .\tool\telephone.ps1                  # tunnel, place libre, API
+   flutter run --profile -d 192.168.1.81:44509
+   ```
+
+`adb devices` montre souvent le téléphone deux fois (adresse IP et nom annoncé `adb-…._adb-tls-connect`) :
+c'est le même appareil, `tool\telephone.ps1` le reconnaît par son numéro de série.
+Si la connexion se perd (Wi-Fi coupé, téléphone en veille longue) : relancer l'étape 4, puis le script.
+
+## USB avec `adb reverse`
 
 Le téléphone joint l'API à l'adresse `http://127.0.0.1:8000`, comme le PC : pas de Wi-Fi,
 pas de pare-feu, pas d'adresse IP à connaître. C'est l'adresse par défaut de l'application.
@@ -47,11 +82,11 @@ sans rechargement à chaud.
 flutter run --profile
 ```
 
-Testé sur un itel A05s (Android 13, processeur 32 bits `armeabi-v7a`). En debug, la connexion USB
-se coupe à chaque installation ; en profile, l'installation réussit et l'écran de démarrage s'affiche
-correctement.
+Testé sur un itel A05s (Android 13, processeur 32 bits `armeabi-v7a`) : en debug, la connexion USB
+se coupe à chaque installation ; en profile, l'installation passe parfois, mais le câble a encore
+décroché au jalon F1. D'où le débogage sans fil, recommandé pour ce téléphone.
 
-## Option 2 — Wi-Fi (sans câble)
+## Wi-Fi direct (sans adb)
 
 Le PC et le téléphone doivent être sur **le même réseau Wi-Fi**, et ce réseau doit être déclaré
 **privé** dans Windows.
@@ -106,6 +141,9 @@ Vérifié sur l'itel A05s le 16/11/2026 :
 |---|---|
 | `adb devices` est vide | Câble de données (pas seulement de charge), débogage USB activé, accepter « Autoriser le débogage USB ? » sur le téléphone |
 | `unauthorized` | Débrancher, rebrancher, accepter la fenêtre sur le téléphone |
-| `device not found` ou `offline` pendant l'installation | La connexion USB a lâché : débrancher et rebrancher le câble, relancer `tool\telephone.ps1`, puis passer en `flutter run --profile` (APK plus léger) |
+| `device not found` ou `offline` pendant l'installation | La connexion USB a lâché : passer au **débogage sans fil** (méthode recommandée pour l'itel) ; à défaut, rebrancher, relancer `tool\telephone.ps1` et utiliser `flutter run --profile` (APK plus léger) |
+| Sans fil : `failed to connect` | Même Wi-Fi ? Débogage sans fil toujours actif ? Le port a pu changer : relire l'écran « Débogage sans fil » et refaire `adb connect` |
+| Sans fil : `adb pair` refusé | Le code d'association expire vite : rouvrir la fenêtre d'association et utiliser le nouveau code |
+| L'écran s'éteint pendant un essai | Normal ; pour un long essai : `adb shell svc power stayon true`, puis `false` à la fin |
 | `failed to install` sans motif | Même cause, ou manque de place, ou « Installer via USB » désactivé : `flutter run --profile` |
 | « Impossible de joindre ElecPay » | API lancée ? Tunnel ouvert (`adb reverse --list`) ? En Wi-Fi : même réseau, pare-feu, bonne IP |

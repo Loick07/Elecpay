@@ -3,15 +3,22 @@
 // - le réglage « HTTP en clair » (attendu : true en debug / profile, false en release) ;
 // - l'absence de sauvegarde Android (`allowBackup="false"`, exigé pour toutes les versions) ;
 // - les règles d'extraction de données (Android 12+) : le manifeste y fait référence, et le fichier
-//   compilé exclut TOUTES les données, en sauvegarde cloud comme en transfert d'appareil à appareil.
+//   compilé exclut TOUTES les données, en sauvegarde cloud comme en transfert d'appareil à appareil ;
+// - avec `--diagnostic=absent` : la page Diagnostic n'est PAS dans le code compilé (release) ;
+// - avec `--demo-password=absent` : le mot de passe de démo n'est dans AUCUN fichier de l'APK.
 //
 // Usage (depuis frontend/mobile) :
-//   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk --cleartext=false
-//   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-debug.apk --cleartext=true
+//   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk \
+//     --cleartext=false --diagnostic=absent --demo-password=absent
+//   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-profile.apk \
+//     --cleartext=true --diagnostic=present --demo-password=present
 //
 // Lit l'APK avec `aapt2` (SDK Android : ANDROID_HOME, ANDROID_SDK_ROOT ou
 // %LOCALAPPDATA%\Android\sdk). Code de sortie 1 si une règle n'est pas respectée.
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:archive/archive.dart';
 
 /// Tous les domaines de stockage d'Android : chacun doit être exclu, dans les deux sections.
 const dataDomains = [
@@ -93,6 +100,53 @@ List<String> extractionRulesProblems(String rulesTree) {
   return problems;
 }
 
+/// Marque unique de la page Diagnostic (même valeur que dans
+/// lib/features/diagnostic/diagnostic_access.dart, vérifié par un test).
+const diagnosticMarker = 'ELECPAY-DIAGNOSTIC-PAGE-7F3A';
+
+/// Fichiers de l'APK qui contiennent le code Dart compilé : `libapp.so` (profile, release) ou
+/// `kernel_blob.bin` (debug).
+bool isDartCode(String entryName) =>
+    entryName.endsWith('/libapp.so') || entryName.endsWith('kernel_blob.bin');
+
+/// `needle` apparaît-il dans `haystack` ? (recherche d'octets, pour les gros fichiers compilés)
+bool containsBytes(List<int> haystack, List<int> needle) {
+  if (needle.isEmpty) return true;
+  final first = needle.first;
+  final last = haystack.length - needle.length;
+  outer:
+  for (var i = 0; i <= last; i++) {
+    if (haystack[i] != first) continue;
+    for (var j = 1; j < needle.length; j++) {
+      if (haystack[i + j] != needle[j]) continue outer;
+    }
+    return true;
+  }
+  return false;
+}
+
+/// La page Diagnostic est-elle dans le code Dart de l'APK ? `null` si aucun code Dart trouvé.
+bool? diagnosticInApk(List<int> apkBytes) {
+  final archive = ZipDecoder().decodeBytes(apkBytes);
+  final code = archive.files.where((f) => f.isFile && isDartCode(f.name)).toList();
+  if (code.isEmpty) return null;
+  final marker = ascii.encode(diagnosticMarker);
+  return code.any((f) => containsBytes(f.readBytes()!, marker));
+}
+
+/// Mot de passe des comptes de démo (backend/app/simulators : un test vérifie qu'il est identique).
+/// Il ne doit JAMAIS se trouver dans l'APK livré.
+const demoPassword = 'Demo2026!';
+
+/// Fichiers de l'APK (TOUS : code, ressources, fichiers embarqués) qui contiennent `text`.
+List<String> filesContaining(List<int> apkBytes, String text) {
+  final needle = utf8.encode(text);
+  return [
+    for (final file in ZipDecoder().decodeBytes(apkBytes).files)
+      if (file.isFile && containsBytes(file.readBytes()!, needle)) file.name,
+  ];
+}
+
 /// Taille lisible, en Mo avec une décimale (ex. « 14,4 Mo »).
 String formatSize(int bytes) =>
     '${(bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',')} Mo';
@@ -126,11 +180,23 @@ String _aapt2(String aapt2, List<String> args) {
   return result.stdout as String;
 }
 
+const _usage =
+    'Usage : dart run tool/apk_check.dart <fichier.apk> --cleartext=true|false '
+    '[--diagnostic=absent|present] [--demo-password=absent|present]';
+
 void main(List<String> args) {
-  final expected = args.where((a) => a.startsWith('--cleartext=')).map((a) => a.split('=')[1]);
+  String? option(String name) =>
+      args.where((a) => a.startsWith('--$name=')).map((a) => a.split('=')[1]).lastOrNull;
+  bool validPresence(String? value) => value == null || {'absent', 'present'}.contains(value);
+  final cleartextOption = option('cleartext');
+  final diagnosticOption = option('diagnostic');
+  final demoPasswordOption = option('demo-password');
   final paths = args.where((a) => !a.startsWith('--')).toList();
-  if (paths.length != 1 || expected.length != 1 || !{'true', 'false'}.contains(expected.first)) {
-    stderr.writeln('Usage : dart run tool/apk_check.dart <fichier.apk> --cleartext=true|false');
+  if (paths.length != 1 ||
+      !{'true', 'false'}.contains(cleartextOption) ||
+      !validPresence(diagnosticOption) ||
+      !validPresence(demoPasswordOption)) {
+    stderr.writeln(_usage);
     exit(2);
   }
   final apk = File(paths.single);
@@ -155,7 +221,7 @@ void main(List<String> args) {
   }
 
   final cleartext = cleartextFromXmlTree(manifest);
-  final wanted = expected.first == 'true';
+  final wanted = cleartextOption == 'true';
   stdout.writeln('HTTP en clair (usesCleartextTraffic) : ${cleartext ?? 'absent'}');
   if (cleartext != wanted) error('usesCleartextTraffic devrait valoir $wanted dans cet APK.');
 
@@ -184,6 +250,34 @@ void main(List<String> args) {
       for (final problem in problems) {
         error('dataExtractionRules : $problem.');
       }
+    }
+  }
+
+  // Page Diagnostic : `absent` attendu en release (retirée par le compilateur), `present` sert de
+  // contre-épreuve sur un APK profile (preuve que la recherche fonctionne).
+  if (diagnosticOption != null) {
+    final found = diagnosticInApk(apk.readAsBytesSync());
+    stdout.writeln(
+      'Page Diagnostic dans le code compilé : '
+      '${found == null ? 'code Dart introuvable' : (found ? 'présente' : 'absente')}',
+    );
+    if (found == null) {
+      error('aucun code Dart (libapp.so / kernel_blob.bin) trouvé dans l’APK.');
+    } else if (found != (diagnosticOption == 'present')) {
+      error('la page Diagnostic devrait être $diagnosticOption dans cet APK.');
+    }
+  }
+
+  // Mot de passe de démo : `absent` attendu en release (cherché dans TOUS les fichiers de l'APK),
+  // `present` sert de contre-épreuve sur un APK profile (la page Diagnostic le préremplit).
+  if (demoPasswordOption != null) {
+    final files = filesContaining(apk.readAsBytesSync(), demoPassword);
+    stdout.writeln(
+      'Mot de passe de démo dans l’APK : '
+      '${files.isEmpty ? 'absent' : 'présent (${files.join(', ')})'}',
+    );
+    if (files.isNotEmpty != (demoPasswordOption == 'present')) {
+      error('le mot de passe de démo devrait être $demoPasswordOption dans cet APK.');
     }
   }
 

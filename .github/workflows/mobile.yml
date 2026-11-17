@@ -79,9 +79,11 @@ jobs:
       - name: Construire l'APK release
         run: flutter build apk --release
 
-      # Taille de l'APK dans les journaux et dans le résumé ; HTTP en clair interdit en release.
-      - name: Vérifier l'APK release (taille, HTTP en clair)
+      # Taille de l'APK dans les journaux et dans le résumé ; HTTP en clair interdit, aucune
+      # sauvegarde Android, page Diagnostic absente du code compilé.
+      - name: Vérifier l'APK release (taille, HTTP en clair, sauvegardes, Diagnostic)
         run: |
-          dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk --cleartext=false
+          dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk \
+            --cleartext=false --diagnostic=absent --demo-password=absent
           size=$(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)
           echo "### APK release : $size (toutes architectures, non optimisé avant F10)" >> "$GITHUB_STEP_SUMMARY"

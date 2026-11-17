@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../tool/apk_check.dart';
@@ -96,6 +100,38 @@ void main() {
           '      () (file) res/xml/data_extraction_rules.xml type=XML\n';
       expect(resourceFilePath(resources, '0x7f0e0000'), 'res/xml/data_extraction_rules.xml');
       expect(resourceFilePath(resources, '0x7f0e0001'), isNull);
+    });
+  });
+
+  group('mot de passe de démo', () {
+    test('même valeur que celui des comptes de démo du backend', () {
+      final dataset = File('../../backend/app/simulators/demo_dataset.py').readAsStringSync();
+      expect(dataset, contains('DEMO_PASSWORD = "$demoPassword"'));
+    });
+
+    /// Un petit APK (archive zip) avec les fichiers donnés.
+    List<int> apk(Map<String, String> files) {
+      final archive = Archive();
+      for (final entry in files.entries) {
+        archive.add(ArchiveFile.bytes(entry.key, utf8.encode(entry.value)));
+      }
+      return ZipEncoder().encode(archive);
+    }
+
+    test('trouvé dans n’importe quel fichier (code, ressources, fichiers embarqués)', () {
+      final bytes = apk({
+        'lib/armeabi-v7a/libapp.so': 'xx${demoPassword}xx',
+        'assets/flutter_assets/assets/config.json': '{"password": "$demoPassword"}',
+        'classes.dex': 'rien',
+      });
+      expect(filesContaining(bytes, demoPassword), [
+        'lib/armeabi-v7a/libapp.so',
+        'assets/flutter_assets/assets/config.json',
+      ]);
+    });
+
+    test('absent → aucune entrée', () {
+      expect(filesContaining(apk({'lib/x86_64/libapp.so': 'Demo2025!'}), demoPassword), isEmpty);
     });
   });
 

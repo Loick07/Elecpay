@@ -145,7 +145,10 @@ void main() {
 
       backend.forced['/me'] = const FailReply(DioExceptionType.connectionError);
       await tap(tester, 'Lire mon profil');
-      expect(find.textContaining('Hors ligne · données du'), findsOneWidget);
+      expect(
+        find.textContaining('Hors connexion. Les données affichées datent du'),
+        findsOneWidget,
+      );
 
       await tap(tester, 'Se déconnecter');
       expect(find.text('Déconnecté : jetons et cache effacés'), findsOneWidget);

@@ -38,15 +38,25 @@ Le verre (fond translucide, flou d'arrière-plan 24px, liseré 1px `glass-border
 
 | Donnée | Format | Exemple |
 |---|---|---|
-| Montant | entier, espace fine insécable entre milliers, « FCFA » après | 12 500 FCFA |
+| Montant | entier, espace insécable entre milliers, « FCFA » après | 12 500 FCFA |
 | Énergie | 1 décimale max, virgule | 245,3 kWh |
 | Variation | signe + %, couleur selon le sens | −12 % (vert), +8 % (orange) |
-| Date | jour mois abrégé année | 25 nov. 2026 |
-| Période de facture | mois année | Octobre 2026 |
+| Date | jour mois abrégé année (« 1er » le premier du mois) | 25 nov. 2026 · 1er sept. 2026 |
+| Date et heure | heure de Brazzaville ; année seulement si ce n'est pas l'année en cours | 12 nov. à 08:15 |
+| Période de facture | **bimestrielle** : premier jour – dernier jour · nombre de mois | 1er sept. – 31 oct. 2026 · 2 mois |
+| Période de facture (liste) | mois abrégés, tiret demi-cadratin | sept.–oct. 2026 |
+| Mois (consommation) | mois en toutes lettres année | Octobre 2026 |
 | Téléphone | +242 + 9 chiffres groupés | +242 06 123 45 67 |
-| Référence | majuscules, mono | FAC-2026-10-004512 · TX-2026-004812 · EP-2026-000123 |
+| Référence | majuscules, mono | 20261103000127 · EP-2026-000123 |
 
-Les montants sont des entiers : on n'affiche jamais de centimes.
+Les montants sont des entiers : on n'affiche jamais de centimes. La facture E²C est **bimestrielle**
+(`backend/docs/FACTURE_E2C.md`) : sa période couvre toujours deux mois.
+
+Caractères : l'espace fine insécable (U+202F) serait idéale entre les milliers, mais **Poppins ne la
+contient pas** ; l'application utilise l'espace insécable normale (U+00A0), aussi devant l'unité
+(« FCFA », « kWh », « % ») pour que le nombre ne s'en sépare jamais. Le signe moins est le vrai signe
+« − » (U+2212), présent dans Poppins. Vérifié par un test qui lit les fichiers de police
+(`frontend/mobile/test/core/format/typography_test.dart`).
 
 ## Statuts
 

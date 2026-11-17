@@ -179,10 +179,10 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
     );
   }
 
-  /// « 16/11/2026 à 13:20:45 » : la seconde compte avec des jetons d'une minute.
+  /// « 16 nov. à 13:20:45 » : la seconde compte avec des jetons d'une minute.
   static String _formatSeconds(DateTime moment) {
     final seconds = toBrazzaville(moment).second.toString().padLeft(2, '0');
-    return '${formatDateTime(moment)}:$seconds';
+    return '${formatDateTime(moment, now: DateTime.now())}:$seconds';
   }
 }
 

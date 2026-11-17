@@ -140,7 +140,8 @@ de la charte et montre que l'API de démo répond (badge « Mode démo »).
 - Jetons dans `flutter_secure_storage` ; déconnexion propre si le rafraîchissement échoue.
 - Modèles freezed écrits à la main + test contre `backend/openapi.json`.
 - **Cache des dernières données** pour le mode hors ligne : la dernière version de chaque écran est
-  gardée sur le téléphone et affichée sans réseau, avec la mention « Hors ligne · données du … » ;
+  gardée sur le téléphone et affichée sans réseau, avec la mention de la charte « Hors connexion. Les
+  données affichées datent du 12 nov. à 08:15. » (texte « Hors ligne · données du … » jusqu'à F2.1) ;
   jamais d'action d'argent (paiement) hors ligne.
 
 Découpage validé le 16/11/2026 : F1.1 modèles et contrat · F1.2 client Dio et erreurs · F1.3 jetons et

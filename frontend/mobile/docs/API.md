@@ -23,7 +23,8 @@ switch (result) {
   case FreshData(:final data):
     // donnée fraîche
   case CachedData(:final data, :final label):
-    // API injoignable : afficher `label` (« Hors ligne · données du 16/11/2026 à 13:20 »)
+    // API injoignable : afficher `label`
+    // (« Hors connexion. Les données affichées datent du 12 nov. à 08:15. »)
 }
 ```
 

@@ -25,7 +25,12 @@ final class FreshData<T> extends Fetched<T> {
 
 /// Lue dans le cache car l'API est injoignable : l'écran affiche [label].
 final class CachedData<T> extends Fetched<T> {
-  const CachedData(super.data, {required this.savedAt, required this.failure});
+  const CachedData(
+    super.data, {
+    required this.savedAt,
+    required this.failure,
+    required this.shownAt,
+  });
 
   /// Moment où la donnée a été reçue de l'API.
   final DateTime savedAt;
@@ -33,8 +38,11 @@ final class CachedData<T> extends Fetched<T> {
   /// Pourquoi l'API n'a pas répondu (hors ligne, délai dépassé, panne).
   final ApiFailure failure;
 
-  /// « Hors ligne · données du 16/11/2026 à 13:20 ».
-  String get label => offlineLabel(savedAt);
+  /// Moment où la donnée est montrée (l'année n'est écrite que si elle a changé depuis).
+  final DateTime shownAt;
+
+  /// Texte de la charte : « Hors connexion. Les données affichées datent du 12 nov. à 08:15. »
+  String get label => offlineLabel(savedAt, now: shownAt);
 }
 
 /// Lectures avec cache hors ligne. Seules les routes de [cacheableRoutes] sont gardées ; les écritures
@@ -117,7 +125,12 @@ class CachedApi {
       return null;
     }
     try {
-      return CachedData(decode(entry.data), savedAt: entry.savedAt, failure: failure);
+      return CachedData(
+        decode(entry.data),
+        savedAt: entry.savedAt,
+        failure: failure,
+        shownAt: _clock().toUtc(),
+      );
     } on Object {
       // Donnée d'une ancienne version de l'application, illisible : oubliée.
       await _store.delete(userId, key);

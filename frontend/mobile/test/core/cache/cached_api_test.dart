@@ -85,7 +85,7 @@ void main() {
       ('délai dépassé', const FailReply(DioExceptionType.receiveTimeout)),
       ('API en panne (503)', JsonReply(503, apiError('X', 'Erreur.'))),
     ]) {
-      test('$name : dernière version + « Hors ligne · données du … »', () async {
+      test('$name : dernière version + « Hors connexion. Les données… »', () async {
         final h = Harness();
         await h.me();
         h
@@ -96,7 +96,7 @@ void main() {
         final cached = result as CachedData<UserPublic>;
         expect(cached.data.id, 42);
         expect(cached.savedAt, now);
-        expect(cached.label, 'Hors ligne · données du 16/11/2026 à 13:20');
+        expect(cached.label, 'Hors connexion. Les données affichées datent du 16 nov. à 13:20.');
       });
     }
 

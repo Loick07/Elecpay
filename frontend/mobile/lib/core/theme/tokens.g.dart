@@ -32,8 +32,10 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
     required this.onCurrent,
     required this.success,
     required this.successSoft,
+    required this.successText,
     required this.warning,
     required this.warningSoft,
+    required this.warningText,
     required this.error,
     required this.errorText,
     required this.errorSoft,
@@ -62,8 +64,10 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
     onCurrent: Color(0xFFFFFFFF),
     success: Color(0xFF22C55E),
     successSoft: Color(0x2422C55E),
+    successText: Color(0xFF22C55E),
     warning: Color(0xFFF59E0B),
     warningSoft: Color(0x24F59E0B),
+    warningText: Color(0xFFF59E0B),
     error: Color(0xFFEF4444),
     errorText: Color(0xFFF87171),
     errorSoft: Color(0x24EF4444),
@@ -92,8 +96,10 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
     onCurrent: Color(0xFFFFFFFF),
     success: Color(0xFF15803D),
     successSoft: Color(0x1F15803D),
+    successText: Color(0xFF166534),
     warning: Color(0xFFB45309),
     warningSoft: Color(0x1FB45309),
+    warningText: Color(0xFF92400E),
     error: Color(0xFFB91C1C),
     errorText: Color(0xFFB91C1C),
     errorSoft: Color(0x1AB91C1C),
@@ -166,11 +172,17 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
   /// Fond des badges de succès.
   final Color successSoft;
 
+  /// Texte vert (badge Payée / Réussie) : lisible ≥ 4,5:1 sur success-soft dans les deux thèmes (ajouté le 17/11/2026).
+  final Color successText;
+
   /// Échéance proche, consommation estimée, statut inconnu. Proche du jaune volt : toujours avec une icône et un libellé, jamais seul.
   final Color warning;
 
   /// Fond des badges d'alerte.
   final Color warningSoft;
+
+  /// Texte orange (Paiement en cours, En attente, Vérification en cours) : lisible ≥ 4,5:1 sur warning-soft dans les deux thèmes (ajouté le 17/11/2026).
+  final Color warningText;
 
   /// Aplat d'erreur (icône, bordure de champ invalide).
   final Color error;
@@ -207,8 +219,10 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
     Color? onCurrent,
     Color? success,
     Color? successSoft,
+    Color? successText,
     Color? warning,
     Color? warningSoft,
+    Color? warningText,
     Color? error,
     Color? errorText,
     Color? errorSoft,
@@ -236,8 +250,10 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
     onCurrent: onCurrent ?? this.onCurrent,
     success: success ?? this.success,
     successSoft: successSoft ?? this.successSoft,
+    successText: successText ?? this.successText,
     warning: warning ?? this.warning,
     warningSoft: warningSoft ?? this.warningSoft,
+    warningText: warningText ?? this.warningText,
     error: error ?? this.error,
     errorText: errorText ?? this.errorText,
     errorSoft: errorSoft ?? this.errorSoft,
@@ -269,8 +285,10 @@ class ElecPayColors extends ThemeExtension<ElecPayColors> {
       onCurrent: Color.lerp(onCurrent, other.onCurrent, t)!,
       success: Color.lerp(success, other.success, t)!,
       successSoft: Color.lerp(successSoft, other.successSoft, t)!,
+      successText: Color.lerp(successText, other.successText, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       warningSoft: Color.lerp(warningSoft, other.warningSoft, t)!,
+      warningText: Color.lerp(warningText, other.warningText, t)!,
       error: Color.lerp(error, other.error, t)!,
       errorText: Color.lerp(errorText, other.errorText, t)!,
       errorSoft: Color.lerp(errorSoft, other.errorSoft, t)!,

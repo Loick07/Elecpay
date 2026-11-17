@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'app/licenses.dart';
 import 'core/config/app_config.dart';
 
 /// Point d'entrée de l'application ElecPay (client).
@@ -9,6 +10,7 @@ import 'core/config/app_config.dart';
 /// La configuration est vérifiée AVANT tout : une adresse d'API invalide (ou en http dans la
 /// version livrée) affiche un message clair au lieu d'une application qui échoue en silence.
 void main() {
+  registerFontLicenses();
   final AppConfig config;
   try {
     config = AppConfig.fromEnvironment();

@@ -17,6 +17,7 @@ Le back-office est un site à part (`frontend/admin/`).
 | Tests | `flutter test` |
 | Générer les modèles (freezed / json) | `dart run build_runner build --delete-conflicting-outputs` |
 | Régénérer le thème depuis la charte | `dart run tool/generate_tokens.dart` (après tout changement de `frontend/design/tokens.json` ; un test le vérifie) |
+| Ajouter une icône | l'ajouter à `lucideIcons` dans `tool/icons_generator.dart`, puis `dart run tool/generate_icons.dart` (un test vérifie le fichier généré et la police) |
 | Préparer le téléphone (sans fil ou USB) | `.\tool\telephone.ps1` (itel : débogage sans fil recommandé, voir le guide) |
 | Lancer sur le téléphone | `flutter run`, ou `flutter run --profile` si le téléphone a peu de place (guide : [`docs/TELEPHONE.md`](docs/TELEPHONE.md)) |
 

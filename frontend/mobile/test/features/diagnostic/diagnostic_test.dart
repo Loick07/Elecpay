@@ -8,6 +8,7 @@ import 'package:elecpay/core/session/auth_interceptor.dart';
 import 'package:elecpay/core/session/session_providers.dart';
 import 'package:elecpay/core/session/token_store.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
+import 'package:elecpay/core/widgets/glass.dart';
 import 'package:elecpay/features/diagnostic/diagnostic_access.dart';
 import 'package:elecpay/features/diagnostic/diagnostic_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -119,6 +120,19 @@ void main() {
     testWidgets('titre court (tient sur un petit écran)', (tester) async {
       await tester.pumpWidget(page());
       expect(find.text('Diagnostic'), findsOneWidget);
+    });
+
+    testWidgets('interrupteur « Effet verre » : flou ↔ sans flou (jalon F3)', (tester) async {
+      await tester.pumpWidget(page());
+      await tester.pump();
+      final container = ProviderScope.containerOf(tester.element(find.byType(DiagnosticScreen)));
+      expect(container.read(glassModeProvider), GlassMode.blur);
+      expect(find.text('Flou d’arrière-plan (barre du bas, feuilles)'), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+      expect(container.read(glassModeProvider), GlassMode.opaque);
+      expect(find.text('Sans flou : fond opaque'), findsOneWidget);
     });
 
     testWidgets('connexion, profil, expiration absorbée, hors ligne, déconnexion', (tester) async {

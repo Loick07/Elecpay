@@ -26,6 +26,8 @@ dependencies:
   path_provider: 2.1.6         # dossier privé de l'application (cache hors ligne)
   # Pas de google_fonts : la police Poppins est EMBARQUÉE (assets/fonts), hors ligne et sans
   # téléchargement au premier lancement (décision de Loick, 15/11/2026).
+  # Pas de paquet d'icônes : la police Lucide est EMBARQUÉE (assets/fonts/Lucide.ttf), réduite par
+  # Flutter aux seules icônes utilisées (décision de Loick, 17/11/2026).
 
 dev_dependencies:
   flutter_test:
@@ -55,3 +57,15 @@ flutter:
     - family: JetBrainsMono
       fonts:
         - asset: assets/fonts/JetBrainsMono.ttf # police variable (graisse réglée par le style)
+    # Icônes au trait (lucide-static 1.73.0, licence ISC + MIT pour les icônes issues de Feather).
+    # Codes générés par tool/generate_icons.dart dans lib/core/theme/lucide_icons.g.dart.
+    - family: Lucide
+      fonts:
+        - asset: assets/fonts/Lucide.ttf
+
+  # Licences des polices embarquées : affichées dans l'écran des licences de l'application
+  # (enregistrées au démarrage par lib/app/licenses.dart).
+  assets:
+    - assets/fonts/LICENSE-Lucide.txt
+    - assets/fonts/OFL-Poppins.txt
+    - assets/fonts/OFL-JetBrainsMono.txt

@@ -10,6 +10,7 @@ import '../../core/session/session_manager.dart';
 import '../../core/session/session_providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/tokens.g.dart';
+import '../../core/widgets/glass.dart';
 import '../auth/models/auth_models.dart';
 import 'diagnostic_access.dart';
 
@@ -131,6 +132,21 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
             if (connected && _accessExpiresAt != null)
               _Line('Jeton d’accès', 'valable jusqu’au ${_formatSeconds(_accessExpiresAt!)}'),
             _Line('Rafraîchissements', '${_session.refreshCount}'),
+            // Jalon F3 : comparer la fluidité de l'itel avec et sans flou.
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text('Effet verre (flou)', style: AppText.bodyStrong.copyWith(color: c.ink)),
+              subtitle: Text(
+                ref.watch(glassModeProvider) == GlassMode.blur
+                    ? 'Flou d’arrière-plan (barre du bas, feuilles)'
+                    : 'Sans flou : fond opaque',
+                style: AppText.bodySm.copyWith(color: c.inkMuted),
+              ),
+              value: ref.watch(glassModeProvider) == GlassMode.blur,
+              onChanged: (blur) => ref
+                  .read(glassModeProvider.notifier)
+                  .set(blur ? GlassMode.blur : GlassMode.opaque),
+            ),
             const SizedBox(height: Space.s4),
             if (!connected) ...[
               TextField(

@@ -18,14 +18,18 @@ La charte UI/UX d'ElecPay : l'application mobile des abonnés E²C (Flutter) et 
 |---|---|---|
 | Fond | `bg` | Tous les écrans |
 | Cartes | `surface-1`, `surface-2` | Liste des factures, détail |
-| Verre | `glass` + `glass-border` + flou `blur-glass` | Barre de navigation, carte héros, feuille de paiement |
+| Verre | `glass` + `glass-border` + flou `blur-glass` | Barre de navigation, feuilles du bas (paiement, filtres) |
 | Action principale | `volt` / `on-volt` | Bouton « Payer 12 500 FCFA », onglet Payer |
 | Données de consommation | `current` | Barres et courbes kWh |
-| Statuts | `success`, `warning`, `error` (+ `-soft`) | Badges de facture et de transaction |
+| Statuts | fond `success-soft`, `warning-soft`, `error-soft`, `current-soft` ; texte `success-text`, `warning-text`, `error-text`, `current-text` | Badges de facture et de transaction |
+
+Les couleurs `*-text` sont celles du **texte** : plus foncées que la couleur de base dans le thème Jour pour rester
+lisibles (≥ 4,5:1) sur le fond doux du badge (`success-text` et `warning-text` ajoutés le 17/11/2026 : le vert et
+l'orange de base n'atteignaient que 4,26 et 4,25 en thème Jour). Les icônes gardent la couleur de base.
 
 ### Liquid Glass, avec retenue
 
-Le verre (fond translucide, flou d'arrière-plan 24px, liseré 1px `glass-border`) est réservé à **trois éléments** : la barre de navigation flottante, la carte héros du tableau de bord et les feuilles du bas (paiement, filtres). Les listes et les cartes ordinaires sont opaques (`surface-1`) : c'est plus lisible et beaucoup moins coûteux pour un téléphone modeste. Si l'appareil est lent ou si l'utilisateur réduit les effets, le verre devient `glass-strong` sans flou.
+Le verre (fond translucide, flou d'arrière-plan, liseré 1px `glass-border`) est réservé à **deux éléments** (décision du 17/11/2026) : la barre de navigation flottante et les feuilles du bas (paiement, filtres). La carte héros du tableau de bord, les listes et les cartes ordinaires sont opaques (`surface-1`) : c'est plus lisible et beaucoup moins coûteux pour un téléphone modeste. Réglage **« sans flou »** (téléphone lent, contraste élevé demandé) : le verre devient un fond **opaque** `surface-2`, même liseré, même forme ; il sera comparé sur l'itel au jalon de F3.
 
 ## Typographie
 
@@ -65,15 +69,15 @@ Un statut a toujours **une couleur, une icône et un mot**. La couleur seule ne 
 | Objet | Statut | Libellé | Couleur | Icône |
 |---|---|---|---|---|
 | Facture | unpaid | À payer | `current` | horloge |
-| Facture | pending_payment | Paiement en cours | `warning` | sablier |
-| Facture | paid | Payée | `success` | coche |
+| Facture | pending_payment | Paiement en cours | `warning` (texte `warning-text`) | sablier |
+| Facture | paid | Payée | `success` (texte `success-text`) | coche |
 | Facture | overdue | En retard | `error` | alerte |
 | Facture | cancelled | Annulée | `ink-muted` | barre |
-| Transaction | en_attente | En attente | `warning` | sablier |
-| Transaction | reussie | Réussie | `success` | coche |
+| Transaction | en_attente | En attente | `warning` (texte `warning-text`) | sablier |
+| Transaction | reussie | Réussie | `success` (texte `success-text`) | coche |
 | Transaction | echouee | Échouée | `error` | croix |
 | Transaction | expiree | Expirée | `ink-muted` | horloge barrée |
-| Transaction | inconnu (pas de réponse) | Vérification en cours | `warning` | point d'interrogation |
+| Transaction | inconnu (pas de réponse) | Vérification en cours | `warning` (texte `warning-text`) | point d'interrogation |
 
 ## Voix et ton
 
@@ -110,7 +114,10 @@ Barre de navigation **flottante en verre**, 5 entrées : **Accueil · Factures �
 
 ## Iconographie
 
-Icônes en trait de 1,75 px, coins arrondis (Lucide : `lucide_icons` en Flutter, `lucide-react` en Next.js). Taille 20 dans les listes, 24 dans la navigation. Couleur `ink-muted` au repos, `ink` ou la couleur du statut quand elles portent un sens. Pas de logos d'opérateurs dessinés à la main : MTN MoMo et Airtel Money sont écrits en toutes lettres tant que les logos officiels ne sont pas fournis par les opérateurs.
+Icônes en trait de **2 px** (trait par défaut de Lucide), coins arrondis. Flutter : police officielle Lucide
+**embarquée** (`lucide-static` 1.73.0, licence ISC + MIT pour les icônes issues de Feather), réduite à la
+compilation aux seules icônes utilisées ; codes générés par `tool/generate_icons.dart` (pas de paquet
+d'icônes : celui essayé ajoutait 1,9 Mo à l'APK). Next.js : `lucide-react`. Taille 20 dans les listes, 24 dans la navigation. Couleur `ink-muted` au repos, `ink` ou la couleur du statut quand elles portent un sens. Pas de logos d'opérateurs dessinés à la main : MTN MoMo et Airtel Money sont écrits en toutes lettres tant que les logos officiels ne sont pas fournis par les opérateurs.
 
 ## Back-office
 

@@ -70,8 +70,10 @@ jobs:
       - name: Analyse (flutter analyze)
         run: flutter analyze
 
-      - name: Thème à jour avec la charte (tokens.json)
-        run: flutter test test/core/theme/tokens_test.dart --plain-name "tokens.g.dart est à jour"
+      - name: Fichiers générés à jour (thème depuis tokens.json, icônes Lucide)
+        run: >-
+          flutter test test/core/theme/tokens_test.dart test/core/theme/icons_test.dart
+          --plain-name "est à jour"
 
       - name: Tests (flutter test)
         run: flutter test

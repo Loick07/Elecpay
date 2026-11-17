@@ -9,8 +9,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | Étape | Nom | État |
 |---|---|---|
 | F0 | Socle et accès à l'API depuis le téléphone | ✅ terminé le 16/11/2026 |
-| F1 | Accès à l'API et cache hors ligne | prochaine étape |
-| F2 | Composants de la charte et formats | à faire |
+| F1 | Accès à l'API et cache hors ligne | ✅ terminé le 17/11/2026 |
+| F2 | Composants de la charte et formats | prochaine étape |
 | F3 | Connexion | à faire |
 | F4 | Accueil et notifications | à faire |
 | F5 | Factures | à faire |
@@ -22,7 +22,7 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
 
-## Point de reprise (mis à jour le 16/11/2026)
+## Point de reprise (mis à jour le 17/11/2026)
 
 - **Terminé** : le backend (B0 → B11, `backend/PLAN.md`), commité, poussé, CI verte.
 - **Plan validé par Loick le 15/11/2026** (avec ses réponses et ajouts ci-dessous).
@@ -40,7 +40,23 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   - Vérifié sur le téléphone (nouveau câble USB, 16/11/2026) : Dio **ignore** `usesCleartextTraffic` (un APK
     au manifeste interdisant le HTTP en clair a joint l'API en `http://`) ; le vrai verrou est `AppConfig`, et
     l'APK release compilé avec `http://` affiche bien « Configuration invalide ». Détails : `docs/TELEPHONE.md`.
-- **Prochaine étape : F1** (accès à l'API et cache hors ligne). Proposer d'abord son découpage.
+- **F1 ✅ terminé le 17/11/2026** (sous-étapes commitées une à une, CI verte à chaque fois) :
+  - F1.1 modèles freezed écrits à la main + test de contrat générique contre `backend/openapi.json` ;
+    `UserRole.unknown` sans aucun droit ;
+  - F1.2 client Dio unique (`ApiSettings` : 15 s / 30 s), `X-Request-ID`, `ApiFailure` (messages en
+    français, référence), aucune relance automatique ;
+  - F1.3 jetons dans `flutter_secure_storage`, un seul rafraîchissement à la fois, nouveaux jetons enregistrés
+    avant le rejeu, `allowBackup="false"` + `dataExtractionRules` (tout exclu), vérifiés dans l'APK ;
+  - F1.4 cache hors ligne par utilisateur (JSON, 30 jours), liste de ce qui n'est jamais en cache (dont
+    `GET /payments/{id}`), session expirée : rien d'affiché avant la reconnexion du même compte ; aucun test
+    ne peut toucher le réseau réel ;
+  - F1.5 page Diagnostic (debug / profile), absente de l'APK release avec le mot de passe de démo (vérifié en
+    CI) ; guide `docs/API.md` pour les écrans suivants.
+  - **Jalon F1 joué sur l'itel** (débogage sans fil, jetons d'une minute) : connexion de démo, 5 refus `401` →
+    un seul rafraîchissement → 5 lectures rejouées, hors ligne avec la date, déconnexion hors ligne qui efface
+    cache et jetons. Trois défauts d'affichage vus au jalon, corrigés et testés.
+  - **Débogage sans fil recommandé pour l'itel** (le câble USB décroche) : `docs/TELEPHONE.md`.
+- **Prochaine étape : F2** (composants de la charte et formats). Proposer d'abord son découpage.
 
 ## Méthode (la même que pour le backend)
 

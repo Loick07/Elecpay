@@ -184,4 +184,17 @@ avec badge « Mode démo ». Téléphone : guide `frontend/mobile/docs/TELEPHONE
 `usesCleartextTraffic`, donc **`AppConfig` est le seul vrai verrou contre le HTTP en clair** (l'APK release avec
 `http://` affiche « Configuration invalide ») ; ne jamais l'affaiblir.
 
-**Prochaine étape : F1** (accès à l'API et cache hors ligne) : proposer d'abord son découpage.
+**F1 (accès à l'API et cache hors ligne) ✅ terminé le 17/11/2026** — CI `Mobile` verte, sous-étapes commitées
+une à une. Tout est dans `frontend/mobile/lib/core/` ; guide des écrans : **`frontend/mobile/docs/API.md`**.
+Écrans : lectures par `cachedApiProvider` (cache par utilisateur, « Hors ligne · données du … »), actions par
+`authenticatedApiProvider` (aucune relance automatique), session par `sessionManagerProvider` /
+`sessionStateProvider`. Toute route GET se range dans `lib/core/cache/cache_policy.dart` (en cache ou jamais,
+dont `GET /payments/{id}`) ; tout modèle s'ajoute au test de contrat (`test/contract/`). Jetons : un seul
+rafraîchissement, enregistrés avant le rejeu. `allowBackup="false"` + `dataExtractionRules`. Page Diagnostic en
+debug / profile, absente de l'APK release avec le mot de passe de démo (`tool/apk_check.dart` en CI).
+Aucun test ne touche le réseau réel (`test/flutter_test_config.dart`). Jalon F1 joué sur l'itel en **débogage sans
+fil** (méthode recommandée pour ce téléphone, `frontend/mobile/docs/TELEPHONE.md`). 216 tests.
+Méthode Flutter : **commit + push à chaque sous-étape validée** ; tableaux de bord en fin d'étape ; vérification
+sur le téléphone seulement aux jalons (fin F1, fin F3, F4–F5, fin F10 : voir `frontend/mobile/PLAN.md`).
+
+**Prochaine étape : F2** (composants de la charte et formats) : proposer d'abord son découpage.

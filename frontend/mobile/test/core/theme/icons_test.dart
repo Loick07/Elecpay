@@ -22,6 +22,12 @@ const appIcons = <String, IconData>{
   'show': AppIcons.show,
   'hide': AppIcons.hide,
   'phone': AppIcons.phone,
+  'empty': AppIcons.empty,
+  'error': AppIcons.error,
+  'offline': AppIcons.offline,
+  'locked': AppIcons.locked,
+  'signIn': AppIcons.signIn,
+  'retry': AppIcons.retry,
 };
 
 void main() {

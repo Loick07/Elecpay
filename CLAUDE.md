@@ -86,7 +86,9 @@ Pas de Flutter ni de Next.js avant la fin de B11.
 - Les anciens projets (`elecpay-console`, `elecpay-api`) ne sont **pas** repris : le backend est reconstruit proprement
   selon `backend/PLAN.md`.
 - Seules exceptions autorisées hors du dossier : vérifier les outils installés (`python --version`, `git --version`,
-  `docker --version`, `mysql --version`) et installer des paquets Python dans l'environnement virtuel du projet.
+  `docker --version`, `mysql --version`), installer des paquets Python dans l'environnement virtuel du projet, et
+  **lire** les caches de paquets (pub, pip) pour examiner une dépendance du projet — **jamais les modifier**
+  (exception ajoutée par Loick le 17/11/2026).
 
 ## Où on en est
 **B0 (socle technique) ✅ terminé le 12/11/2026** — CI verte sur GitHub.

@@ -20,14 +20,20 @@ const lucideFontFamily = 'Lucide';
 const lucideIcons = <String, String>{
   'ban': 'ban',
   'check': 'check',
+  'circleAlert': 'circle-alert',
   'circleQuestionMark': 'circle-question-mark',
   'clock': 'clock',
   'eye': 'eye',
   'eyeOff': 'eye-off',
   'hourglass': 'hourglass',
+  'inbox': 'inbox',
+  'lock': 'lock',
+  'logIn': 'log-in',
+  'refreshCw': 'refresh-cw',
   'smartphone': 'smartphone',
   'timerOff': 'timer-off',
   'triangleAlert': 'triangle-alert',
+  'wifiOff': 'wifi-off',
   'x': 'x',
 };
 

@@ -23,6 +23,14 @@ abstract final class AppIcons {
   static const show = Lucide.eye;
   static const hide = Lucide.eyeOff;
   static const phone = Lucide.smartphone;
+
+  // États d'écran.
+  static const empty = Lucide.inbox;
+  static const error = Lucide.circleAlert;
+  static const offline = Lucide.wifiOff;
+  static const locked = Lucide.lock;
+  static const signIn = Lucide.logIn;
+  static const retry = Lucide.refreshCw;
 }
 
 /// Tailles de la charte : 20 dans les listes, 24 dans la navigation.

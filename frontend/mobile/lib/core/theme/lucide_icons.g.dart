@@ -17,6 +17,9 @@ abstract final class Lucide {
   /// `check`
   static const check = IconData(0xe06c, fontFamily: lucideFontFamily);
 
+  /// `circle-alert`
+  static const circleAlert = IconData(0xe077, fontFamily: lucideFontFamily);
+
   /// `circle-question-mark`
   static const circleQuestionMark = IconData(0xe082, fontFamily: lucideFontFamily);
 
@@ -32,6 +35,18 @@ abstract final class Lucide {
   /// `hourglass`
   static const hourglass = IconData(0xe296, fontFamily: lucideFontFamily);
 
+  /// `inbox`
+  static const inbox = IconData(0xe0f7, fontFamily: lucideFontFamily);
+
+  /// `lock`
+  static const lock = IconData(0xe10b, fontFamily: lucideFontFamily);
+
+  /// `log-in`
+  static const logIn = IconData(0xe10d, fontFamily: lucideFontFamily);
+
+  /// `refresh-cw`
+  static const refreshCw = IconData(0xe145, fontFamily: lucideFontFamily);
+
   /// `smartphone`
   static const smartphone = IconData(0xe163, fontFamily: lucideFontFamily);
 
@@ -40,6 +55,9 @@ abstract final class Lucide {
 
   /// `triangle-alert`
   static const triangleAlert = IconData(0xe193, fontFamily: lucideFontFamily);
+
+  /// `wifi-off`
+  static const wifiOff = IconData(0xe1af, fontFamily: lucideFontFamily);
 
   /// `x`
   static const x = IconData(0xe1b2, fontFamily: lucideFontFamily);

@@ -169,6 +169,19 @@ session · F1.4 cache hors ligne · F1.5 page Diagnostic, jalon sur le télépho
   (heure de Brazzaville, en français), périodes (« Sept.-Oct. 2026 »), numéros `+242 06 123 45 67`.
   Tous les écrans l'utilisent ; testé à part.
 
+Découpage validé le 17/11/2026 :
+- **F2.1** module de formats ✅ (Poppins sans U+202F → U+00A0, période bimestrielle de la maquette) ;
+- **F2.2** fondations ✅ : mouvement, verre (barre du bas et feuilles seulement, réglage « sans flou »),
+  statuts testés contre `openapi.json`, `success-text` / `warning-text`, police Lucide embarquée
+  (`lucide-static` 1.73.0, codes générés), bouton, champ de saisie ;
+- **F2.3** états d'écran : squelettes, bloc d'état (vide, erreur serveur, accès refusé), bannière hors
+  connexion branchée sur le cache, feuille « session expirée » ;
+- **F2.4** composants métier : badge de statut, ligne de facture, carte de la facture urgente, feuille de
+  paiement (apparence), état d'une transaction, bouton Payer désactivé hors ligne ;
+- **F2.5** barre du bas (5 onglets, Payer central), page Catalogue (debug / profile), clôture. **À ajouter :
+  contrôle `apk_check` « Lucide.ttf réduite dans l'APK release »** (dès que la barre du bas utilise ses
+  icônes ; sans icône utilisée, Flutter laisse la police entière, +449 Ko — mesuré le 17/11/2026), en CI.
+
 ### F3 — Connexion (écrans 1, 2, 3, 4)
 
 Splash, connexion (téléphone +242, mot de passe), inscription, mot de passe oublié (code affiché en mode

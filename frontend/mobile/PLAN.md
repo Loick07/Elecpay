@@ -10,8 +10,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 |---|---|---|
 | F0 | Socle et accès à l'API depuis le téléphone | ✅ terminé le 16/11/2026 |
 | F1 | Accès à l'API et cache hors ligne | ✅ terminé le 17/11/2026 |
-| F2 | Composants de la charte et formats | prochaine étape |
-| F3 | Connexion | à faire |
+| F2 | Composants de la charte et formats | ✅ terminé le 18/11/2026 |
+| F3 | Connexion | prochaine étape |
 | F4 | Accueil et notifications | à faire |
 | F5 | Factures | à faire |
 | F6 | Paiement, reçus et historique | à faire |
@@ -22,7 +22,7 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
 
-## Point de reprise (mis à jour le 17/11/2026)
+## Point de reprise (mis à jour le 18/11/2026)
 
 - **Terminé** : le backend (B0 → B11, `backend/PLAN.md`), commité, poussé, CI verte.
 - **Plan validé par Loick le 15/11/2026** (avec ses réponses et ajouts ci-dessous).
@@ -56,7 +56,22 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
     un seul rafraîchissement → 5 lectures rejouées, hors ligne avec la date, déconnexion hors ligne qui efface
     cache et jetons. Trois défauts d'affichage vus au jalon, corrigés et testés.
   - **Débogage sans fil recommandé pour l'itel** (le câble USB décroche) : `docs/TELEPHONE.md`.
-- **Prochaine étape : F2** (composants de la charte et formats). Proposer d'abord son découpage.
+- **F2 ✅ terminé le 18/11/2026** (sous-étapes commitées une à une, CI verte à chaque fois) :
+  - F2.1 module unique de formats `lib/core/format/` (Poppins sans U+202F → U+00A0, période bimestrielle de
+    la maquette, téléphone aux règles du backend) ; aucun caractère invisible écrit en dur (test) ;
+  - F2.2 mouvement, verre réservé à la barre du bas et aux feuilles (réglage « sans flou »), statuts testés
+    contre `openapi.json`, `success-text` / `warning-text`, police Lucide embarquée (`lucide-static` 1.73.0,
+    codes générés par `tool/generate_icons.dart`), bouton (une seule action même en double toucher),
+    champ de saisie et champ téléphone ;
+  - F2.3 squelettes, blocs d'état (`stateForFailure`), bannière hors connexion, feuille « session
+    expirée » qui masque tout l'écran du dessous ;
+  - F2.4 badge, ligne et carte de facture, bouton Payer (désactivé hors ligne), feuille de paiement
+    (apparence), état d'un paiement (« Vérification en cours » : jamais « échoué », sortie obligatoire) ;
+  - F2.5 barre du bas, coquille `/accueil` `/factures` `/conso` `/compte` (pages d'attente), page
+    Catalogue (debug / profile), `apk_check --lucide=reduced` en CI (police 2 172 octets, APK 14,6 Mo).
+  - Tous les composants testés sur l'écran de l'itel (360 × 800) avec texte à 130 % et 200 %. 454 tests.
+- **Prochaine étape : F3** (connexion). Proposer d'abord son découpage. **Jalon sur l'itel à la fin de F3**
+  (débogage sans fil) : connexion, inscription, barre du bas, catalogue, flou contre sans flou.
 
 ## Méthode (la même que pour le backend)
 
@@ -172,6 +187,7 @@ session · F1.4 cache hors ligne · F1.5 page Diagnostic, jalon sur le télépho
 Découpage validé le 17/11/2026 :
 - **F2.1** module de formats ✅ (Poppins sans U+202F → U+00A0, période bimestrielle de la maquette) ;
 - **F2.2** fondations ✅ : mouvement, verre (barre du bas et feuilles seulement, réglage « sans flou »),
+  (F2.3, F2.4, F2.5 ✅ : voir le point de reprise)
   statuts testés contre `openapi.json`, `success-text` / `warning-text`, police Lucide embarquée
   (`lucide-static` 1.73.0, codes générés), bouton, champ de saisie ;
 - **F2.3** états d'écran : squelettes, bloc d'état (vide, erreur serveur, accès refusé), bannière hors

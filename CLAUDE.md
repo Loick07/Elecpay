@@ -199,4 +199,15 @@ fil** (méthode recommandée pour ce téléphone, `frontend/mobile/docs/TELEPHON
 Méthode Flutter : **commit + push à chaque sous-étape validée** ; tableaux de bord en fin d'étape ; vérification
 sur le téléphone seulement aux jalons (fin F1, fin F3, F4–F5, fin F10 : voir `frontend/mobile/PLAN.md`).
 
-**Prochaine étape : F2** (composants de la charte et formats) : proposer d'abord son découpage.
+**F2 (composants de la charte et formats) ✅ terminé le 18/11/2026** — CI `Mobile` verte, sous-étapes commitées
+une à une. Formats : **`lib/core/format/formats.dart`** (seul endroit qui formate montants, kWh, dates, périodes,
+téléphones ; aucun caractère invisible en dur, codes `\u…` obligatoires). Composants dans `lib/core/widgets/` :
+bouton, champ, téléphone, statuts (`statuses.dart`, testés contre `openapi.json`), squelette, blocs d'état
+(`stateForFailure`), bannière hors connexion, feuilles du bas, feuille « session expirée », badge, ligne et
+carte de facture, bouton Payer (désactivé hors ligne), feuille de paiement, état d'un paiement, barre du bas.
+Verre **réservé à la barre du bas et aux feuilles** (réglage « sans flou »). Icônes : police Lucide embarquée,
+codes générés (`tool/generate_icons.dart`), réduite dans l'APK release (contrôlé en CI). Charte : `success-text`
+/ `warning-text` ajoutés. Page Catalogue (debug / profile). Tests sur l'écran de l'itel (360 × 800, texte 200 %).
+454 tests, APK release 14,6 Mo.
+
+**Prochaine étape : F3** (connexion) : proposer d'abord son découpage. Jalon sur l'itel à la fin de F3.

@@ -214,6 +214,17 @@ Règle validée le 16/11/2026 : en cas d'`ApiTimeout` où la requête a pu attei
 Hors ligne : bouton **Payer** désactivé, « Connexion nécessaire pour payer » (règle de F5), sur la feuille
 de paiement comme sur le bouton central de la barre du bas.
 
+Règles de relance validées le 17/11/2026 (composant `TransactionStatusView` prêt depuis F2.4) :
+- après **Échoué** ou **Expiré** : « Réessayer » crée une **nouvelle demande** avec une **nouvelle clé
+  d'idempotence** (le premier paiement est définitivement terminé) ;
+- après une **réponse inconnue** ou **Vérification en cours** : **jamais de nouvelle demande** ; on
+  consulte `GET /payments/{id}`, et un renvoi éventuel se fait avec **la même clé** ;
+- **tests obligatoires pour les deux cas** (clé neuve après échec / expiration ; même clé et aucune
+  nouvelle demande après une réponse inconnue) ;
+- « Vérification en cours » : toujours une sortie qui ne paie rien (« Retour à l'accueil », déjà dans le
+  composant, rendue obligatoire par une assertion) et **mise à jour automatique** de l'état (interrogation
+  de l'API toutes les 3 s en attente, bascule seule ; après 2 min sans réponse : Vérification en cours).
+
 ### F7 — Consommation (écran 11)
 
 Année, Mois, Semaine, Jour (fil d'Ariane, flèches ‹ ›, calendrier coloré), graphiques fl_chart, coût de

@@ -31,6 +31,14 @@ abstract final class AppIcons {
   static const locked = Lucide.lock;
   static const signIn = Lucide.logIn;
   static const retry = Lucide.refreshCw;
+
+  // Factures et paiement.
+  static const bill = Lucide.fileText;
+  static const energy = Lucide.zap;
+  static const meter = Lucide.gauge;
+  static const household = Lucide.house;
+  static const securePay = Lucide.shieldCheck;
+  static const info = Lucide.info;
 }
 
 /// Tailles de la charte : 20 dans les listes, 24 dans la navigation.

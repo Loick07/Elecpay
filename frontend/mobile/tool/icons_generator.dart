@@ -25,16 +25,22 @@ const lucideIcons = <String, String>{
   'clock': 'clock',
   'eye': 'eye',
   'eyeOff': 'eye-off',
+  'fileText': 'file-text',
+  'gauge': 'gauge',
   'hourglass': 'hourglass',
+  'house': 'house',
   'inbox': 'inbox',
+  'info': 'info',
   'lock': 'lock',
   'logIn': 'log-in',
   'refreshCw': 'refresh-cw',
+  'shieldCheck': 'shield-check',
   'smartphone': 'smartphone',
   'timerOff': 'timer-off',
   'triangleAlert': 'triangle-alert',
   'wifiOff': 'wifi-off',
   'x': 'x',
+  'zap': 'zap',
 };
 
 /// Point de code d'une icône de info.json (`"encodedCode": "\\e087"` → 0xe087).

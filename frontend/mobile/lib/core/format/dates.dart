@@ -55,6 +55,33 @@ String _short(int month) => _monthsShort[month - 1];
 /// Date du calendrier (`date` de l'API) : « 18 nov. 2026 », « 1er sept. 2026 ».
 String formatCalendarDate(DateTime date) => '${_day(date.day)} ${_short(date.month)} ${date.year}';
 
+/// Date du calendrier sans l'année (listes de l'année en cours) : « 18 nov. », « 1er sept. ».
+String formatDayMonth(DateTime date) => '${_day(date.day)} ${_short(date.month)}';
+
+/// Urgence d'une échéance (couleur du compte à rebours, maquette de la carte héros) :
+/// plus de 5 jours → normale ; 5 jours ou moins → proche (`warning`) ; dépassée → en retard (`error`).
+enum DueUrgency { normal, soon, overdue }
+
+/// Compte à rebours jusqu'à `dueDate` (date du calendrier), vu le jour de `now` à Brazzaville :
+/// « dans 6 jours », « demain », « aujourd'hui », « en retard de 3 jours ».
+({String text, DueUrgency urgency}) dueCountdown(DateTime dueDate, {required DateTime now}) {
+  final local = toBrazzaville(now);
+  final today = DateTime.utc(local.year, local.month, local.day);
+  final due = DateTime.utc(dueDate.year, dueDate.month, dueDate.day);
+  final days = due.difference(today).inDays;
+  if (days < 0) {
+    final late = -days;
+    return (text: 'en retard de $late jour${late > 1 ? 's' : ''}', urgency: DueUrgency.overdue);
+  }
+  final urgency = days <= 5 ? DueUrgency.soon : DueUrgency.normal;
+  final text = switch (days) {
+    0 => 'aujourd’hui',
+    1 => 'demain',
+    _ => 'dans $days jours',
+  };
+  return (text: text, urgency: urgency);
+}
+
 /// Instant (`date-time` de l'API), jour seulement, heure de Brazzaville : « 25 nov. 2026 ».
 String formatDate(DateTime moment) => formatCalendarDate(toBrazzaville(moment));
 

@@ -48,7 +48,8 @@ class AppSheet extends StatelessWidget {
                 )
               else
                 const SizedBox(height: Space.s4),
-              child,
+              // Défile si le contenu est plus haut que l'écran (petit téléphone, texte agrandi).
+              Flexible(child: SingleChildScrollView(child: child)),
             ],
           ),
         ),

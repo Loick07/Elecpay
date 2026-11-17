@@ -28,6 +28,12 @@ const appIcons = <String, IconData>{
   'locked': AppIcons.locked,
   'signIn': AppIcons.signIn,
   'retry': AppIcons.retry,
+  'bill': AppIcons.bill,
+  'energy': AppIcons.energy,
+  'meter': AppIcons.meter,
+  'household': AppIcons.household,
+  'securePay': AppIcons.securePay,
+  'info': AppIcons.info,
 };
 
 void main() {

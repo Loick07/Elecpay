@@ -20,6 +20,10 @@ void main() {
       test('$amount → $expected', () => expect(visible(formatFcfa(amount)), expected));
     }
 
+    test('le nombre seul (montant héros, « FCFA » à part)', () {
+      expect(visible(formatFcfaValue(31420)), '31·420');
+    });
+
     test('l’unité ne se sépare jamais du nombre (espace insécable)', () {
       expect(formatFcfa(31420), isNot(contains(' ')));
     });

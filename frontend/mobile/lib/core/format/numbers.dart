@@ -15,7 +15,10 @@ String _group(int value) {
 }
 
 /// Montant en FCFA, toujours entier : 31420 → « 31 420 FCFA ». Jamais de centimes.
-String formatFcfa(int amount) => '${_group(amount)}${unitSpace}FCFA';
+String formatFcfa(int amount) => '${formatFcfaValue(amount)}${unitSpace}FCFA';
+
+/// Le nombre seul, quand « FCFA » est écrit à part en plus petit (montant héros) : « 31 420 ».
+String formatFcfaValue(int amount) => _group(amount);
 
 /// Nombre de kWh (sans l'unité), une décimale au plus, virgule : 417.4 → « 417,4 » ;
 /// 12.0 → « 12 » ; 18664.4 → « 18 664,4 ». Arrondi au dixième le plus proche.

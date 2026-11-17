@@ -84,6 +84,49 @@ void main() {
     });
   });
 
+  test('jour et mois sans l’année : « 18 nov. », « 1er sept. »', () {
+    expect(formatDayMonth(DateTime(2026, 11, 18)), '18 nov.');
+    expect(formatDayMonth(DateTime(2026, 9)), '1er sept.');
+    expect(formatDayMonth(DateTime(2026, 5, 3)), '3 mai');
+  });
+
+  group('compte à rebours de l’échéance (carte héros)', () {
+    // 12 nov. 2026 à 10:00 à Brazzaville.
+    final today = DateTime.utc(2026, 11, 12, 9);
+    ({String text, DueUrgency urgency}) countdown(DateTime due) => dueCountdown(due, now: today);
+
+    test('loin : « dans 6 jours », urgence normale (maquette : échéance le 18 nov.)', () {
+      expect(countdown(DateTime(2026, 11, 18)), (text: 'dans 6 jours', urgency: DueUrgency.normal));
+    });
+
+    test('à 5 jours ou moins : proche (warning)', () {
+      expect(countdown(DateTime(2026, 11, 17)), (text: 'dans 5 jours', urgency: DueUrgency.soon));
+      expect(countdown(DateTime(2026, 11, 13)), (text: 'demain', urgency: DueUrgency.soon));
+      expect(countdown(DateTime(2026, 11, 12)).text, 'aujourd’hui');
+      expect(countdown(DateTime(2026, 11, 12)).urgency, DueUrgency.soon);
+    });
+
+    test('après l’échéance : en retard (error), singulier et pluriel', () {
+      expect(countdown(DateTime(2026, 11, 11)), (
+        text: 'en retard de 1 jour',
+        urgency: DueUrgency.overdue,
+      ));
+      expect(countdown(DateTime(2026, 11, 9)).text, 'en retard de 3 jours');
+    });
+
+    test('le jour se compte à Brazzaville (23:30 UTC = déjà le lendemain)', () {
+      final lateEvening = DateTime.utc(2026, 11, 12, 23, 30); // 13 nov. 00:30 à Brazzaville
+      expect(dueCountdown(DateTime(2026, 11, 13), now: lateEvening).text, 'aujourd’hui');
+    });
+
+    test('changement d’année', () {
+      expect(
+        dueCountdown(DateTime(2027, 1, 2), now: DateTime.utc(2026, 12, 30, 10)).text,
+        'dans 3 jours',
+      );
+    });
+  });
+
   test('mois de consommation : « Octobre 2026 », « Août 2026 »', () {
     expect(formatMonthYear(2026, 10), 'Octobre 2026');
     expect(formatMonthYear(2026, 8), 'Août 2026');

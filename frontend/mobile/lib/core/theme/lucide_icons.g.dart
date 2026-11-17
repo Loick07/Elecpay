@@ -32,11 +32,23 @@ abstract final class Lucide {
   /// `eye-off`
   static const eyeOff = IconData(0xe0bb, fontFamily: lucideFontFamily);
 
+  /// `file-text`
+  static const fileText = IconData(0xe0cc, fontFamily: lucideFontFamily);
+
+  /// `gauge`
+  static const gauge = IconData(0xe1bf, fontFamily: lucideFontFamily);
+
   /// `hourglass`
   static const hourglass = IconData(0xe296, fontFamily: lucideFontFamily);
 
+  /// `house`
+  static const house = IconData(0xe0f5, fontFamily: lucideFontFamily);
+
   /// `inbox`
   static const inbox = IconData(0xe0f7, fontFamily: lucideFontFamily);
+
+  /// `info`
+  static const info = IconData(0xe0f9, fontFamily: lucideFontFamily);
 
   /// `lock`
   static const lock = IconData(0xe10b, fontFamily: lucideFontFamily);
@@ -46,6 +58,9 @@ abstract final class Lucide {
 
   /// `refresh-cw`
   static const refreshCw = IconData(0xe145, fontFamily: lucideFontFamily);
+
+  /// `shield-check`
+  static const shieldCheck = IconData(0xe1ff, fontFamily: lucideFontFamily);
 
   /// `smartphone`
   static const smartphone = IconData(0xe163, fontFamily: lucideFontFamily);
@@ -61,4 +76,7 @@ abstract final class Lucide {
 
   /// `x`
   static const x = IconData(0xe1b2, fontFamily: lucideFontFamily);
+
+  /// `zap`
+  static const zap = IconData(0xe1b4, fontFamily: lucideFontFamily);
 }

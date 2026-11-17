@@ -86,6 +86,6 @@ jobs:
       - name: Vérifier l'APK release (taille, HTTP en clair, sauvegardes, Diagnostic)
         run: |
           dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk \
-            --cleartext=false --diagnostic=absent --demo-password=absent
+            --cleartext=false --diagnostic=absent --demo-password=absent --lucide=reduced
           size=$(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)
           echo "### APK release : $size (toutes architectures, non optimisé avant F10)" >> "$GITHUB_STEP_SUMMARY"

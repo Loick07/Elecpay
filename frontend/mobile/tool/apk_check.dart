@@ -5,7 +5,8 @@
 // - les règles d'extraction de données (Android 12+) : le manifeste y fait référence, et le fichier
 //   compilé exclut TOUTES les données, en sauvegarde cloud comme en transfert d'appareil à appareil ;
 // - avec `--diagnostic=absent` : la page Diagnostic n'est PAS dans le code compilé (release) ;
-// - avec `--demo-password=absent` : le mot de passe de démo n'est dans AUCUN fichier de l'APK.
+// - avec `--demo-password=absent` : le mot de passe de démo n'est dans AUCUN fichier de l'APK ;
+// - avec `--lucide=reduced` : la police des icônes est réduite aux seules icônes utilisées.
 //
 // Usage (depuis frontend/mobile) :
 //   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk \
@@ -147,6 +148,19 @@ List<String> filesContaining(List<int> apkBytes, String text) {
   ];
 }
 
+/// Police des icônes dans l'APK, et taille au-delà de laquelle elle n'a PAS été réduite par Flutter
+/// aux seules icônes utilisées (entière : 999 164 octets ; réduite : quelques Ko).
+const lucideAssetPath = 'assets/flutter_assets/assets/fonts/Lucide.ttf';
+const lucideReducedMaxBytes = 100 * 1024;
+
+/// Taille de la police Lucide dans l'APK, ou `null` si elle est absente.
+int? lucideFontSize(List<int> apkBytes) {
+  for (final file in ZipDecoder().decodeBytes(apkBytes).files) {
+    if (file.name == lucideAssetPath) return file.size;
+  }
+  return null;
+}
+
 /// Taille lisible, en Mo avec une décimale (ex. « 14,4 Mo »).
 String formatSize(int bytes) =>
     '${(bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',')} Mo';
@@ -182,7 +196,7 @@ String _aapt2(String aapt2, List<String> args) {
 
 const _usage =
     'Usage : dart run tool/apk_check.dart <fichier.apk> --cleartext=true|false '
-    '[--diagnostic=absent|present] [--demo-password=absent|present]';
+    '[--diagnostic=absent|present] [--demo-password=absent|present] [--lucide=reduced]';
 
 void main(List<String> args) {
   String? option(String name) =>
@@ -191,11 +205,13 @@ void main(List<String> args) {
   final cleartextOption = option('cleartext');
   final diagnosticOption = option('diagnostic');
   final demoPasswordOption = option('demo-password');
+  final lucideOption = option('lucide');
   final paths = args.where((a) => !a.startsWith('--')).toList();
   if (paths.length != 1 ||
       !{'true', 'false'}.contains(cleartextOption) ||
       !validPresence(diagnosticOption) ||
-      !validPresence(demoPasswordOption)) {
+      !validPresence(demoPasswordOption) ||
+      (lucideOption != null && lucideOption != 'reduced')) {
     stderr.writeln(_usage);
     exit(2);
   }
@@ -278,6 +294,21 @@ void main(List<String> args) {
     );
     if (files.isNotEmpty != (demoPasswordOption == 'present')) {
       error('le mot de passe de démo devrait être $demoPasswordOption dans cet APK.');
+    }
+  }
+
+  // Police des icônes : réduite par Flutter aux seules icônes utilisées (sinon +449 Ko : arrive si
+  // aucune icône Lucide n'est utilisée par le code release, mesuré le 17/11/2026).
+  if (lucideOption == 'reduced') {
+    final size = lucideFontSize(apk.readAsBytesSync());
+    stdout.writeln(
+      'Police Lucide dans l’APK : ${size == null ? 'absente' : '$size octets'} '
+      '(réduite si moins de $lucideReducedMaxBytes)',
+    );
+    if (size == null) {
+      error('police Lucide absente de l’APK ($lucideAssetPath).');
+    } else if (size >= lucideReducedMaxBytes) {
+      error('police Lucide NON réduite ($size octets) : aucune icône utilisée en release ?');
     }
   }
 

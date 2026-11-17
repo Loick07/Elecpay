@@ -42,6 +42,13 @@ class StartupScreen extends ConsumerWidget {
                     style: AppText.bodyStrong.copyWith(color: c.currentText),
                   ),
                 ),
+                TextButton(
+                  onPressed: () => context.push('/catalogue'),
+                  child: Text(
+                    'Catalogue',
+                    style: AppText.bodyStrong.copyWith(color: c.currentText),
+                  ),
+                ),
               ],
               if (kDebugMode)
                 TextButton(

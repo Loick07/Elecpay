@@ -135,6 +135,29 @@ void main() {
     });
   });
 
+  group('police Lucide réduite', () {
+    List<int> apkWith(int fontBytes) {
+      final archive = Archive()
+        ..add(ArchiveFile.bytes(lucideAssetPath, List<int>.filled(fontBytes, 7)))
+        ..add(ArchiveFile.bytes('classes.dex', [1, 2, 3]));
+      return ZipEncoder().encode(archive);
+    }
+
+    test('taille lue dans l’APK (fichier non compressé)', () {
+      expect(lucideFontSize(apkWith(1068)), 1068);
+    });
+
+    test('police absente → null', () {
+      final archive = Archive()..add(ArchiveFile.bytes('classes.dex', [1]));
+      expect(lucideFontSize(ZipEncoder().encode(archive)), isNull);
+    });
+
+    test('seuil : réduite (1 068 octets) sous la limite, entière (999 164) au-dessus', () {
+      expect(1068, lessThan(lucideReducedMaxBytes));
+      expect(999164, greaterThanOrEqualTo(lucideReducedMaxBytes));
+    });
+  });
+
   test('taille affichée en Mo, à la française', () {
     expect(formatSize(15099494), '14,4 Mo');
   });

@@ -14,6 +14,9 @@ abstract final class Lucide {
   /// `ban`
   static const ban = IconData(0xe051, fontFamily: lucideFontFamily);
 
+  /// `chart-no-axes-column`
+  static const chartNoAxesColumn = IconData(0xe068, fontFamily: lucideFontFamily);
+
   /// `check`
   static const check = IconData(0xe06c, fontFamily: lucideFontFamily);
 
@@ -25,6 +28,9 @@ abstract final class Lucide {
 
   /// `clock`
   static const clock = IconData(0xe087, fontFamily: lucideFontFamily);
+
+  /// `credit-card`
+  static const creditCard = IconData(0xe0aa, fontFamily: lucideFontFamily);
 
   /// `eye`
   static const eye = IconData(0xe0ba, fontFamily: lucideFontFamily);
@@ -70,6 +76,9 @@ abstract final class Lucide {
 
   /// `triangle-alert`
   static const triangleAlert = IconData(0xe193, fontFamily: lucideFontFamily);
+
+  /// `user`
+  static const user = IconData(0xe19f, fontFamily: lucideFontFamily);
 
   /// `wifi-off`
   static const wifiOff = IconData(0xe1af, fontFamily: lucideFontFamily);

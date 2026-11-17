@@ -39,6 +39,13 @@ abstract final class AppIcons {
   static const household = Lucide.house;
   static const securePay = Lucide.shieldCheck;
   static const info = Lucide.info;
+
+  // Barre du bas (maquette : Accueil, Factures, Payer, Conso, Compte).
+  static const navHome = Lucide.house;
+  static const navBills = Lucide.fileText;
+  static const navPay = Lucide.creditCard;
+  static const navConsumption = Lucide.chartNoAxesColumn;
+  static const navAccount = Lucide.user;
 }
 
 /// Tailles de la charte : 20 dans les listes, 24 dans la navigation.

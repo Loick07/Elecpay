@@ -34,6 +34,11 @@ const appIcons = <String, IconData>{
   'household': AppIcons.household,
   'securePay': AppIcons.securePay,
   'info': AppIcons.info,
+  'navHome': AppIcons.navHome,
+  'navBills': AppIcons.navBills,
+  'navPay': AppIcons.navPay,
+  'navConsumption': AppIcons.navConsumption,
+  'navAccount': AppIcons.navAccount,
 };
 
 void main() {

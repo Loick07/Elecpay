@@ -23,6 +23,9 @@ const cases = <ContractCase>[
   ContractCase('TwoFactorChallenge', TwoFactorChallenge.fromJson),
   ContractCase('LoginRequest', LoginRequest.fromJson),
   ContractCase('RegisterRequest', RegisterRequest.fromJson),
+  ContractCase('ForgotPasswordRequest', ForgotPasswordRequest.fromJson),
+  ContractCase('ForgotPasswordResponse', ForgotPasswordResponse.fromJson),
+  ContractCase('ResetPasswordRequest', ResetPasswordRequest.fromJson),
   ContractCase('RefreshRequest', RefreshRequest.fromJson),
 ];
 

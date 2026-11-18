@@ -9,16 +9,14 @@ part of 'api_error.dart';
 _ErrorResponse _$ErrorResponseFromJson(Map<String, dynamic> json) =>
     $checkedCreate('_ErrorResponse', json, ($checkedConvert) {
       final val = _ErrorResponse(
-        error: $checkedConvert(
-          'error',
-          (v) => ErrorBody.fromJson(v as Map<String, dynamic>),
-        ),
+        error: $checkedConvert('error', (v) => ErrorBody.fromJson(v as Map<String, dynamic>)),
       );
       return val;
     });
 
-Map<String, dynamic> _$ErrorResponseToJson(_ErrorResponse instance) =>
-    <String, dynamic>{'error': instance.error.toJson()};
+Map<String, dynamic> _$ErrorResponseToJson(_ErrorResponse instance) => <String, dynamic>{
+  'error': instance.error.toJson(),
+};
 
 _ErrorBody _$ErrorBodyFromJson(Map<String, dynamic> json) =>
     $checkedCreate('_ErrorBody', json, ($checkedConvert) {
@@ -33,9 +31,8 @@ _ErrorBody _$ErrorBodyFromJson(Map<String, dynamic> json) =>
       return val;
     });
 
-Map<String, dynamic> _$ErrorBodyToJson(_ErrorBody instance) =>
-    <String, dynamic>{
-      'code': instance.code,
-      'message': instance.message,
-      'details': instance.details,
-    };
+Map<String, dynamic> _$ErrorBodyToJson(_ErrorBody instance) => <String, dynamic>{
+  'code': instance.code,
+  'message': instance.message,
+  'details': instance.details,
+};

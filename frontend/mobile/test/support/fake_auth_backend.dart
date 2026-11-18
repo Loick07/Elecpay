@@ -63,6 +63,15 @@ class FakeAuthBackend {
   /// Compte renvoyé par la connexion (42 par défaut, comme les jetons de [SessionHarness]).
   int loginUserId = 42;
 
+  /// Mot de passe oublié : seul ce numéro a un compte ; codes donnés tour à tour.
+  static const resetAccountPhone = '+242060000101';
+  static const resetCodes = ['482913', '715204'];
+  int issuedResetCodes = 0;
+  String? validResetCode;
+
+  /// Mode démo de l'API (`demo_code` renvoyé) ; `false` comme en production.
+  bool demoMode = true;
+
   Map<String, Object?> tokenResponse(int n) => {
     ..._api.sample('TokenResponse'),
     'access_token': 'at-$n',
@@ -116,6 +125,32 @@ class FakeAuthBackend {
         }
         validAccess.add('at-$generation');
         return JsonReply(201, tokenResponse(generation));
+      case '/auth/password/forgot':
+        // Comme le backend : même réponse pour tous les numéros ; un code n'existe que pour un
+        // compte, et `demo_code` n'est donné qu'en mode démo.
+        final phone = (request.data as Map<String, dynamic>)['phone'];
+        String? code;
+        if (phone == resetAccountPhone) {
+          code = resetCodes[issuedResetCodes++ % resetCodes.length];
+          validResetCode = code; // un nouveau code annule le précédent
+        }
+        return JsonReply(200, {
+          'message': "Si ce numéro correspond à un compte, un code vient d'être envoyé par SMS.",
+          'expires_in': 600,
+          'demo_code': demoMode ? code : null,
+        });
+      case '/auth/password/reset':
+        final body = request.data as Map<String, dynamic>;
+        if (body['phone'] != resetAccountPhone ||
+            validResetCode == null ||
+            body['code'] != validResetCode) {
+          return JsonReply(
+            400,
+            apiError('RESET_CODE_INVALID', 'Code invalide ou expiré. Demandez un nouveau code.'),
+          );
+        }
+        validResetCode = null; // utilisé
+        return const JsonReply(204, null);
     }
 
     // Route protégée.

@@ -15,6 +15,7 @@ import '../../core/widgets/app_text_field.dart';
 import '../../core/widgets/form_message.dart';
 import '../legal/legal_screen.dart';
 import 'models/auth_models.dart';
+import 'password_rules.dart';
 import 'retry_lock.dart';
 import 'validation.dart';
 
@@ -197,7 +198,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onChanged: (_) => setState(() => _passwordError = null),
                 ),
                 const SizedBox(height: Space.s2),
-                _PasswordRules(_password.text),
+                PasswordRules(_password.text),
                 const SizedBox(height: Space.s4),
                 _Terms(
                   accepted: _accepted,
@@ -241,54 +242,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// Règles du mot de passe, cochées pendant la saisie (maquette + « au moins une lettre »).
-class _PasswordRules extends StatelessWidget {
-  const _PasswordRules(this.password);
-
-  final String password;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Wrap(
-      spacing: 14,
-      runSpacing: 6,
-      children: [
-        for (final rule in passwordRules)
-          Builder(
-            builder: (context) {
-              final ok = rule.ok(password);
-              return Semantics(
-                label: '${rule.label} : ${ok ? 'respecté' : 'pas encore'}',
-                excludeSemantics: true,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppIcon(
-                      ok ? AppIcons.ruleMet : AppIcons.ruleUnmet,
-                      size: 14,
-                      color: ok ? c.success : c.inkFaint,
-                    ),
-                    const SizedBox(width: Space.s1),
-                    Flexible(
-                      child: Text(
-                        rule.label,
-                        style: AppText.caption.copyWith(
-                          color: ok ? c.successText : c.inkMuted,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-      ],
     );
   }
 }

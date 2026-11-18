@@ -126,6 +126,20 @@ class SessionManager extends ChangeNotifier {
     await signIn(tokens);
   }
 
+  /// Mot de passe oublié, étape 1 : demande d'un code par SMS (même réponse pour tous les numéros).
+  Future<ForgotPasswordResponse> requestPasswordReset(ForgotPasswordRequest request) =>
+      _api.postObject(
+        '/auth/password/forgot',
+        ForgotPasswordResponse.fromJson,
+        body: request,
+        authenticated: false,
+      );
+
+  /// Mot de passe oublié, étape 2 : nouveau mot de passe avec le code. AUCUNE session n'est ouverte
+  /// (l'API ferme toutes les sessions du compte) : on se reconnecte ensuite.
+  Future<void> resetPassword(ResetPasswordRequest request) =>
+      _api.postNoContent('/auth/password/reset', body: request, authenticated: false);
+
   /// Ouvre la session avec des jetons reçus (connexion, inscription, changement de mot de passe).
   Future<void> signIn(TokenResponse response) async {
     final tokens = StoredTokens.fromResponse(response);

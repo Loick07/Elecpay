@@ -114,6 +114,44 @@ abstract class RegisterRequest with _$RegisterRequest {
   factory RegisterRequest.fromJson(Map<String, dynamic> json) => _$RegisterRequestFromJson(json);
 }
 
+/// Schéma OpenAPI : `ForgotPasswordRequest` (`POST /auth/password/forgot`).
+@freezed
+abstract class ForgotPasswordRequest with _$ForgotPasswordRequest {
+  const factory ForgotPasswordRequest({required String phone}) = _ForgotPasswordRequest;
+
+  factory ForgotPasswordRequest.fromJson(Map<String, dynamic> json) =>
+      _$ForgotPasswordRequestFromJson(json);
+}
+
+/// Schéma OpenAPI : `ForgotPasswordResponse`. La même réponse, que le numéro ait un compte ou non ;
+/// `demoCode` n'existe qu'en mode démo, et seulement si le compte existe (voir docs/API.md).
+@freezed
+abstract class ForgotPasswordResponse with _$ForgotPasswordResponse {
+  const factory ForgotPasswordResponse({
+    required String message,
+
+    /// Durée de validité du code, en secondes.
+    required int expiresIn,
+    String? demoCode,
+  }) = _ForgotPasswordResponse;
+
+  factory ForgotPasswordResponse.fromJson(Map<String, dynamic> json) =>
+      _$ForgotPasswordResponseFromJson(json);
+}
+
+/// Schéma OpenAPI : `ResetPasswordRequest` (`POST /auth/password/reset`, réponse 204).
+@freezed
+abstract class ResetPasswordRequest with _$ResetPasswordRequest {
+  const factory ResetPasswordRequest({
+    required String phone,
+    required String code,
+    required String newPassword,
+  }) = _ResetPasswordRequest;
+
+  factory ResetPasswordRequest.fromJson(Map<String, dynamic> json) =>
+      _$ResetPasswordRequestFromJson(json);
+}
+
 /// Schéma OpenAPI : `RefreshRequest` (`POST /auth/refresh` et `POST /auth/logout`).
 @freezed
 abstract class RefreshRequest with _$RefreshRequest {

@@ -6,7 +6,7 @@ import '../core/session/session_expiry_notice.dart';
 import '../core/session/session_manager.dart';
 import '../core/session/session_providers.dart';
 import '../core/widgets/bottom_nav.dart';
-import '../features/auth/auth_pending_screen.dart';
+import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/catalogue/catalogue_screen.dart';
@@ -21,17 +21,13 @@ import 'routes.dart';
 /// Les routes de l'application. Chaque étape (F3 → F9) ajoute les siennes.
 List<RouteBase> appRoutes() => [
   GoRoute(path: Routes.splash, builder: (context, state) => const SplashScreen()),
-  // Connexion (F3.4 remplace la page d'attente du mot de passe oublié).
+  // Connexion, inscription, mot de passe oublié.
   GoRoute(path: Routes.login, builder: (context, state) => const LoginScreen()),
   GoRoute(path: Routes.register, builder: (context, state) => const RegisterScreen()),
   // Documents acceptés à l'inscription (provisoires) : lisibles sans compte.
   for (final document in LegalDocument.values)
     GoRoute(path: document.path, builder: (context, state) => LegalScreen(document)),
-  GoRoute(
-    path: Routes.forgotPassword,
-    builder: (context, state) =>
-        const AuthPendingScreen(title: 'Mot de passe oublié', step: 'F3.4'),
-  ),
+  GoRoute(path: Routes.forgotPassword, builder: (context, state) => const ForgotPasswordScreen()),
   // Écrans principaux, sous la barre du bas (pages d'attente jusqu'à F4 → F9).
   ShellRoute(
     builder: (context, state, child) => AppShell(location: state.uri.path, child: child),

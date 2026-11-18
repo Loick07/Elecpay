@@ -20,8 +20,17 @@ abstract final class Lucide {
   /// `check`
   static const check = IconData(0xe06c, fontFamily: lucideFontFamily);
 
+  /// `chevron-left`
+  static const chevronLeft = IconData(0xe06e, fontFamily: lucideFontFamily);
+
+  /// `circle`
+  static const circle = IconData(0xe076, fontFamily: lucideFontFamily);
+
   /// `circle-alert`
   static const circleAlert = IconData(0xe077, fontFamily: lucideFontFamily);
+
+  /// `circle-check`
+  static const circleCheck = IconData(0xe226, fontFamily: lucideFontFamily);
 
   /// `circle-question-mark`
   static const circleQuestionMark = IconData(0xe082, fontFamily: lucideFontFamily);

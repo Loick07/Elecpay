@@ -100,6 +100,22 @@ class FakeAuthBackend {
         return JsonReply(200, tokenResponse(generation));
       case '/auth/logout':
         return const JsonReply(204, null);
+      case '/auth/register':
+        final body = request.data as Map<String, dynamic>;
+        if (body['phone'] == '+242060000101') {
+          return JsonReply(
+            409,
+            apiError('PHONE_ALREADY_USED', 'Ce numéro est déjà utilisé par un compte.'),
+          );
+        }
+        if (body['email'] == 'pris@example.com') {
+          return JsonReply(
+            409,
+            apiError('EMAIL_ALREADY_USED', 'Cette adresse e-mail est déjà utilisée.'),
+          );
+        }
+        validAccess.add('at-$generation');
+        return JsonReply(201, tokenResponse(generation));
     }
 
     // Route protégée.

@@ -115,6 +115,17 @@ class SessionManager extends ChangeNotifier {
     return result;
   }
 
+  /// Inscription (clients seulement) : le compte est créé et la session ouverte aussitôt.
+  Future<void> register(RegisterRequest request) async {
+    final tokens = await _api.postObject(
+      '/auth/register',
+      TokenResponse.fromJson,
+      body: request,
+      authenticated: false,
+    );
+    await signIn(tokens);
+  }
+
   /// Ouvre la session avec des jetons reçus (connexion, inscription, changement de mot de passe).
   Future<void> signIn(TokenResponse response) async {
     final tokens = StoredTokens.fromResponse(response);

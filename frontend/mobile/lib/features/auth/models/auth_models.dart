@@ -100,6 +100,20 @@ abstract class LoginRequest with _$LoginRequest {
   factory LoginRequest.fromJson(Map<String, dynamic> json) => _$LoginRequestFromJson(json);
 }
 
+/// Schéma OpenAPI : `RegisterRequest` (`POST /auth/register`, clients seulement). L'e-mail est
+/// facultatif (`null` : pas d'e-mail).
+@freezed
+abstract class RegisterRequest with _$RegisterRequest {
+  const factory RegisterRequest({
+    required String fullName,
+    required String phone,
+    String? email,
+    required String password,
+  }) = _RegisterRequest;
+
+  factory RegisterRequest.fromJson(Map<String, dynamic> json) => _$RegisterRequestFromJson(json);
+}
+
 /// Schéma OpenAPI : `RefreshRequest` (`POST /auth/refresh` et `POST /auth/logout`).
 @freezed
 abstract class RefreshRequest with _$RefreshRequest {

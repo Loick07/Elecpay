@@ -23,6 +23,9 @@ abstract final class AppIcons {
   static const show = Lucide.eye;
   static const hide = Lucide.eyeOff;
   static const phone = Lucide.smartphone;
+  static const back = Lucide.chevronLeft;
+  static const ruleUnmet = Lucide.circle;
+  static const ruleMet = Lucide.circleCheck;
 
   // États d'écran.
   static const empty = Lucide.inbox;

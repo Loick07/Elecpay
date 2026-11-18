@@ -8,10 +8,12 @@ import '../core/session/session_providers.dart';
 import '../core/widgets/bottom_nav.dart';
 import '../features/auth/auth_pending_screen.dart';
 import '../features/auth/login_screen.dart';
+import '../features/auth/register_screen.dart';
 import '../features/catalogue/catalogue_screen.dart';
 import '../features/design_check/charte_screen.dart';
 import '../features/diagnostic/diagnostic_access.dart';
 import '../features/diagnostic/diagnostic_screen.dart';
+import '../features/legal/legal_screen.dart';
 import '../features/startup/splash_screen.dart';
 import 'app_shell.dart';
 import 'routes.dart';
@@ -19,12 +21,12 @@ import 'routes.dart';
 /// Les routes de l'application. Chaque étape (F3 → F9) ajoute les siennes.
 List<RouteBase> appRoutes() => [
   GoRoute(path: Routes.splash, builder: (context, state) => const SplashScreen()),
-  // Connexion (F3.3, F3.4 remplacent les deux pages d'attente suivantes).
+  // Connexion (F3.4 remplace la page d'attente du mot de passe oublié).
   GoRoute(path: Routes.login, builder: (context, state) => const LoginScreen()),
-  GoRoute(
-    path: Routes.register,
-    builder: (context, state) => const AuthPendingScreen(title: 'Inscription', step: 'F3.3'),
-  ),
+  GoRoute(path: Routes.register, builder: (context, state) => const RegisterScreen()),
+  // Documents acceptés à l'inscription (provisoires) : lisibles sans compte.
+  for (final document in LegalDocument.values)
+    GoRoute(path: document.path, builder: (context, state) => LegalScreen(document)),
   GoRoute(
     path: Routes.forgotPassword,
     builder: (context, state) =>

@@ -169,6 +169,25 @@ _LoginRequest _$LoginRequestFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$LoginRequestToJson(_LoginRequest instance) =>
     <String, dynamic>{'phone': instance.phone, 'password': instance.password};
 
+_RegisterRequest _$RegisterRequestFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('_RegisterRequest', json, ($checkedConvert) {
+      final val = _RegisterRequest(
+        fullName: $checkedConvert('full_name', (v) => v as String),
+        phone: $checkedConvert('phone', (v) => v as String),
+        email: $checkedConvert('email', (v) => v as String?),
+        password: $checkedConvert('password', (v) => v as String),
+      );
+      return val;
+    }, fieldKeyMap: const {'fullName': 'full_name'});
+
+Map<String, dynamic> _$RegisterRequestToJson(_RegisterRequest instance) =>
+    <String, dynamic>{
+      'full_name': instance.fullName,
+      'phone': instance.phone,
+      'email': instance.email,
+      'password': instance.password,
+    };
+
 _RefreshRequest _$RefreshRequestFromJson(Map<String, dynamic> json) =>
     $checkedCreate('_RefreshRequest', json, ($checkedConvert) {
       final val = _RefreshRequest(

@@ -22,6 +22,7 @@ const cases = <ContractCase>[
   ContractCase('TokenResponse', TokenResponse.fromJson),
   ContractCase('TwoFactorChallenge', TwoFactorChallenge.fromJson),
   ContractCase('LoginRequest', LoginRequest.fromJson),
+  ContractCase('RegisterRequest', RegisterRequest.fromJson),
   ContractCase('RefreshRequest', RefreshRequest.fromJson),
 ];
 

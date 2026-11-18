@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
-import '../../core/format/dates.dart';
 import '../../core/format/phone.dart';
 import '../../core/network/api_failure.dart';
 import '../../core/session/session_providers.dart';
@@ -18,6 +17,7 @@ import '../../core/widgets/app_text_field.dart';
 import '../../core/widgets/form_message.dart';
 import '../diagnostic/diagnostic_access.dart';
 import 'models/auth_models.dart';
+import 'retry_lock.dart';
 
 /// Écran de connexion (écran 2, maquette `Connexion.dc.html`) : numéro +242 et mot de passe.
 ///
@@ -39,21 +39,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? _passwordError;
   String? _message;
   String? _reference;
-  int _lockSeconds = 0;
-  Timer? _lockTimer;
+  final _lock = RetryLock();
 
-  /// Délai d'attente quand l'API ne précise pas le sien (429 sans `retry_after_seconds`).
-  static const defaultLock = Duration(seconds: 60);
+  @override
+  void initState() {
+    super.initState();
+    _lock.addListener(() {
+      if (!mounted) return;
+      setState(() {
+        if (!_lock.locked) _message = null; // fin de l'attente : on efface « Trop de tentatives. »
+      });
+    });
+  }
 
   @override
   void dispose() {
-    _lockTimer?.cancel();
+    _lock.dispose();
     _phone.dispose();
     _password.dispose();
     super.dispose();
   }
 
-  bool get _locked => _lockSeconds > 0;
+  bool get _locked => _lock.locked;
 
   Future<void> _submit() async {
     if (_locked) return;
@@ -106,22 +113,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // Identifiants incorrects : on garde le numéro, on vide le mot de passe (à ressaisir).
       if (failure case ApiRejected(code: 'INVALID_CREDENTIALS')) _password.clear();
     });
-    if (failure is TooManyRequests) _lockFor(failure.retryAfter ?? defaultLock);
-  }
-
-  void _lockFor(Duration wait) {
-    _lockTimer?.cancel();
-    setState(() => _lockSeconds = wait.inSeconds.clamp(1, 24 * 3600));
-    _lockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-      setState(() {
-        _lockSeconds--;
-        if (_lockSeconds <= 0) {
-          timer.cancel();
-          _message = null;
-        }
-      });
-    });
+    if (failure is TooManyRequests) _lock.lockFor(failure.retryAfter);
   }
 
   @override
@@ -204,9 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const SizedBox(height: Space.s3),
                         ],
                         AppButton(
-                          label: _locked
-                              ? 'Réessayer dans ${formatCountdown(Duration(seconds: _lockSeconds))}'
-                              : 'Se connecter',
+                          label: _locked ? _lock.label : 'Se connecter',
                           loadingLabel: 'Connexion…',
                           onPressed: _locked ? null : _submit,
                         ),

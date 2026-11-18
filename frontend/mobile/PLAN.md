@@ -203,6 +203,12 @@ Découpage validé le 17/11/2026 :
 Splash, connexion (téléphone +242, mot de passe), inscription, mot de passe oublié (code affiché en mode
 démo), session expirée, déconnexion.
 
+**Pour plus tard, côté backend** (noté le 18/11/2026) : les conditions d'utilisation et la politique de
+confidentialité sont pour l'instant des **pages provisoires** (`lib/features/legal/`), et la case cochée à
+l'inscription n'est pas enregistrée. Quand les vrais textes existeront : **enregistrer l'acceptation**
+(date + version de chaque document) au moment de l'inscription, et la redemander quand une nouvelle version
+est publiée.
+
 ### F4 — Accueil et notifications (écrans 5, 13)
 
 Facture la plus urgente (carte verre), consommation du mois et estimation, activité récente, cloche avec le

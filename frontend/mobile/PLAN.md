@@ -11,8 +11,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F0 | Socle et accès à l'API depuis le téléphone | ✅ terminé le 16/11/2026 |
 | F1 | Accès à l'API et cache hors ligne | ✅ terminé le 17/11/2026 |
 | F2 | Composants de la charte et formats | ✅ terminé le 18/11/2026 |
-| F3 | Connexion | prochaine étape |
-| F4 | Accueil et notifications | à faire |
+| F3 | Connexion | ✅ terminé le 18/11/2026 |
+| F4 | Accueil et notifications | prochaine étape |
 | F5 | Factures | à faire |
 | F6 | Paiement, reçus et historique | à faire |
 | F7 | Consommation | à faire |
@@ -70,8 +70,31 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   - F2.5 barre du bas, coquille `/accueil` `/factures` `/conso` `/compte` (pages d'attente), page
     Catalogue (debug / profile), `apk_check --lucide=reduced` en CI (police 2 172 octets, APK 14,6 Mo).
   - Tous les composants testés sur l'écran de l'itel (360 × 800) avec texte à 130 % et 200 %. 454 tests.
-- **Prochaine étape : F3** (connexion). Proposer d'abord son découpage. **Jalon sur l'itel à la fin de F3**
-  (débogage sans fil) : connexion, inscription, barre du bas, catalogue, flou contre sans flou.
+- **F3 ✅ terminé le 18/11/2026** (sous-étapes commitées une à une, CI verte à chaque fois) :
+  - F3.1 splash (2 s au plus ; avec une session et l'API injoignable → l'accueil ; « Hors connexion »
+    seulement sans session), garde de navigation, feuille « session expirée », badge Mode démo (dernière
+    valeur connue gardée, affiché tant qu'on ne sait pas) ;
+  - F3.2 connexion (numéro gardé et mot de passe vidé après « incorrect » ; 429 → « Trop de tentatives. »
+    et bouton à compte à rebours) ;
+  - F3.3 inscription (règles du mot de passe cochées pendant la saisie, case obligatoire, pages provisoires
+    des conditions et de la confidentialité, erreurs de l'API sous le bon champ) ;
+  - F3.4 mot de passe oublié en 3 étapes (même parcours pour tous les numéros, code de démo seulement s'il
+    est donné, code en 6 cases, nouveau code après 60 s, retour Android vers l'étape 1) ;
+  - règle « clavier ouvert (300 points) + texte à 130 % : bouton principal atteignable » testée sur les
+    trois écrans ;
+  - **jalon F3 joué sur l'itel** (débogage sans fil, pilotage `adb` + journaux de l'API) : inscription,
+    connexion, déconnexion, mot de passe oublié (code faux, nouveau code, numéro inconnu, limite 429), vraie
+    session expirée (jetons d'une minute + `/auth/logout-all` : un seul rafraîchissement refusé), texte à
+    130 % et 200 % sur les trois écrans. Défaut trouvé et corrigé : « suivant » depuis le code allait sur
+    « Renvoyer le code » ;
+  - F3.5 (jalon) : **sans flou par défaut** (mesuré : feuille de paiement 17 ms → 62 ms par image avec le
+    flou), flou en option F9 ; premier test d'intégration (`integration_test/glass_perf_test.dart`, aux
+    jalons seulement) ; **icône ElecPay** générée par script (adaptative + monochrome) et **lancement navy**
+    sans flash blanc ; `apk_check --launcher-icon=custom` ; `tool/telephone.ps1 -Device`.
+  - 596 tests ; APK release de l'itel (armeabi-v7a) **15,6 Mo** (14,6 Mo à la fin de F2).
+- **Prochaine étape : F4** (accueil et notifications). Proposer d'abord son découpage. Au début de F4 :
+  les tests d'intégration des parcours de F3 (conditions ci-dessous). Jalon sur l'itel à mi-parcours
+  (F4–F5).
 
 ## Méthode (la même que pour le backend)
 

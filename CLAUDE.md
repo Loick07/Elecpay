@@ -210,4 +210,19 @@ codes générés (`tool/generate_icons.dart`), réduite dans l'APK release (cont
 / `warning-text` ajoutés. Page Catalogue (debug / profile). Tests sur l'écran de l'itel (360 × 800, texte 200 %).
 454 tests, APK release 14,6 Mo.
 
-**Prochaine étape : F3** (connexion) : proposer d'abord son découpage. Jalon sur l'itel à la fin de F3.
+**F3 (connexion) ✅ terminé le 18/11/2026** — CI `Mobile` verte, sous-étapes commitées une à une.
+Écrans dans `lib/features/auth/` (connexion, inscription, mot de passe oublié en 3 étapes) et
+`lib/features/startup/` (splash : 2 s au plus, session + API injoignable → accueil). Règles communes :
+`validation.dart` (mêmes messages que le backend), `RetryLock` (429 → « Trop de tentatives. » + bouton à
+compte à rebours), test « clavier ouvert (300 points) + texte à 130 % » sur chaque formulaire. Jalon joué
+sur l'itel (pilotage `adb`, journaux de l'API, vraie session expirée) ; défaut trouvé et corrigé (« suivant »
+depuis le code). Décisions du jalon : **verre sans flou par défaut** (mesuré : feuille de paiement 17 ms →
+62 ms par image avec le flou ; option « Effet verre » en F9) ; **icône ElecPay** et **lancement navy**
+générés par `tool/launcher/` (`apk_check --launcher-icon=custom` en CI) ; premier test d'intégration
+`integration_test/glass_perf_test.dart`. **Tests d'intégration : seulement aux jalons, jamais en CI, sur une
+base de démo remise à zéro avant chaque passage ; ils complètent le regard de Loick, ne le remplacent pas.**
+Avec `adb input text`, l'itel perd des caractères (taper lettre par lettre, vérifier à l'œil). 596 tests,
+APK release de l'itel 15,6 Mo.
+
+**Prochaine étape : F4** (accueil et notifications) : proposer d'abord son découpage. Au début de F4 : les
+tests d'intégration des parcours de F3. Jalon sur l'itel à mi-parcours (F4–F5).

@@ -73,6 +73,18 @@ try {
 Toujours afficher la référence en petit (`failure.reference`) : l'équipe retrouve la requête dans les
 journaux de l'API.
 
+## Mode démo
+
+- Badge « Mode démo » : `demoModeProvider` (`lib/core/demo/demo_mode.dart`). `/health` est vérifié en
+  arrière-plan, la dernière valeur connue est gardée sur le téléphone (hors ligne), et **le badge est
+  affiché tant qu'on ne sait pas** : une donnée simulée n'est jamais présentée comme réelle.
+- **Mot de passe oublié** : `POST /auth/password/forgot` répond le **même message et le même statut**,
+  que le numéro ait un compte ou non (vérifié dans le backend, testé). **En mode démo seulement**, la
+  réponse contient aussi `demo_code` quand le compte existe (absent sinon) : sa présence **révèle
+  l'existence du compte**. C'est **voulu et limité au mode démo** (comptes de démonstration publics,
+  aucun SMS réel) ; hors mode démo, `demo_code` est toujours vide. L'écran suit le même parcours dans
+  les deux cas (étape 2 quoi qu'il arrive) et n'affiche le code que s'il est présent.
+
 ## Modèles
 
 Écrits à la main avec freezed (`lib/features/<domaine>/models/`), d'après `backend/openapi.json`.

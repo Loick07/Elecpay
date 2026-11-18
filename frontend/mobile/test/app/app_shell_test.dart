@@ -1,29 +1,23 @@
-import 'package:elecpay/app/app.dart';
 import 'package:elecpay/app/router.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
-import '../support/fake_health.dart';
-import '../support/itel_screen.dart';
+import '../support/app_harness.dart';
+import '../support/fake_auth_backend.dart';
 
+/// L'application connectée (session enregistrée), ouverte sur `location`.
 Future<void> openApp(WidgetTester tester, String location) async {
-  tester.view.physicalSize = itelPhysicalSize;
-  tester.view.devicePixelRatio = itelPixelRatio;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ProviderScope(overrides: healthOverrides(demoApi()), child: const ElecPayApp()),
-  );
-  appRouter.go(location);
+  await AppHarness(stored: SessionHarness.tokens(1)).start(tester);
   await tester.pumpAndSettle();
-  addTearDown(() => appRouter.go('/'));
+  AppHarness.containerOf(tester).read(routerProvider).go(location);
+  await tester.pumpAndSettle();
 }
 
 void main() {
   test('les 4 onglets ont leur route', () {
-    final shell = appRouter.configuration.routes.whereType<ShellRoute>().single;
+    final shell = appRoutes().whereType<ShellRoute>().single;
     final paths = shell.routes.whereType<GoRoute>().map((r) => r.path);
     expect(paths, [for (final tab in AppTab.values) tab.path]);
   });

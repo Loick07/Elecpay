@@ -18,7 +18,7 @@ final page = find.byType(Scrollable).first;
 void main() {
   test('route /catalogue seulement avec la page Diagnostic (debug / profile)', () {
     expect(diagnosticsEnabled, isTrue, reason: 'les tests tournent en debug');
-    final paths = appRouter.configuration.routes.whereType<GoRoute>().map((r) => r.path);
+    final paths = appRoutes().whereType<GoRoute>().map((r) => r.path);
     expect(paths, containsAll(['/diagnostic', '/catalogue']));
   });
 

@@ -1,13 +1,12 @@
 import 'dart:math' as math;
 
-import 'package:elecpay/app/app.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/theme/tokens.g.dart';
 import 'package:elecpay/features/design_check/charte_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/app_harness.dart';
 import '../../support/fake_health.dart';
 
 /// Contraste WCAG entre deux couleurs opaques (1 à 21).
@@ -56,13 +55,12 @@ void main() {
   });
 
   testWidgets('l’application démarre en thème Nuit (défaut de la charte)', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(overrides: healthOverrides(demoApi()), child: const ElecPayApp()),
-    );
-    await tester.pumpAndSettle();
+    await AppHarness(health: silentApi()).start(tester);
+    await tester.pump();
     final context = tester.element(find.text('ElecPay'));
     expect(Theme.of(context).brightness, Brightness.dark);
     expect(context.colors.bg, ElecPayColors.dark.bg);
+    await tester.pump(const Duration(seconds: 3)); // fin du délai du splash
   });
 
   testWidgets('page de contrôle de la charte : Nuit puis Jour', (tester) async {

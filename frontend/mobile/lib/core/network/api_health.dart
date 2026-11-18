@@ -35,6 +35,9 @@ class HealthService {
   @visibleForTesting
   Dio get dio => _dio;
 
+  /// Adresse de l'API (aide au développement quand elle ne répond pas).
+  String get address => _config.apiBaseUrl.toString();
+
   Future<ApiHealth> check() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -56,9 +59,4 @@ class HealthService {
 /// Même client HTTP que le reste de l'application (mêmes délais, même identifiant de requête).
 final healthServiceProvider = Provider<HealthService>(
   (ref) => HealthService(ref.watch(apiDioProvider), ref.watch(appConfigProvider)),
-);
-
-/// État de l'API au démarrage ; `ref.invalidate(apiHealthProvider)` pour réessayer.
-final apiHealthProvider = FutureProvider.autoDispose<ApiHealth>(
-  (ref) => ref.watch(healthServiceProvider).check(),
 );

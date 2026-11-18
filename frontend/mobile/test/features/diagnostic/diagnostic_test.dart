@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:elecpay/app/app.dart';
 import 'package:elecpay/app/router.dart';
 import 'package:elecpay/core/cache/cache_store.dart';
 import 'package:elecpay/core/config/app_config.dart';
@@ -18,8 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../tool/apk_check.dart' as apk_check;
+import '../../support/app_harness.dart';
 import '../../support/fake_auth_backend.dart';
-import '../../support/fake_health.dart';
 import '../../support/fake_server.dart';
 import '../../support/memory_cache_store.dart';
 
@@ -32,7 +31,7 @@ void main() {
     });
 
     test('route /diagnostic présente (version de développement)', () {
-      final paths = appRouter.configuration.routes.whereType<GoRoute>().map((r) => r.path);
+      final paths = appRoutes().whereType<GoRoute>().map((r) => r.path);
       expect(paths, contains('/diagnostic'));
     });
 
@@ -49,12 +48,11 @@ void main() {
       expect(apk_check.isDartCode('lib/armeabi-v7a/libflutter.so'), isFalse);
     });
 
-    testWidgets('bouton « Diagnostic » sur l’écran de démarrage', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(overrides: healthOverrides(demoApi()), child: const ElecPayApp()),
-      );
+    testWidgets('liens « Diagnostic » et « Catalogue » sur l’écran de connexion', (tester) async {
+      await AppHarness().start(tester);
       await tester.pumpAndSettle();
       expect(find.text('Diagnostic'), findsOneWidget);
+      expect(find.text('Catalogue'), findsOneWidget);
     });
   });
 

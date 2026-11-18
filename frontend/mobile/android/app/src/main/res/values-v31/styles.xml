@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lancement ElecPay (thème Nuit de la charte, que le téléphone soit en mode clair ou sombre).
+     LaunchTheme : avant le premier écran Flutter. NormalTheme : derrière Flutter pendant son
+     démarrage. Les deux en navy #050D1A : jamais de flash blanc avant le Splash. -->
+<resources>
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <!-- Android 12+ : écran de démarrage du système (fond navy, logo de 88 dp au centre). -->
+        <item name="android:windowSplashScreenBackground">@color/elecpay_navy</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@color/elecpay_navy</item>
+    </style>
+</resources>

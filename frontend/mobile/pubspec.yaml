@@ -32,12 +32,19 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Tests sur le téléphone (aux jalons seulement, jamais en CI) : parcours et temps d'image.
+  integration_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
   flutter_lints: 6.0.0
   build_runner: 2.17.1         # génération du code freezed / json_serializable
   freezed: 4.0.3
   json_serializable: 6.15.2
   dart_style: 3.1.14           # met en forme le code généré depuis tokens.json (outil maison)
   archive: 4.7.1               # lecture de l'APK par tool/apk_check.dart (outil, pas l'application)
+  flutter_launcher_icons: 0.14.4  # icône Android (configuration : flutter_launcher_icons.yaml)
+  image: 4.13.1                # lecture des PNG de l'APK par tool/apk_check.dart (icône Flutter)
 
 flutter:
   uses-material-design: true

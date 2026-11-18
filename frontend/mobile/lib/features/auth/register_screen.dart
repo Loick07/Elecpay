@@ -234,6 +234,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                         ],
                       ),
+                      // Centré aussi quand le texte agrandi passe sur deux lignes (jalon F3, 200 %).
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),

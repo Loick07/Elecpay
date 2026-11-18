@@ -6,7 +6,9 @@
 //   compilé exclut TOUTES les données, en sauvegarde cloud comme en transfert d'appareil à appareil ;
 // - avec `--diagnostic=absent` : la page Diagnostic n'est PAS dans le code compilé (release) ;
 // - avec `--demo-password=absent` : le mot de passe de démo n'est dans AUCUN fichier de l'APK ;
-// - avec `--lucide=reduced` : la police des icônes est réduite aux seules icônes utilisées.
+// - avec `--lucide=reduced` : la police des icônes est réduite aux seules icônes utilisées ;
+// - avec `--launcher-icon=custom` : AUCUNE icône Flutter par défaut dans l'APK (pixels comparés),
+//   et le nom affiché sous l'icône est « ElecPay ».
 //
 // Usage (depuis frontend/mobile) :
 //   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk \
@@ -18,8 +20,10 @@
 // %LOCALAPPDATA%\Android\sdk). Code de sortie 1 si une règle n'est pas respectée.
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:image/image.dart' as img;
 
 /// Tous les domaines de stockage d'Android : chacun doit être exclu, dans les deux sections.
 const dataDomains = [
@@ -161,6 +165,51 @@ int? lucideFontSize(List<int> apkBytes) {
   return null;
 }
 
+/// Empreinte des PIXELS d'une image PNG (RGBA, FNV-1a 64 bits), ou `null` si illisible.
+///
+/// Les pixels, pas le fichier : au build release, Android renomme les images (`res/9w.png`) et les
+/// recompresse sans perte ; le fichier change, ses pixels non.
+String? pngPixelHash(List<int> pngBytes) {
+  final decoded = img.decodePng(Uint8List.fromList(pngBytes));
+  if (decoded == null) return null;
+  final pixels = decoded
+      .convert(numChannels: 4, format: img.Format.uint8)
+      .getBytes(order: img.ChannelOrder.rgba);
+  var hash = 0xcbf29ce484222325;
+  for (final byte in [...utf8.encode('${decoded.width}x${decoded.height}'), ...pixels]) {
+    hash = (hash ^ byte) * 0x100000001b3;
+  }
+  // Entier signé de 64 bits : écrit en deux moitiés de 32 bits (16 chiffres hexadécimaux).
+  String half(int value) => value.toRadixString(16).padLeft(8, '0');
+  return half(hash >>> 32) + half(hash & 0xffffffff);
+}
+
+/// Pixels des 5 icônes Flutter par défaut (mipmap-mdpi → xxxhdpi/ic_launcher.png du modèle
+/// `flutter create`, présentes dans le dépôt jusqu'au jalon F3). Aucune ne doit rester dans l'APK.
+const flutterDefaultIconPixels = <String>{
+  '903b50d1e304ee6b', // mdpi (48 × 48)
+  '1eff73413af52a7f', // hdpi
+  'b916c9a9716d3b18', // xhdpi
+  '444dcc310796a8cc', // xxhdpi
+  'bff436cd1ba419fb', // xxxhdpi (192 × 192)
+};
+
+/// Nom affiché sous l'icône de l'application.
+const expectedLabel = 'ElecPay';
+
+/// Images de l'APK dont les pixels sont ceux d'une icône Flutter par défaut.
+List<String> flutterDefaultIcons(List<int> apkBytes) => [
+  for (final file in ZipDecoder().decodeBytes(apkBytes).files)
+    if (file.isFile &&
+        file.name.endsWith('.png') &&
+        flutterDefaultIconPixels.contains(pngPixelHash(file.readBytes()!)))
+      file.name,
+];
+
+/// Nom affiché sous l'icône (`application-label` de `aapt2 dump badging`), ou `null`.
+String? applicationLabel(String badging) =>
+    RegExp(r"^application-label:'([^']*)'", multiLine: true).firstMatch(badging)?.group(1);
+
 /// Taille lisible, en Mo avec une décimale (ex. « 14,4 Mo »).
 String formatSize(int bytes) =>
     '${(bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',')} Mo';
@@ -196,7 +245,8 @@ String _aapt2(String aapt2, List<String> args) {
 
 const _usage =
     'Usage : dart run tool/apk_check.dart <fichier.apk> --cleartext=true|false '
-    '[--diagnostic=absent|present] [--demo-password=absent|present] [--lucide=reduced]';
+    '[--diagnostic=absent|present] [--demo-password=absent|present] [--lucide=reduced] '
+    '[--launcher-icon=custom]';
 
 void main(List<String> args) {
   String? option(String name) =>
@@ -206,12 +256,14 @@ void main(List<String> args) {
   final diagnosticOption = option('diagnostic');
   final demoPasswordOption = option('demo-password');
   final lucideOption = option('lucide');
+  final launcherIconOption = option('launcher-icon');
   final paths = args.where((a) => !a.startsWith('--')).toList();
   if (paths.length != 1 ||
       !{'true', 'false'}.contains(cleartextOption) ||
       !validPresence(diagnosticOption) ||
       !validPresence(demoPasswordOption) ||
-      (lucideOption != null && lucideOption != 'reduced')) {
+      (lucideOption != null && lucideOption != 'reduced') ||
+      (launcherIconOption != null && launcherIconOption != 'custom')) {
     stderr.writeln(_usage);
     exit(2);
   }
@@ -310,6 +362,21 @@ void main(List<String> args) {
     } else if (size >= lucideReducedMaxBytes) {
       error('police Lucide NON réduite ($size octets) : aucune icône utilisée en release ?');
     }
+  }
+
+  // Icône de l'application : celle d'ElecPay, jamais l'icône Flutter du modèle `flutter create`.
+  if (launcherIconOption == 'custom') {
+    final defaults = flutterDefaultIcons(apk.readAsBytesSync());
+    stdout.writeln(
+      'Icône Flutter par défaut dans l’APK : '
+      '${defaults.isEmpty ? 'absente' : 'PRÉSENTE (${defaults.join(', ')})'}',
+    );
+    if (defaults.isNotEmpty) {
+      error('l’icône Flutter par défaut est encore dans l’APK : relancer flutter_launcher_icons.');
+    }
+    final label = applicationLabel(_aapt2(aapt2, ['dump', 'badging', apk.path]));
+    stdout.writeln('Nom sous l’icône : ${label ?? 'absent'}');
+    if (label != expectedLabel) error('le nom affiché devrait être « $expectedLabel ».');
   }
 
   if (!ok) exit(1);

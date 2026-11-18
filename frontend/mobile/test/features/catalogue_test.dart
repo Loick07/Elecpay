@@ -42,11 +42,12 @@ void main() {
     await tester.pump();
     expect(find.textContaining('Hors connexion. Les données affichées datent du'), findsOneWidget);
 
-    // Sans flou (interrupteur en haut de page).
+    // Sans flou par défaut ; l'interrupteur en haut de page active le flou.
     final container = ProviderScope.containerOf(tester.element(find.byType(CatalogueScreen)));
+    expect(container.read(glassModeProvider), GlassMode.opaque);
     await tester.tap(find.text('Effet verre (flou)'));
     await tester.pump();
-    expect(container.read(glassModeProvider), GlassMode.opaque);
+    expect(container.read(glassModeProvider), GlassMode.blur);
 
     // La liste ne construit que ce qui est à l'écran : on descend jusqu'à la carte de facture.
     await tester.scrollUntilVisible(find.byType(HeroBillCard), 300, scrollable: page);

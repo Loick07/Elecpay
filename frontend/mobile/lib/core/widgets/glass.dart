@@ -6,15 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.g.dart';
 
-/// Rendu des surfaces « verre » : flou d'arrière-plan, ou fond OPAQUE sans flou.
+/// Rendu des surfaces « verre » : fond OPAQUE sans flou (par défaut), ou flou d'arrière-plan.
 ///
-/// Le flou coûte cher sur un petit téléphone (l'itel A05s) : le réglage « sans flou » sera comparé
-/// au jalon de F3 (bouton sur la page Diagnostic, debug et profile).
+/// SANS FLOU PAR DÉFAUT (décision de Loick au jalon F3, 18/11/2026) : mesuré sur l'itel A05s en
+/// profile, l'ouverture de la feuille de paiement passe de 17 ms (sans flou) à 62 ms (flou) par image
+/// au 90e centile (integration_test/glass_perf_test.dart). Le flou devient une option « Effet verre »
+/// de l'écran Compte (F9) ; en attendant, interrupteur sur les pages Diagnostic et Catalogue.
 enum GlassMode { blur, opaque }
 
 class GlassModeNotifier extends Notifier<GlassMode> {
   @override
-  GlassMode build() => GlassMode.blur;
+  GlassMode build() => GlassMode.opaque;
 
   void set(GlassMode mode) => state = mode;
 }
@@ -24,9 +26,10 @@ final glassModeProvider = NotifierProvider<GlassModeNotifier, GlassMode>(GlassMo
 /// Surface en verre de la charte. RÉSERVÉE à la barre du bas et aux feuilles du bas (un test
 /// l'impose) : ailleurs, une surface opaque (`surface-1`, `surface-2`).
 ///
-/// - flou : `BackdropFilter` (sigma 12) + couleur `glass` + bordure `glass-border` ;
-/// - sans flou (réglage, ou contraste élevé demandé par le téléphone) : fond opaque `surface-2`,
-///   même bordure, même forme.
+/// - sans flou (par défaut, et toujours si le téléphone demande un contraste élevé) : fond opaque
+///   `surface-2`, bordure `glass-border` ;
+/// - flou (option « Effet verre ») : `BackdropFilter` (sigma 12) + couleur `glass`, même bordure,
+///   même forme.
 class GlassSurface extends ConsumerWidget {
   const GlassSurface({
     required this.child,

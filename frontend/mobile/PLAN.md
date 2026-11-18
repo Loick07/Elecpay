@@ -113,6 +113,13 @@ Conditions de Loick :
   compte (numéro pris dans une plage réservée aux tests) ;
 - ils **complètent le regard de Loick sur le téléphone, ils ne le remplacent pas**.
 
+Premier test d'intégration (jalon F3) : `integration_test/glass_perf_test.dart`, temps d'image du
+Catalogue avec et sans flou, lancé par `flutter drive --profile --driver=test_driver/perf_driver.dart
+--target=integration_test/glass_perf_test.dart -d <téléphone>` (résultats : `build/perf_flou.json`).
+Les temps viennent de `FrameTiming` (`addTimingsCallback`) : `watchPerformance` exige le service de
+débogage Dart, injoignable en débogage sans fil ; et jamais de `pumpAndSettle` sur un écran qui a une
+animation sans fin.
+
 Parcours de F3 à couvrir d'abord : inscription → accueil → déconnexion ; connexion ratée puis réussie ;
 mot de passe oublié complet (code de démo lu à l'écran, « suivant » du code au mot de passe) ; retour
 Android à l'étape 2 ; session expirée (API en jetons d'une minute, `/auth/logout-all` appelé par le test).
@@ -267,6 +274,11 @@ Règles de relance validées le 17/11/2026 (composant `TransactionStatusView` pr
   composant, rendue obligatoire par une assertion) et **mise à jour automatique** de l'état (interrogation
   de l'API toutes les 3 s en attente, bascule seule ; après 2 min sans réponse : Vérification en cours).
 
+Mesure à refaire (décidé au jalon F3, 18/11/2026) : **remesurer sur l'itel l'ouverture de la VRAIE
+feuille de paiement** (sans flou, réglage par défaut ; et avec l'option « Effet verre »), sur le modèle de
+`integration_test/glass_perf_test.dart`. Au jalon F3, avec la feuille du Catalogue : 17 ms sans flou,
+62 ms avec flou au 90e centile.
+
 ### F7 — Consommation (écran 11)
 
 Année, Mois, Semaine, Jour (fil d'Ariane, flèches ‹ ›, calendrier coloré), graphiques fl_chart, coût de
@@ -282,6 +294,10 @@ invitation d'un payeur délégué, acceptation d'une invitation.
 Profil, vérification de l'e-mail (reçus par e-mail), interrupteurs d'alertes, thème Nuit / Jour / Auto,
 changement de mot de passe, déconnexion ; assistance (recherche, questions fréquentes, contact, pannes
 relevant d'E²C).
+
+Option **« Effet verre »** (décidé au jalon F3, 18/11/2026) : le flou d'arrière-plan de la barre du bas et
+des feuilles, **désactivé par défaut** (trop lent sur l'itel), activable ici pour les téléphones plus
+puissants, choix gardé d'un lancement à l'autre (aujourd'hui : `glassModeProvider`, en mémoire seulement).
 
 ### F10 — Finitions et livraison
 

@@ -124,13 +124,13 @@ void main() {
       await tester.pumpWidget(page());
       await tester.pump();
       final container = ProviderScope.containerOf(tester.element(find.byType(DiagnosticScreen)));
-      expect(container.read(glassModeProvider), GlassMode.blur);
-      expect(find.text('Flou d’arrière-plan (barre du bas, feuilles)'), findsOneWidget);
+      expect(container.read(glassModeProvider), GlassMode.opaque, reason: 'sans flou par défaut');
+      expect(find.text('Sans flou : fond opaque'), findsOneWidget);
 
       await tester.tap(find.byType(Switch));
       await tester.pump();
-      expect(container.read(glassModeProvider), GlassMode.opaque);
-      expect(find.text('Sans flou : fond opaque'), findsOneWidget);
+      expect(container.read(glassModeProvider), GlassMode.blur);
+      expect(find.text('Flou d’arrière-plan (barre du bas, feuilles)'), findsOneWidget);
     });
 
     testWidgets('connexion, profil, expiration absorbée, hors ligne, déconnexion', (tester) async {

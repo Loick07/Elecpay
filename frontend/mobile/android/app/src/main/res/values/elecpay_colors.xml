@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Couleurs de la charte utilisées par Android avant le premier écran Flutter (lancement).
+     Fichier séparé : colors.xml est réécrit par flutter_launcher_icons. -->
+<resources>
+    <!-- bg (thème Nuit) : #050D1A, jamais de flash blanc avant le Splash -->
+    <color name="elecpay_navy">#050D1A</color>
+</resources>

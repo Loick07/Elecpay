@@ -27,23 +27,13 @@ DecoratedBox innerDecoration(WidgetTester tester) => tester
     .firstWhere((box) => (box.decoration as BoxDecoration).border != null);
 
 void main() {
-  testWidgets('par défaut : flou d’arrière-plan (sigma 12) et couleur verre', (tester) async {
-    await pumpOnItel(tester, sample());
-    final filter = tester.widget<BackdropFilter>(find.byType(BackdropFilter));
-    expect(filter.filter, ImageFilter.blur(sigmaX: Blur.glassSigma, sigmaY: Blur.glassSigma));
-    final decoration = innerDecoration(tester).decoration as BoxDecoration;
-    expect(decoration.color, ElecPayColors.dark.glass);
-    expect(decoration.border, Border.all(color: ElecPayColors.dark.glassBorder));
-  });
+  /// L'option « Effet verre » activée (le flou n'est plus le réglage par défaut).
+  final withBlur = [glassModeProvider.overrideWithBuild((ref, notifier) => GlassMode.blur)];
 
-  testWidgets('réglage « sans flou » : aucun flou, fond opaque surface-2, même bordure', (
+  testWidgets('par défaut (jalon F3) : AUCUN flou, fond opaque surface-2, bordure verre', (
     tester,
   ) async {
-    await pumpOnItel(
-      tester,
-      sample(),
-      overrides: [glassModeProvider.overrideWithBuild((ref, notifier) => GlassMode.opaque)],
-    );
+    await pumpOnItel(tester, sample());
     expect(find.byType(BackdropFilter), findsNothing);
     final decoration = innerDecoration(tester).decoration as BoxDecoration;
     expect(decoration.color, ElecPayColors.dark.surface2);
@@ -51,16 +41,31 @@ void main() {
     expect(decoration.border, Border.all(color: ElecPayColors.dark.glassBorder));
   });
 
-  testWidgets('contraste élevé demandé par le téléphone : sans flou aussi', (tester) async {
+  testWidgets('option « Effet verre » : flou d’arrière-plan (sigma 12) et couleur verre', (
+    tester,
+  ) async {
+    await pumpOnItel(tester, sample(), overrides: withBlur);
+    final filter = tester.widget<BackdropFilter>(find.byType(BackdropFilter));
+    expect(filter.filter, ImageFilter.blur(sigmaX: Blur.glassSigma, sigmaY: Blur.glassSigma));
+    final decoration = innerDecoration(tester).decoration as BoxDecoration;
+    expect(decoration.color, ElecPayColors.dark.glass);
+    expect(decoration.border, Border.all(color: ElecPayColors.dark.glassBorder));
+  });
+
+  testWidgets('contraste élevé demandé par le téléphone : sans flou, même avec l’option', (
+    tester,
+  ) async {
     tester.platformDispatcher.accessibilityFeaturesTestValue = FakeAccessibilityFeatures.allOn;
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
-    await pumpOnItel(tester, sample());
+    await pumpOnItel(tester, sample(), overrides: withBlur);
     expect(find.byType(BackdropFilter), findsNothing);
   });
 
-  test('le réglage se change et se lit', () {
+  test('le réglage se change et se lit (sans flou au départ)', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
+    expect(container.read(glassModeProvider), GlassMode.opaque);
+    container.read(glassModeProvider.notifier).set(GlassMode.blur);
     expect(container.read(glassModeProvider), GlassMode.blur);
     container.read(glassModeProvider.notifier).set(GlassMode.opaque);
     expect(container.read(glassModeProvider), GlassMode.opaque);

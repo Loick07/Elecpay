@@ -18,7 +18,7 @@ La charte UI/UX d'ElecPay : l'application mobile des abonnés E²C (Flutter) et 
 |---|---|---|
 | Fond | `bg` | Tous les écrans |
 | Cartes | `surface-1`, `surface-2` | Liste des factures, détail |
-| Verre | `glass` + `glass-border` + flou `blur-glass` | Barre de navigation, feuilles du bas (paiement, filtres) |
+| Verre | par défaut **opaque** `surface-2` + `glass-border` ; en option (« Effet verre ») `glass` + flou `blur-glass` | Barre de navigation, feuilles du bas (paiement, filtres) |
 | Action principale | `volt` / `on-volt` | Bouton « Payer 12 500 FCFA », onglet Payer |
 | Données de consommation | `current` | Barres et courbes kWh |
 | Statuts | fond `success-soft`, `warning-soft`, `error-soft`, `current-soft` ; texte `success-text`, `warning-text`, `error-text`, `current-text` | Badges de facture et de transaction |
@@ -29,7 +29,9 @@ l'orange de base n'atteignaient que 4,26 et 4,25 en thème Jour). Les icônes ga
 
 ### Liquid Glass, avec retenue
 
-Le verre (fond translucide, flou d'arrière-plan, liseré 1px `glass-border`) est réservé à **deux éléments** (décision du 17/11/2026) : la barre de navigation flottante et les feuilles du bas (paiement, filtres). La carte héros du tableau de bord, les listes et les cartes ordinaires sont opaques (`surface-1`) : c'est plus lisible et beaucoup moins coûteux pour un téléphone modeste. Réglage **« sans flou »** (téléphone lent, contraste élevé demandé) : le verre devient un fond **opaque** `surface-2`, même liseré, même forme ; il sera comparé sur l'itel au jalon de F3.
+Le verre (fond translucide, flou d'arrière-plan, liseré 1px `glass-border`) est réservé à **deux éléments** (décision du 17/11/2026) : la barre de navigation flottante et les feuilles du bas (paiement, filtres). La carte héros du tableau de bord, les listes et les cartes ordinaires sont opaques (`surface-1`) : c'est plus lisible et beaucoup moins coûteux pour un téléphone modeste.
+
+**Sans flou par défaut** (décision du 18/11/2026, jalon F3) : le verre est un fond **opaque** `surface-2`, avec le liseré `glass-border` et la même forme. Le flou d'arrière-plan (`glass` + `blur-glass`) est une **option « Effet verre »** de l'écran Compte, pour les téléphones plus puissants ; il reste désactivé si le téléphone demande un contraste élevé. Mesure sur l'itel A05s (profile, temps de dessin par image au 90e centile) : ouverture de la feuille de paiement **17 ms sans flou, 62 ms avec flou** (au-delà de 16,7 ms, l'image saute) ; défilement 9,7 ms contre 13,1 ms, avec des pics à 262 ms avec flou.
 
 ## Typographie
 
@@ -132,4 +134,4 @@ Même palette, thème **Jour** par défaut (travail prolongé sur écran), polic
 
 ## Correspondance Flutter
 
-Les tokens deviennent une classe `ElecPayColors` (ThemeExtension) et un `TextTheme` : `bg` → `scaffoldBackgroundColor`, `volt` → `colorScheme.primary`, `current` → `colorScheme.secondary`, `error` → `colorScheme.error`, `surface-1` → `colorScheme.surface`. Les espacements et rayons deviennent des constantes (`Space.s4 = 16`, `Radii.lg = 20`). Le verre : `ClipRRect` + `BackdropFilter(ImageFilter.blur(sigmaX: 12, sigmaY: 12))` + bordure `glass-border`.
+Les tokens deviennent une classe `ElecPayColors` (ThemeExtension) et un `TextTheme` : `bg` → `scaffoldBackgroundColor`, `volt` → `colorScheme.primary`, `current` → `colorScheme.secondary`, `error` → `colorScheme.error`, `surface-1` → `colorScheme.surface`. Les espacements et rayons deviennent des constantes (`Space.s4 = 16`, `Radii.lg = 20`). Le verre : par défaut `surface-2` opaque + bordure `glass-border` ; avec l'option « Effet verre », `ClipRRect` + `BackdropFilter(ImageFilter.blur(sigmaX: 12, sigmaY: 12))` + couleur `glass` + bordure `glass-border` (`GlassSurface`, `lib/core/widgets/glass.dart`).

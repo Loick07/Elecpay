@@ -1,0 +1,17 @@
+# Icône de l'application Android (dart run flutter_launcher_icons).
+# Les images sources sont GÉNÉRÉES par tool/launcher/generate_launcher_images_test.dart, d'après la
+# maquette du Splash (éclair Lucide « zap » sur carré jaune #F5A623) : ne pas les dessiner à la main.
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: false
+  min_sdk_android: 24
+  # Android 7 (avant les icônes adaptatives) : le logo entier.
+  image_path: "assets/launcher/icon.png"
+  # Android 8 et plus : icône adaptative (fond jaune, éclair dans la zone sûre).
+  adaptive_icon_background: "#F5A623"
+  adaptive_icon_foreground: "assets/launcher/foreground.png"
+  # Pas de marge ajoutée (16 % par défaut) : l'image est déjà à l'échelle de la toile de 108 dp,
+  # l'éclair dans la zone sûre (vérifié par test/tool/launcher_icon_test.dart).
+  adaptive_icon_foreground_inset: 0
+  # Android 13 : icône monochrome (icônes à thème).
+  adaptive_icon_monochrome: "assets/launcher/monochrome.png"

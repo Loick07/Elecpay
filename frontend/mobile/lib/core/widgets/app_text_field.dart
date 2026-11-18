@@ -26,10 +26,14 @@ class AppTextField extends StatefulWidget {
     this.prefix,
     this.onChanged,
     this.onSubmitted,
+    this.focusNode,
     super.key,
   });
 
   final String label;
+
+  /// Focus fourni par l'écran (pour y envoyer le curseur, ex. après le code reçu) ; sinon interne.
+  final FocusNode? focusNode;
   final TextEditingController? controller;
   final String? helper;
 
@@ -56,18 +60,31 @@ class AppTextField extends StatefulWidget {
 }
 
 class _AppTextFieldState extends State<AppTextField> {
-  final _focus = FocusNode();
+  FocusNode? _ownFocus;
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
   bool _hidden = true;
+
+  void _refresh() => setState(() {});
 
   @override
   void initState() {
     super.initState();
-    _focus.addListener(() => setState(() {}));
+    _focus.addListener(_refresh);
+  }
+
+  @override
+  void didUpdateWidget(AppTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode != widget.focusNode) {
+      (oldWidget.focusNode ?? _ownFocus)?.removeListener(_refresh);
+      _focus.addListener(_refresh);
+    }
   }
 
   @override
   void dispose() {
-    _focus.dispose();
+    _focus.removeListener(_refresh);
+    _ownFocus?.dispose(); // celui fourni par l'écran appartient à l'écran
     super.dispose();
   }
 

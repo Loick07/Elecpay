@@ -13,6 +13,7 @@ import '../core/widgets/bottom_nav.dart';
 import '../core/widgets/bottom_sheet.dart';
 import '../core/widgets/demo_badge.dart';
 import '../core/widgets/state_block.dart';
+import '../features/diagnostic/diagnostic_access.dart';
 
 /// Coquille des écrans principaux (connecté) : le contenu de l'onglet, et la barre du bas flottante
 /// par-dessus (le contenu passe dessous, la barre est en verre).
@@ -98,6 +99,23 @@ class PendingTab extends ConsumerWidget {
                 icon: AppIcons.signIn,
                 variant: ButtonVariant.secondary,
                 onPressed: () => ref.read(sessionManagerProvider).logout(),
+              ),
+            // Debug et profile : pages Diagnostic et Catalogue une fois connecté (jalons sur le
+            // téléphone). Constante : retiré de l'APK release par le compilateur.
+            if (tab == AppTab.account && diagnosticsEnabled)
+              Wrap(
+                alignment: WrapAlignment.center,
+                children: [
+                  for (final (label, path) in [
+                    ('Diagnostic', '/diagnostic'),
+                    ('Catalogue', '/catalogue'),
+                  ])
+                    TextButton(
+                      onPressed: () => context.push(path),
+                      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                      child: Text(label, style: AppText.bodySm.copyWith(color: c.currentText)),
+                    ),
+                ],
               ),
           ],
         ),

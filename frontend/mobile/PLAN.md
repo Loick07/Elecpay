@@ -99,6 +99,26 @@ l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, s
 
 Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.
 
+### Tests d'intégration sur l'itel (validés le 18/11/2026, à écrire au début de F4)
+
+Proposés après le jalon F3, où les parcours ont été rejoués à la main par `adb` (saisie peu fiable :
+`adb shell input text` perd des caractères sur l'itel). Des tests `integration_test` rejouent les parcours
+**dans l'application** (`frontend/mobile/integration_test/`, lancés par `tool/integration.ps1`), contre
+l'API de démo du PC (tunnel `adb reverse`).
+
+Conditions de Loick :
+- **lancés seulement aux jalons**, jamais dans la CI (pas de téléphone dans GitHub Actions) ;
+- **base de démo remise à zéro avant chaque passage** (`python -m scripts.reset_db && python -m
+  scripts.seed`), pour ne dépendre d'aucun compte déjà modifié ; chaque test crée en plus son propre
+  compte (numéro pris dans une plage réservée aux tests) ;
+- ils **complètent le regard de Loick sur le téléphone, ils ne le remplacent pas**.
+
+Parcours de F3 à couvrir d'abord : inscription → accueil → déconnexion ; connexion ratée puis réussie ;
+mot de passe oublié complet (code de démo lu à l'écran, « suivant » du code au mot de passe) ; retour
+Android à l'étape 2 ; session expirée (API en jetons d'une minute, `/auth/logout-all` appelé par le test).
+Captures prises par le test aux moments clés. Restent à l'œil : flou, grands textes, fluidité, limite 429
+(trop lente à rejouer), remplissage automatique du code SMS par Android.
+
 ## Références (elles font foi)
 
 | Quoi | Où |

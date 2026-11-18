@@ -46,9 +46,24 @@ même après un changement de câble. En débogage sans fil, le jalon F1 s'est j
    flutter run --profile -d 192.168.1.81:44509
    ```
 
-`adb devices` montre souvent le téléphone deux fois (adresse IP et nom annoncé `adb-…._adb-tls-connect`) :
-c'est le même appareil, `tool\telephone.ps1` le reconnaît par son numéro de série.
-Si la connexion se perd (Wi-Fi coupé, téléphone en veille longue) : relancer l'étape 4, puis le script.
+`adb devices` montre souvent le téléphone plusieurs fois (adresse IP, nom annoncé
+`adb-…._adb-tls-connect`, parfois deux noms annoncés) : c'est le même appareil, `tool\telephone.ps1` le
+reconnaît par son numéro de série. En cas de doute, il affiche chaque entrée avec son numéro ; choisir
+alors l'appareil : `.\tool\telephone.ps1 -Device 192.168.1.73:38473`.
+
+Si la connexion se perd (Wi-Fi coupé, veille longue) : relancer l'étape 4, puis le script.
+Vu au jalon F3 (18/11/2026) : la connexion a lâché deux fois en une heure, et **l'adresse IP du
+téléphone a changé** (`.68` → `.73`), pas seulement le port. Relire l'écran « Débogage sans fil » à
+chaque reconnexion ; si `adb connect` est refusé, refaire l'association (`adb pair`).
+Pour un long essai, garder l'écran allumé : `adb shell svc power stayon true`, puis **`false` à la fin**.
+
+### Piloter le téléphone depuis le PC (`adb shell input`)
+
+Possible pour rejouer un parcours (toucher, saisie, captures `adb exec-out screencap -p`), avec une limite
+vue sur l'itel : **`adb shell input text` perd des caractères** (« Nouveau2026 » est arrivé en
+« Nveau2026 ») quand on tape d'un coup, surtout juste après l'ouverture du clavier. Taper caractère par
+caractère avec une courte pause, et **afficher le mot de passe (œil) avant de valider**. Pour rejouer des
+parcours de façon fiable, préférer les tests d'intégration (`integration_test`, voir `PLAN.md`).
 
 ## USB avec `adb reverse`
 

@@ -1,7 +1,9 @@
 ﻿# Prépare le téléphone pour joindre l'API du PC (voir docs/TELEPHONE.md), en USB ou en débogage sans fil.
 # Usage (depuis frontend/mobile) : .\tool\telephone.ps1
+#   ou, pour choisir l'appareil : .\tool\telephone.ps1 -Device 192.168.1.73:38473
 # En sans fil, connecter d'abord le téléphone : adb pair <IP:port d'association> <code>, puis
 # adb connect <IP:port affiché sur l'écran « Débogage sans fil »>.
+param([string]$Device)
 $ErrorActionPreference = 'Stop'
 
 $adb = Join-Path $env:LOCALAPPDATA 'Android\sdk\platform-tools\adb.exe'
@@ -20,16 +22,35 @@ if ($ready.Count -eq 0) {
     if ($devices) { Write-Host ($devices -join "`n") }
     exit 1
 }
-# En sans fil, le même téléphone apparaît souvent deux fois (adresse IP et nom annoncé sur le réseau) :
-# on compare les numéros de série matériels pour ne compter qu'une fois chaque téléphone.
-$phones = $ready | Group-Object { (& $adb -s $_ shell getprop ro.serialno).Trim() }
-if ($phones.Count -gt 1) {
-    Write-Host 'Plusieurs téléphones connectés : en garder un seul.'
-    exit 1
+if ($Device) {
+    if ($ready -notcontains $Device) {
+        Write-Host "Appareil « $Device » absent ou pas prêt. Entrées vues :"
+        Write-Host ($devices -join "`n")
+        exit 1
+    }
+    $serial = $Device
+    Write-Host "Téléphone choisi : $serial"
+} else {
+    # En sans fil, le même téléphone apparaît souvent plusieurs fois (adresse IP, nom annoncé sur le
+    # réseau, parfois deux noms annoncés) : on compare les numéros de série matériels pour ne compter
+    # qu'une fois chaque téléphone. Une entrée dont le numéro est illisible est ignorée.
+    $entries = foreach ($d in $ready) {
+        $hw = ''
+        try { $hw = "$(& $adb -s $d shell getprop ro.serialno 2>$null)".Trim() } catch { }
+        [pscustomobject]@{ Entry = $d; Hardware = $hw }
+    }
+    $phones = @($entries | Where-Object { $_.Hardware } | Group-Object Hardware)
+    if ($phones.Count -ne 1) {
+        Write-Host 'Impossible de choisir un seul téléphone. Entrées vues (entrée -> numéro de série) :'
+        $entries | ForEach-Object { Write-Host "  $($_.Entry) -> $($_.Hardware)" }
+        Write-Host 'Relancer avec : .\tool\telephone.ps1 -Device <entrée>'
+        exit 1
+    }
+    # Préférer l'adresse IP:port (plus stable que le nom annoncé), sinon la première entrée.
+    $serial = @($phones[0].Group.Entry |
+        Sort-Object { if ($_ -match '^\d+\.\d+\.\d+\.\d+:\d+$') { 0 } else { 1 } })[0]
+    Write-Host "Téléphone : $serial ($($phones[0].Name))"
 }
-# Préférer l'adresse IP:port (plus stable que le nom annoncé), sinon la seule entrée.
-$serial = @($phones[0].Group | Sort-Object { if ($_ -match '^\d+\.\d+\.\d+\.\d+:\d+$') { 0 } else { 1 } })[0]
-Write-Host "Téléphone : $serial ($($phones[0].Name))"
 
 # 2. Tunnel : port 8000 du téléphone -> port 8000 du PC (marche aussi en sans fil)
 & $adb -s $serial reverse tcp:8000 tcp:8000 | Out-Null

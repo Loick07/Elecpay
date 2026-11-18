@@ -218,6 +218,30 @@ void main() {
       }
     });
 
+    testWidgets(
+      '« suivant » depuis le code : le mot de passe, JAMAIS « Renvoyer le code » (jalon F3.5)',
+      (tester) async {
+        final h = await openForgot(tester);
+        await sendCode(tester);
+        await tester.pump(
+          const Duration(seconds: 60),
+        ); // « Renvoyer le code » actif, comme sur l'itel
+        await tester.showKeyboard(find.byType(TextField).at(0));
+        await tester.enterText(find.byType(TextField).at(0), '482913');
+        await tester.testTextInput.receiveAction(TextInputAction.next);
+        await tester.pumpAndSettle();
+        final password = tester.widget<TextField>(find.byType(TextField).at(1));
+        expect(password.focusNode!.hasFocus, isTrue);
+        // Entrée sur le mot de passe : envoi du formulaire, aucun nouveau code demandé.
+        await tester.enterText(find.byType(TextField).at(1), 'Mpita2026');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(h.backend.requestsTo('/auth/password/forgot'), hasLength(1));
+        expect(h.backend.requestsTo('/auth/password/reset'), hasLength(1));
+        expect(find.text('Mot de passe modifié'), findsOneWidget);
+      },
+    );
+
     testWidgets('lecteur d’écran : « Code reçu, 6 chiffres » (un seul champ)', (tester) async {
       final semantics = tester.ensureSemantics();
       await openForgot(tester);

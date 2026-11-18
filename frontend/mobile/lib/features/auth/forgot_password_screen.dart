@@ -45,6 +45,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _code = TextEditingController();
   final _password = TextEditingController();
 
+  /// « Suivant » depuis le code → ce champ (et pas « Renvoyer le code »).
+  final _passwordFocus = FocusNode();
+
   /// Trop de tentatives (429) sur le bouton principal de l'étape.
   final _lock = RetryLock();
 
@@ -83,6 +86,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     for (final controller in [_phone, _code, _password]) {
       controller.dispose();
     }
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -357,6 +361,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     CodeField(
       controller: _code,
       error: _codeError,
+      onEditingComplete: _passwordFocus.requestFocus,
       onChanged: (_) {
         if (_codeError != null) setState(() => _codeError = null);
       },
@@ -383,6 +388,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     AppTextField(
       label: 'Nouveau mot de passe',
       controller: _password,
+      focusNode: _passwordFocus,
       password: true,
       error: _passwordError,
       autofillHints: const [AutofillHints.newPassword],

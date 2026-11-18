@@ -95,6 +95,32 @@ void main() {
       expect(find.text('Session expirée'), findsNothing);
     });
 
+    testWidgets('connecté (debug / profile) : Diagnostic et Catalogue depuis l’onglet Compte', (
+      tester,
+    ) async {
+      final h = AppHarness(stored: SessionHarness.tokens(1));
+      await h.start(tester);
+      await tester.pumpAndSettle();
+      for (final (label, path) in [('Diagnostic', '/diagnostic'), ('Catalogue', '/catalogue')]) {
+        await go(tester, AppTab.account.path);
+        await tester.ensureVisible(find.text(label));
+        await tester.tap(find.text(label));
+        // Pas de pumpAndSettle : la page Diagnostic a une animation de chargement continue.
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        expect(
+          AppHarness.containerOf(tester)
+              .read(routerProvider)
+              .routerDelegate
+              .currentConfiguration
+              .last
+              .matchedLocation,
+          path,
+        );
+        expect(h.tokens.tokens, isNotNull, reason: 'toujours connecté');
+      }
+    });
+
     testWidgets('session EXPIRÉE pendant l’utilisation : feuille, puis la connexion', (
       tester,
     ) async {

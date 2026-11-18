@@ -12,13 +12,24 @@ import '../../core/theme/tokens.g.dart';
 /// remplissage automatique du code SMS par Android, effacement naturel ; le lecteur d'écran lit
 /// « Code reçu, 6 chiffres » et la valeur saisie.
 class CodeField extends StatefulWidget {
-  const CodeField({required this.controller, this.error, this.onChanged, super.key});
+  const CodeField({
+    required this.controller,
+    this.error,
+    this.onChanged,
+    this.onEditingComplete,
+    super.key,
+  });
 
   static const length = 6;
 
   final TextEditingController controller;
   final String? error;
   final ValueChanged<String>? onChanged;
+
+  /// Touche « suivant » du clavier. Sans elle, Flutter passe à l'élément suivant de l'écran, qui
+  /// peut être « Renvoyer le code » (vu sur l'itel au jalon F3.5) : l'écran envoie donc le curseur
+  /// lui-même au bon champ.
+  final VoidCallback? onEditingComplete;
 
   @override
   State<CodeField> createState() => _CodeFieldState();
@@ -129,6 +140,7 @@ class _CodeFieldState extends State<CodeField> {
                       enableSuggestions: false,
                       autocorrect: false,
                       onChanged: widget.onChanged,
+                      onEditingComplete: widget.onEditingComplete,
                       decoration: const InputDecoration(
                         isCollapsed: true,
                         border: InputBorder.none,

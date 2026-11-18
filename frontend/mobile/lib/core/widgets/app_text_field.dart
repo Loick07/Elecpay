@@ -162,6 +162,7 @@ class PhoneField extends StatelessWidget {
     this.helper,
     this.textInputAction,
     this.onSubmitted,
+    this.onChanged,
     super.key,
   });
 
@@ -171,6 +172,7 @@ class PhoneField extends StatelessWidget {
   final String? helper;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String>? onChanged;
 
   /// « +242061234567 », ou `null` si la saisie est invalide (le message : [phoneError]).
   static String? normalized(String text) {
@@ -193,6 +195,7 @@ class PhoneField extends StatelessWidget {
     autofillHints: const [AutofillHints.telephoneNumberNational],
     inputFormatters: [CongoPhoneInputFormatter()],
     onSubmitted: onSubmitted,
+    onChanged: onChanged,
   );
 }
 

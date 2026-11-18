@@ -7,6 +7,7 @@ import '../core/session/session_manager.dart';
 import '../core/session/session_providers.dart';
 import '../core/widgets/bottom_nav.dart';
 import '../features/auth/auth_pending_screen.dart';
+import '../features/auth/login_screen.dart';
 import '../features/catalogue/catalogue_screen.dart';
 import '../features/design_check/charte_screen.dart';
 import '../features/diagnostic/diagnostic_access.dart';
@@ -18,11 +19,8 @@ import 'routes.dart';
 /// Les routes de l'application. Chaque étape (F3 → F9) ajoute les siennes.
 List<RouteBase> appRoutes() => [
   GoRoute(path: Routes.splash, builder: (context, state) => const SplashScreen()),
-  // Connexion (F3.2 → F3.4 remplacent ces pages d'attente).
-  GoRoute(
-    path: Routes.login,
-    builder: (context, state) => const AuthPendingScreen(title: 'Connexion', step: 'F3.2'),
-  ),
+  // Connexion (F3.3, F3.4 remplacent les deux pages d'attente suivantes).
+  GoRoute(path: Routes.login, builder: (context, state) => const LoginScreen()),
   GoRoute(
     path: Routes.register,
     builder: (context, state) => const AuthPendingScreen(title: 'Inscription', step: 'F3.3'),

@@ -127,6 +127,15 @@ void main() {
     });
   });
 
+  test('compte à rebours « m:ss » (maquette : « Renvoyer le code dans 0:42 »)', () {
+    expect(formatCountdown(const Duration(seconds: 42)), '0:42');
+    expect(formatCountdown(const Duration(seconds: 165)), '2:45');
+    expect(formatCountdown(const Duration(minutes: 15)), '15:00');
+    expect(formatCountdown(const Duration(milliseconds: 1200)), '0:02');
+    expect(formatCountdown(Duration.zero), '0:00');
+    expect(formatCountdown(const Duration(seconds: -3)), '0:00');
+  });
+
   test('mois de consommation : « Octobre 2026 », « Août 2026 »', () {
     expect(formatMonthYear(2026, 10), 'Octobre 2026');
     expect(formatMonthYear(2026, 8), 'Août 2026');

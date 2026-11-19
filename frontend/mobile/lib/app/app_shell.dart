@@ -14,6 +14,7 @@ import '../core/widgets/bottom_sheet.dart';
 import '../core/widgets/demo_badge.dart';
 import '../core/widgets/state_block.dart';
 import '../features/diagnostic/diagnostic_access.dart';
+import '../features/home/home_data.dart';
 
 /// Coquille des écrans principaux (connecté) : le contenu de l'onglet, et la barre du bas flottante
 /// par-dessus (le contenu passe dessous, la barre est en verre).
@@ -52,6 +53,8 @@ class AppShell extends ConsumerWidget {
         current: _current,
         onTab: (tab) => context.go(tab.path),
         online: true,
+        // Point rouge sur Factures : au moins une facture en retard (reste à payer, tous foyers).
+        billsOverdue: (ref.watch(toPayBillsProvider).value?.data.outstanding.overdueCount ?? 0) > 0,
         onPay: () => ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(const SnackBar(content: Text('Le paiement arrive à l’étape F6.'))),

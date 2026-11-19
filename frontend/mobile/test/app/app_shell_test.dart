@@ -23,10 +23,11 @@ void main() {
   });
 
   testWidgets('écran principal : barre du bas, page d’attente avec son étape', (tester) async {
-    await openApp(tester, AppTab.bills.path);
+    // Factures (F5) n'a plus de page d'attente : Conso (F7) en garde une.
+    await openApp(tester, AppTab.consumption.path);
     expect(find.byType(AppBottomNav), findsOneWidget);
-    expect(find.text('Factures : bientôt'), findsOneWidget);
-    expect(find.text('Cet écran arrive à l’étape F5 du plan.'), findsOneWidget);
+    expect(find.text('Conso : bientôt'), findsOneWidget);
+    expect(find.text('Cet écran arrive à l’étape F7 du plan.'), findsOneWidget);
   });
 
   testWidgets('toucher un onglet change d’écran, l’onglet suit', (tester) async {

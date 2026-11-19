@@ -9,6 +9,7 @@ import '../core/widgets/bottom_nav.dart';
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
+import '../features/bills/bills_screen.dart';
 import '../features/catalogue/catalogue_screen.dart';
 import '../features/design_check/charte_screen.dart';
 import '../features/diagnostic/diagnostic_access.dart';
@@ -31,7 +32,7 @@ List<RouteBase> appRoutes() => [
   for (final document in LegalDocument.values)
     GoRoute(path: document.path, builder: (context, state) => LegalScreen(document)),
   GoRoute(path: Routes.forgotPassword, builder: (context, state) => const ForgotPasswordScreen()),
-  // Écrans principaux, sous la barre du bas (pages d'attente jusqu'à F5 → F9).
+  // Écrans principaux, sous la barre du bas (pages d'attente jusqu'à F7 → F9).
   ShellRoute(
     builder: (context, state, child) => AppShell(location: state.uri.path, child: child),
     routes: [
@@ -39,11 +40,11 @@ List<RouteBase> appRoutes() => [
         path: AppTab.home.path,
         pageBuilder: (context, state) => const NoTransitionPage(child: HomeScreen()),
       ),
-      for (final (tab, step) in [
-        (AppTab.bills, 'F5'),
-        (AppTab.consumption, 'F7'),
-        (AppTab.account, 'F9'),
-      ])
+      GoRoute(
+        path: AppTab.bills.path,
+        pageBuilder: (context, state) => const NoTransitionPage(child: BillsScreen()),
+      ),
+      for (final (tab, step) in [(AppTab.consumption, 'F7'), (AppTab.account, 'F9')])
         GoRoute(
           path: tab.path,
           pageBuilder: (context, state) => NoTransitionPage(
@@ -54,6 +55,10 @@ List<RouteBase> appRoutes() => [
   ),
   // Écrans poussés (sans barre du bas).
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
+  GoRoute(
+    path: Routes.billPath,
+    builder: (context, state) => const PendingScreen(screen: 'Détail de la facture', step: 'F5.3'),
+  ),
   // Écrans poussés des étapes suivantes : page d'attente.
   GoRoute(
     path: Routes.pendingPath,

@@ -7,6 +7,7 @@ import 'package:elecpay/core/widgets/bottom_nav.dart';
 import 'package:elecpay/core/widgets/pay_button.dart';
 import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/home/home_screen.dart';
+import 'package:elecpay/features/notifications/notifications_screen.dart';
 import 'package:elecpay/features/pending/pending_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +45,7 @@ Future<void> pumpHome(
         path: AppTab.consumption.path,
         builder: (context, state) => const Scaffold(body: Text('Écran Conso')),
       ),
+      GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
       GoRoute(
         path: Routes.pendingPath,
         builder: (context, state) => PendingScreen(
@@ -190,11 +192,18 @@ void main() {
       });
     }
 
-    testWidgets('cloche → page d’attente des notifications', (tester) async {
-      await pumpHome(tester, FakeHomeBackend());
+    testWidgets('cloche → écran Notifications ; au retour, le point rouge est relu', (
+      tester,
+    ) async {
+      final backend = FakeHomeBackend();
+      await pumpHome(tester, backend);
       await tester.tap(find.byKey(const Key('home.bell')));
       await settle(tester);
-      expect(find.text('Notifications : bientôt'), findsOneWidget);
+      expect(find.byType(NotificationsScreen), findsOneWidget);
+      backend.unread = 0;
+      await tester.pageBack();
+      await settle(tester);
+      expect(find.byKey(const Key('home.bell.dot')), findsNothing);
     });
 
     testWidgets('« Tout voir » → page d’attente de l’historique', (tester) async {

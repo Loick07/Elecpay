@@ -73,6 +73,10 @@ Pour les factures, en cas d'écart, `backend/docs/FACTURES.md` et `FACTURE_E2C.m
 - Dire clairement à chaque fin d'étape : où on en est, ce qui reste.
 - Le contrat d'API (OpenAPI généré par FastAPI) fait foi pour le mobile et l'admin.
 - Développement Flutter en autonomie : suivre frontend/mobile/AUTONOMIE.md et reprendre depuis frontend/mobile/JOURNAL.md
+- Depuis le 19/11/2026 : aucun arrêt pendant une étape (sous-étapes enchaînées, chacune testée, commitée,
+  intégrée dans `main`, CI verte) ; **arrêt à la fin de chaque étape** (F4 … F10) avec le rapport
+  `frontend/mobile/rapports/FX.md`, puis attente du « Continue » de Loick. Arrêts maintenus : F6 avant le
+  paiement réel, avant de toucher `backend/`, CI rouge impossible à corriger.
 
 ## Feuille de route
 Le backend se construit en suivant **`backend/PLAN.md`** (étapes B0 → B11), dans l'ordre.

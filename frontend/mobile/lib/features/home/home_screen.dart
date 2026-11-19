@@ -77,6 +77,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _retryAll() => unawaited(_refreshAll());
 
+  /// Cloche → écran 13 ; au retour sur l'accueil, le point rouge est relu.
+  Future<void> _openNotifications() async {
+    await context.push(Routes.notifications);
+    if (mounted) await _refreshBell();
+  }
+
   void _open(String screen, String step) => context.push(Routes.pending(screen, step));
 
   Future<void> _chooseHousehold(List<HouseholdSummary> households, int? shownId) async {
@@ -144,7 +150,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 firstName: user.value == null ? null : greetingName(user.value!.data.fullName),
                 unread: unread,
                 showDemoBadge: ref.watch(demoModeProvider).showBadge,
-                onNotifications: () => _open('Notifications', 'F4.3'),
+                onNotifications: _openNotifications,
               ),
               if (offline != null) ...[
                 const SizedBox(height: Space.s3),

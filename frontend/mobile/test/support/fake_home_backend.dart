@@ -4,6 +4,7 @@ import 'package:elecpay/core/config/app_config.dart';
 import 'package:elecpay/core/models/bills.dart';
 import 'package:elecpay/core/models/payments.dart';
 import 'package:elecpay/core/network/api_client.dart';
+import 'package:elecpay/core/session/session_providers.dart';
 import 'package:elecpay/features/home/home_data.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
@@ -65,6 +66,40 @@ class FakeHomeBackend {
   ];
 
   int unread = 3;
+
+  /// Notifications (`GET /notifications`), de la plus récente à la plus ancienne.
+  List<Map<String, Object?>> notifications = [
+    notification(1, type: 'payment_succeeded', group: 'today', title: 'Paiement réussi'),
+    notification(2, type: 'payment_failed', group: 'today', title: 'Paiement échoué'),
+    notification(
+      3,
+      type: 'high_consumption',
+      group: 'this_week',
+      title: 'Consommation inhabituelle',
+    ),
+    notification(4, type: 'bill_issued', group: 'earlier', title: 'Nouvelle facture', read: true),
+  ];
+
+  static Map<String, Object?> notification(
+    int id, {
+    required String type,
+    required String group,
+    required String title,
+    bool read = false,
+    String createdAt = '2026-11-12T08:00:00Z',
+  }) => {
+    ..._api.sample('NotificationPublic'),
+    'id': id,
+    'type': type,
+    'group': group,
+    'title': title,
+    'body': 'Texte de la notification $id.',
+    'is_read': read,
+    'read_at': read ? '2026-11-12T09:00:00Z' : null,
+    'created_at': createdAt,
+  };
+
+  int get _unreadNotifications => notifications.where((n) => n['is_read'] != true).length;
 
   Map<String, Object?> user = {..._api.sample('UserPublic'), 'full_name': 'Loick Makosso'};
 
@@ -145,6 +180,34 @@ class FakeHomeBackend {
       return JsonReply(200, {'items': payments, 'page': 1, 'size': 3, 'total': payments.length});
     }
     if (path == '/notifications/unread-count') return JsonReply(200, {'unread_count': unread});
+    if (path == '/notifications' && request.method == 'GET') {
+      final page = query['page'] as int? ?? 1;
+      final size = query['size'] as int? ?? 20;
+      return JsonReply(200, {
+        'items': notifications.skip((page - 1) * size).take(size).toList(),
+        'total': notifications.length,
+        'page': page,
+        'size': size,
+        'unread_count': _unreadNotifications,
+      });
+    }
+    final readOne = RegExp(r'^/notifications/(\d+)/read$').firstMatch(path);
+    if (readOne != null && request.method == 'POST') {
+      final id = int.parse(readOne.group(1)!);
+      final index = notifications.indexWhere((n) => n['id'] == id);
+      if (index < 0) return JsonReply(404, apiError('NOTIFICATION_NOT_FOUND', 'Introuvable.'));
+      notifications[index] = {...notifications[index], 'is_read': true};
+      unread = _unreadNotifications;
+      return JsonReply(200, notifications[index]);
+    }
+    if (path == '/notifications/read-all' && request.method == 'POST') {
+      final marked = _unreadNotifications;
+      notifications = [
+        for (final n in notifications) {...n, 'is_read': true},
+      ];
+      unread = 0;
+      return JsonReply(200, {'marked': marked, 'unread_count': 0});
+    }
     return JsonReply(404, apiError('NOT_FOUND', 'Route inconnue du faux backend : $path'));
   }
 
@@ -156,6 +219,7 @@ class FakeHomeBackend {
       cachedApiProvider.overrideWithValue(
         CachedApi(api: ApiClient(dio), store: store, currentUserId: () async => 42),
       ),
+      authenticatedApiProvider.overrideWithValue(ApiClient(dio)),
       householdChoiceStoreProvider.overrideWithValue(choices ?? MemoryHouseholdChoiceStore()),
     ];
   }

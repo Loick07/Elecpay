@@ -8,6 +8,9 @@ abstract final class Routes {
   static const forgotPassword = '/mot-de-passe';
   static final home = AppTab.home.path;
 
+  /// Écran 13, poussé depuis la cloche de l'accueil.
+  static final notifications = '${AppTab.home.path}/notifications';
+
   /// Écran poussé pas encore construit (page d'attente), sous l'accueil : donc protégé.
   static final pendingPath = '${AppTab.home.path}/bientot';
 

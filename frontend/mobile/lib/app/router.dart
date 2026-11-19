@@ -15,6 +15,7 @@ import '../features/diagnostic/diagnostic_access.dart';
 import '../features/diagnostic/diagnostic_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/legal/legal_screen.dart';
+import '../features/notifications/notifications_screen.dart';
 import '../features/pending/pending_screen.dart';
 import '../features/startup/splash_screen.dart';
 import 'app_shell.dart';
@@ -51,7 +52,9 @@ List<RouteBase> appRoutes() => [
         ),
     ],
   ),
-  // Écrans poussés des étapes suivantes (sans barre du bas) : page d'attente.
+  // Écrans poussés (sans barre du bas).
+  GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
+  // Écrans poussés des étapes suivantes : page d'attente.
   GoRoute(
     path: Routes.pendingPath,
     builder: (context, state) => PendingScreen(

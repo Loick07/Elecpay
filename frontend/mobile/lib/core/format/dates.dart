@@ -111,6 +111,20 @@ String formatWeekdayDate(DateTime moment) {
       '${_monthsLong[local.month - 1]}';
 }
 
+const _weekdaysShort = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
+
+/// Moment d'une notification (maquette de l'écran 13), à Brazzaville, selon son groupe (`group` de
+/// l'API) : aujourd'hui « 14:32 » ; cette semaine « Dim. » ; plus tôt « 3 nov. » (« 3 nov. 2025 »
+/// si ce n'est pas l'année de `now`).
+String formatNotificationTime(DateTime moment, String group, {required DateTime now}) {
+  final local = toBrazzaville(moment);
+  return switch (group) {
+    'today' => '${_two(local.hour)}:${_two(local.minute)}',
+    'this_week' => _weekdaysShort[local.weekday - 1],
+    _ => local.year == toBrazzaville(now).year ? formatDayMonth(local) : formatCalendarDate(local),
+  };
+}
+
 /// Mois en cours relevé (dates du calendrier) : « Novembre, du 1er au 12 » ; un seul jour :
 /// « Novembre, le 1er » ; rien de relevé (`end` nul) : « Novembre ».
 String formatMonthSoFar(DateTime start, DateTime? end) {

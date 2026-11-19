@@ -50,6 +50,9 @@ const cases = <ContractCase>[
   ContractCase('ConsumptionComparison', ConsumptionComparison.fromJson),
   ContractCase('ConsumptionSeries', ConsumptionSeries.fromJson),
   ContractCase('UnreadCount', UnreadCount.fromJson),
+  ContractCase('NotificationPublic', NotificationPublic.fromJson),
+  ContractCase('NotificationList', NotificationList.fromJson),
+  ContractCase('ReadAllResult', ReadAllResult.fromJson),
 ];
 
 /// `toJson()` de chaque modèle freezed, passé par du vrai JSON (comme sur le réseau).

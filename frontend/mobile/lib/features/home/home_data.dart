@@ -286,6 +286,9 @@ class UnreadCountNotifier extends AsyncNotifier<int> {
     final next = await AsyncValue.guard(build);
     state = next.hasError && previous.hasValue ? previous : next;
   }
+
+  /// Nombre connu sans relire (réponse de `POST /notifications/…/read` ou `read-all`).
+  void set(int count) => state = AsyncData(count < 0 ? 0 : count);
 }
 
 final unreadCountProvider = AsyncNotifierProvider<UnreadCountNotifier, int>(

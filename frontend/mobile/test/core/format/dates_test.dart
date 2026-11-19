@@ -201,6 +201,20 @@ void main() {
       expect(formatWeekdayDate(DateTime.utc(2026, 2, 28, 23, 30)), 'Dimanche 1er mars');
     });
 
+    test('notifications : « 14:32 », « Dim. », « 3 nov. », « 28 oct. 2025 »', () {
+      final now = DateTime.utc(2026, 11, 12, 15);
+      expect(
+        formatNotificationTime(DateTime.utc(2026, 11, 12, 13, 32), 'today', now: now),
+        '14:32',
+      );
+      expect(formatNotificationTime(DateTime.utc(2026, 11, 8, 10), 'this_week', now: now), 'Dim.');
+      expect(formatNotificationTime(DateTime.utc(2026, 11, 3, 8), 'earlier', now: now), '3 nov.');
+      expect(
+        formatNotificationTime(DateTime.utc(2025, 10, 28, 8), 'earlier', now: now),
+        '28 oct. 2025',
+      );
+    });
+
     test('mois en cours : « Novembre, du 1er au 12 », un jour, rien de relevé', () {
       final start = DateTime(2026, 11);
       expect(formatMonthSoFar(start, DateTime(2026, 11, 12)), 'Novembre, du 1er au 12');

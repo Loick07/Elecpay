@@ -59,6 +59,20 @@ Un fichier abîmé se restaure depuis le dernier commit, jamais en le réécriva
 
 ## 3. Méthode de travail de F4 à F10
 
+> **Changement de méthode demandé par Loick le 19/11/2026 (il remplace « enchaîne F4 → F5 → F6 » et
+> « passe directement à l'étape suivante » ci-dessous) :**
+>
+> - **Arrêt à la fin de chaque étape** (F4, F5, F6, F7, F8, F9, F10), au lieu d'enchaîner.
+> - **Pendant une étape : aucun arrêt.** Toutes les sous-étapes s'enchaînent seules, avec tests,
+>   commits, intégration dans `main` et CI verte à chaque sous-étape.
+> - **À la fin d'une étape** : tout est intégré dans `main` et la CI est verte ; rapport
+>   `frontend/mobile/rapports/FX.md` (ce qui est fait, les choix faits en route, les défauts trouvés et
+>   corrigés, les commits, le nombre de tests, la taille de l'APK release, **ce qu'il faut regarder sur
+>   le téléphone**, les points à surveiller) ; `JOURNAL.md` et tableaux de bord à jour ; le rapport est
+>   montré à Loick, et on **attend son « Continue »** avant de commencer l'étape suivante.
+> - Les autres arrêts restent : en F6 avant de brancher le paiement réel, avant de toucher `backend/`
+>   (mise en ligne), et en cas de CI rouge impossible à corriger.
+
 Avant de coder la suite, termine ce qui reste de F4.0 (section 5), puis propose-moi en un seul document (frontend/mobile/DECOUPAGES.md, commité) le découpage de F5, F6, F7, F8, F9 et F10, avec toutes les décisions qui me reviennent et ta recommandation pour chacune. Attends ma validation de ce document. C'est le deuxième et dernier accord à attendre avant F6.
 
 Pendant ce temps, avance sur F4 (son découpage est déjà validé, voir section 6).

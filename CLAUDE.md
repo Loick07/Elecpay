@@ -72,6 +72,7 @@ Pour les factures, en cas d'écart, `backend/docs/FACTURES.md` et `FACTURE_E2C.m
 - Chaque fonctionnalité livrée avec ses tests (y compris les cas d'erreur). Pas d'erreurs bêtes : lancer les tests et Ruff avant de dire que c'est fini.
 - Dire clairement à chaque fin d'étape : où on en est, ce qui reste.
 - Le contrat d'API (OpenAPI généré par FastAPI) fait foi pour le mobile et l'admin.
+- Développement Flutter en autonomie : suivre frontend/mobile/AUTONOMIE.md et reprendre depuis frontend/mobile/JOURNAL.md
 
 ## Feuille de route
 Le backend se construit en suivant **`backend/PLAN.md`** (étapes B0 → B11), dans l'ordre.

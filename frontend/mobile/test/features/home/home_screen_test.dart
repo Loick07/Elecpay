@@ -5,6 +5,7 @@ import 'package:elecpay/core/models/bills.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
 import 'package:elecpay/core/widgets/pay_button.dart';
+import 'package:elecpay/core/widgets/payment_sheet.dart';
 import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/notifications/notifications_screen.dart';
@@ -186,14 +187,12 @@ void main() {
   });
 
   group('liens', () {
-    for (final (key, page) in [('Payer 31\u00A0420\u00A0FCFA', 'Paiement : bientôt')]) {
-      testWidgets('« $key » → page d’attente', (tester) async {
-        await pumpHome(tester, FakeHomeBackend());
-        await tester.tap(find.text(key));
-        await settle(tester);
-        expect(find.text(page), findsOneWidget);
-      });
-    }
+    testWidgets('« Payer » → feuille de paiement de la facture urgente (F6)', (tester) async {
+      await pumpHome(tester, FakeHomeBackend());
+      await tester.tap(find.text('Payer 31\u00A0420\u00A0FCFA'));
+      await settle(tester);
+      expect(find.byType(PaymentSheetContent), findsOneWidget);
+    });
 
     testWidgets('« Détail » → détail de la facture urgente (F5.3)', (tester) async {
       await pumpHome(tester, FakeHomeBackend());

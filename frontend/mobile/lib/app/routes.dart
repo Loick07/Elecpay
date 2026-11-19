@@ -12,6 +12,10 @@ abstract final class Routes {
   static final billPath = '${AppTab.bills.path}/:billId';
   static String bill(int id) => '${AppTab.bills.path}/$id';
 
+  /// Écran 9 : suivi du paiement d'une facture, poussé (sous `/factures/` : protégé).
+  static final paymentPath = '${AppTab.bills.path}/:billId/paiement';
+  static String payment(int billId) => '${AppTab.bills.path}/$billId/paiement';
+
   /// Écran 13, poussé depuis la cloche de l'accueil.
   static final notifications = '${AppTab.home.path}/notifications';
 

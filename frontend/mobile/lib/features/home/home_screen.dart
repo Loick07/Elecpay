@@ -20,6 +20,7 @@ import '../../core/widgets/offline_banner.dart';
 import '../../core/widgets/skeleton.dart';
 import '../../core/widgets/state_block.dart';
 import '../../core/widgets/statuses.dart';
+import '../payments/payment_entry.dart';
 import 'home_cards.dart';
 import 'home_data.dart';
 import 'home_rules.dart';
@@ -242,8 +243,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         UrgentBillAction.pay => HeroPayment.pay,
       },
       onDetail: () => context.push(Routes.bill(bill.id)),
-      onPay: () => _open('Paiement', 'F6'),
-      onOpenPayment: () => _open('Suivi du paiement', 'F6'),
+      onPay: () => startPayment(
+        context,
+        ref,
+        PayableBill.fromSummary(bill, online: card.bills is FreshData),
+      ),
+      onOpenPayment: () => openPaymentInProgress(context, ref, bill.id),
     );
   }
 

@@ -39,11 +39,20 @@ void main() {
     expect(nav.current, AppTab.consumption);
   });
 
-  testWidgets('Payer (avant F6) : un message, aucun paiement', (tester) async {
-    await openApp(tester, AppTab.home.path);
+  testWidgets('Payer central, factures illisibles : un message, aucun paiement envoyé', (
+    tester,
+  ) async {
+    // Le faux backend de connexion n'a pas de factures : Payer ne peut rien proposer (F6, D6.1 ;
+    // les cas avec des factures sont dans test/features/payments/payment_entry_test.dart).
+    final harness = AppHarness(stored: SessionHarness.tokens(1));
+    await harness.start(tester);
+    await tester.pumpAndSettle();
+    AppHarness.containerOf(tester).read(routerProvider).go(AppTab.home.path);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Payer'));
-    await tester.pump();
-    expect(find.text('Le paiement arrive à l’étape F6.'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Impossible de charger vos factures. Réessayez.'), findsOneWidget);
+    expect(harness.backend.server.requests.where((r) => r.path == '/payments'), isEmpty);
   });
 
   testWidgets('le contenu passe sous la barre (barre flottante en verre)', (tester) async {

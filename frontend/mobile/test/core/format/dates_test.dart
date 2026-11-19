@@ -234,4 +234,9 @@ void main() {
     );
     expect(formatBillPeriodGroup(DateTime(2026, 10), DateTime(2026, 10, 31)), 'Octobre 2026');
   });
+
+  test('heure seule à Brazzaville : « 14:31 »', () {
+    expect(formatTime(DateTime.utc(2026, 11, 12, 13, 31)), '14:31');
+    expect(formatTime(DateTime.utc(2026, 11, 12, 23, 5)), '00:05');
+  });
 }

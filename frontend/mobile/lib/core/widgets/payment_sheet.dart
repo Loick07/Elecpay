@@ -24,12 +24,37 @@ enum PaymentOperator {
   final String label;
 }
 
+/// Opérateur d'un numéro normalisé (« +242061234567 »), mêmes règles que le backend
+/// (`backend/docs/PAIEMENTS.md` : MTN = 06, Airtel = 05 et 04, « hypothèse à confirmer »).
+/// `null` : pas un numéro Mobile Money (fixe 22…).
+PaymentOperator? operatorForPhone(String normalized) {
+  if (normalized.startsWith('+24206')) return PaymentOperator.mtn;
+  if (normalized.startsWith('+24205') || normalized.startsWith('+24204')) {
+    return PaymentOperator.airtel;
+  }
+  return null;
+}
+
+/// Message sous le champ si le numéro ne va pas avec l'opérateur choisi (`null` : il va).
+String? operatorMismatch(String normalized, PaymentOperator chosen) {
+  final actual = operatorForPhone(normalized);
+  if (actual == null) return 'Ce numéro ne peut pas payer en Mobile Money.';
+  if (actual == chosen) return null;
+  return switch (chosen) {
+    PaymentOperator.mtn => 'Ce numéro n’est pas un numéro MTN MoMo (numéros en 06).',
+    PaymentOperator.airtel => 'Ce numéro n’est pas un numéro Airtel Money (numéros en 05 ou 04).',
+  };
+}
+
 /// Contenu de la feuille de paiement (maquette de l'écran 8, `frontend/design/components/
-/// PaymentSheet`). APPARENCE seulement : l'envoi du paiement (clé d'idempotence, suivi) arrive
-/// en F6, par `onPay`.
+/// PaymentSheet`). L'envoi (clé d'idempotence, suivi) est fait par l'appelant, dans `onPay`
+/// (`lib/features/payments/`).
 ///
 /// - le montant vient de la facture et n'est JAMAIS saisi ;
 /// - le numéro est prérempli avec celui du compte, modifiable (payer pour un proche) ;
+/// - l'opérateur est proposé d'après ce numéro (06 → MTN, 05 / 04 → Airtel), modifiable ; un
+///   numéro qui ne va pas avec l'opérateur choisi est refusé AVANT l'envoi (D6.2) ;
+/// - un autre numéro que celui du compte : « Le titulaire de ce numéro recevra la demande… » (D6.3) ;
 /// - un seul envoi, même si l'on touche deux fois (bouton en chargement) ;
 /// - hors ligne : Payer désactivé, « Connexion nécessaire pour payer ».
 class PaymentSheetContent extends StatefulWidget {
@@ -40,8 +65,12 @@ class PaymentSheetContent extends StatefulWidget {
     required this.defaultPhone,
     required this.online,
     required this.onPay,
+    this.error,
     super.key,
   });
+
+  /// Refus de l'API à afficher au-dessus de Payer (numéro refusé, facture déjà payée…).
+  final String? error;
 
   /// « sept.–oct. 2026 ».
   final String periodLabel;
@@ -60,11 +89,26 @@ class PaymentSheetContent extends StatefulWidget {
 }
 
 class _PaymentSheetContentState extends State<PaymentSheetContent> {
-  PaymentOperator _operator = PaymentOperator.mtn;
+  late PaymentOperator _operator = operatorForPhone(widget.defaultPhone) ?? PaymentOperator.mtn;
   late final _phone = TextEditingController(
     text: CongoPhoneInputFormatter.group(widget.defaultPhone.replaceFirst('+242', '')),
-  );
+  )..addListener(_onPhoneChanged);
   String? _phoneError;
+  bool _forSomeoneElse = false;
+
+  /// Texte affiché quand on paie depuis le numéro d'un proche.
+  static const someoneElseNote = 'Le titulaire de ce numéro recevra la demande de confirmation.';
+
+  void _onPhoneChanged() {
+    String? normalized;
+    try {
+      normalized = normalizeCongoPhone(_phone.text);
+    } on Object {
+      normalized = null;
+    }
+    final other = normalized != null && normalized != widget.defaultPhone;
+    if (other != _forSomeoneElse) setState(() => _forSomeoneElse = other);
+  }
 
   @override
   void dispose() {
@@ -73,7 +117,8 @@ class _PaymentSheetContentState extends State<PaymentSheetContent> {
   }
 
   Future<void> _pay() async {
-    final error = phoneError(_phone.text);
+    final error =
+        phoneError(_phone.text) ?? operatorMismatch(normalizeCongoPhone(_phone.text), _operator);
     setState(() => _phoneError = error);
     if (error != null) return;
     await widget.onPay(_operator, normalizeCongoPhone(_phone.text));
@@ -113,6 +158,25 @@ class _PaymentSheetContentState extends State<PaymentSheetContent> {
           helper: 'Vous pouvez payer depuis le numéro d’un proche.',
           error: _phoneError,
         ),
+        if (_forSomeoneElse) ...[
+          const SizedBox(height: Space.s2),
+          Text(
+            someoneElseNote,
+            key: const Key('payment.someoneElse'),
+            style: AppText.bodySm.copyWith(color: c.currentText),
+          ),
+        ],
+        if (widget.error case final message?) ...[
+          const SizedBox(height: Space.s4),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              message,
+              key: const Key('payment.error'),
+              style: AppText.bodySm.copyWith(color: c.errorText, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
         const SizedBox(height: Space.s5),
         PayButton(amount: widget.amount, online: widget.online, onPay: _pay),
         const SizedBox(height: Space.s2),

@@ -18,6 +18,7 @@ import '../features/diagnostic/diagnostic_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/legal/legal_screen.dart';
 import '../features/notifications/notifications_screen.dart';
+import '../features/payments/payment_screen.dart';
 import '../features/pending/pending_screen.dart';
 import '../features/startup/splash_screen.dart';
 import 'app_shell.dart';
@@ -56,6 +57,11 @@ List<RouteBase> appRoutes() => [
   ),
   // Écrans poussés (sans barre du bas).
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
+  GoRoute(
+    path: Routes.paymentPath,
+    builder: (context, state) =>
+        PaymentScreen(billId: int.tryParse(state.pathParameters['billId'] ?? '') ?? 0),
+  ),
   GoRoute(
     path: Routes.billPath,
     builder: (context, state) =>

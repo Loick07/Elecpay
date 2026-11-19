@@ -307,17 +307,31 @@ void main() {
     });
   });
 
-  test('écran fermé : le suivi s’arrête (aucune interrogation en arrière-plan)', () async {
+  test('écran d’attente fermé : le suivi s’arrête ; rouvert : il reprend', () async {
     final h = Harness();
     unawaited(h.flow.pay(request));
     await pumpEventQueue();
     await h.timing.tick();
     final before = h.gateway.fetches.length;
-    h.subscription.close();
+    h.flow.stop();
+    await h.timing.tick();
+    await h.timing.tick();
+    expect(h.gateway.fetches.length, before, reason: 'aucune interrogation écran fermé');
+    expect(h.state, isA<PaymentTracking>(), reason: 'l’état connu est gardé');
+    h.flow.resume();
     await pumpEventQueue();
     await h.timing.tick();
-    await h.timing.tick();
-    expect(h.gateway.fetches.length, before);
+    expect(h.gateway.fetches.length, before + 1);
+    expect(h.gateway.creates, hasLength(1), reason: 'reprendre ne paie jamais une 2e fois');
+  });
+
+  test('l’état survit à la fermeture de la feuille (personne n’écoute un instant)', () async {
+    final h = Harness();
+    h.gateway.createReplies.add(payment(1, TransactionStatuses.failed));
+    await h.flow.pay(request);
+    h.subscription.close();
+    await pumpEventQueue();
+    expect(h.container.read(paymentFlowProvider(101)), isA<PaymentFinished>());
   });
 
   test('suivre un paiement lancé ailleurs (rouvert depuis l’accueil)', () async {

@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../app/routes.dart';
 import '../../core/cache/cached_api.dart';
 import '../../core/documents/documents.dart';
 import '../../core/format/formats.dart';
@@ -22,6 +20,7 @@ import '../../core/widgets/state_block.dart';
 import '../../core/widgets/status_badge.dart';
 import '../../core/widgets/statuses.dart';
 import '../home/home_screen.dart' show homeClockProvider;
+import '../payments/payment_entry.dart';
 import 'bill_periods.dart';
 import 'bills_data.dart';
 import 'bills_rules.dart';
@@ -43,7 +42,11 @@ class BillDetailScreen extends ConsumerWidget {
     }
   }
 
-  void _pay(BuildContext context) => context.push(Routes.pending('Paiement', 'F6'));
+  void _pay(BuildContext context, WidgetRef ref, Fetched<BillDetail> fetched) => startPayment(
+    context,
+    ref,
+    PayableBill.fromDetail(fetched.data, online: fetched is FreshData<BillDetail>),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,7 +77,7 @@ class BillDetailScreen extends ConsumerWidget {
       ),
       bottomNavigationBar: fetched == null
           ? null
-          : _Footer(fetched: fetched, onPay: () => _pay(context)),
+          : _Footer(fetched: fetched, onPay: () => _pay(context, ref, fetched)),
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
@@ -556,11 +559,13 @@ class _Footer extends ConsumerWidget {
     final online = fetched is FreshData<BillDetail>;
     final busy = ref.watch(billPdfBusyProvider(bill.id));
     final Widget? action = switch (bill) {
-      BillDetail(status: BillStatuses.pendingPayment) => const AppButton(
+      // Suivi du paiement en cours (jamais un deuxième paiement).
+      BillDetail(status: BillStatuses.pendingPayment) => AppButton(
+        key: const Key('bill.inProgress'),
         label: 'Paiement en cours',
         icon: AppIcons.hourglass,
         variant: ButtonVariant.secondary,
-        onPressed: null,
+        onPressed: () => openPaymentInProgress(context, ref, bill.id),
       ),
       BillDetail(canPay: true) => PayButton(amount: bill.amountTotal, online: online, onPay: onPay),
       _ => null,

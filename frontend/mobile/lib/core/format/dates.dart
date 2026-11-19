@@ -94,6 +94,12 @@ String formatDateTime(DateTime moment, {required DateTime now}) {
   return '$day à ${_two(local.hour)}:${_two(local.minute)}';
 }
 
+/// Heure seule, à Brazzaville : « 14:31 » (étapes d'un paiement).
+String formatTime(DateTime moment) {
+  final local = toBrazzaville(moment);
+  return '${_two(local.hour)}:${_two(local.minute)}';
+}
+
 /// Compte à rebours en minutes:secondes (« 2:45 », « 0:42 ») ; arrondi à la seconde supérieure.
 String formatCountdown(Duration remaining) {
   final seconds = remaining.isNegative ? 0 : (remaining.inMilliseconds / 1000).ceil();

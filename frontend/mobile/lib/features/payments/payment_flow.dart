@@ -207,8 +207,10 @@ final class PaymentRefused extends PaymentFlowState {
 
 // --- Déroulement --------------------------------------------------------------------------------
 
-/// Le paiement d'UNE facture, de la feuille (écran 8) au suivi (écran 9). Le suivi s'arrête quand
-/// plus personne n'écoute (écran fermé) : aucune interrogation en arrière-plan.
+/// Le paiement d'UNE facture, de la feuille (écran 8) au suivi (écran 9). L'état est gardé (la
+/// feuille se ferme, l'écran d'attente s'ouvre sans rien perdre) ; le SUIVI, lui, ne tourne que
+/// tant que l'écran d'attente est ouvert : il appelle `stop()` en se fermant et `resume()` en
+/// s'ouvrant. Aucune interrogation en arrière-plan.
 class PaymentFlow extends Notifier<PaymentFlowState> {
   PaymentFlow(this.billId);
 
@@ -274,6 +276,18 @@ class PaymentFlow extends Notifier<PaymentFlowState> {
     }
   }
 
+  /// Écran d'attente fermé : le suivi s'arrête (l'état connu est gardé).
+  void stop() => _generation++;
+
+  /// Écran d'attente (ré)ouvert : le suivi reprend s'il y a un paiement en cours.
+  void resume() {
+    if (state case PaymentTracking(:final payment)) {
+      _startTracking(payment, _lastRequest);
+    }
+  }
+
+  PaymentRequest? _lastRequest;
+
   /// Suivre un paiement déjà en cours (lancé ailleurs, ou rouvert depuis l'accueil).
   Future<void> follow(int paymentId) async {
     if (state is PaymentSending || state is PaymentTracking) return;
@@ -320,6 +334,7 @@ class PaymentFlow extends Notifier<PaymentFlowState> {
   /// jusqu'à une réponse finale ou la fermeture de l'écran. Une lecture en échec ne change rien.
   Future<void> _track(PaymentPublic payment, PaymentRequest? request) async {
     if (_disposed) return;
+    _lastRequest = request ?? _lastRequest;
     final generation = ++_generation;
     if (isFinalStatus(payment.status)) {
       state = PaymentFinished(payment, request);
@@ -347,6 +362,6 @@ class PaymentFlow extends Notifier<PaymentFlowState> {
   }
 }
 
-final paymentFlowProvider = NotifierProvider.autoDispose.family<PaymentFlow, PaymentFlowState, int>(
+final paymentFlowProvider = NotifierProvider.family<PaymentFlow, PaymentFlowState, int>(
   PaymentFlow.new,
 );

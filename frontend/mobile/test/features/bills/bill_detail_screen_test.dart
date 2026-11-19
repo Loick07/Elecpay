@@ -3,6 +3,7 @@ import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/models/bills.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/pay_button.dart';
+import 'package:elecpay/core/widgets/payment_sheet.dart';
 import 'package:elecpay/features/bills/bill_detail_screen.dart';
 import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/pending/pending_screen.dart';
@@ -188,12 +189,13 @@ void main() {
     expect(find.textContaining('Tarif à confirmer'), findsNothing);
   });
 
-  testWidgets('Payer collé en bas → page d’attente du paiement (F6)', (tester) async {
+  testWidgets('Payer collé en bas → feuille de paiement de cette facture (F6)', (tester) async {
     await pumpDetail(tester, FakeHomeBackend());
     expect(find.text('Payer 31\u00A0420\u00A0FCFA'), findsOneWidget);
     await tester.tap(find.text('Payer 31\u00A0420\u00A0FCFA'));
     await settle(tester);
-    expect(find.text('Paiement : bientôt'), findsOneWidget);
+    expect(find.byType(PaymentSheetContent), findsOneWidget);
+    expect(find.text('FACTURE DE SEPT.\u2013OCT. 2026 · MAISON MPITA'), findsOneWidget);
   });
 
   testWidgets('hors ligne (cache) : bannière, Payer désactivé avec la mention', (tester) async {

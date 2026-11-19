@@ -1,6 +1,27 @@
-# Découpages de F5 à F10 (proposition à valider)
+# Découpages de F5 à F10 (validés)
 
-Proposé le 19/11/2026, à valider par Loick (deuxième accord de `AUTONOMIE.md`, section 3).
+Proposé le 19/11/2026, **validé par Loick le 19/11/2026** (deuxième accord de `AUTONOMIE.md`,
+section 3) : toutes les recommandations, avec les précisions ci-dessous, qui **l'emportent** sur le
+texte des décisions plus bas.
+
+## Précisions de Loick (19/11/2026)
+
+- **D5.1** : `share_plus` et `open_filex` en **versions fixes**. `tool/apk_check.dart` contrôle en plus
+  les **autorisations finales de l'APK release** : aucune autorisation sensible, notamment
+  `REQUEST_INSTALL_PACKAGES` (contrôle en CI).
+- **F6** : après 2 min, « Vérification en cours » **continue d'interroger plus lentement** (environ
+  toutes les 15 s) tant que l'écran est ouvert, jusqu'à un état final (le backend n'expire qu'à 10 min).
+- **D7.3** : la couleur n'est **jamais** le seul moyen de comprendre : une **légende**, et le niveau
+  annoncé par TalkBack sur chaque jour du calendrier.
+- **D9.3** : Loick donne les contacts du support avant F9. Sans eux : « Contacts du support : bientôt
+  disponibles », **jamais de faux numéro**.
+- **D9.4** : a) maintenant, b) (route client des litiges, backend) **après F10**.
+- **D10.2** : hébergeur choisi : **Oracle Cloud Always Free + Caddy (HTTPS automatique) + DuckDNS**,
+  **Cloudflare Tunnel** en secours. Nouvelle sous-étape **« Mise en ligne » pendant F9** (F9.5) : guide
+  et fichiers de production rédigés ; **arrêt pour l'accord de Loick avant de toucher `backend/`** et
+  pour les actions qu'il doit faire lui-même (compte Oracle).
+- **F9 ou F10** : remplacer les pages provisoires des conditions d'utilisation et de la confidentialité
+  quand Loick fournit les vrais textes.
 Chaque étape suit la même méthode que F4 : sous-étapes commitées une à une sur la branche de l'étape,
 intégrées dans `main` (`--ff-only`) avec une CI verte, rapport `rapports/FX.md` à la fin.
 
@@ -164,7 +185,10 @@ de modifier quoi que ce soit dans `backend/`.
   option « Effet verre » (désactivée par défaut, gardée d'un lancement à l'autre).
 - **F9.3 Sécurité** : changement de mot de passe, « Déconnecter mes autres appareils », déconnexion.
 - **F9.4 Assistance (écran 16)** : recherche, 5 questions fréquentes de la maquette, contacts (D9.3, D9.4),
-  rappel que les pannes relèvent d'E²C ; clôture et rapport `rapports/F9.md`.
+  rappel que les pannes relèvent d'E²C.
+- **F9.5 Mise en ligne** (D10.2) : guide et fichiers de production (Oracle Cloud Always Free, Caddy,
+  DuckDNS, Cloudflare Tunnel en secours) ; ⏸ arrêt pour l'accord de Loick avant toute modification de
+  `backend/` et pour ses propres actions (compte Oracle). Clôture et rapport `rapports/F9.md`.
 
 ### Décisions
 
@@ -222,8 +246,9 @@ de modifier quoi que ce soit dans `backend/`.
 
 ---
 
-## Ce que j'attends de toi
+## Ce qui reste attendu de Loick
 
-1. Une réponse sur les décisions (ou « tout OK »).
-2. Pour D9.3 : les contacts réels du support, quand tu les as (pas bloquant avant F9).
-3. Pour D10.2 : le choix de l'hébergeur, avant la fin de F9.
+1. Les contacts réels du support, avant F9 (D9.3).
+2. Les vrais textes des conditions et de la confidentialité (F9 ou F10).
+3. Son accord en F6 (avant `POST /payments`) et en F9.5 (avant `backend/`, compte Oracle).
+4. Sa clé de signature release (D10.1) et sa présence pour la vérification finale sur l'itel.

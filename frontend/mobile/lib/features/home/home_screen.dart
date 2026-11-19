@@ -270,10 +270,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
       bars: [
         for (final (i, p) in m.days.data.points.indexed)
-          (
-            kwh: p.consumptionKwh,
-            dashed: p.isEstimated || i == m.days.data.points.length - 1,
-          ),
+          (kwh: p.consumptionKwh, dashed: p.isEstimated || i == m.days.data.points.length - 1),
       ],
       onTap: () => context.go(AppTab.consumption.path),
     ),

@@ -245,7 +245,10 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       backend.down.addAll(['/me', '/households', '/bills', '/meters', '/payments']);
       await pumpHome(tester, backend);
-      expect(find.textContaining('Hors connexion. Les données affichées datent du'), findsOneWidget);
+      expect(
+        find.textContaining('Hors connexion. Les données affichées datent du'),
+        findsOneWidget,
+      );
       expect(find.text(PayButton.offlineHint), findsOneWidget);
     });
 

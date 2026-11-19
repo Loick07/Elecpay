@@ -26,7 +26,7 @@ void main() {
     await shot(tester, 'f3-1-inscription-remplie');
     await tapOn(tester, find.text('Créer mon compte'));
 
-    await waitFor(tester, find.text('Accueil : bientôt'));
+    await waitFor(tester, find.byKey(const Key('home.list')));
     expect(container.read(sessionStateProvider), isA<SessionActive>());
     await shot(tester, 'f3-1-accueil');
 
@@ -54,7 +54,7 @@ void main() {
 
     await typeInto(tester, 1, testPassword);
     await tapOn(tester, find.text('Se connecter'));
-    await waitFor(tester, find.text('Accueil : bientôt'));
+    await waitFor(tester, find.byKey(const Key('home.list')));
   });
 
   testWidgets('mot de passe oublié complet : code de démo, code faux, « suivant », nouveau '
@@ -95,7 +95,7 @@ void main() {
     await typeInto(tester, 0, phone);
     await typeInto(tester, 1, 'Nouveau2026');
     await tapOn(tester, find.text('Se connecter'));
-    await waitFor(tester, find.text('Accueil : bientôt'));
+    await waitFor(tester, find.byKey(const Key('home.list')));
   });
 
   testWidgets('retour Android à l’étape 2 : l’étape 1, pas la sortie de l’écran', (tester) async {
@@ -128,7 +128,7 @@ void main() {
     await typeInto(tester, 0, phone);
     await typeInto(tester, 1, testPassword);
     await tapOn(tester, find.text('Se connecter'));
-    await waitFor(tester, find.text('Accueil : bientôt'));
+    await waitFor(tester, find.byKey(const Key('home.list')));
     final signedInAt = DateTime.now();
 
     // « Déconnecter tous mes appareils », fait depuis un autre appareil.

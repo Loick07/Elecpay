@@ -210,19 +210,18 @@ final monthConsumptionProvider = FutureProvider<MonthConsumption?>((ref) async {
   final today = DateTime.now();
   String day(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-  final [summary as Fetched<ConsumptionSummary>, days as Fetched<ConsumptionSeries>] =
-      await _both(
-        api.get('/meters/$meterId/consumption/summary', ConsumptionSummary.fromJson),
-        api.get(
-          '/meters/$meterId/consumption',
-          ConsumptionSeries.fromJson,
-          query: {
-            'granularity': 'day',
-            'from': day(today.subtract(const Duration(days: homeChartDays - 1))),
-            'to': day(today),
-          },
-        ),
-      );
+  final [summary as Fetched<ConsumptionSummary>, days as Fetched<ConsumptionSeries>] = await _both(
+    api.get('/meters/$meterId/consumption/summary', ConsumptionSummary.fromJson),
+    api.get(
+      '/meters/$meterId/consumption',
+      ConsumptionSeries.fromJson,
+      query: {
+        'granularity': 'day',
+        'from': day(today.subtract(const Duration(days: homeChartDays - 1))),
+        'to': day(today),
+      },
+    ),
+  );
   return MonthConsumption(
     summary: summary,
     days: days,

@@ -11,9 +11,20 @@ Mis à jour et commité avec chaque sauvegarde.
   - `.claude/settings.local.json` écrit avec l'accord de Loick (19/11/2026), ignoré par git (ligne ajoutée
     au `.gitignore` du dépôt). Pas d'`Edit` dans `backend/` : si le backend doit changer, s'arrêter et
     demander.
-  - `frontend/mobile/DECOUPAGES.md` (F5 → F10, décisions D5.1 … D10.4) commité : **en attente de la
-    validation de Loick** (deuxième accord, obligatoire avant F6).
+  - `frontend/mobile/DECOUPAGES.md` **validé par Loick le 19/11/2026** (toutes les recommandations +
+    précisions en tête du fichier : versions fixes share_plus / open_filex, contrôle des autorisations de
+    l'APK, interrogation lente toutes les 15 s après 2 min, légende du calendrier, F9.5 Mise en ligne
+    Oracle + Caddy + DuckDNS). Enchaîner F4 → F5 → F6 (jusqu'à l'arrêt avant `POST /payments`).
 - **En cours** : F4.2 (écran Accueil, maquette `Main.dc.html`) sur `f4`.
+  - Fait (sauvegarde 2122940) : `lib/features/home/home_screen.dart` + `home_cards.dart`, page d'attente
+    `lib/features/pending/` (route `/accueil/bientot?ecran=…&etape=…`, protégée), formats
+    `formatWeekdayDate`, `formatMonthSoFar`, `formatApproxKwh`, `formatApproxFcfa`, icônes cloche et
+    chevron, `HeroBillCard(payment: HeroPayment.inProgress / none)`, 26 tests de l'écran.
+  - Défauts trouvés par les tests et corrigés : ligne d'activité qui débordait à 200 % (montant sous le
+    titre au-delà de 130 %) ; `(a, b).wait` enveloppait l'erreur (`ParallelWaitError`) → carte sans
+    « Hors connexion » ni référence (remplacé par `Future.wait`) ; libellé de la cloche fusionné avec la
+    date pour TalkBack (`Semantics(container: true)`).
+  - Reste : suite complète + analyse au vert, commit propre, intégration dans `main`, CI.
 - **CI** : verte sur bc09e44 (main, contient F4.1). L'échec de F4.0 (ea3bad7) était passager.
   `gh` installé (2.105.0) mais **pas encore connecté** (`gh auth login` à faire par Loick) : en attendant,
   état de la CI lu par l'API publique de GitHub.
@@ -29,6 +40,11 @@ Mis à jour et commité avec chaque sauvegarde.
 - Statuts (facture, transaction, rôle) gardés en texte dans les modèles, comme `statuses.dart` (une valeur
   nouvelle de l'API ne fait pas planter l'application).
 - Aucune relance automatique des lectures (`noAutomaticRetry`), sur tout conteneur Riverpod.
+- Accueil : compte neuf (aucun compteur, rien à payer) → seulement « Ajoutez votre premier compteur »
+  (pas de « Tout est payé » trompeur). Ni compte, ni foyers, ni factures lisibles → un seul bloc d'état.
+- Estimation de fin de mois : énergie seule (`energy_cost`, comme la maquette), arrondie (≈ kWh entier,
+  ≈ centaine de FCFA). Barres : la dernière (journée pas finie) et les jours estimés en pointillé.
+- Liens vers F4.3 → F8 : page d'attente poussée (sans barre du bas, bouton retour).
 
 ## Commandes utiles
 

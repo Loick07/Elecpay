@@ -1,6 +1,7 @@
 import 'package:elecpay/core/demo/demo_mode.dart';
 import 'package:elecpay/core/network/api_health.dart';
 import 'package:elecpay/core/widgets/demo_badge.dart';
+import 'package:elecpay/features/home/home_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,7 +86,7 @@ void main() {
     testWidgets('API injoignable, jamais su : badge affiché sur l’accueil', (tester) async {
       await AppHarness(stored: SessionHarness.tokens(1), health: unreachableApi()).start(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Accueil : bientôt'), findsOneWidget);
+      expect(find.byType(HomeScreen), findsOneWidget);
       expect(find.byType(DemoBadge), findsOneWidget);
     });
 

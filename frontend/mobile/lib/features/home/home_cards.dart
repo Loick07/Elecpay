@@ -315,7 +315,10 @@ class MonthCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(overline.toUpperCase(), style: AppText.overline.copyWith(color: c.inkMuted)),
+                    Text(
+                      overline.toUpperCase(),
+                      style: AppText.overline.copyWith(color: c.inkMuted),
+                    ),
                     const SizedBox(height: Space.s1),
                     Text.rich(
                       TextSpan(
@@ -341,10 +344,7 @@ class MonthCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (bars.isNotEmpty) ...[
-                const SizedBox(width: Space.s3),
-                DayBars(bars),
-              ],
+              if (bars.isNotEmpty) ...[const SizedBox(width: Space.s3), DayBars(bars)],
             ],
           ),
         ),
@@ -507,10 +507,7 @@ class _ActivityRow extends StatelessWidget {
     final c = context.colors;
     // Texte très agrandi : le montant passe sous le titre (sinon il écrase le titre ou déborde).
     final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.3;
-    final amount = Text(
-      formatFcfa(line.amount),
-      style: AppText.bodyStrong.copyWith(color: c.ink),
-    );
+    final amount = Text(formatFcfa(line.amount), style: AppText.bodyStrong.copyWith(color: c.ink));
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
       child: Padding(

@@ -111,7 +111,8 @@ void main() {
       await scrollThrough(tester);
       expect(find.text('Activité récente'), findsOneWidget);
       expect(find.text('Tout voir'), findsOneWidget);
-      expect(find.textContaining('payée'), findsOneWidget);
+      expect(find.text('Facture de juil.\u2013août 2026 payée'), findsOneWidget);
+      expect(find.textContaining('TEXTE API'), findsNothing);
       expect(find.textContaining('Nouvelle facture de'), findsOneWidget);
     });
 

@@ -68,6 +68,8 @@ Future<void> scrollThrough(WidgetTester tester) async {
     await tester.drag(find.byKey(const Key('bill.detail')), const Offset(0, -400));
     await tester.pump();
   }
+  // La comparaison lit la période de la facture précédente quand elle apparaît : on attend.
+  await settle(tester);
 }
 
 String label(WidgetTester tester, String key) => tester.getSemantics(find.byKey(Key(key))).label;
@@ -146,8 +148,25 @@ void main() {
     );
     expect(
       tester.widget<Text>(text).textSpan!.toPlainText(),
-      '+0,6\u00A0% par rapport à Juil.-Août 2026 (415,0\u00A0kWh · 31\u00A0281\u00A0FCFA).',
+      '+0,6\u00A0% par rapport à juil.\u2013août 2026 (415,0\u00A0kWh · 31\u00A0281\u00A0FCFA).',
     );
+  });
+
+  testWidgets('précédente illisible : « la facture précédente », jamais le libellé de l’API', (
+    tester,
+  ) async {
+    final backend = FakeHomeBackend()..billDetails.remove(90);
+    await pumpDetail(tester, backend);
+    await scrollThrough(tester);
+    final text = find.descendant(
+      of: find.byKey(const Key('bill.comparison')),
+      matching: find.byType(Text),
+    );
+    expect(
+      tester.widget<Text>(text).textSpan!.toPlainText(),
+      '+0,6\u00A0% par rapport à la facture précédente (415,0\u00A0kWh · 31\u00A0281\u00A0FCFA).',
+    );
+    expect(find.textContaining('TEXTE API'), findsNothing);
   });
 
   testWidgets('première facture du compteur : pas de comparaison', (tester) async {

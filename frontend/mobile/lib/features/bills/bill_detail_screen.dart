@@ -22,6 +22,7 @@ import '../../core/widgets/state_block.dart';
 import '../../core/widgets/status_badge.dart';
 import '../../core/widgets/statuses.dart';
 import '../home/home_screen.dart' show homeClockProvider;
+import 'bill_periods.dart';
 import 'bills_data.dart';
 import 'bills_rules.dart';
 
@@ -468,15 +469,17 @@ class _AmountRow extends StatelessWidget {
 
 /// Comparaison à la facture précédente du même compteur (consommation) : hausse en orange,
 /// baisse en vert, toujours avec le signe et le mot (jamais la couleur seule).
-class _Comparison extends StatelessWidget {
+class _Comparison extends ConsumerWidget {
   const _Comparison({required this.previous});
 
   final PreviousBillComparison? previous;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final p = previous;
+    // Période de la précédente à partir de ses DATES (jamais le libellé de l'API).
+    final period = p == null ? null : billPeriodText(ref.watch(billPeriodProvider(p.billId)).value);
     final Widget text;
     if (p == null) {
       text = Text(
@@ -485,12 +488,14 @@ class _Comparison extends StatelessWidget {
       );
     } else {
       final reference =
-          '${p.periodLabel} (${formatIndexKwh(p.consumptionKwh)} · '
+          '${period ?? 'la facture précédente'} (${formatIndexKwh(p.consumptionKwh)} · '
           '${formatFcfa(p.amountTotal)})';
       final percent = p.consumptionChangePercent;
       if (percent == null) {
         text = Text(
-          'Facture précédente : $reference.',
+          // Sans pourcentage (précédente à 0) : « Facture précédente : juil.–août 2026 (…). »
+          'Facture précédente : ${period ?? ''}${period == null ? '' : ' '}'
+          '(${formatIndexKwh(p.consumptionKwh)} · ${formatFcfa(p.amountTotal)}).',
           style: AppText.bodySm.copyWith(color: c.inkMuted),
         );
       } else {

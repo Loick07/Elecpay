@@ -300,6 +300,11 @@ bouton **Payer** est **désactivé**, avec la mention « Connexion nécessaire p
 
 ### F6 — Paiement, reçus et historique (écrans 8, 9, 10, 12)
 
+Début de F6 (décision de Loick du 19/11/2026) : les **libellés de période** ne reprennent plus le texte de
+l'API (`bill_period_label`, `period_label`) ; ils sont construits avec `formats.dart` à partir des
+dates (« juil.–août 2026 »), lues sur la facture quand le contrat ne les donne pas
+(`lib/features/bills/bill_periods.dart`).
+
 Feuille MTN MoMo / Airtel Money (numéro modifiable : payer pour un proche ; montant non modifiable ;
 clé d'idempotence), suivi en 3 étapes, interdiction de repayer pendant un paiement en cours ; reçu (numéro,
 code de vérification, Mode démo, télécharger / partager) ; historique par mois avec motifs d'échec.
@@ -356,3 +361,12 @@ complet contre l'API de démo ; **APK optimisé** : `--split-per-abi`, obfuscati
 
 Terminé quand : tout le parcours client (inscription → compteur → consommation → facture → paiement →
 reçu → historique) se fait sur le téléphone, sans erreur, et l'APK livré fait moins de 25 Mo.
+
+Ajouts de Loick (19/11/2026, rapport de F5) :
+- **unifier « charger la suite »** : un seul composant (`lib/core/widgets/load_more.dart`) pour les
+  Notifications et les Factures (aujourd'hui en double).
+
+### Après F10
+
+- **Recherche de facture** (bouton de la maquette de l'écran 6) : **filtre local** sur les factures déjà
+  chargées, **sans backend** (décision de Loick du 19/11/2026).

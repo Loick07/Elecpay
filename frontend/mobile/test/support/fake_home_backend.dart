@@ -60,7 +60,10 @@ class FakeHomeBackend {
   ];
 
   /// Détails (`GET /bills/{id}`) : la facture de la maquette de l'écran 7 sous l'identifiant 101.
-  Map<int, Map<String, Object?>> billDetails = {101: billDetail(101)};
+  Map<int, Map<String, Object?>> billDetails = {
+    101: billDetail(101),
+    90: billDetail(90, periodStart: '2026-07-01', periodEnd: '2026-08-31', withPrevious: false),
+  };
 
   /// Détail de la maquette de l'écran 7 (Maison Mpita, sept.–oct. 2026, 31 420 FCFA).
   static Map<String, Object?> billDetail(
@@ -70,6 +73,8 @@ class FakeHomeBackend {
     bool tariffAssumption = true,
     bool withPrevious = true,
     String? cancelledReason,
+    String periodStart = '2026-09-01',
+    String periodEnd = '2026-10-31',
   }) {
     Map<String, Object?> line(
       int position,
@@ -103,9 +108,9 @@ class FakeHomeBackend {
       'meter_id': 11,
       'meter_reference': '0412-8833',
       'meter_label': null,
-      'period_start': '2026-09-01',
-      'period_end': '2026-10-31',
-      'period_label': 'Sept.-Oct. 2026',
+      'period_start': periodStart,
+      'period_end': periodEnd,
+      'period_label': 'TEXTE API',
       'months_count': 2,
       'consumption_wh': 417400,
       'consumption_kwh': 417.4,
@@ -153,7 +158,8 @@ class FakeHomeBackend {
       'previous_bill': withPrevious
           ? {
               ..._api.sample('PreviousBillComparison'),
-              'period_label': 'Juil.-Août 2026',
+              'bill_id': 90,
+              'period_label': 'TEXTE API',
               'consumption_kwh': 415.0,
               'amount_total': 31281,
               'consumption_change_percent': 0.58,
@@ -172,6 +178,9 @@ class FakeHomeBackend {
       'confirmed_at': '2026-09-10T09:00:00Z',
       'operator_label': 'MTN MoMo',
       'amount': 31281,
+      'bill_id': 90,
+      // Libellé de l'API : JAMAIS affiché (l'écran construit la période à partir des dates).
+      'bill_period_label': 'TEXTE API',
     },
   ];
 

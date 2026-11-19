@@ -9,6 +9,7 @@ import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/tokens.g.dart';
 import '../../core/widgets/demo_badge.dart';
+import '../bills/bill_periods.dart';
 import 'home_rules.dart';
 
 // Morceaux de l'écran Accueil (maquette `Main.dc.html`). Ils ne reçoivent que des valeurs simples :
@@ -549,12 +550,20 @@ class _ActivityRow extends StatelessWidget {
 }
 
 /// Lignes d'activité affichées (textes de la maquette).
-List<ActivityLine> activityLines(List<ActivityItem> items) => [
+/// `periods` : période de chaque facture (par identifiant), pour un libellé construit à partir des
+/// dates ; inconnue : « Facture payée » (jamais le libellé de l'API).
+List<ActivityLine> activityLines(
+  List<ActivityItem> items, {
+  Map<int, BillPeriod> periods = const {},
+}) => [
   for (final item in items)
     switch (item) {
       PaymentActivity(:final payment) => (
         payment: true,
-        title: 'Facture ${payment.billPeriodLabel} payée',
+        title: switch (billPeriodText(periods[payment.billId])) {
+          final period? => 'Facture de $period payée',
+          null => 'Facture payée',
+        },
         subtitle: [
           payment.operatorLabel,
           if (!payment.isMine) 'par ${payment.payerName}',

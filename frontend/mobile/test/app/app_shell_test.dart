@@ -52,7 +52,11 @@ void main() {
     await tester.tap(find.text('Payer'));
     await tester.pumpAndSettle();
     expect(find.text('Impossible de charger vos factures. Réessayez.'), findsOneWidget);
-    expect(harness.backend.server.requests.where((r) => r.path == '/payments'), isEmpty);
+    // Aucun ENVOI de paiement (l'activité récente de l'accueil LIT /payments, c'est normal).
+    expect(
+      harness.backend.server.requests.where((r) => r.path == '/payments' && r.method == 'POST'),
+      isEmpty,
+    );
   });
 
   testWidgets('le contenu passe sous la barre (barre flottante en verre)', (tester) async {

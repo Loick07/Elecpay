@@ -327,7 +327,14 @@ class FakeHomeBackend {
       });
     }
     if (path == '/payments') {
-      return JsonReply(200, {'items': payments, 'page': 1, 'size': 3, 'total': payments.length});
+      // Filtres de l'API : `status` et `bill_id` (comme GET /payments).
+      final items = [
+        for (final p in payments)
+          if ((query['status'] == null || p['status'] == query['status']) &&
+              (query['bill_id'] == null || p['bill_id'] == query['bill_id']))
+            p,
+      ];
+      return JsonReply(200, {'items': items, 'page': 1, 'size': 3, 'total': items.length});
     }
     if (path == '/notifications/unread-count') return JsonReply(200, {'unread_count': unread});
     if (path == '/notifications' && request.method == 'GET') {

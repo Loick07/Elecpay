@@ -43,7 +43,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-    _flow.resume();
+    // Reprise du suivi APRÈS le premier affichage (pas de changement d'état pendant la
+    // construction de l'écran).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _flow.resume();
+    });
     // Réponse inconnue, paiement connu : on relit (lecture seule) régulièrement, écran ouvert.
     _recheck = Timer.periodic(PaymentScreen.recheckEvery, (_) {
       if (ref.read(paymentFlowProvider(widget.billId)) case PaymentUnknown(paymentId: _?)) {
@@ -90,15 +94,17 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       _ => null,
     };
     final phase = state.phase;
-    final showDemo =
-        payment?.source == 'simulated' || ref.watch(demoModeProvider).showBadge;
+    final showDemo = payment?.source == 'simulated' || ref.watch(demoModeProvider).showBadge;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(phase == TransactionPhase.pending ? 'Paiement en cours' : 'Paiement'),
         actions: [
           if (showDemo)
-            const Padding(padding: EdgeInsets.only(right: Space.s4), child: DemoBadge()),
+            const Padding(
+              padding: EdgeInsets.only(right: Space.s4),
+              child: DemoBadge(),
+            ),
         ],
       ),
       body: SafeArea(
@@ -121,7 +127,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                   TransactionStatusView(
                     phase: phase,
                     amount: payment?.amount ?? bill?.amountTotal ?? 0,
-                    operatorLabel: payment?.operatorLabel ?? request?.operator.label ?? 'Mobile Money',
+                    operatorLabel:
+                        payment?.operatorLabel ?? request?.operator.label ?? 'Mobile Money',
                     phone: payment?.phoneNumber ?? request?.phone ?? '',
                     reference: payment?.reference ?? 'Référence en attente',
                     failureReason: payment?.failureReason,
@@ -214,8 +221,7 @@ class _Steps extends StatelessWidget {
                         style: AppText.bodySm.copyWith(color: done ? c.ink : c.inkMuted),
                       ),
                     ),
-                    if (at.isNotEmpty)
-                      Text(at, style: AppText.caption.copyWith(color: c.inkMuted)),
+                    if (at.isNotEmpty) Text(at, style: AppText.caption.copyWith(color: c.inkMuted)),
                   ],
                 ),
               ),

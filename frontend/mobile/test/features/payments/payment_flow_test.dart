@@ -11,71 +11,12 @@ import 'package:elecpay/features/payments/payment_flow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../support/openapi.dart';
+import '../../support/fake_payments.dart';
 
-PaymentPublic payment(int id, String status, {String? reason}) => PaymentPublic.fromJson({
-  ...OpenApi.load().sample('PaymentPublic'),
-  'id': id,
-  'status': status,
-  'failure_reason': reason,
-});
+PaymentPublic payment(int id, String status, {String? reason}) =>
+    fakePayment(id, status, reason: reason);
 
 const request = PaymentRequest(billId: 101, operator: PaymentOperator.mtn, phone: '+242061234567');
-
-/// Fausse passerelle : réponses programmées, demandes notées (avec leur clé).
-class FakeGateway implements PaymentGateway {
-  final creates = <(PaymentRequest, String)>[];
-  final fetches = <int>[];
-
-  /// Réponse de la prochaine demande : un paiement, ou une erreur à lever.
-  final createReplies = <Object>[];
-
-  /// État renvoyé par `fetch` (par défaut : toujours en attente).
-  Object Function(int id) onFetch = (id) => payment(id, TransactionStatuses.pending);
-  Completer<void>? createGate;
-
-  @override
-  Future<PaymentPublic> create(PaymentRequest request, {required String idempotencyKey}) async {
-    creates.add((request, idempotencyKey));
-    await createGate?.future;
-    final reply = createReplies.isEmpty
-        ? payment(1, TransactionStatuses.pending)
-        : createReplies.removeAt(0);
-    if (reply is PaymentPublic) return reply;
-    throw reply;
-  }
-
-  @override
-  Future<PaymentPublic> fetch(int paymentId) async {
-    fetches.add(paymentId);
-    final reply = onFetch(paymentId);
-    if (reply is PaymentPublic) return reply;
-    throw reply;
-  }
-}
-
-/// Horloge et attentes commandées par le test : chaque attente avance l'horloge et attend `tick()`.
-class FakeTiming {
-  DateTime now = DateTime.utc(2026, 11, 12, 9);
-  final waits = <Duration>[];
-  Completer<void>? _pending;
-
-  Future<void> wait(Duration d) {
-    waits.add(d);
-    now = now.add(d);
-    return (_pending = Completer<void>()).future;
-  }
-
-  /// Libère l'attente en cours, puis laisse le suivi avancer.
-  Future<void> tick() async {
-    final c = _pending;
-    _pending = null;
-    c?.complete();
-    await pumpEventQueue();
-  }
-
-  PaymentTiming get timing => PaymentTiming(now: () => now, wait: wait);
-}
 
 class Harness {
   Harness() {

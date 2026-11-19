@@ -69,6 +69,9 @@ class PaymentSheetContent extends StatefulWidget {
     super.key,
   });
 
+  /// Texte affiché quand on paie depuis le numéro d'un proche (D6.3).
+  static const someoneElseNote = 'Le titulaire de ce numéro recevra la demande de confirmation.';
+
   /// Refus de l'API à afficher au-dessus de Payer (numéro refusé, facture déjà payée…).
   final String? error;
 
@@ -95,9 +98,6 @@ class _PaymentSheetContentState extends State<PaymentSheetContent> {
   )..addListener(_onPhoneChanged);
   String? _phoneError;
   bool _forSomeoneElse = false;
-
-  /// Texte affiché quand on paie depuis le numéro d'un proche.
-  static const someoneElseNote = 'Le titulaire de ce numéro recevra la demande de confirmation.';
 
   void _onPhoneChanged() {
     String? normalized;
@@ -161,7 +161,7 @@ class _PaymentSheetContentState extends State<PaymentSheetContent> {
         if (_forSomeoneElse) ...[
           const SizedBox(height: Space.s2),
           Text(
-            someoneElseNote,
+            PaymentSheetContent.someoneElseNote,
             key: const Key('payment.someoneElse'),
             style: AppText.bodySm.copyWith(color: c.currentText),
           ),

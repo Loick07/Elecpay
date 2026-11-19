@@ -120,7 +120,9 @@ Future<void> openPaymentInProgress(BuildContext context, WidgetRef ref, int bill
       final pending = page.data.items.firstOrNull;
       if (pending == null) {
         messenger.showSnackBar(
-          const SnackBar(content: Text('Ce paiement est terminé. Actualisez pour voir la facture.')),
+          const SnackBar(
+            content: Text('Ce paiement est terminé. Actualisez pour voir la facture.'),
+          ),
         );
         return;
       }
@@ -201,7 +203,8 @@ class _ChooseBill extends StatelessWidget {
         for (final bill in bills)
           BillRow(
             key: Key('pay.choose.${bill.id}'),
-            title: '${bill.householdName} · '
+            title:
+                '${bill.householdName} · '
                 '${formatBillPeriodShort(bill.periodStart, bill.periodEnd)}',
             subtitle: billRowSubtitle(bill),
             amount: bill.amountTotal,

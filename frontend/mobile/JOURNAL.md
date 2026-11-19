@@ -6,23 +6,19 @@ Mis à jour et commité avec chaque sauvegarde.
 ## État au 19/11/2026
 
 - **F4 terminé et validé par Loick.** **F5 (factures) en cours**, branche **`f5`** (« Continue » reçu).
-- Sous-étapes de F5 faites, intégrées dans `main`, CI verte : F5.1 (a5d40ef), F5.2 (c83d7b4), F5.3 (efacfd9).
-- **En cours : F5.4 (PDF)**, pas encore commité :
-  - `share_plus` 13.3.1 et `open_filex` 5.0.0 (versions fixes) ; `lib/core/documents/documents.dart`
-    (téléchargement dans le dossier privé, ouverture, partage ; remplaçables en test) ;
-  - `ApiClient.getBytes` (+ corps d'erreur relu en JSON : sinon un 404 donnait « réponse inattendue ») ;
-  - `apk_check` : liste blanche des autorisations, toujours active ; `open_filex` déclarait
-    READ_EXTERNAL_STORAGE et READ_MEDIA_* : retirées dans le manifeste (`tools:node="remove"`), inutiles
-    pour un fichier du dossier privé (vérifié dans son code) ; `<queries>` VIEW application/pdf ;
-  - détail : « PDF » collé en bas et « Partager » en haut, désactivés hors ligne ;
-  - à faire : APK release + `apk_check` (en cours de construction), suite complète, commit, fusion.
+- Sous-étapes de F5 faites, intégrées dans `main`, CI verte : F5.1 (a5d40ef), F5.2 (c83d7b4), F5.3 (efacfd9), F5.4.
+- **F5.4 (PDF) terminé** : `share_plus` 13.3.1 et `open_filex` 5.0.0 (versions fixes),
+  `lib/core/documents/documents.dart`, `ApiClient.getBytes` (corps d'erreur relu en JSON),
+  `apk_check` : liste blanche des autorisations (toujours active) ; autorisations de stockage et de
+  médias d'`open_filex` retirées du manifeste (APK final : INTERNET + récepteurs internes) ;
+  « PDF » et « Partager » dans le détail, désactivés hors ligne. APK de l'itel 16,6 Mo. 1191 tests.
 - **Fichier à supprimer par Loick** : `test/_debug/pages_debug_test.dart` (test de débogage temporaire ;
   la suppression m'a été refusée, il n'est jamais commité : `git add -A -- . ':!test/_debug'`).
 - Reste ensuite : F5.5 (clôture, jalon sur l'itel : prévenir Loick un peu avant).
 
 ## Prochaine action
 
-1. Finir F5.4 (voir ci-dessus), puis F5.5 : prévenir Loick pour le jalon (itel en débogage sans fil),
+1. F5.5 : prévenir Loick pour le jalon (itel en débogage sans fil),
    jouer `auth_flows_test.dart`, `home_notifications_test.dart` et un test d'intégration des factures,
    captures listées dans `rapports/F4.md` + celles de F5 ; rapport `rapports/F5.md` ; arrêt.
 

@@ -131,9 +131,10 @@ l'API de démo du PC (tunnel `adb reverse`).
 
 Conditions de Loick :
 - **lancés seulement aux jalons**, jamais dans la CI (pas de téléphone dans GitHub Actions) ;
-- **base de démo remise à zéro avant chaque passage** (`python -m scripts.reset_db && python -m
-  scripts.seed`), pour ne dépendre d'aucun compte déjà modifié ; chaque test crée en plus son propre
-  compte (numéro pris dans une plage réservée aux tests) ;
+- **base remise à zéro avant chaque passage** (`reset_db` + `seed`), pour ne dépendre d'aucun compte
+  déjà modifié : la base **dédiée `elecpay_e2e`** (`docker/mysql/init/02-e2e-database.sql`, décidé en
+  F4.0), jamais la base de démo `elecpay` ; chaque test crée en plus son propre compte (06 99x xx xx) ;
+  captures et journaux dans `build/integration/`, jamais commités (`/build/` ignoré par git) ;
 - ils **complètent le regard de Loick sur le téléphone, ils ne le remplacent pas**.
 
 Premier test d'intégration (jalon F3) : `integration_test/glass_perf_test.dart`, temps d'image du

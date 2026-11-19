@@ -47,6 +47,17 @@ class ApiClient {
     (data) => decode(_asObject(data)),
   );
 
+  /// Lecture d'un TABLEAU JSON (ex. `GET /households`), décodé par `decode`.
+  Future<T> getList<T>(
+    String path,
+    T Function(List<dynamic> json) decode, {
+    Map<String, Object?>? query,
+    bool authenticated = true,
+  }) => _send(
+    () => _dio.get<Object?>(path, queryParameters: query, options: _options(authenticated)),
+    (data) => decode(data! as List<dynamic>),
+  );
+
   /// Envoi d'un corps JSON (`body` : un modèle avec `toJson`, ou une Map), réponse objet.
   Future<T> postObject<T>(
     String path,

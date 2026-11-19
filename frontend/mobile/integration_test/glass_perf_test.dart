@@ -9,6 +9,7 @@
 // pas besoin du service de débogage Dart (watchPerformance s'y connecte pour le ramasse-miettes,
 // ce qui échoue en débogage sans fil).
 import 'package:elecpay/app/app.dart';
+import 'package:elecpay/app/riverpod_config.dart';
 import 'package:elecpay/app/router.dart';
 import 'package:elecpay/core/config/app_config.dart';
 import 'package:elecpay/core/widgets/glass.dart';
@@ -75,6 +76,7 @@ void main() {
 
     testWidgets('Catalogue : défilement et feuille ($name)', (tester) async {
       final container = ProviderContainer(
+        retry: noAutomaticRetry,
         overrides: [appConfigProvider.overrideWithValue(AppConfig.fromEnvironment())],
       );
       addTearDown(container.dispose);

@@ -266,6 +266,15 @@ Facture la plus urgente (carte verre), consommation du mois et estimation, activ
 nombre de non lues ; notifications groupées (aujourd'hui, cette semaine, plus tôt), « Tout marquer comme lu »,
 ouverture du bon écran.
 
+Limite acceptée par Loick (F4.1, 19/11/2026) : les factures à payer de **tous** les foyers sont lues en
+**une seule fois, 100 au plus** (`GET /bills?status=to_pay&size=100`, `toPayPageSize` dans
+`lib/features/home/home_data.dart`). Cette lecture sert la carte urgente, le foyer par défaut et le rappel
+« 1 facture en retard dans … ». Au-delà de 100 factures ouvertes (irréaliste pour un abonné), les plus
+anciennes ne seraient pas vues par l'accueil (l'écran Factures, lui, pagine).
+
+Règle transversale (F4.1) : **aucune relance automatique** d'une lecture en échec (`noAutomaticRetry`,
+`lib/app/riverpod_config.dart`, sur tout conteneur Riverpod ; testé).
+
 ### F5 — Factures (écrans 6, 7)
 
 Reste à payer tous foyers, filtres, regroupement par mois, état vide ; détail **bimestriel** avec les 6 lignes

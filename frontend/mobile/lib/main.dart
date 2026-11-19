@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
 import 'app/licenses.dart';
+import 'app/riverpod_config.dart';
 import 'core/config/app_config.dart';
 
 /// Point d'entrée de l'application ElecPay (client).
@@ -20,6 +21,7 @@ void main() {
   }
   runApp(
     ProviderScope(
+      retry: noAutomaticRetry, // jamais de relance automatique d'une lecture en échec
       overrides: [appConfigProvider.overrideWithValue(config)],
       child: const ElecPayApp(),
     ),

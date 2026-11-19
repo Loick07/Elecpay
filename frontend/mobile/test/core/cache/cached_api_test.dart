@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:elecpay/core/cache/cache_store.dart';
 import 'package:elecpay/core/cache/cached_api.dart';
 import 'package:elecpay/core/config/app_config.dart';
+import 'package:elecpay/core/models/households.dart';
 import 'package:elecpay/core/network/api_client.dart';
 import 'package:elecpay/core/network/api_failure.dart';
 import 'package:elecpay/features/auth/models/auth_models.dart';
@@ -145,6 +146,50 @@ void main() {
         expect(await failureOf(h.me), isA<ApiRejected>());
       });
     }
+  });
+
+  group('tableau (getList, ex. GET /households)', () {
+    final household = OpenApi.load().sample('HouseholdSummary');
+    Future<Fetched<List<HouseholdSummary>>> households(Harness h) =>
+        h.cached.getList('/households', HouseholdSummary.fromJson);
+
+    test('donnée fraîche, rangée en cache sous {"items": […]}', () async {
+      final h = Harness()
+        ..reply = JsonReply(200, [
+          household,
+          {...household, 'id': 7},
+        ]);
+      final result = await households(h);
+      expect(result, isA<FreshData<List<HouseholdSummary>>>());
+      expect(result.data.map((f) => f.id), [42, 7]);
+      expect((h.store.users[42]!['/households']!.data['items'] as List).length, 2);
+    });
+
+    test('hors ligne : la dernière liste, avec sa date', () async {
+      final h = Harness()..reply = JsonReply(200, [household]);
+      await households(h);
+      h.reply = const FailReply(DioExceptionType.connectionError);
+      final result = await households(h);
+      expect(result, isA<CachedData<List<HouseholdSummary>>>());
+      expect(result.data.single.id, 42);
+    });
+
+    test('liste vide : rendue vide (aucun foyer), pas une erreur', () async {
+      final h = Harness()..reply = const JsonReply(200, <Object>[]);
+      expect((await households(h)).data, isEmpty);
+    });
+
+    test('un refus de l’API n’est jamais masqué par le cache', () async {
+      final h = Harness()..reply = JsonReply(200, [household]);
+      await households(h);
+      h.reply = JsonReply(403, apiError('FORBIDDEN', 'Refusé.'));
+      expect(await failureOf(() => households(h)), isA<ApiRejected>());
+    });
+
+    test('un objet au lieu d’un tableau (contrat non respecté) : réponse inattendue', () async {
+      final h = Harness()..reply = JsonReply(200, household);
+      expect(await failureOf(() => households(h)), isA<UnexpectedResponse>());
+    });
   });
 
   group('rangé par utilisateur', () {

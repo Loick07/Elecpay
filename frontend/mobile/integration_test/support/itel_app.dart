@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:elecpay/app/app.dart';
+import 'package:elecpay/app/riverpod_config.dart';
 import 'package:elecpay/core/cache/cache_store.dart';
 import 'package:elecpay/core/config/app_config.dart';
 import 'package:elecpay/core/session/token_store.dart';
@@ -32,6 +33,7 @@ Future<ProviderContainer> startApp(WidgetTester tester) async {
   _surfaceConverted = false; // Flutter remet la surface d'origine à la fin de chaque test
   await SecureTokenStore().clear();
   final container = ProviderContainer(
+    retry: noAutomaticRetry,
     overrides: [appConfigProvider.overrideWithValue(AppConfig.fromEnvironment())],
   );
   addTearDown(container.dispose);

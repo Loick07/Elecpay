@@ -98,6 +98,38 @@ class CachedApi {
     }
   }
 
+  /// Comme [get], pour une route qui renvoie un TABLEAU (ex. `GET /households`) : chaque élément
+  /// est décodé par `decodeItem`. En cache, le tableau est rangé sous `{"items": [...]}`.
+  Future<Fetched<List<T>>> getList<T>(
+    String path,
+    T Function(Map<String, dynamic> json) decodeItem, {
+    Map<String, Object?>? query,
+  }) async {
+    List<T> decodeAll(List<dynamic> items) => [
+      for (final item in items) decodeItem(item as Map<String, dynamic>),
+    ];
+    final key = cacheKey(path, query);
+    final cacheable = isCacheable(path);
+    late List<dynamic> raw;
+    try {
+      final value = await _api.getList(path, (json) {
+        raw = json;
+        return decodeAll(json);
+      }, query: query);
+      if (cacheable) await _save(key, {'items': raw});
+      return FreshData(value);
+    } on ApiFailure catch (failure) {
+      if (!cacheable || !_apiUnreachable(failure)) rethrow;
+      final fromCache = await _load(
+        key,
+        (json) => decodeAll(json['items'] as List<dynamic>),
+        failure,
+      );
+      if (fromCache == null) rethrow;
+      return fromCache;
+    }
+  }
+
   static bool _apiUnreachable(ApiFailure failure) =>
       failure is NoConnection || failure is ApiTimeout || failure is ServerUnavailable;
 

@@ -1,4 +1,5 @@
 import 'package:elecpay/app/app.dart';
+import 'package:elecpay/app/riverpod_config.dart';
 import 'package:elecpay/core/cache/cache_store.dart';
 import 'package:elecpay/core/config/app_config.dart';
 import 'package:elecpay/core/demo/demo_mode.dart';
@@ -63,7 +64,9 @@ class AppHarness {
     tester.view.physicalSize = itelPhysicalSize;
     tester.view.devicePixelRatio = itelPixelRatio;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(ProviderScope(overrides: overrides, child: const ElecPayApp()));
+    await tester.pumpWidget(
+      ProviderScope(retry: noAutomaticRetry, overrides: overrides, child: const ElecPayApp()),
+    );
   }
 
   /// Le conteneur de l'application lancée (pour lire la session, le routeur…).

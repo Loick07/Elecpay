@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:elecpay/core/models/bills.dart';
+import 'package:elecpay/core/models/consumption.dart';
+import 'package:elecpay/core/models/households.dart';
+import 'package:elecpay/core/models/notifications.dart';
+import 'package:elecpay/core/models/payments.dart';
 import 'package:elecpay/core/network/models/api_error.dart';
 import 'package:elecpay/features/auth/models/auth_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +32,24 @@ const cases = <ContractCase>[
   ContractCase('ForgotPasswordResponse', ForgotPasswordResponse.fromJson),
   ContractCase('ResetPasswordRequest', ResetPasswordRequest.fromJson),
   ContractCase('RefreshRequest', RefreshRequest.fromJson),
+  // F4 (accueil) : foyers, factures, paiements, consommation, notifications.
+  ContractCase('HouseholdSummary', HouseholdSummary.fromJson),
+  ContractCase('MeterDetail', MeterDetail.fromJson),
+  ContractCase('BillSummary', BillSummary.fromJson),
+  ContractCase('Outstanding', Outstanding.fromJson),
+  ContractCase('BillList', BillList.fromJson),
+  ContractCase('PaymentPublic', PaymentPublic.fromJson),
+  ContractCase('Page_PaymentPublic_', PaymentPage.fromJson),
+  ContractCase('DayPeak', DayPeak.fromJson),
+  ContractCase('MonthSoFar', MonthSoFar.fromJson),
+  ContractCase('LastMonth', LastMonth.fromJson),
+  ContractCase('MonthEndEstimate', MonthEndEstimate.fromJson),
+  ContractCase('ConsumptionSummary', ConsumptionSummary.fromJson),
+  ContractCase('ConsumptionPoint', ConsumptionPoint.fromJson),
+  ContractCase('ConsumptionTotals', ConsumptionTotals.fromJson),
+  ContractCase('ConsumptionComparison', ConsumptionComparison.fromJson),
+  ContractCase('ConsumptionSeries', ConsumptionSeries.fromJson),
+  ContractCase('UnreadCount', UnreadCount.fromJson),
 ];
 
 /// `toJson()` de chaque modèle freezed, passé par du vrai JSON (comme sur le réseau).

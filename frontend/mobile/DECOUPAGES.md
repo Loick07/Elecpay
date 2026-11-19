@@ -9,6 +9,9 @@ texte des décisions plus bas.
 - **D5.1** : `share_plus` et `open_filex` en **versions fixes**. `tool/apk_check.dart` contrôle en plus
   les **autorisations finales de l'APK release** : aucune autorisation sensible, notamment
   `REQUEST_INSTALL_PACKAGES` (contrôle en CI).
+- **D5.2** (correction du 19/11/2026) : factures groupées par **période**, comme la maquette.
+- **Jalon sur le téléphone** (19/11/2026) : l'itel est indisponible ; le jalon de mi-parcours devient un
+  **jalon groupé F4 + F5 + F6**, à jouer dès que l'itel revient.
 - **F6** : après 2 min, « Vérification en cours » **continue d'interroger plus lentement** (environ
   toutes les 15 s) tant que l'écran est ouvert, jusqu'à un état final (le backend n'expire qu'à 10 min).
 - **D7.3** : la couleur n'est **jamais** le seul moyen de comprendre : une **légende**, et le niveau
@@ -64,9 +67,10 @@ de modifier quoi que ce soit dans `backend/`.
   - c) lecteur PDF dans l'application (`pdfx`) : plus lourd (+ plusieurs Mo dans l'APK).
   - **Recommandation : b)**, deux petits paquets ; si le téléphone n'a aucun lecteur PDF, message « Aucune
     application pour ouvrir le PDF » et on propose Partager. Même solution pour le reçu (F6).
-- **D5.2 Regroupement par mois** : par **mois d'émission** (« Novembre 2026 ») ou par **période**
-  (« Sept.-Oct. 2026 ») ? **Recommandation : mois d'émission**, comme la maquette ; la période reste écrite
-  sur chaque ligne.
+- **D5.2 Regroupement** — **corrigé le 19/11/2026 avec l'accord de Loick : par PÉRIODE de
+  facturation** (« Septembre – octobre 2026 »), comme la maquette `Factures.dc.html` et le guide
+  `backend/docs/FACTURES.md` (« grouper par `period_start` »). La recommandation d'origine (« mois
+  d'émission, comme la maquette ») était une erreur de lecture de la maquette.
 - **D5.3 Filtre par foyer sur Mes factures** : la maquette n'en montre pas (« tous foyers »). Ajouter un
   sélecteur de foyer quand il y en a plusieurs ? **Recommandation : non en F5** (fidèle à la maquette) ; le
   nom du foyer est écrit sur chaque ligne. À revoir après le jalon si c'est confus.

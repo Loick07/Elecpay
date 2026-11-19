@@ -237,5 +237,15 @@ estimé, activité ; liens vers les étapes suivantes = pages d'attente `/accuei
 sans interrogation périodique). Découpages F5 → F10 validés : `frontend/mobile/DECOUPAGES.md`.
 1003 tests, APK release de l'itel 16,1 Mo.
 
-**Prochaine étape : F5** (factures), après le « Continue » de Loick. Jalon sur l'itel après F5
-(tests d'intégration de F3 et F4 sur la base `elecpay_e2e`).
+**F5 (factures) ✅ terminé le 19/11/2026** — rapport `frontend/mobile/rapports/F5.md`. « Mes factures »
+(`lib/features/bills/` : reste à payer, onglets avec leur nombre, groupes par **période** comme la
+maquette, pages de 20) et détail bimestriel E²C (6 lignes, total hors taxes, comparaison, Payer collé en
+bas, désactivé hors ligne) ; PDF ouvert ou partagé (`lib/core/documents/`, `share_plus` / `open_filex`
+en versions fixes) ; `apk_check` refuse toute autorisation hors liste blanche (l'APK n'a qu'`INTERNET`).
+1190 tests, APK release de l'itel 16,6 Mo.
+
+**Jalon sur le téléphone reporté** (itel en panne) : **jalon groupé F4 + F5 + F6** dès que l'itel revient
+(tests d'intégration F3 + F4 + F5, captures, PDF, texte agrandi, TalkBack, fluidité).
+
+**Prochaine étape : F6** (paiement, reçus, historique), après le « Continue » de Loick ; arrêt avant de
+brancher `POST /payments`.

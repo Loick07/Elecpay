@@ -13,8 +13,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F2 | Composants de la charte et formats | ✅ terminé le 18/11/2026 |
 | F3 | Connexion | ✅ terminé le 18/11/2026 |
 | F4 | Accueil et notifications | ✅ terminé le 19/11/2026 |
-| F5 | Factures | prochaine étape |
-| F6 | Paiement, reçus et historique | à faire |
+| F5 | Factures | ✅ terminé le 19/11/2026 (sans le jalon sur le téléphone) |
+| F6 | Paiement, reçus et historique | prochaine étape |
 | F7 | Consommation | à faire |
 | F8 | Compteurs et foyers | à faire |
 | F9 | Compte et assistance | à faire |
@@ -100,7 +100,16 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   F4.4 test d'intégration `integration_test/home_notifications_test.dart` (pas encore joué : jalon après
   F5). 1003 tests ; APK release de l'itel 16,1 Mo.
 - **Découpages de F5 à F10 validés** le 19/11/2026 : `DECOUPAGES.md` (avec les précisions de Loick).
-- **Prochaine étape : F5** (factures), après le « Continue » de Loick. Jalon sur l'itel après F5.
+- **F5 ✅ terminé le 19/11/2026** (rapport `rapports/F5.md`) : F5.1 lectures des factures (onglets,
+  pages de 20, pastilles, détail) ; F5.2 « Mes factures » (`lib/features/bills/bills_screen.dart`,
+  groupes par PÉRIODE comme la maquette) ; F5.3 détail bimestriel E²C (`bill_detail_screen.dart`) ;
+  F5.4 PDF (`lib/core/documents/`, `share_plus` 13.3.1 et `open_filex` 5.0.0 fixés, autorisations de
+  l'APK en liste blanche dans `apk_check`) ; F5.5 test d'intégration `integration_test/bills_test.dart`
+  (pas encore joué). 1190 tests ; APK release de l'itel 16,6 Mo.
+- **Jalon sur le téléphone REPORTÉ** (itel en panne, 19/11/2026) : il devient un **jalon groupé
+  F4 + F5 + F6**, à jouer dès que l'itel revient (voir le tableau des jalons ci-dessous).
+- **Prochaine étape : F6** (paiement, reçus, historique), après le « Continue » de Loick. Arrêt prévu
+  avant de brancher `POST /payments`.
 
 ## Méthode (la même que pour le backend)
 
@@ -123,7 +132,7 @@ l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, s
 |---|---|
 | Fin de F1 | connexion de démo, hors ligne, déconnexion |
 | Fin de F3 | premiers vrais écrans : connexion, inscription |
-| Mi-parcours (tableau de bord, factures : F4–F5) | rendu, fluidité, lisibilité |
+| Mi-parcours, **groupé F4 + F5 + F6** (itel en panne le 19/11/2026 ; à jouer dès son retour) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement |
 | Fin de F10 | APK release installé à la main + backend en ligne en HTTPS |
 
 Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.

@@ -5,22 +5,20 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## État au 19/11/2026
 
-- **F4 terminé et validé par Loick.** **F5 (factures) en cours**, branche **`f5`** (« Continue » reçu).
-- Sous-étapes de F5 faites, intégrées dans `main`, CI verte : F5.1 (a5d40ef), F5.2 (c83d7b4), F5.3 (efacfd9), F5.4.
-- **F5.4 (PDF) terminé** : `share_plus` 13.3.1 et `open_filex` 5.0.0 (versions fixes),
-  `lib/core/documents/documents.dart`, `ApiClient.getBytes` (corps d'erreur relu en JSON),
-  `apk_check` : liste blanche des autorisations (toujours active) ; autorisations de stockage et de
-  médias d'`open_filex` retirées du manifeste (APK final : INTERNET + récepteurs internes) ;
-  « PDF » et « Partager » dans le détail, désactivés hors ligne. APK de l'itel 16,6 Mo. 1191 tests.
-- **Fichier à supprimer par Loick** : `test/_debug/pages_debug_test.dart` (test de débogage temporaire ;
-  la suppression m'a été refusée, il n'est jamais commité : `git add -A -- . ':!test/_debug'`).
-- Reste ensuite : F5.5 (clôture, jalon sur l'itel : prévenir Loick un peu avant).
+- **F4 et F5 terminés** (rapports `rapports/F4.md`, `rapports/F5.md`), intégrés dans `main`, CI verte.
+  **On attend le « Continue » de Loick** avant F6.
+- **Jalon sur le téléphone REPORTÉ** : l'itel de Loick ne démarre plus. Il devient un **jalon groupé
+  F4 + F5 + F6**, à jouer dès que l'itel revient (liste complète en fin de `rapports/F5.md`) : tests
+  d'intégration `auth_flows_test.dart`, `home_notifications_test.dart`, `bills_test.dart` (+ ceux de F6),
+  captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement.
+- `test/_debug/pages_debug_test.dart` : Loick dit l'avoir supprimé, mais il était encore présent le
+  19/11/2026 au soir ; jamais commité (`git add -A -- . ':!test/_debug'` tant qu'il existe).
 
 ## Prochaine action
 
-1. F5.5 : prévenir Loick pour le jalon (itel en débogage sans fil),
-   jouer `auth_flows_test.dart`, `home_notifications_test.dart` et un test d'intégration des factures,
-   captures listées dans `rapports/F4.md` + celles de F5 ; rapport `rapports/F5.md` ; arrêt.
+1. Après le « Continue » : branche `f6` depuis `main`, F6.1 (modèles et règles du paiement, sans envoi
+   réel) selon `DECOUPAGES.md` (avec la précision : après 2 min, interroger environ toutes les 15 s).
+2. Arrêt obligatoire avant F6.3 (branchement de `POST /payments`) : rapport et accord de Loick.
 
 ## Choix faits en route
 

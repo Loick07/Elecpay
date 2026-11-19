@@ -33,6 +33,9 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Commandes utiles
 
+- **Avant chaque commit** : `git branch --show-current` (jamais `main`) ; **juste après chaque fusion**
+  dans `main` : `git switch` de retour sur la branche de l'étape.
+
 - Tests et analyse (depuis `frontend/mobile`) : `flutter analyze`, `flutter test --reporter failures-only`
 - Format exactement comme la CI, **juste avant chaque commit** :
   `git ls-files '*.dart' | grep -vE '\.(g|freezed)\.dart$' | xargs dart format --output=none --set-exit-if-changed`

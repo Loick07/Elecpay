@@ -152,6 +152,16 @@ String formatBillPeriod(DateTime start, DateTime end) {
   return '$from $enDash ${formatCalendarDate(end)} · $months mois';
 }
 
+/// Titre d'un groupe de « Mes factures » (maquette de l'écran 6) : « Septembre – octobre 2026 » ;
+/// sur deux années : « Décembre 2026 – janvier 2027 » ; un seul mois : « Octobre 2026 ».
+String formatBillPeriodGroup(DateTime start, DateTime end) {
+  if (_monthIndex(start) == _monthIndex(end)) return formatMonthYear(end.year, end.month);
+  final from = _capitalized(_monthsLong[start.month - 1]);
+  final to = _monthsLong[end.month - 1];
+  if (start.year == end.year) return '$from $enDash $to ${end.year}';
+  return '$from ${start.year} $enDash $to ${end.year}';
+}
+
 /// Période courte (listes) : « sept.–oct. 2026 » ; « déc. 2026–janv. 2027 » ; un seul mois : « oct. 2026 ».
 String formatBillPeriodShort(DateTime start, DateTime end) {
   if (_monthIndex(start) == _monthIndex(end)) return '${_short(end.month)} ${end.year}';

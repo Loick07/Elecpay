@@ -54,6 +54,116 @@ class FakeHomeBackend {
     bill(101, household: 1, meter: 11, issued: '2026-11-03T08:00:00Z'),
   ];
 
+  /// Factures payées (`GET /bills?status=paid`).
+  List<Map<String, Object?>> paidBills = [
+    bill(90, household: 1, meter: 11, status: BillStatuses.paid, due: '2026-09-18'),
+  ];
+
+  /// Détails (`GET /bills/{id}`) : la facture de la maquette de l'écran 7 sous l'identifiant 101.
+  Map<int, Map<String, Object?>> billDetails = {101: billDetail(101)};
+
+  /// Détail de la maquette de l'écran 7 (Maison Mpita, sept.–oct. 2026, 31 420 FCFA).
+  static Map<String, Object?> billDetail(
+    int id, {
+    String status = BillStatuses.unpaid,
+    bool canPay = true,
+    bool tariffAssumption = true,
+    bool withPrevious = true,
+    String? cancelledReason,
+  }) {
+    Map<String, Object?> line(
+      int position,
+      String kind,
+      String label,
+      int amount, {
+      double? quantity,
+      String? unit,
+      double? unitPrice,
+      double? rate,
+    }) => {
+      'position': position,
+      'kind': kind,
+      'label': label,
+      'quantity_milli': quantity == null ? null : (quantity * 1000).round(),
+      'quantity': quantity,
+      'unit': unit,
+      'unit_price_milli': unitPrice == null ? null : (unitPrice * 1000).round(),
+      'unit_price': unitPrice,
+      'rate_bp': rate == null ? null : (rate * 100).round(),
+      'rate_percent': rate,
+      'base_amount': null,
+      'amount': amount,
+    };
+    return {
+      ..._api.sample('BillDetail'),
+      'id': id,
+      'reference': '20261103000127',
+      'household_id': 1,
+      'household_name': 'Maison Mpita',
+      'meter_id': 11,
+      'meter_reference': '0412-8833',
+      'meter_label': null,
+      'period_start': '2026-09-01',
+      'period_end': '2026-10-31',
+      'period_label': 'Sept.-Oct. 2026',
+      'months_count': 2,
+      'consumption_wh': 417400,
+      'consumption_kwh': 417.4,
+      'amount_total': 31420,
+      'issued_at': '2026-11-03T07:00:00Z',
+      'due_date': '2026-11-18',
+      'status': status,
+      'days_overdue': 0,
+      'paid_at': status == BillStatuses.paid ? '2026-11-10T09:00:00Z' : null,
+      'my_role': 'owner',
+      'can_pay': canPay,
+      'source': 'simulated',
+      'previous_index_wh': 18247000,
+      'current_index_wh': 18664400,
+      'previous_index_kwh': 18247.0,
+      'current_index_kwh': 18664.4,
+      'amount_ht': 25585,
+      'amount_tax': 4835,
+      'amount_fees': 1000,
+      'lines': [
+        line(
+          1,
+          'energy',
+          'Montant consommation',
+          20485,
+          quantity: 417.4,
+          unit: 'kWh',
+          unitPrice: 49.08,
+        ),
+        line(
+          2,
+          'fixed_fee',
+          'Droit à la consommation',
+          5100,
+          quantity: 2,
+          unit: 'mois',
+          unitPrice: 2550,
+        ),
+        line(3, 'vat', 'T.V.A.', 4605, rate: 18),
+        line(4, 'additional_tax', 'Centimes additionnels (C.A.)', 230, rate: 5),
+        line(5, 'audiovisual_fee', 'Redevance audiovisuelle (RAV)', 1000),
+        line(6, 'stamp', 'Timbre électronique', 0),
+      ],
+      'tariff': {..._api.sample('TariffPublic'), 'is_assumption': tariffAssumption},
+      'previous_bill': withPrevious
+          ? {
+              ..._api.sample('PreviousBillComparison'),
+              'period_label': 'Juil.-Août 2026',
+              'consumption_kwh': 415.0,
+              'amount_total': 31281,
+              'consumption_change_percent': 0.58,
+            }
+          : null,
+      'cancelled_at': cancelledReason == null ? null : '2026-11-05T09:00:00Z',
+      'cancelled_reason': cancelledReason,
+    };
+  }
+
   List<Map<String, Object?>> payments = [
     {
       ..._api.sample('PaymentPublic'),
@@ -162,7 +272,27 @@ class FakeHomeBackend {
       return JsonReply(200, meters[int.parse(householdMeters.group(1)!)] ?? <Object>[]);
     }
     if (path == '/bills') {
-      return JsonReply(200, _billList(query['status'] == BillFilters.toPay ? toPay : latestBills));
+      final items = switch (query['status']) {
+        BillFilters.toPay => toPay,
+        BillFilters.overdue => toPay.where((b) => b['status'] == BillStatuses.overdue).toList(),
+        BillFilters.paid => paidBills,
+        _ => latestBills,
+      };
+      final page = query['page'] as int? ?? 1;
+      final size = query['size'] as int? ?? 20;
+      return JsonReply(200, {
+        ..._billList(items.skip((page - 1) * size).take(size).toList()),
+        'page': page,
+        'size': size,
+        'total': items.length,
+      });
+    }
+    final billMatch = RegExp(r'^/bills/(\d+)$').firstMatch(path);
+    if (billMatch != null) {
+      final id = int.parse(billMatch.group(1)!);
+      final detail = billDetails[id];
+      if (detail == null) return JsonReply(404, apiError('BILL_NOT_FOUND', 'Facture introuvable.'));
+      return JsonReply(200, detail);
     }
     if (meterMatch != null && meterMatch.group(2) != null) {
       return JsonReply(200, {

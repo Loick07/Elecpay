@@ -222,4 +222,16 @@ void main() {
       expect(formatMonthSoFar(start, null), 'Novembre');
     });
   });
+
+  test('groupes de « Mes factures » : « Septembre – octobre 2026 »', () {
+    expect(
+      formatBillPeriodGroup(DateTime(2026, 9), DateTime(2026, 10, 31)),
+      'Septembre – octobre 2026',
+    );
+    expect(
+      formatBillPeriodGroup(DateTime(2026, 12), DateTime(2027, 1, 31)),
+      'Décembre 2026 – janvier 2027',
+    );
+    expect(formatBillPeriodGroup(DateTime(2026, 10), DateTime(2026, 10, 31)), 'Octobre 2026');
+  });
 }

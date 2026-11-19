@@ -83,4 +83,34 @@ void main() {
     expect(visible(formatApproxFcfa(10150)), '≈·10·200·FCFA');
     expect(visible(formatApproxFcfa(40)), '≈·0·FCFA');
   });
+
+  group('détail de facture (écran 7)', () {
+    test('nombres d’affichage : « 49,08 », « 2 550 », « 417,4 »', () {
+      expect(visible(formatDecimal(49.08)), '49,08');
+      expect(visible(formatDecimal(2550.0)), '2·550');
+      expect(visible(formatDecimal(417.4)), '417,4');
+      expect(visible(formatDecimal(0.005)), '0,01');
+      expect(visible(formatDecimal(12.3456, maxDecimals: 3)), '12,346');
+    });
+
+    test('taux : « 18 % », « 5 % », « 5,5 % »', () {
+      expect(visible(formatPercent(18.0)), '18·%');
+      expect(visible(formatPercent(5)), '5·%');
+      expect(visible(formatPercent(5.5)), '5,5·%');
+    });
+
+    test('index : toujours au dixième, « 18 247,0 kWh »', () {
+      expect(visible(formatIndexKwh(18247.0)), '18·247,0·kWh');
+      expect(visible(formatIndexKwh(18664.44)), '18·664,4·kWh');
+    });
+
+    test('variation à une décimale : « +0,6 % », « −2,5 % », « 0 % »', () {
+      expect(visible(formatVariation(0.58, decimals: 1).text), '+0,6·%');
+      expect(formatVariation(0.58, decimals: 1).trend, Trend.up);
+      expect(visible(formatVariation(-2.46, decimals: 1).text), '−2,5·%');
+      expect(formatVariation(0.02, decimals: 1).trend, Trend.flat);
+      // Sans décimales : inchangé.
+      expect(visible(formatVariation(0.58).text), '+1·%');
+    });
+  });
 }

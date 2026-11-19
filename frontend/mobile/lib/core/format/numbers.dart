@@ -45,6 +45,33 @@ String formatApproxKwh(num kwh) => '$_approx$unitSpace${_group(kwh.round())}${un
 String formatApproxFcfa(int amount) =>
     '$_approx$unitSpace${formatFcfa(((amount / 100).round()) * 100)}';
 
+/// Nombre décimal d'AFFICHAGE (prix unitaire, quantité), au plus `maxDecimals` décimales utiles,
+/// virgule : 49.08 → « 49,08 » ; 2550.0 → « 2 550 » ; 417.4 → « 417,4 ». Jamais pour un montant
+/// (les montants sont des FCFA entiers : `formatFcfa`).
+String formatDecimal(num value, {int maxDecimals = 2}) {
+  var scale = 1;
+  for (var i = 0; i < maxDecimals; i++) {
+    scale *= 10;
+  }
+  final scaled = (value * scale).round();
+  final whole = scaled ~/ scale;
+  var decimals = scaled.remainder(scale).abs().toString().padLeft(maxDecimals, '0');
+  while (decimals.endsWith('0')) {
+    decimals = decimals.substring(0, decimals.length - 1);
+  }
+  final sign = scaled < 0 && whole == 0 ? minusSign : '';
+  return '$sign${_group(whole)}${decimals.isEmpty ? '' : ',$decimals'}';
+}
+
+/// Taux : 18.0 → « 18 % » ; 5.5 → « 5,5 % ».
+String formatPercent(num percent) => '${formatDecimal(percent)}$unitSpace%';
+
+/// Index de compteur, toujours au dixième (maquette de l'écran 7) : 18247.0 → « 18 247,0 kWh ».
+String formatIndexKwh(num kwh) {
+  final tenths = (kwh * 10).round();
+  return '${_group(tenths ~/ 10)},${tenths.remainder(10).abs()}${unitSpace}kWh';
+}
+
 /// Sens d'une variation (la couleur en dépend : baisse = vert, hausse = orange).
 enum Trend { down, flat, up }
 
@@ -53,7 +80,16 @@ typedef Variation = ({String text, Trend trend});
 
 /// Variation en pourcentage, arrondie à l'entier : −12.4 → « −12 % » (baisse) ; 8 → « +8 % » ;
 /// 0.3 → « 0 % » (stable).
-Variation formatVariation(num percent) {
+///
+/// `decimals: 1` (comparaison de deux factures, maquette de l'écran 7) : 0.58 → « +0,6 % ».
+Variation formatVariation(num percent, {int decimals = 0}) {
+  if (decimals > 0) {
+    final text = formatDecimal(percent.abs(), maxDecimals: decimals);
+    if (text == '0') return (text: '0$unitSpace%', trend: Trend.flat);
+    return percent < 0
+        ? (text: '$minusSign$text$unitSpace%', trend: Trend.down)
+        : (text: '+$text$unitSpace%', trend: Trend.up);
+  }
   final rounded = percent.round();
   if (rounded == 0) return (text: '0$unitSpace%', trend: Trend.flat);
   return rounded < 0

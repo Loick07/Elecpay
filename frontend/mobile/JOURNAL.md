@@ -3,22 +3,27 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/mobile/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 19/11/2026
+## État au 19/11/2026 (soir)
 
-- **F4 et F5 terminés** (rapports `rapports/F4.md`, `rapports/F5.md`), intégrés dans `main`, CI verte.
-  **On attend le « Continue » de Loick** avant F6.
-- **Jalon sur le téléphone REPORTÉ** : l'itel de Loick ne démarre plus. Il devient un **jalon groupé
-  F4 + F5 + F6**, à jouer dès que l'itel revient (liste complète en fin de `rapports/F5.md`) : tests
-  d'intégration `auth_flows_test.dart`, `home_notifications_test.dart`, `bills_test.dart` (+ ceux de F6),
-  captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement.
-- `test/_debug/pages_debug_test.dart` : Loick dit l'avoir supprimé, mais il était encore présent le
-  19/11/2026 au soir ; jamais commité (`git add -A -- . ':!test/_debug'` tant qu'il existe).
+- **F4 et F5 terminés et validés.** **F6 en cours**, branche **`f6`**.
+- Sous-étapes de F6 faites, intégrées dans `main` : F6.0 (4631475, libellés de période à partir des
+  dates), F6.1 (57f27f7, règles du paiement), F6.2 (2c214b9, feuille + écran d'attente + points
+  d'entrée). CI verte sur F6.0, F6.1 et F6.2.
+- **ARRÊT OBLIGATOIRE** : rapport `rapports/F6-avant-paiement.md` remis à Loick ; **on attend son accord
+  avant F6.3** (branchement réel de `POST /payments`). La passerelle de l'application est
+  `NotYetConnectedPaymentGateway` : aucune requête de paiement ne part.
+- Question posée dans le rapport : ajouter les dates de période aux paiements, reçus et « facture
+  précédente » côté **backend** (accord de Loick nécessaire avant de toucher `backend/`).
+- Jalon sur le téléphone : **groupé F4 + F5 + F6**, dès que l'itel revient.
+- `test/_debug/pages_debug_test.dart` : toujours présent sur le disque ; jamais commité
+  (`git add -A -- . ':!test/_debug'`).
 
 ## Prochaine action
 
-1. Après le « Continue » : branche `f6` depuis `main`, F6.1 (modèles et règles du paiement, sans envoi
-   réel) selon `DECOUPAGES.md` (avec la précision : après 2 min, interroger environ toutes les 15 s).
-2. Arrêt obligatoire avant F6.3 (branchement de `POST /payments`) : rapport et accord de Loick.
+1. Après l'accord de Loick : F6.3, `ApiPaymentGateway` (`POST /payments` + `Idempotency-Key` par le client
+   authentifié, `GET /payments/{id}` en direct), tests sur faux serveur, test d'intégration avec les
+   numéros de test du simulateur.
+2. Puis F6.4 (reçu), F6.5 (historique), rapport `rapports/F6.md`, arrêt de fin d'étape.
 
 ## Choix faits en route
 

@@ -162,6 +162,8 @@ def test_comparison_with_the_previous_bill(client, auth_headers, world):
         "bill_id": world["may"].id,
         "reference": world["may"].reference,
         "period_label": "Mai-Juin 2026",
+        "period_start": "2026-05-01",
+        "period_end": "2026-06-30",
         "consumption_wh": 383_000,
         "consumption_kwh": 383.0,
         "amount_total": may_total,

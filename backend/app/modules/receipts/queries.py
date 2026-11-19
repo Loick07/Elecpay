@@ -118,6 +118,8 @@ def receipt_public(session: Session, receipt: Receipt, viewer: User) -> ReceiptP
         bill_id=bill.id,
         bill_reference=bill.reference,
         bill_period_label=bill_period_label(bill.period_start, bill.period_end),
+        bill_period_start=bill.period_start,
+        bill_period_end=bill.period_end,
         meter_id=meter.id,
         meter_reference=meter.reference,
         household_id=household.id if household else None,

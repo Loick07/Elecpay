@@ -85,6 +85,8 @@ class PreviousBillComparison(BaseModel):
     bill_id: int
     reference: str
     period_label: str
+    period_start: date = Field(description="Premier jour de la période de la précédente")
+    period_end: date = Field(description="Dernier jour de la période de la précédente (inclus)")
     consumption_wh: int
     consumption_kwh: float
     amount_total: int

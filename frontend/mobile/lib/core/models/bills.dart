@@ -143,6 +143,10 @@ abstract class PreviousBillComparison with _$PreviousBillComparison {
     required int billId,
     required String reference,
     required String periodLabel,
+
+    /// Période de la précédente : le libellé affiché est construit avec `formats.dart`.
+    required DateTime periodStart,
+    required DateTime periodEnd,
     required int consumptionWh,
     required double consumptionKwh,
     required int amountTotal,

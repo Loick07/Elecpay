@@ -4,7 +4,7 @@ Montants en FCFA entiers. Le montant n'est JAMAIS envoyé par l'application : c'
 la facture. `source: simulated` en mode démo : aucun débit réel n'a lieu.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -56,6 +56,8 @@ class PaymentPublic(BaseModel):
     bill_id: int
     bill_reference: str
     bill_period_label: str = Field(examples=["Juil.-Août 2026"])
+    bill_period_start: date = Field(description="Premier jour de la période de la facture")
+    bill_period_end: date = Field(description="Dernier jour de la période de la facture (inclus)")
     meter_id: int
     meter_reference: str = Field(description="N° Branchement")
     household_id: int | None = Field(description="None si le compteur est détaché depuis")

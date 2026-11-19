@@ -153,20 +153,13 @@ void main() {
     );
   });
 
-  testWidgets('précédente illisible : « la facture précédente », jamais le libellé de l’API', (
+  testWidgets('période de la précédente : SES dates (contrat), aucune lecture de plus', (
     tester,
   ) async {
-    final backend = FakeHomeBackend()..billDetails.remove(90);
+    final backend = FakeHomeBackend();
     await pumpDetail(tester, backend);
     await scrollThrough(tester);
-    final text = find.descendant(
-      of: find.byKey(const Key('bill.comparison')),
-      matching: find.byType(Text),
-    );
-    expect(
-      tester.widget<Text>(text).textSpan!.toPlainText(),
-      '+0,6\u00A0% par rapport à la facture précédente (415,0\u00A0kWh · 31\u00A0281\u00A0FCFA).',
-    );
+    expect(backend.requestsTo('/bills/90'), isEmpty);
     expect(find.textContaining('TEXTE API'), findsNothing);
   });
 

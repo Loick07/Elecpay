@@ -258,6 +258,14 @@ _PreviousBillComparison _$PreviousBillComparisonFromJson(
       billId: $checkedConvert('bill_id', (v) => (v as num).toInt()),
       reference: $checkedConvert('reference', (v) => v as String),
       periodLabel: $checkedConvert('period_label', (v) => v as String),
+      periodStart: $checkedConvert(
+        'period_start',
+        (v) => DateTime.parse(v as String),
+      ),
+      periodEnd: $checkedConvert(
+        'period_end',
+        (v) => DateTime.parse(v as String),
+      ),
       consumptionWh: $checkedConvert(
         'consumption_wh',
         (v) => (v as num).toInt(),
@@ -286,6 +294,8 @@ _PreviousBillComparison _$PreviousBillComparisonFromJson(
   fieldKeyMap: const {
     'billId': 'bill_id',
     'periodLabel': 'period_label',
+    'periodStart': 'period_start',
+    'periodEnd': 'period_end',
     'consumptionWh': 'consumption_wh',
     'consumptionKwh': 'consumption_kwh',
     'amountTotal': 'amount_total',
@@ -302,6 +312,8 @@ Map<String, dynamic> _$PreviousBillComparisonToJson(
   'bill_id': instance.billId,
   'reference': instance.reference,
   'period_label': instance.periodLabel,
+  'period_start': instance.periodStart.toIso8601String(),
+  'period_end': instance.periodEnd.toIso8601String(),
   'consumption_wh': instance.consumptionWh,
   'consumption_kwh': instance.consumptionKwh,
   'amount_total': instance.amountTotal,

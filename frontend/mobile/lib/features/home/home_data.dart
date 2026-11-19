@@ -9,7 +9,6 @@ import '../../core/models/households.dart';
 import '../../core/models/notifications.dart';
 import '../../core/models/payments.dart';
 import '../auth/models/auth_models.dart';
-import '../bills/bill_periods.dart';
 import 'home_rules.dart';
 
 // Lectures de l'accueil (écran 5). UNE LECTURE PAR CARTE : chacune se charge et échoue SÉPARÉMENT
@@ -238,13 +237,9 @@ const homeActivityCount = 3;
 
 @immutable
 class RecentActivity {
-  const RecentActivity({required this.items, required this.offline, this.periods = const {}});
+  const RecentActivity({required this.items, required this.offline});
 
   final List<ActivityItem> items;
-
-  /// Période de chaque facture citée (par identifiant), pour écrire « Facture de juil.–août 2026
-  /// payée » à partir des DATES (jamais le libellé de l'API). Absente : texte sans période.
-  final Map<int, BillPeriod> periods;
 
   /// Une des deux lectures vient du cache (« Hors connexion… ») ; `null` : tout est frais.
   final CachedData<Object?>? offline;
@@ -263,22 +258,14 @@ final recentActivityProvider = FutureProvider<RecentActivity>((ref) async {
   );
   final cached = [payments, bills].whereType<CachedData<Object?>>().toList()
     ..sort((a, b) => a.savedAt.compareTo(b.savedAt)); // la plus ancienne des deux
-  final items = recentActivity(
-    payments: payments.data.items,
-    bills: bills.data.items,
-    limit: homeActivityCount,
+  return RecentActivity(
+    items: recentActivity(
+      payments: payments.data.items,
+      bills: bills.data.items,
+      limit: homeActivityCount,
+    ),
+    offline: cached.firstOrNull,
   );
-  // Dates des factures payées : d'abord les factures déjà lues, sinon leur détail (en cache).
-  final periods = <int, BillPeriod>{
-    for (final b in bills.data.items) b.id: (start: b.periodStart, end: b.periodEnd),
-  };
-  for (final item in items.whereType<PaymentActivity>()) {
-    final billId = item.payment.billId;
-    if (periods.containsKey(billId)) continue;
-    final period = await ref.watch(billPeriodProvider(billId).future);
-    if (period != null) periods[billId] = period;
-  }
-  return RecentActivity(items: items, offline: cached.firstOrNull, periods: periods);
 });
 
 // --- Cloche des notifications -------------------------------------------------------------------

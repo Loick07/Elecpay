@@ -160,6 +160,8 @@ class FakeHomeBackend {
               ..._api.sample('PreviousBillComparison'),
               'bill_id': 90,
               'period_label': 'TEXTE API',
+              'period_start': '2026-07-01',
+              'period_end': '2026-08-31',
               'consumption_kwh': 415.0,
               'amount_total': 31281,
               'consumption_change_percent': 0.58,
@@ -181,6 +183,8 @@ class FakeHomeBackend {
       'bill_id': 90,
       // Libellé de l'API : JAMAIS affiché (l'écran construit la période à partir des dates).
       'bill_period_label': 'TEXTE API',
+      'bill_period_start': '2026-07-01',
+      'bill_period_end': '2026-08-31',
     },
   ];
 

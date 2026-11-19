@@ -164,6 +164,7 @@ def test_receipt_has_what_the_screen_shows(client, auth_headers, world):
     assert re.fullmatch(r"[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}", body["verification_code"])
     assert body["verification_code"].replace("-", "") == receipt.verification_code
     assert body["bill_period_label"] == "Sept.-Oct. 2026"
+    assert (body["bill_period_start"], body["bill_period_end"]) == ("2026-09-01", "2026-10-31")
     assert (body["household_name"], body["meter_reference"]) == ("Maison Mpita", "0412-8833")
     assert (body["payer_name"], body["is_mine"]) == ("Grâce Ngoma", False)
     assert (body["operator"], body["operator_label"]) == ("airtel", "Airtel Money")

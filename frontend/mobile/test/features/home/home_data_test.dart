@@ -172,35 +172,12 @@ void main() {
     });
   });
 
-  group('libellés de période (à partir des DATES, jamais le texte de l’API)', () {
-    test('paiement : période lue sur le détail de sa facture', () async {
-      final backend = FakeHomeBackend();
-      final activity = await containerFor(backend).read(recentActivityProvider.future);
-      final p = activity.periods[90]!;
-      expect((p.start, p.end), (DateTime(2026, 7), DateTime(2026, 8, 31)));
-      expect(backend.requestsTo('/bills/90'), hasLength(1));
-    });
-
-    test('facture déjà lue dans la liste : aucune lecture de plus', () async {
-      final backend = FakeHomeBackend()
-        ..latestBills = [
-          {
-            ...FakeHomeBackend.bill(90, household: 1, meter: 11, status: 'paid'),
-            'period_start': '2026-07-01',
-            'period_end': '2026-08-31',
-          },
-        ];
-      final activity = await containerFor(backend).read(recentActivityProvider.future);
-      expect(activity.periods.containsKey(90), isTrue);
-      expect(backend.requestsTo('/bills/90'), isEmpty);
-    });
-
-    test('détail illisible : pas de période (la carte reste affichée)', () async {
-      final backend = FakeHomeBackend()..billDetails.remove(90);
-      final activity = await containerFor(backend).read(recentActivityProvider.future);
-      expect(activity.items, isNotEmpty);
-      expect(activity.periods.containsKey(90), isFalse);
-    });
+  test('paiement : sa période vient de SES dates (contrat), aucune lecture de facture', () async {
+    final backend = FakeHomeBackend();
+    final activity = await containerFor(backend).read(recentActivityProvider.future);
+    final paid = activity.items.whereType<PaymentActivity>().single.payment;
+    expect((paid.billPeriodStart, paid.billPeriodEnd), (DateTime(2026, 7), DateTime(2026, 8, 31)));
+    expect(backend.requestsTo('/bills/90'), isEmpty);
   });
 
   group('hors ligne', () {

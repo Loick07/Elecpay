@@ -21,7 +21,6 @@ import '../../core/widgets/status_badge.dart';
 import '../../core/widgets/statuses.dart';
 import '../home/home_screen.dart' show homeClockProvider;
 import '../payments/payment_entry.dart';
-import 'bill_periods.dart';
 import 'bills_data.dart';
 import 'bills_rules.dart';
 
@@ -472,17 +471,16 @@ class _AmountRow extends StatelessWidget {
 
 /// Comparaison à la facture précédente du même compteur (consommation) : hausse en orange,
 /// baisse en vert, toujours avec le signe et le mot (jamais la couleur seule).
-class _Comparison extends ConsumerWidget {
+class _Comparison extends StatelessWidget {
   const _Comparison({required this.previous});
 
   final PreviousBillComparison? previous;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final c = context.colors;
     final p = previous;
     // Période de la précédente à partir de ses DATES (jamais le libellé de l'API).
-    final period = p == null ? null : billPeriodText(ref.watch(billPeriodProvider(p.billId)).value);
     final Widget text;
     if (p == null) {
       text = Text(
@@ -490,14 +488,15 @@ class _Comparison extends ConsumerWidget {
         style: AppText.bodySm.copyWith(color: c.inkMuted),
       );
     } else {
+      final period = formatBillPeriodShort(p.periodStart, p.periodEnd);
       final reference =
-          '${period ?? 'la facture précédente'} (${formatIndexKwh(p.consumptionKwh)} · '
+          '$period (${formatIndexKwh(p.consumptionKwh)} · '
           '${formatFcfa(p.amountTotal)})';
       final percent = p.consumptionChangePercent;
       if (percent == null) {
         text = Text(
           // Sans pourcentage (précédente à 0) : « Facture précédente : juil.–août 2026 (…). »
-          'Facture précédente : ${period ?? ''}${period == null ? '' : ' '}'
+          'Facture précédente : $period '
           '(${formatIndexKwh(p.consumptionKwh)} · ${formatFcfa(p.amountTotal)}).',
           style: AppText.bodySm.copyWith(color: c.inkMuted),
         );

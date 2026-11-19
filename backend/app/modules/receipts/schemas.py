@@ -4,7 +4,7 @@ Un reçu est fait pour être partagé : le numéro débité y est TOUJOURS masqu
 payeur (comme sur la maquette). `source: simulated` en mode démo : aucun débit réel.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
@@ -38,6 +38,8 @@ class ReceiptPublic(BaseModel):
     bill_id: int
     bill_reference: str
     bill_period_label: str = Field(examples=["Sept.-Oct. 2026"])
+    bill_period_start: date = Field(description="Premier jour de la période de la facture")
+    bill_period_end: date = Field(description="Dernier jour de la période de la facture (inclus)")
     meter_id: int
     meter_reference: str = Field(description="N° Branchement")
     household_id: int | None

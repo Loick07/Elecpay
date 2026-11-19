@@ -240,6 +240,8 @@ class BillQueries:
             bill_id=previous.id,
             reference=previous.reference,
             period_label=bill_period_label(previous.period_start, previous.period_end),
+            period_start=previous.period_start,
+            period_end=previous.period_end,
             consumption_wh=previous.consumption_wh,
             consumption_kwh=kwh(previous.consumption_wh),
             amount_total=previous.amount_total,

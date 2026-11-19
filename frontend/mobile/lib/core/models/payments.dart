@@ -24,6 +24,11 @@ abstract class PaymentPublic with _$PaymentPublic {
     required int billId,
     required String billReference,
     required String billPeriodLabel,
+
+    /// Période de la facture (dates du calendrier, fin incluse) : le libellé affiché est
+    /// construit avec `formats.dart`, jamais repris de `billPeriodLabel`.
+    required DateTime billPeriodStart,
+    required DateTime billPeriodEnd,
     required int? householdId,
     required String? householdName,
     required int meterId,

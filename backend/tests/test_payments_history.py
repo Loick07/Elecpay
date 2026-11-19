@@ -156,6 +156,8 @@ def test_a_payment_line_has_what_the_screen_shows(client, auth_headers, world):
     assert failed["phone_number"] == "+242 05 *** ** 02"  # pas le mien : masqué
     assert (failed["operator"], failed["operator_label"]) == ("airtel", "Airtel Money")
     assert (failed["bill_period_label"], failed["household_name"]) == ("Sept.-Oct. 2026", "Maison")
+    # Dates de la période (ajout du 20/11/2026) : l'application construit son libellé avec.
+    assert (failed["bill_period_start"], failed["bill_period_end"]) == ("2026-09-01", "2026-10-31")
     assert (failed["meter_reference"], failed["amount"]) == ("0412-8833", 40_384)
     assert failed["source"] == "simulated"
     paid = next(item for item in items if item["id"] == world["tx"]["paid"].id)

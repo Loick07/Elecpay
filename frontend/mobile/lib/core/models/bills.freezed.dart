@@ -1525,7 +1525,8 @@ as bool,
 /// @nodoc
 mixin _$PreviousBillComparison {
 
- int get billId; String get reference; String get periodLabel; int get consumptionWh; double get consumptionKwh; int get amountTotal; int get consumptionChangeWh;/// `null` si la précédente vaut 0.
+ int get billId; String get reference; String get periodLabel;/// Période de la précédente : le libellé affiché est construit avec `formats.dart`.
+ DateTime get periodStart; DateTime get periodEnd; int get consumptionWh; double get consumptionKwh; int get amountTotal; int get consumptionChangeWh;/// `null` si la précédente vaut 0.
  double? get consumptionChangePercent; int get amountChange; double? get amountChangePercent;
 /// Create a copy of PreviousBillComparison
 /// with the given fields replaced by the non-null parameter values.
@@ -1540,20 +1541,20 @@ $PreviousBillComparisonCopyWith<PreviousBillComparison> get copyWith => _$Previo
 @override
 bool operator ==(Object other) {
   final _this = this as PreviousBillComparison;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreviousBillComparison&&(identical(other.billId, _this.billId) || other.billId == _this.billId)&&(identical(other.reference, _this.reference) || other.reference == _this.reference)&&(identical(other.periodLabel, _this.periodLabel) || other.periodLabel == _this.periodLabel)&&(identical(other.consumptionWh, _this.consumptionWh) || other.consumptionWh == _this.consumptionWh)&&(identical(other.consumptionKwh, _this.consumptionKwh) || other.consumptionKwh == _this.consumptionKwh)&&(identical(other.amountTotal, _this.amountTotal) || other.amountTotal == _this.amountTotal)&&(identical(other.consumptionChangeWh, _this.consumptionChangeWh) || other.consumptionChangeWh == _this.consumptionChangeWh)&&(identical(other.consumptionChangePercent, _this.consumptionChangePercent) || other.consumptionChangePercent == _this.consumptionChangePercent)&&(identical(other.amountChange, _this.amountChange) || other.amountChange == _this.amountChange)&&(identical(other.amountChangePercent, _this.amountChangePercent) || other.amountChangePercent == _this.amountChangePercent));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreviousBillComparison&&(identical(other.billId, _this.billId) || other.billId == _this.billId)&&(identical(other.reference, _this.reference) || other.reference == _this.reference)&&(identical(other.periodLabel, _this.periodLabel) || other.periodLabel == _this.periodLabel)&&(identical(other.periodStart, _this.periodStart) || other.periodStart == _this.periodStart)&&(identical(other.periodEnd, _this.periodEnd) || other.periodEnd == _this.periodEnd)&&(identical(other.consumptionWh, _this.consumptionWh) || other.consumptionWh == _this.consumptionWh)&&(identical(other.consumptionKwh, _this.consumptionKwh) || other.consumptionKwh == _this.consumptionKwh)&&(identical(other.amountTotal, _this.amountTotal) || other.amountTotal == _this.amountTotal)&&(identical(other.consumptionChangeWh, _this.consumptionChangeWh) || other.consumptionChangeWh == _this.consumptionChangeWh)&&(identical(other.consumptionChangePercent, _this.consumptionChangePercent) || other.consumptionChangePercent == _this.consumptionChangePercent)&&(identical(other.amountChange, _this.amountChange) || other.amountChange == _this.amountChange)&&(identical(other.amountChangePercent, _this.amountChangePercent) || other.amountChangePercent == _this.amountChangePercent));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as PreviousBillComparison;
-  return Object.hash(runtimeType,_this.billId,_this.reference,_this.periodLabel,_this.consumptionWh,_this.consumptionKwh,_this.amountTotal,_this.consumptionChangeWh,_this.consumptionChangePercent,_this.amountChange,_this.amountChangePercent);
+  return Object.hash(runtimeType,_this.billId,_this.reference,_this.periodLabel,_this.periodStart,_this.periodEnd,_this.consumptionWh,_this.consumptionKwh,_this.amountTotal,_this.consumptionChangeWh,_this.consumptionChangePercent,_this.amountChange,_this.amountChangePercent);
 }
 
 @override
 String toString() {
   final _this = this as PreviousBillComparison;
-  return 'PreviousBillComparison(billId: ${_this.billId}, reference: ${_this.reference}, periodLabel: ${_this.periodLabel}, consumptionWh: ${_this.consumptionWh}, consumptionKwh: ${_this.consumptionKwh}, amountTotal: ${_this.amountTotal}, consumptionChangeWh: ${_this.consumptionChangeWh}, consumptionChangePercent: ${_this.consumptionChangePercent}, amountChange: ${_this.amountChange}, amountChangePercent: ${_this.amountChangePercent})';
+  return 'PreviousBillComparison(billId: ${_this.billId}, reference: ${_this.reference}, periodLabel: ${_this.periodLabel}, periodStart: ${_this.periodStart}, periodEnd: ${_this.periodEnd}, consumptionWh: ${_this.consumptionWh}, consumptionKwh: ${_this.consumptionKwh}, amountTotal: ${_this.amountTotal}, consumptionChangeWh: ${_this.consumptionChangeWh}, consumptionChangePercent: ${_this.consumptionChangePercent}, amountChange: ${_this.amountChange}, amountChangePercent: ${_this.amountChangePercent})';
 }
 
 
@@ -1564,7 +1565,7 @@ abstract mixin class $PreviousBillComparisonCopyWith<$Res>  {
   factory $PreviousBillComparisonCopyWith(PreviousBillComparison value, $Res Function(PreviousBillComparison) _then) = _$PreviousBillComparisonCopyWithImpl;
 @useResult
 $Res call({
- int billId, String reference, String periodLabel, int consumptionWh, double consumptionKwh, int amountTotal, int consumptionChangeWh, double? consumptionChangePercent, int amountChange, double? amountChangePercent
+ int billId, String reference, String periodLabel, DateTime periodStart, DateTime periodEnd, int consumptionWh, double consumptionKwh, int amountTotal, int consumptionChangeWh, double? consumptionChangePercent, int amountChange, double? amountChangePercent
 });
 
 
@@ -1581,12 +1582,14 @@ class _$PreviousBillComparisonCopyWithImpl<$Res>
 
 /// Create a copy of PreviousBillComparison
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? billId = null,Object? reference = null,Object? periodLabel = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? amountTotal = null,Object? consumptionChangeWh = null,Object? consumptionChangePercent = freezed,Object? amountChange = null,Object? amountChangePercent = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? billId = null,Object? reference = null,Object? periodLabel = null,Object? periodStart = null,Object? periodEnd = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? amountTotal = null,Object? consumptionChangeWh = null,Object? consumptionChangePercent = freezed,Object? amountChange = null,Object? amountChangePercent = freezed,}) {
   return _then(PreviousBillComparison(
 billId: null == billId ? _self.billId : billId // ignore: cast_nullable_to_non_nullable
 as int,reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
 as String,periodLabel: null == periodLabel ? _self.periodLabel : periodLabel // ignore: cast_nullable_to_non_nullable
-as String,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
+as String,periodStart: null == periodStart ? _self.periodStart : periodStart // ignore: cast_nullable_to_non_nullable
+as DateTime,periodEnd: null == periodEnd ? _self.periodEnd : periodEnd // ignore: cast_nullable_to_non_nullable
+as DateTime,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
 as int,consumptionKwh: null == consumptionKwh ? _self.consumptionKwh : consumptionKwh // ignore: cast_nullable_to_non_nullable
 as double,amountTotal: null == amountTotal ? _self.amountTotal : amountTotal // ignore: cast_nullable_to_non_nullable
 as int,consumptionChangeWh: null == consumptionChangeWh ? _self.consumptionChangeWh : consumptionChangeWh // ignore: cast_nullable_to_non_nullable
@@ -1678,10 +1681,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int billId,  String reference,  String periodLabel,  int consumptionWh,  double consumptionKwh,  int amountTotal,  int consumptionChangeWh,  double? consumptionChangePercent,  int amountChange,  double? amountChangePercent)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int billId,  String reference,  String periodLabel,  DateTime periodStart,  DateTime periodEnd,  int consumptionWh,  double consumptionKwh,  int amountTotal,  int consumptionChangeWh,  double? consumptionChangePercent,  int amountChange,  double? amountChangePercent)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreviousBillComparison() when $default != null:
-return $default(_that.billId,_that.reference,_that.periodLabel,_that.consumptionWh,_that.consumptionKwh,_that.amountTotal,_that.consumptionChangeWh,_that.consumptionChangePercent,_that.amountChange,_that.amountChangePercent);case _:
+return $default(_that.billId,_that.reference,_that.periodLabel,_that.periodStart,_that.periodEnd,_that.consumptionWh,_that.consumptionKwh,_that.amountTotal,_that.consumptionChangeWh,_that.consumptionChangePercent,_that.amountChange,_that.amountChangePercent);case _:
   return orElse();
 
 }
@@ -1699,10 +1702,10 @@ return $default(_that.billId,_that.reference,_that.periodLabel,_that.consumption
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int billId,  String reference,  String periodLabel,  int consumptionWh,  double consumptionKwh,  int amountTotal,  int consumptionChangeWh,  double? consumptionChangePercent,  int amountChange,  double? amountChangePercent)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int billId,  String reference,  String periodLabel,  DateTime periodStart,  DateTime periodEnd,  int consumptionWh,  double consumptionKwh,  int amountTotal,  int consumptionChangeWh,  double? consumptionChangePercent,  int amountChange,  double? amountChangePercent)  $default,) {final _that = this;
 switch (_that) {
 case _PreviousBillComparison():
-return $default(_that.billId,_that.reference,_that.periodLabel,_that.consumptionWh,_that.consumptionKwh,_that.amountTotal,_that.consumptionChangeWh,_that.consumptionChangePercent,_that.amountChange,_that.amountChangePercent);case _:
+return $default(_that.billId,_that.reference,_that.periodLabel,_that.periodStart,_that.periodEnd,_that.consumptionWh,_that.consumptionKwh,_that.amountTotal,_that.consumptionChangeWh,_that.consumptionChangePercent,_that.amountChange,_that.amountChangePercent);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1719,10 +1722,10 @@ return $default(_that.billId,_that.reference,_that.periodLabel,_that.consumption
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int billId,  String reference,  String periodLabel,  int consumptionWh,  double consumptionKwh,  int amountTotal,  int consumptionChangeWh,  double? consumptionChangePercent,  int amountChange,  double? amountChangePercent)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int billId,  String reference,  String periodLabel,  DateTime periodStart,  DateTime periodEnd,  int consumptionWh,  double consumptionKwh,  int amountTotal,  int consumptionChangeWh,  double? consumptionChangePercent,  int amountChange,  double? amountChangePercent)?  $default,) {final _that = this;
 switch (_that) {
 case _PreviousBillComparison() when $default != null:
-return $default(_that.billId,_that.reference,_that.periodLabel,_that.consumptionWh,_that.consumptionKwh,_that.amountTotal,_that.consumptionChangeWh,_that.consumptionChangePercent,_that.amountChange,_that.amountChangePercent);case _:
+return $default(_that.billId,_that.reference,_that.periodLabel,_that.periodStart,_that.periodEnd,_that.consumptionWh,_that.consumptionKwh,_that.amountTotal,_that.consumptionChangeWh,_that.consumptionChangePercent,_that.amountChange,_that.amountChangePercent);case _:
   return null;
 
 }
@@ -1734,12 +1737,15 @@ return $default(_that.billId,_that.reference,_that.periodLabel,_that.consumption
 @JsonSerializable()
 
 class _PreviousBillComparison implements PreviousBillComparison {
-  const _PreviousBillComparison({required this.billId, required this.reference, required this.periodLabel, required this.consumptionWh, required this.consumptionKwh, required this.amountTotal, required this.consumptionChangeWh, required this.consumptionChangePercent, required this.amountChange, required this.amountChangePercent});
+  const _PreviousBillComparison({required this.billId, required this.reference, required this.periodLabel, required this.periodStart, required this.periodEnd, required this.consumptionWh, required this.consumptionKwh, required this.amountTotal, required this.consumptionChangeWh, required this.consumptionChangePercent, required this.amountChange, required this.amountChangePercent});
   factory _PreviousBillComparison.fromJson(Map<String, dynamic> json) => _$PreviousBillComparisonFromJson(json);
 
 @override final  int billId;
 @override final  String reference;
 @override final  String periodLabel;
+/// Période de la précédente : le libellé affiché est construit avec `formats.dart`.
+@override final  DateTime periodStart;
+@override final  DateTime periodEnd;
 @override final  int consumptionWh;
 @override final  double consumptionKwh;
 @override final  int amountTotal;
@@ -1762,18 +1768,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreviousBillComparison&&(identical(other.billId, billId) || other.billId == billId)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.periodLabel, periodLabel) || other.periodLabel == periodLabel)&&(identical(other.consumptionWh, consumptionWh) || other.consumptionWh == consumptionWh)&&(identical(other.consumptionKwh, consumptionKwh) || other.consumptionKwh == consumptionKwh)&&(identical(other.amountTotal, amountTotal) || other.amountTotal == amountTotal)&&(identical(other.consumptionChangeWh, consumptionChangeWh) || other.consumptionChangeWh == consumptionChangeWh)&&(identical(other.consumptionChangePercent, consumptionChangePercent) || other.consumptionChangePercent == consumptionChangePercent)&&(identical(other.amountChange, amountChange) || other.amountChange == amountChange)&&(identical(other.amountChangePercent, amountChangePercent) || other.amountChangePercent == amountChangePercent));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreviousBillComparison&&(identical(other.billId, billId) || other.billId == billId)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.periodLabel, periodLabel) || other.periodLabel == periodLabel)&&(identical(other.periodStart, periodStart) || other.periodStart == periodStart)&&(identical(other.periodEnd, periodEnd) || other.periodEnd == periodEnd)&&(identical(other.consumptionWh, consumptionWh) || other.consumptionWh == consumptionWh)&&(identical(other.consumptionKwh, consumptionKwh) || other.consumptionKwh == consumptionKwh)&&(identical(other.amountTotal, amountTotal) || other.amountTotal == amountTotal)&&(identical(other.consumptionChangeWh, consumptionChangeWh) || other.consumptionChangeWh == consumptionChangeWh)&&(identical(other.consumptionChangePercent, consumptionChangePercent) || other.consumptionChangePercent == consumptionChangePercent)&&(identical(other.amountChange, amountChange) || other.amountChange == amountChange)&&(identical(other.amountChangePercent, amountChangePercent) || other.amountChangePercent == amountChangePercent));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,billId,reference,periodLabel,consumptionWh,consumptionKwh,amountTotal,consumptionChangeWh,consumptionChangePercent,amountChange,amountChangePercent);
+    return Object.hash(runtimeType,billId,reference,periodLabel,periodStart,periodEnd,consumptionWh,consumptionKwh,amountTotal,consumptionChangeWh,consumptionChangePercent,amountChange,amountChangePercent);
 }
 
 @override
 String toString() {
-    return 'PreviousBillComparison(billId: $billId, reference: $reference, periodLabel: $periodLabel, consumptionWh: $consumptionWh, consumptionKwh: $consumptionKwh, amountTotal: $amountTotal, consumptionChangeWh: $consumptionChangeWh, consumptionChangePercent: $consumptionChangePercent, amountChange: $amountChange, amountChangePercent: $amountChangePercent)';
+    return 'PreviousBillComparison(billId: $billId, reference: $reference, periodLabel: $periodLabel, periodStart: $periodStart, periodEnd: $periodEnd, consumptionWh: $consumptionWh, consumptionKwh: $consumptionKwh, amountTotal: $amountTotal, consumptionChangeWh: $consumptionChangeWh, consumptionChangePercent: $consumptionChangePercent, amountChange: $amountChange, amountChangePercent: $amountChangePercent)';
 }
 
 
@@ -1784,7 +1790,7 @@ abstract mixin class _$PreviousBillComparisonCopyWith<$Res> implements $Previous
   factory _$PreviousBillComparisonCopyWith(_PreviousBillComparison value, $Res Function(_PreviousBillComparison) _then) = __$PreviousBillComparisonCopyWithImpl;
 @override @useResult
 $Res call({
- int billId, String reference, String periodLabel, int consumptionWh, double consumptionKwh, int amountTotal, int consumptionChangeWh, double? consumptionChangePercent, int amountChange, double? amountChangePercent
+ int billId, String reference, String periodLabel, DateTime periodStart, DateTime periodEnd, int consumptionWh, double consumptionKwh, int amountTotal, int consumptionChangeWh, double? consumptionChangePercent, int amountChange, double? amountChangePercent
 });
 
 
@@ -1801,12 +1807,14 @@ class __$PreviousBillComparisonCopyWithImpl<$Res>
 
 /// Create a copy of PreviousBillComparison
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? billId = null,Object? reference = null,Object? periodLabel = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? amountTotal = null,Object? consumptionChangeWh = null,Object? consumptionChangePercent = freezed,Object? amountChange = null,Object? amountChangePercent = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? billId = null,Object? reference = null,Object? periodLabel = null,Object? periodStart = null,Object? periodEnd = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? amountTotal = null,Object? consumptionChangeWh = null,Object? consumptionChangePercent = freezed,Object? amountChange = null,Object? amountChangePercent = freezed,}) {
   return _then(_PreviousBillComparison(
 billId: null == billId ? _self.billId : billId // ignore: cast_nullable_to_non_nullable
 as int,reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
 as String,periodLabel: null == periodLabel ? _self.periodLabel : periodLabel // ignore: cast_nullable_to_non_nullable
-as String,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
+as String,periodStart: null == periodStart ? _self.periodStart : periodStart // ignore: cast_nullable_to_non_nullable
+as DateTime,periodEnd: null == periodEnd ? _self.periodEnd : periodEnd // ignore: cast_nullable_to_non_nullable
+as DateTime,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
 as int,consumptionKwh: null == consumptionKwh ? _self.consumptionKwh : consumptionKwh // ignore: cast_nullable_to_non_nullable
 as double,amountTotal: null == amountTotal ? _self.amountTotal : amountTotal // ignore: cast_nullable_to_non_nullable
 as int,consumptionChangeWh: null == consumptionChangeWh ? _self.consumptionChangeWh : consumptionChangeWh // ignore: cast_nullable_to_non_nullable

@@ -16,7 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PaymentPublic {
 
- int get id; String get reference; int get billId; String get billReference; String get billPeriodLabel; int? get householdId; String? get householdName; int get meterId; String get meterReference;/// Montant, en FCFA entiers (celui de la facture).
+ int get id; String get reference; int get billId; String get billReference; String get billPeriodLabel;/// Période de la facture (dates du calendrier, fin incluse) : le libellé affiché est
+/// construit avec `formats.dart`, jamais repris de `billPeriodLabel`.
+ DateTime get billPeriodStart; DateTime get billPeriodEnd; int? get householdId; String? get householdName; int get meterId; String get meterReference;/// Montant, en FCFA entiers (celui de la facture).
  int get amount; String get operator; String get operatorLabel;/// Numéro Mobile Money (masqué par l'API si ce n'est pas le mien).
  String get phoneNumber; int get payerId; String get payerName; bool get isMine; String get status; String get step; String? get failureReason; DateTime get initiatedAt; DateTime? get pinEnteredAt; DateTime? get confirmedAt; DateTime get expiresAt; int? get receiptId; String? get receiptNumber; String get source;
 /// Create a copy of PaymentPublic
@@ -32,20 +34,20 @@ $PaymentPublicCopyWith<PaymentPublic> get copyWith => _$PaymentPublicCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as PaymentPublic;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentPublic&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.reference, _this.reference) || other.reference == _this.reference)&&(identical(other.billId, _this.billId) || other.billId == _this.billId)&&(identical(other.billReference, _this.billReference) || other.billReference == _this.billReference)&&(identical(other.billPeriodLabel, _this.billPeriodLabel) || other.billPeriodLabel == _this.billPeriodLabel)&&(identical(other.householdId, _this.householdId) || other.householdId == _this.householdId)&&(identical(other.householdName, _this.householdName) || other.householdName == _this.householdName)&&(identical(other.meterId, _this.meterId) || other.meterId == _this.meterId)&&(identical(other.meterReference, _this.meterReference) || other.meterReference == _this.meterReference)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.operator, _this.operator) || other.operator == _this.operator)&&(identical(other.operatorLabel, _this.operatorLabel) || other.operatorLabel == _this.operatorLabel)&&(identical(other.phoneNumber, _this.phoneNumber) || other.phoneNumber == _this.phoneNumber)&&(identical(other.payerId, _this.payerId) || other.payerId == _this.payerId)&&(identical(other.payerName, _this.payerName) || other.payerName == _this.payerName)&&(identical(other.isMine, _this.isMine) || other.isMine == _this.isMine)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.failureReason, _this.failureReason) || other.failureReason == _this.failureReason)&&(identical(other.initiatedAt, _this.initiatedAt) || other.initiatedAt == _this.initiatedAt)&&(identical(other.pinEnteredAt, _this.pinEnteredAt) || other.pinEnteredAt == _this.pinEnteredAt)&&(identical(other.confirmedAt, _this.confirmedAt) || other.confirmedAt == _this.confirmedAt)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.receiptId, _this.receiptId) || other.receiptId == _this.receiptId)&&(identical(other.receiptNumber, _this.receiptNumber) || other.receiptNumber == _this.receiptNumber)&&(identical(other.source, _this.source) || other.source == _this.source));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentPublic&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.reference, _this.reference) || other.reference == _this.reference)&&(identical(other.billId, _this.billId) || other.billId == _this.billId)&&(identical(other.billReference, _this.billReference) || other.billReference == _this.billReference)&&(identical(other.billPeriodLabel, _this.billPeriodLabel) || other.billPeriodLabel == _this.billPeriodLabel)&&(identical(other.billPeriodStart, _this.billPeriodStart) || other.billPeriodStart == _this.billPeriodStart)&&(identical(other.billPeriodEnd, _this.billPeriodEnd) || other.billPeriodEnd == _this.billPeriodEnd)&&(identical(other.householdId, _this.householdId) || other.householdId == _this.householdId)&&(identical(other.householdName, _this.householdName) || other.householdName == _this.householdName)&&(identical(other.meterId, _this.meterId) || other.meterId == _this.meterId)&&(identical(other.meterReference, _this.meterReference) || other.meterReference == _this.meterReference)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.operator, _this.operator) || other.operator == _this.operator)&&(identical(other.operatorLabel, _this.operatorLabel) || other.operatorLabel == _this.operatorLabel)&&(identical(other.phoneNumber, _this.phoneNumber) || other.phoneNumber == _this.phoneNumber)&&(identical(other.payerId, _this.payerId) || other.payerId == _this.payerId)&&(identical(other.payerName, _this.payerName) || other.payerName == _this.payerName)&&(identical(other.isMine, _this.isMine) || other.isMine == _this.isMine)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.step, _this.step) || other.step == _this.step)&&(identical(other.failureReason, _this.failureReason) || other.failureReason == _this.failureReason)&&(identical(other.initiatedAt, _this.initiatedAt) || other.initiatedAt == _this.initiatedAt)&&(identical(other.pinEnteredAt, _this.pinEnteredAt) || other.pinEnteredAt == _this.pinEnteredAt)&&(identical(other.confirmedAt, _this.confirmedAt) || other.confirmedAt == _this.confirmedAt)&&(identical(other.expiresAt, _this.expiresAt) || other.expiresAt == _this.expiresAt)&&(identical(other.receiptId, _this.receiptId) || other.receiptId == _this.receiptId)&&(identical(other.receiptNumber, _this.receiptNumber) || other.receiptNumber == _this.receiptNumber)&&(identical(other.source, _this.source) || other.source == _this.source));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as PaymentPublic;
-  return Object.hashAll([runtimeType,_this.id,_this.reference,_this.billId,_this.billReference,_this.billPeriodLabel,_this.householdId,_this.householdName,_this.meterId,_this.meterReference,_this.amount,_this.operator,_this.operatorLabel,_this.phoneNumber,_this.payerId,_this.payerName,_this.isMine,_this.status,_this.step,_this.failureReason,_this.initiatedAt,_this.pinEnteredAt,_this.confirmedAt,_this.expiresAt,_this.receiptId,_this.receiptNumber,_this.source]);
+  return Object.hashAll([runtimeType,_this.id,_this.reference,_this.billId,_this.billReference,_this.billPeriodLabel,_this.billPeriodStart,_this.billPeriodEnd,_this.householdId,_this.householdName,_this.meterId,_this.meterReference,_this.amount,_this.operator,_this.operatorLabel,_this.phoneNumber,_this.payerId,_this.payerName,_this.isMine,_this.status,_this.step,_this.failureReason,_this.initiatedAt,_this.pinEnteredAt,_this.confirmedAt,_this.expiresAt,_this.receiptId,_this.receiptNumber,_this.source]);
 }
 
 @override
 String toString() {
   final _this = this as PaymentPublic;
-  return 'PaymentPublic(id: ${_this.id}, reference: ${_this.reference}, billId: ${_this.billId}, billReference: ${_this.billReference}, billPeriodLabel: ${_this.billPeriodLabel}, householdId: ${_this.householdId}, householdName: ${_this.householdName}, meterId: ${_this.meterId}, meterReference: ${_this.meterReference}, amount: ${_this.amount}, operator: ${_this.operator}, operatorLabel: ${_this.operatorLabel}, phoneNumber: ${_this.phoneNumber}, payerId: ${_this.payerId}, payerName: ${_this.payerName}, isMine: ${_this.isMine}, status: ${_this.status}, step: ${_this.step}, failureReason: ${_this.failureReason}, initiatedAt: ${_this.initiatedAt}, pinEnteredAt: ${_this.pinEnteredAt}, confirmedAt: ${_this.confirmedAt}, expiresAt: ${_this.expiresAt}, receiptId: ${_this.receiptId}, receiptNumber: ${_this.receiptNumber}, source: ${_this.source})';
+  return 'PaymentPublic(id: ${_this.id}, reference: ${_this.reference}, billId: ${_this.billId}, billReference: ${_this.billReference}, billPeriodLabel: ${_this.billPeriodLabel}, billPeriodStart: ${_this.billPeriodStart}, billPeriodEnd: ${_this.billPeriodEnd}, householdId: ${_this.householdId}, householdName: ${_this.householdName}, meterId: ${_this.meterId}, meterReference: ${_this.meterReference}, amount: ${_this.amount}, operator: ${_this.operator}, operatorLabel: ${_this.operatorLabel}, phoneNumber: ${_this.phoneNumber}, payerId: ${_this.payerId}, payerName: ${_this.payerName}, isMine: ${_this.isMine}, status: ${_this.status}, step: ${_this.step}, failureReason: ${_this.failureReason}, initiatedAt: ${_this.initiatedAt}, pinEnteredAt: ${_this.pinEnteredAt}, confirmedAt: ${_this.confirmedAt}, expiresAt: ${_this.expiresAt}, receiptId: ${_this.receiptId}, receiptNumber: ${_this.receiptNumber}, source: ${_this.source})';
 }
 
 
@@ -56,7 +58,7 @@ abstract mixin class $PaymentPublicCopyWith<$Res>  {
   factory $PaymentPublicCopyWith(PaymentPublic value, $Res Function(PaymentPublic) _then) = _$PaymentPublicCopyWithImpl;
 @useResult
 $Res call({
- int id, String reference, int billId, String billReference, String billPeriodLabel, int? householdId, String? householdName, int meterId, String meterReference, int amount, String operator, String operatorLabel, String phoneNumber, int payerId, String payerName, bool isMine, String status, String step, String? failureReason, DateTime initiatedAt, DateTime? pinEnteredAt, DateTime? confirmedAt, DateTime expiresAt, int? receiptId, String? receiptNumber, String source
+ int id, String reference, int billId, String billReference, String billPeriodLabel, DateTime billPeriodStart, DateTime billPeriodEnd, int? householdId, String? householdName, int meterId, String meterReference, int amount, String operator, String operatorLabel, String phoneNumber, int payerId, String payerName, bool isMine, String status, String step, String? failureReason, DateTime initiatedAt, DateTime? pinEnteredAt, DateTime? confirmedAt, DateTime expiresAt, int? receiptId, String? receiptNumber, String source
 });
 
 
@@ -73,14 +75,16 @@ class _$PaymentPublicCopyWithImpl<$Res>
 
 /// Create a copy of PaymentPublic
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? reference = null,Object? billId = null,Object? billReference = null,Object? billPeriodLabel = null,Object? householdId = freezed,Object? householdName = freezed,Object? meterId = null,Object? meterReference = null,Object? amount = null,Object? operator = null,Object? operatorLabel = null,Object? phoneNumber = null,Object? payerId = null,Object? payerName = null,Object? isMine = null,Object? status = null,Object? step = null,Object? failureReason = freezed,Object? initiatedAt = null,Object? pinEnteredAt = freezed,Object? confirmedAt = freezed,Object? expiresAt = null,Object? receiptId = freezed,Object? receiptNumber = freezed,Object? source = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? reference = null,Object? billId = null,Object? billReference = null,Object? billPeriodLabel = null,Object? billPeriodStart = null,Object? billPeriodEnd = null,Object? householdId = freezed,Object? householdName = freezed,Object? meterId = null,Object? meterReference = null,Object? amount = null,Object? operator = null,Object? operatorLabel = null,Object? phoneNumber = null,Object? payerId = null,Object? payerName = null,Object? isMine = null,Object? status = null,Object? step = null,Object? failureReason = freezed,Object? initiatedAt = null,Object? pinEnteredAt = freezed,Object? confirmedAt = freezed,Object? expiresAt = null,Object? receiptId = freezed,Object? receiptNumber = freezed,Object? source = null,}) {
   return _then(PaymentPublic(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
 as String,billId: null == billId ? _self.billId : billId // ignore: cast_nullable_to_non_nullable
 as int,billReference: null == billReference ? _self.billReference : billReference // ignore: cast_nullable_to_non_nullable
 as String,billPeriodLabel: null == billPeriodLabel ? _self.billPeriodLabel : billPeriodLabel // ignore: cast_nullable_to_non_nullable
-as String,householdId: freezed == householdId ? _self.householdId : householdId // ignore: cast_nullable_to_non_nullable
+as String,billPeriodStart: null == billPeriodStart ? _self.billPeriodStart : billPeriodStart // ignore: cast_nullable_to_non_nullable
+as DateTime,billPeriodEnd: null == billPeriodEnd ? _self.billPeriodEnd : billPeriodEnd // ignore: cast_nullable_to_non_nullable
+as DateTime,householdId: freezed == householdId ? _self.householdId : householdId // ignore: cast_nullable_to_non_nullable
 as int?,householdName: freezed == householdName ? _self.householdName : householdName // ignore: cast_nullable_to_non_nullable
 as String?,meterId: null == meterId ? _self.meterId : meterId // ignore: cast_nullable_to_non_nullable
 as int,meterReference: null == meterReference ? _self.meterReference : meterReference // ignore: cast_nullable_to_non_nullable
@@ -186,10 +190,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String reference,  int billId,  String billReference,  String billPeriodLabel,  int? householdId,  String? householdName,  int meterId,  String meterReference,  int amount,  String operator,  String operatorLabel,  String phoneNumber,  int payerId,  String payerName,  bool isMine,  String status,  String step,  String? failureReason,  DateTime initiatedAt,  DateTime? pinEnteredAt,  DateTime? confirmedAt,  DateTime expiresAt,  int? receiptId,  String? receiptNumber,  String source)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String reference,  int billId,  String billReference,  String billPeriodLabel,  DateTime billPeriodStart,  DateTime billPeriodEnd,  int? householdId,  String? householdName,  int meterId,  String meterReference,  int amount,  String operator,  String operatorLabel,  String phoneNumber,  int payerId,  String payerName,  bool isMine,  String status,  String step,  String? failureReason,  DateTime initiatedAt,  DateTime? pinEnteredAt,  DateTime? confirmedAt,  DateTime expiresAt,  int? receiptId,  String? receiptNumber,  String source)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PaymentPublic() when $default != null:
-return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.billPeriodLabel,_that.householdId,_that.householdName,_that.meterId,_that.meterReference,_that.amount,_that.operator,_that.operatorLabel,_that.phoneNumber,_that.payerId,_that.payerName,_that.isMine,_that.status,_that.step,_that.failureReason,_that.initiatedAt,_that.pinEnteredAt,_that.confirmedAt,_that.expiresAt,_that.receiptId,_that.receiptNumber,_that.source);case _:
+return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.billPeriodLabel,_that.billPeriodStart,_that.billPeriodEnd,_that.householdId,_that.householdName,_that.meterId,_that.meterReference,_that.amount,_that.operator,_that.operatorLabel,_that.phoneNumber,_that.payerId,_that.payerName,_that.isMine,_that.status,_that.step,_that.failureReason,_that.initiatedAt,_that.pinEnteredAt,_that.confirmedAt,_that.expiresAt,_that.receiptId,_that.receiptNumber,_that.source);case _:
   return orElse();
 
 }
@@ -207,10 +211,10 @@ return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String reference,  int billId,  String billReference,  String billPeriodLabel,  int? householdId,  String? householdName,  int meterId,  String meterReference,  int amount,  String operator,  String operatorLabel,  String phoneNumber,  int payerId,  String payerName,  bool isMine,  String status,  String step,  String? failureReason,  DateTime initiatedAt,  DateTime? pinEnteredAt,  DateTime? confirmedAt,  DateTime expiresAt,  int? receiptId,  String? receiptNumber,  String source)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String reference,  int billId,  String billReference,  String billPeriodLabel,  DateTime billPeriodStart,  DateTime billPeriodEnd,  int? householdId,  String? householdName,  int meterId,  String meterReference,  int amount,  String operator,  String operatorLabel,  String phoneNumber,  int payerId,  String payerName,  bool isMine,  String status,  String step,  String? failureReason,  DateTime initiatedAt,  DateTime? pinEnteredAt,  DateTime? confirmedAt,  DateTime expiresAt,  int? receiptId,  String? receiptNumber,  String source)  $default,) {final _that = this;
 switch (_that) {
 case _PaymentPublic():
-return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.billPeriodLabel,_that.householdId,_that.householdName,_that.meterId,_that.meterReference,_that.amount,_that.operator,_that.operatorLabel,_that.phoneNumber,_that.payerId,_that.payerName,_that.isMine,_that.status,_that.step,_that.failureReason,_that.initiatedAt,_that.pinEnteredAt,_that.confirmedAt,_that.expiresAt,_that.receiptId,_that.receiptNumber,_that.source);case _:
+return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.billPeriodLabel,_that.billPeriodStart,_that.billPeriodEnd,_that.householdId,_that.householdName,_that.meterId,_that.meterReference,_that.amount,_that.operator,_that.operatorLabel,_that.phoneNumber,_that.payerId,_that.payerName,_that.isMine,_that.status,_that.step,_that.failureReason,_that.initiatedAt,_that.pinEnteredAt,_that.confirmedAt,_that.expiresAt,_that.receiptId,_that.receiptNumber,_that.source);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -227,10 +231,10 @@ return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String reference,  int billId,  String billReference,  String billPeriodLabel,  int? householdId,  String? householdName,  int meterId,  String meterReference,  int amount,  String operator,  String operatorLabel,  String phoneNumber,  int payerId,  String payerName,  bool isMine,  String status,  String step,  String? failureReason,  DateTime initiatedAt,  DateTime? pinEnteredAt,  DateTime? confirmedAt,  DateTime expiresAt,  int? receiptId,  String? receiptNumber,  String source)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String reference,  int billId,  String billReference,  String billPeriodLabel,  DateTime billPeriodStart,  DateTime billPeriodEnd,  int? householdId,  String? householdName,  int meterId,  String meterReference,  int amount,  String operator,  String operatorLabel,  String phoneNumber,  int payerId,  String payerName,  bool isMine,  String status,  String step,  String? failureReason,  DateTime initiatedAt,  DateTime? pinEnteredAt,  DateTime? confirmedAt,  DateTime expiresAt,  int? receiptId,  String? receiptNumber,  String source)?  $default,) {final _that = this;
 switch (_that) {
 case _PaymentPublic() when $default != null:
-return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.billPeriodLabel,_that.householdId,_that.householdName,_that.meterId,_that.meterReference,_that.amount,_that.operator,_that.operatorLabel,_that.phoneNumber,_that.payerId,_that.payerName,_that.isMine,_that.status,_that.step,_that.failureReason,_that.initiatedAt,_that.pinEnteredAt,_that.confirmedAt,_that.expiresAt,_that.receiptId,_that.receiptNumber,_that.source);case _:
+return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.billPeriodLabel,_that.billPeriodStart,_that.billPeriodEnd,_that.householdId,_that.householdName,_that.meterId,_that.meterReference,_that.amount,_that.operator,_that.operatorLabel,_that.phoneNumber,_that.payerId,_that.payerName,_that.isMine,_that.status,_that.step,_that.failureReason,_that.initiatedAt,_that.pinEnteredAt,_that.confirmedAt,_that.expiresAt,_that.receiptId,_that.receiptNumber,_that.source);case _:
   return null;
 
 }
@@ -242,7 +246,7 @@ return $default(_that.id,_that.reference,_that.billId,_that.billReference,_that.
 @JsonSerializable()
 
 class _PaymentPublic implements PaymentPublic {
-  const _PaymentPublic({required this.id, required this.reference, required this.billId, required this.billReference, required this.billPeriodLabel, required this.householdId, required this.householdName, required this.meterId, required this.meterReference, required this.amount, required this.operator, required this.operatorLabel, required this.phoneNumber, required this.payerId, required this.payerName, required this.isMine, required this.status, required this.step, required this.failureReason, required this.initiatedAt, required this.pinEnteredAt, required this.confirmedAt, required this.expiresAt, required this.receiptId, required this.receiptNumber, required this.source});
+  const _PaymentPublic({required this.id, required this.reference, required this.billId, required this.billReference, required this.billPeriodLabel, required this.billPeriodStart, required this.billPeriodEnd, required this.householdId, required this.householdName, required this.meterId, required this.meterReference, required this.amount, required this.operator, required this.operatorLabel, required this.phoneNumber, required this.payerId, required this.payerName, required this.isMine, required this.status, required this.step, required this.failureReason, required this.initiatedAt, required this.pinEnteredAt, required this.confirmedAt, required this.expiresAt, required this.receiptId, required this.receiptNumber, required this.source});
   factory _PaymentPublic.fromJson(Map<String, dynamic> json) => _$PaymentPublicFromJson(json);
 
 @override final  int id;
@@ -250,6 +254,10 @@ class _PaymentPublic implements PaymentPublic {
 @override final  int billId;
 @override final  String billReference;
 @override final  String billPeriodLabel;
+/// Période de la facture (dates du calendrier, fin incluse) : le libellé affiché est
+/// construit avec `formats.dart`, jamais repris de `billPeriodLabel`.
+@override final  DateTime billPeriodStart;
+@override final  DateTime billPeriodEnd;
 @override final  int? householdId;
 @override final  String? householdName;
 @override final  int meterId;
@@ -287,18 +295,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentPublic&&(identical(other.id, id) || other.id == id)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.billId, billId) || other.billId == billId)&&(identical(other.billReference, billReference) || other.billReference == billReference)&&(identical(other.billPeriodLabel, billPeriodLabel) || other.billPeriodLabel == billPeriodLabel)&&(identical(other.householdId, householdId) || other.householdId == householdId)&&(identical(other.householdName, householdName) || other.householdName == householdName)&&(identical(other.meterId, meterId) || other.meterId == meterId)&&(identical(other.meterReference, meterReference) || other.meterReference == meterReference)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.operator, operator) || other.operator == operator)&&(identical(other.operatorLabel, operatorLabel) || other.operatorLabel == operatorLabel)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.payerId, payerId) || other.payerId == payerId)&&(identical(other.payerName, payerName) || other.payerName == payerName)&&(identical(other.isMine, isMine) || other.isMine == isMine)&&(identical(other.status, status) || other.status == status)&&(identical(other.step, step) || other.step == step)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&(identical(other.initiatedAt, initiatedAt) || other.initiatedAt == initiatedAt)&&(identical(other.pinEnteredAt, pinEnteredAt) || other.pinEnteredAt == pinEnteredAt)&&(identical(other.confirmedAt, confirmedAt) || other.confirmedAt == confirmedAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.receiptId, receiptId) || other.receiptId == receiptId)&&(identical(other.receiptNumber, receiptNumber) || other.receiptNumber == receiptNumber)&&(identical(other.source, source) || other.source == source));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentPublic&&(identical(other.id, id) || other.id == id)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.billId, billId) || other.billId == billId)&&(identical(other.billReference, billReference) || other.billReference == billReference)&&(identical(other.billPeriodLabel, billPeriodLabel) || other.billPeriodLabel == billPeriodLabel)&&(identical(other.billPeriodStart, billPeriodStart) || other.billPeriodStart == billPeriodStart)&&(identical(other.billPeriodEnd, billPeriodEnd) || other.billPeriodEnd == billPeriodEnd)&&(identical(other.householdId, householdId) || other.householdId == householdId)&&(identical(other.householdName, householdName) || other.householdName == householdName)&&(identical(other.meterId, meterId) || other.meterId == meterId)&&(identical(other.meterReference, meterReference) || other.meterReference == meterReference)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.operator, operator) || other.operator == operator)&&(identical(other.operatorLabel, operatorLabel) || other.operatorLabel == operatorLabel)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.payerId, payerId) || other.payerId == payerId)&&(identical(other.payerName, payerName) || other.payerName == payerName)&&(identical(other.isMine, isMine) || other.isMine == isMine)&&(identical(other.status, status) || other.status == status)&&(identical(other.step, step) || other.step == step)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&(identical(other.initiatedAt, initiatedAt) || other.initiatedAt == initiatedAt)&&(identical(other.pinEnteredAt, pinEnteredAt) || other.pinEnteredAt == pinEnteredAt)&&(identical(other.confirmedAt, confirmedAt) || other.confirmedAt == confirmedAt)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.receiptId, receiptId) || other.receiptId == receiptId)&&(identical(other.receiptNumber, receiptNumber) || other.receiptNumber == receiptNumber)&&(identical(other.source, source) || other.source == source));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,id,reference,billId,billReference,billPeriodLabel,householdId,householdName,meterId,meterReference,amount,operator,operatorLabel,phoneNumber,payerId,payerName,isMine,status,step,failureReason,initiatedAt,pinEnteredAt,confirmedAt,expiresAt,receiptId,receiptNumber,source]);
+    return Object.hashAll([runtimeType,id,reference,billId,billReference,billPeriodLabel,billPeriodStart,billPeriodEnd,householdId,householdName,meterId,meterReference,amount,operator,operatorLabel,phoneNumber,payerId,payerName,isMine,status,step,failureReason,initiatedAt,pinEnteredAt,confirmedAt,expiresAt,receiptId,receiptNumber,source]);
 }
 
 @override
 String toString() {
-    return 'PaymentPublic(id: $id, reference: $reference, billId: $billId, billReference: $billReference, billPeriodLabel: $billPeriodLabel, householdId: $householdId, householdName: $householdName, meterId: $meterId, meterReference: $meterReference, amount: $amount, operator: $operator, operatorLabel: $operatorLabel, phoneNumber: $phoneNumber, payerId: $payerId, payerName: $payerName, isMine: $isMine, status: $status, step: $step, failureReason: $failureReason, initiatedAt: $initiatedAt, pinEnteredAt: $pinEnteredAt, confirmedAt: $confirmedAt, expiresAt: $expiresAt, receiptId: $receiptId, receiptNumber: $receiptNumber, source: $source)';
+    return 'PaymentPublic(id: $id, reference: $reference, billId: $billId, billReference: $billReference, billPeriodLabel: $billPeriodLabel, billPeriodStart: $billPeriodStart, billPeriodEnd: $billPeriodEnd, householdId: $householdId, householdName: $householdName, meterId: $meterId, meterReference: $meterReference, amount: $amount, operator: $operator, operatorLabel: $operatorLabel, phoneNumber: $phoneNumber, payerId: $payerId, payerName: $payerName, isMine: $isMine, status: $status, step: $step, failureReason: $failureReason, initiatedAt: $initiatedAt, pinEnteredAt: $pinEnteredAt, confirmedAt: $confirmedAt, expiresAt: $expiresAt, receiptId: $receiptId, receiptNumber: $receiptNumber, source: $source)';
 }
 
 
@@ -309,7 +317,7 @@ abstract mixin class _$PaymentPublicCopyWith<$Res> implements $PaymentPublicCopy
   factory _$PaymentPublicCopyWith(_PaymentPublic value, $Res Function(_PaymentPublic) _then) = __$PaymentPublicCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String reference, int billId, String billReference, String billPeriodLabel, int? householdId, String? householdName, int meterId, String meterReference, int amount, String operator, String operatorLabel, String phoneNumber, int payerId, String payerName, bool isMine, String status, String step, String? failureReason, DateTime initiatedAt, DateTime? pinEnteredAt, DateTime? confirmedAt, DateTime expiresAt, int? receiptId, String? receiptNumber, String source
+ int id, String reference, int billId, String billReference, String billPeriodLabel, DateTime billPeriodStart, DateTime billPeriodEnd, int? householdId, String? householdName, int meterId, String meterReference, int amount, String operator, String operatorLabel, String phoneNumber, int payerId, String payerName, bool isMine, String status, String step, String? failureReason, DateTime initiatedAt, DateTime? pinEnteredAt, DateTime? confirmedAt, DateTime expiresAt, int? receiptId, String? receiptNumber, String source
 });
 
 
@@ -326,14 +334,16 @@ class __$PaymentPublicCopyWithImpl<$Res>
 
 /// Create a copy of PaymentPublic
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? reference = null,Object? billId = null,Object? billReference = null,Object? billPeriodLabel = null,Object? householdId = freezed,Object? householdName = freezed,Object? meterId = null,Object? meterReference = null,Object? amount = null,Object? operator = null,Object? operatorLabel = null,Object? phoneNumber = null,Object? payerId = null,Object? payerName = null,Object? isMine = null,Object? status = null,Object? step = null,Object? failureReason = freezed,Object? initiatedAt = null,Object? pinEnteredAt = freezed,Object? confirmedAt = freezed,Object? expiresAt = null,Object? receiptId = freezed,Object? receiptNumber = freezed,Object? source = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? reference = null,Object? billId = null,Object? billReference = null,Object? billPeriodLabel = null,Object? billPeriodStart = null,Object? billPeriodEnd = null,Object? householdId = freezed,Object? householdName = freezed,Object? meterId = null,Object? meterReference = null,Object? amount = null,Object? operator = null,Object? operatorLabel = null,Object? phoneNumber = null,Object? payerId = null,Object? payerName = null,Object? isMine = null,Object? status = null,Object? step = null,Object? failureReason = freezed,Object? initiatedAt = null,Object? pinEnteredAt = freezed,Object? confirmedAt = freezed,Object? expiresAt = null,Object? receiptId = freezed,Object? receiptNumber = freezed,Object? source = null,}) {
   return _then(_PaymentPublic(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
 as String,billId: null == billId ? _self.billId : billId // ignore: cast_nullable_to_non_nullable
 as int,billReference: null == billReference ? _self.billReference : billReference // ignore: cast_nullable_to_non_nullable
 as String,billPeriodLabel: null == billPeriodLabel ? _self.billPeriodLabel : billPeriodLabel // ignore: cast_nullable_to_non_nullable
-as String,householdId: freezed == householdId ? _self.householdId : householdId // ignore: cast_nullable_to_non_nullable
+as String,billPeriodStart: null == billPeriodStart ? _self.billPeriodStart : billPeriodStart // ignore: cast_nullable_to_non_nullable
+as DateTime,billPeriodEnd: null == billPeriodEnd ? _self.billPeriodEnd : billPeriodEnd // ignore: cast_nullable_to_non_nullable
+as DateTime,householdId: freezed == householdId ? _self.householdId : householdId // ignore: cast_nullable_to_non_nullable
 as int?,householdName: freezed == householdName ? _self.householdName : householdName // ignore: cast_nullable_to_non_nullable
 as String?,meterId: null == meterId ? _self.meterId : meterId // ignore: cast_nullable_to_non_nullable
 as int,meterReference: null == meterReference ? _self.meterReference : meterReference // ignore: cast_nullable_to_non_nullable

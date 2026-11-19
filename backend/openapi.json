@@ -6278,11 +6278,23 @@
             "title": "Bill Id",
             "type": "integer"
           },
+          "bill_period_end": {
+            "description": "Dernier jour de la période de la facture (inclus)",
+            "format": "date",
+            "title": "Bill Period End",
+            "type": "string"
+          },
           "bill_period_label": {
             "examples": [
               "Juil.-Août 2026"
             ],
             "title": "Bill Period Label",
+            "type": "string"
+          },
+          "bill_period_start": {
+            "description": "Premier jour de la période de la facture",
+            "format": "date",
+            "title": "Bill Period Start",
             "type": "string"
           },
           "bill_reference": {
@@ -6452,6 +6464,8 @@
           "bill_id",
           "bill_reference",
           "bill_period_label",
+          "bill_period_start",
+          "bill_period_end",
           "meter_id",
           "meter_reference",
           "household_id",
@@ -6642,8 +6656,20 @@
             "title": "Consumption Wh",
             "type": "integer"
           },
+          "period_end": {
+            "description": "Dernier jour de la période de la précédente (inclus)",
+            "format": "date",
+            "title": "Period End",
+            "type": "string"
+          },
           "period_label": {
             "title": "Period Label",
+            "type": "string"
+          },
+          "period_start": {
+            "description": "Premier jour de la période de la précédente",
+            "format": "date",
+            "title": "Period Start",
             "type": "string"
           },
           "reference": {
@@ -6655,6 +6681,8 @@
           "bill_id",
           "reference",
           "period_label",
+          "period_start",
+          "period_end",
           "consumption_wh",
           "consumption_kwh",
           "amount_total",
@@ -6931,11 +6959,23 @@
             "title": "Bill Id",
             "type": "integer"
           },
+          "bill_period_end": {
+            "description": "Dernier jour de la période de la facture (inclus)",
+            "format": "date",
+            "title": "Bill Period End",
+            "type": "string"
+          },
           "bill_period_label": {
             "examples": [
               "Sept.-Oct. 2026"
             ],
             "title": "Bill Period Label",
+            "type": "string"
+          },
+          "bill_period_start": {
+            "description": "Premier jour de la période de la facture",
+            "format": "date",
+            "title": "Bill Period Start",
             "type": "string"
           },
           "bill_reference": {
@@ -7055,6 +7095,8 @@
           "bill_id",
           "bill_reference",
           "bill_period_label",
+          "bill_period_start",
+          "bill_period_end",
           "meter_id",
           "meter_reference",
           "household_id",

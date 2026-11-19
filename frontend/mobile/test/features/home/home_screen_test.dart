@@ -45,6 +45,11 @@ Future<void> pumpHome(
         path: AppTab.consumption.path,
         builder: (context, state) => const Scaffold(body: Text('Écran Conso')),
       ),
+      GoRoute(
+        path: Routes.billPath,
+        builder: (context, state) =>
+            Scaffold(body: Text('Facture ${state.pathParameters['billId']}')),
+      ),
       GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
       GoRoute(
         path: Routes.pendingPath,
@@ -180,10 +185,7 @@ void main() {
   });
 
   group('liens', () {
-    for (final (key, page) in [
-      ('Détail', 'Détail de la facture : bientôt'),
-      ('Payer 31\u00A0420\u00A0FCFA', 'Paiement : bientôt'),
-    ]) {
+    for (final (key, page) in [('Payer 31\u00A0420\u00A0FCFA', 'Paiement : bientôt')]) {
       testWidgets('« $key » → page d’attente', (tester) async {
         await pumpHome(tester, FakeHomeBackend());
         await tester.tap(find.text(key));
@@ -191,6 +193,13 @@ void main() {
         expect(find.text(page), findsOneWidget);
       });
     }
+
+    testWidgets('« Détail » → détail de la facture urgente (F5.3)', (tester) async {
+      await pumpHome(tester, FakeHomeBackend());
+      await tester.tap(find.text('Détail'));
+      await settle(tester);
+      expect(find.text('Facture 201'), findsOneWidget);
+    });
 
     testWidgets('cloche → écran Notifications ; au retour, le point rouge est relu', (
       tester,

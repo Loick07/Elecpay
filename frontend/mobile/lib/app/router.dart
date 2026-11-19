@@ -9,6 +9,7 @@ import '../core/widgets/bottom_nav.dart';
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
+import '../features/bills/bill_detail_screen.dart';
 import '../features/bills/bills_screen.dart';
 import '../features/catalogue/catalogue_screen.dart';
 import '../features/design_check/charte_screen.dart';
@@ -57,7 +58,8 @@ List<RouteBase> appRoutes() => [
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
   GoRoute(
     path: Routes.billPath,
-    builder: (context, state) => const PendingScreen(screen: 'Détail de la facture', step: 'F5.3'),
+    builder: (context, state) =>
+        BillDetailScreen(billId: int.tryParse(state.pathParameters['billId'] ?? '') ?? 0),
   ),
   // Écrans poussés des étapes suivantes : page d'attente.
   GoRoute(

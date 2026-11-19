@@ -241,7 +241,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         UrgentBillAction.none || null => HeroPayment.none,
         UrgentBillAction.pay => HeroPayment.pay,
       },
-      onDetail: () => _open('Détail de la facture', 'F5'),
+      onDetail: () => context.push(Routes.bill(bill.id)),
       onPay: () => _open('Paiement', 'F6'),
       onOpenPayment: () => _open('Suivi du paiement', 'F6'),
     );

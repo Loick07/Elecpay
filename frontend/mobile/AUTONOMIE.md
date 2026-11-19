@@ -1,6 +1,7 @@
 # Consignes : développement autonome de F4 à F10
 
-Consignes de Loick, données le 19/11/2026 (copiées en intégralité, sans modification). Une nouvelle
+Consignes de Loick, données le 19/11/2026 (copiées en intégralité, puis modifiées à sa demande le
+19/11/2026 : arrêt en fin d'étape, règles de la section 4, fusion dans `main`). Une nouvelle
 session (après une coupure ou une limite d'utilisation) doit les relire, avec `CLAUDE.md` et
 `frontend/mobile/JOURNAL.md`, avant toute action.
 
@@ -36,6 +37,7 @@ Interdit : suppression en masse, git push --force, git reset --hard, git clean, 
 - Une branche par étape (f4, f5… f10), jamais de travail directement sur main.
 - Toutes les 15 à 20 minutes, ou après chaque morceau cohérent : un commit de sauvegarde (sauvegarde F5.2 : …) poussé sur GitHub.
 - À la fin de chaque sous-étape, une fois les tests, l'analyse et le format au vert : un commit propre, le push, l'intégration dans main (git merge --ff-only), le push de main et une CI verte.
+- **Les commits de sauvegarde restent sur la branche de l'étape.** `main` ne reçoit une fusion qu'à la fin d'une sous-étape, sur un commit propre (jamais un commit « Sauvegarde … »), après des tests, une analyse et le contrôle de format **exact de la CI** au vert en local, sur ce commit-là.
 
 ### b) Journal de reprise : frontend/mobile/JOURNAL.md, mis à jour et commité avec chaque sauvegarde. Il contient :
 
@@ -59,10 +61,9 @@ Un fichier abîmé se restaure depuis le dernier commit, jamais en le réécriva
 
 ## 3. Méthode de travail de F4 à F10
 
-> **Changement de méthode demandé par Loick le 19/11/2026 (il remplace « enchaîne F4 → F5 → F6 » et
-> « passe directement à l'étape suivante » ci-dessous) :**
+> **Règle de Loick (19/11/2026) :**
 >
-> - **Arrêt à la fin de chaque étape** (F4, F5, F6, F7, F8, F9, F10), au lieu d'enchaîner.
+> - **Arrêt à la fin de chaque étape** (F4, F5, F6, F7, F8, F9, F10), et attente de son « Continue ».
 > - **Pendant une étape : aucun arrêt.** Toutes les sous-étapes s'enchaînent seules, avec tests,
 >   commits, intégration dans `main` et CI verte à chaque sous-étape.
 > - **À la fin d'une étape** : tout est intégré dans `main` et la CI est verte ; rapport
@@ -77,21 +78,22 @@ Avant de coder la suite, termine ce qui reste de F4.0 (section 5), puis propose-
 
 Pendant ce temps, avance sur F4 (son découpage est déjà validé, voir section 6).
 
-Une fois DECOUPAGES.md validé, enchaîne F4 → F5 → F6 (première partie) sans t'arrêter.
-
-À la fin de chaque étape, écris un rapport dans frontend/mobile/rapports/FX.md, commite-le, mets à jour les tableaux de bord de PLAN.md et CLAUDE.md, et passe directement à l'étape suivante. Le rapport contient :
+À la fin de chaque étape, écris un rapport dans frontend/mobile/rapports/FX.md, commite-le, mets à jour les tableaux de bord de PLAN.md et CLAUDE.md, montre-le-moi et attends mon « Continue » avant l'étape suivante. Le rapport contient :
 
 - ce qui est fait ;
 - les choix faits en route et leur raison ;
 - les défauts trouvés et corrigés ;
 - les commits ;
 - le nombre de tests, et la taille de l'APK release ;
-- les points à surveiller.
+- ce qu'il faut regarder sur le téléphone ;
+- les points à surveiller ;
+- « Ce qui a été modifié ou supprimé en dehors de l'étape » et « Tests modifiés ou supprimés, et pourquoi » (même vides).
 
 Si je t'envoie des corrections sur un rapport, intègre-les en priorité dans la sous-étape suivante.
 
 Tu t'arrêtes seulement pour :
 
+- la fin de chaque étape : rapport, puis attente de mon « Continue » ;
 - F6, avant de brancher l'envoi réel du paiement (POST /payments) : rapport, puis attente de ma validation ;
 - une décision de produit que DECOUPAGES.md ne couvre pas et qui ne peut pas attendre. Sinon, prends l'option la plus prudente, note-la dans le rapport et continue ;
 - un blocage : une CI rouge que tu ne sais pas corriger après deux essais sérieux. Écris-le dans JOURNAL.md et arrête-toi ;
@@ -114,6 +116,8 @@ Jalon de mi-parcours (après F5) : si mon itel est connecté (adb devices), joue
 >   Loick, sauf pour une correction qu'il a demandée.
 > - Chaque rapport de fin d'étape contient une section « Ce qui a été modifié ou supprimé en dehors de
 >   l'étape » et une section « Tests modifiés ou supprimés, et pourquoi », même vides.
+> - Fusion dans `main` seulement à la fin d'une sous-étape, après des tests verts en local (voir 2 a) ;
+>   les sauvegardes restent sur la branche de l'étape.
 
 - Maquettes et charte font foi ; pour les factures, backend/docs/FACTURES.md et FACTURE_E2C.md.
 - formats.dart est le seul endroit des formats ; montants entiers en FCFA.

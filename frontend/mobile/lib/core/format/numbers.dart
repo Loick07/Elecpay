@@ -34,6 +34,17 @@ String formatKwhValue(num kwh) {
 /// Énergie : « 417,4 kWh ».
 String formatKwh(num kwh) => '${formatKwhValue(kwh)}${unitSpace}kWh';
 
+/// Signe d'une valeur approchée (estimation).
+const _approx = '≈';
+
+/// Énergie ESTIMÉE, arrondie au kWh : 206.3 → « ≈ 206 kWh ».
+String formatApproxKwh(num kwh) => '$_approx$unitSpace${_group(kwh.round())}${unitSpace}kWh';
+
+/// Montant ESTIMÉ, arrondi à la centaine : 10112 → « ≈ 10 100 FCFA ». Une estimation n'affiche
+/// jamais une précision qu'elle n'a pas.
+String formatApproxFcfa(int amount) =>
+    '$_approx$unitSpace${formatFcfa(((amount / 100).round()) * 100)}';
+
 /// Sens d'une variation (la couleur en dépend : baisse = vert, hausse = orange).
 enum Trend { down, flat, up }
 

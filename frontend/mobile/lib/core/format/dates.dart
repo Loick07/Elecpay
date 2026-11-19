@@ -100,6 +100,26 @@ String formatCountdown(Duration remaining) {
   return '${seconds ~/ 60}:${_two(seconds % 60)}';
 }
 
+const _weekdays = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+
+String _capitalized(String word) => '${word[0].toUpperCase()}${word.substring(1)}';
+
+/// Jour de l'en-tête de l'accueil, à Brazzaville : « Jeudi 12 novembre », « Dimanche 1er mars ».
+String formatWeekdayDate(DateTime moment) {
+  final local = toBrazzaville(moment);
+  return '${_capitalized(_weekdays[local.weekday - 1])} ${_day(local.day)} '
+      '${_monthsLong[local.month - 1]}';
+}
+
+/// Mois en cours relevé (dates du calendrier) : « Novembre, du 1er au 12 » ; un seul jour :
+/// « Novembre, le 1er » ; rien de relevé (`end` nul) : « Novembre ».
+String formatMonthSoFar(DateTime start, DateTime? end) {
+  final month = _capitalized(_monthsLong[start.month - 1]);
+  if (end == null) return month;
+  if (end.day == start.day) return '$month, le ${_day(end.day)}';
+  return '$month, du ${_day(start.day)} au ${_day(end.day)}';
+}
+
 /// Mois de consommation : « Octobre 2026 ».
 String formatMonthYear(int year, int month) {
   final name = _monthsLong[month - 1];

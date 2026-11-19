@@ -86,6 +86,16 @@ int? consumptionMeterId({required BillSummary? urgent, required List<MeterDetail
   return (meters.where((m) => m.status == 'active').firstOrNull ?? meters.first).id;
 }
 
+/// Prénom de « Bonjour Loick » : le premier mot du nom (le nom entier s'il n'a qu'un mot).
+String greetingName(String fullName) {
+  final words = fullName.trim().split(RegExp(r'\s+'));
+  return words.first;
+}
+
+/// Rappel des retards dans un autre foyer : « 1 facture en retard dans Boutique Tié-Tié ».
+String overdueElsewhereText(OverdueElsewhere o) =>
+    '${o.count} facture${o.count > 1 ? 's' : ''} en retard dans ${o.householdName}';
+
 /// Une ligne de « Activité récente » : un paiement réussi, ou une facture émise (comme la maquette).
 sealed class ActivityItem {
   const ActivityItem();

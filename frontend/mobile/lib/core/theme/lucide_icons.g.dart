@@ -14,11 +14,17 @@ abstract final class Lucide {
   /// `ban`
   static const ban = IconData(0xe051, fontFamily: lucideFontFamily);
 
+  /// `bell`
+  static const bell = IconData(0xe059, fontFamily: lucideFontFamily);
+
   /// `chart-no-axes-column`
   static const chartNoAxesColumn = IconData(0xe068, fontFamily: lucideFontFamily);
 
   /// `check`
   static const check = IconData(0xe06c, fontFamily: lucideFontFamily);
+
+  /// `chevron-down`
+  static const chevronDown = IconData(0xe06d, fontFamily: lucideFontFamily);
 
   /// `chevron-left`
   static const chevronLeft = IconData(0xe06e, fontFamily: lucideFontFamily);

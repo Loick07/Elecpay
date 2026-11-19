@@ -75,4 +75,12 @@ void main() {
     expect(formatReference(' ep-2026-000123 '), 'EP-2026-000123');
     expect(formatReference('20261103000127'), '20261103000127');
   });
+
+  test('estimations : « ≈ 206 kWh », « ≈ 10 100 FCFA » (arrondis honnêtes)', () {
+    expect(visible(formatApproxKwh(206.3)), '≈·206·kWh');
+    expect(visible(formatApproxKwh(1206.6)), '≈·1·207·kWh');
+    expect(visible(formatApproxFcfa(10112)), '≈·10·100·FCFA');
+    expect(visible(formatApproxFcfa(10150)), '≈·10·200·FCFA');
+    expect(visible(formatApproxFcfa(40)), '≈·0·FCFA');
+  });
 }

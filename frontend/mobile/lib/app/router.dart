@@ -13,7 +13,9 @@ import '../features/catalogue/catalogue_screen.dart';
 import '../features/design_check/charte_screen.dart';
 import '../features/diagnostic/diagnostic_access.dart';
 import '../features/diagnostic/diagnostic_screen.dart';
+import '../features/home/home_screen.dart';
 import '../features/legal/legal_screen.dart';
+import '../features/pending/pending_screen.dart';
 import '../features/startup/splash_screen.dart';
 import 'app_shell.dart';
 import 'routes.dart';
@@ -28,12 +30,15 @@ List<RouteBase> appRoutes() => [
   for (final document in LegalDocument.values)
     GoRoute(path: document.path, builder: (context, state) => LegalScreen(document)),
   GoRoute(path: Routes.forgotPassword, builder: (context, state) => const ForgotPasswordScreen()),
-  // Écrans principaux, sous la barre du bas (pages d'attente jusqu'à F4 → F9).
+  // Écrans principaux, sous la barre du bas (pages d'attente jusqu'à F5 → F9).
   ShellRoute(
     builder: (context, state, child) => AppShell(location: state.uri.path, child: child),
     routes: [
+      GoRoute(
+        path: AppTab.home.path,
+        pageBuilder: (context, state) => const NoTransitionPage(child: HomeScreen()),
+      ),
       for (final (tab, step) in [
-        (AppTab.home, 'F4'),
         (AppTab.bills, 'F5'),
         (AppTab.consumption, 'F7'),
         (AppTab.account, 'F9'),
@@ -45,6 +50,14 @@ List<RouteBase> appRoutes() => [
           ),
         ),
     ],
+  ),
+  // Écrans poussés des étapes suivantes (sans barre du bas) : page d'attente.
+  GoRoute(
+    path: Routes.pendingPath,
+    builder: (context, state) => PendingScreen(
+      screen: state.uri.queryParameters['ecran'] ?? 'Écran',
+      step: state.uri.queryParameters['etape'] ?? 'suivante',
+    ),
   ),
   // Page de contrôle de la charte : seulement dans les versions de développement.
   if (kDebugMode) GoRoute(path: '/charte', builder: (context, state) => const CharteScreen()),

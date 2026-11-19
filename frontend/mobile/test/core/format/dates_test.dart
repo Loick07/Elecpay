@@ -193,4 +193,19 @@ void main() {
       'Hors connexion. Les données affichées datent du 12 nov. à 08:15.',
     );
   });
+
+  group('accueil', () {
+    test('en-tête : « Jeudi 12 novembre », à l’heure de Brazzaville', () {
+      expect(formatWeekdayDate(DateTime.utc(2026, 11, 12, 9)), 'Jeudi 12 novembre');
+      // 23:30 UTC le 28 février = 00:30 le 1er mars à Brazzaville.
+      expect(formatWeekdayDate(DateTime.utc(2026, 2, 28, 23, 30)), 'Dimanche 1er mars');
+    });
+
+    test('mois en cours : « Novembre, du 1er au 12 », un jour, rien de relevé', () {
+      final start = DateTime(2026, 11);
+      expect(formatMonthSoFar(start, DateTime(2026, 11, 12)), 'Novembre, du 1er au 12');
+      expect(formatMonthSoFar(start, DateTime(2026, 11)), 'Novembre, le 1er');
+      expect(formatMonthSoFar(start, null), 'Novembre');
+    });
+  });
 }

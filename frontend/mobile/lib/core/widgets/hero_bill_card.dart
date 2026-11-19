@@ -32,8 +32,16 @@ class HeroBillCard extends StatelessWidget {
     required this.onDetail,
     required this.onPay,
     this.householdName,
+    this.payment = HeroPayment.pay,
+    this.onOpenPayment,
     super.key,
   });
+
+  /// Ce que propose la carte à côté de « Détail ».
+  final HeroPayment payment;
+
+  /// « Paiement en cours » touché : ouvre le suivi du paiement (jamais une nouvelle demande).
+  final VoidCallback? onOpenPayment;
 
   /// « sept.–oct. 2026 » (format court de la période).
   final String periodLabel;
@@ -131,17 +139,46 @@ class HeroBillCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppButton(label: 'Détail', variant: ButtonVariant.secondary, onPressed: onDetail),
-              const SizedBox(width: Space.s2),
-              Expanded(
-                child: PayButton(amount: amount, online: online, onPay: onPay),
-              ),
+              if (payment == HeroPayment.none)
+                Expanded(
+                  child: AppButton(
+                    label: 'Détail',
+                    variant: ButtonVariant.secondary,
+                    onPressed: onDetail,
+                  ),
+                )
+              else ...[
+                AppButton(label: 'Détail', variant: ButtonVariant.secondary, onPressed: onDetail),
+                const SizedBox(width: Space.s2),
+                Expanded(
+                  child: payment == HeroPayment.inProgress
+                      ? AppButton(
+                          label: 'Paiement en cours',
+                          icon: AppIcons.hourglass,
+                          variant: ButtonVariant.secondary,
+                          onPressed: onOpenPayment,
+                        )
+                      : PayButton(amount: amount, online: online, onPay: onPay),
+                ),
+              ],
             ],
           ),
         ],
       ),
     );
   }
+}
+
+/// Action de paiement de la carte de la facture urgente.
+enum HeroPayment {
+  /// « Payer 31 420 FCFA » (désactivé hors ligne).
+  pay,
+
+  /// « Paiement en cours » : un paiement attend sa confirmation, on n'en lance pas un deuxième.
+  inProgress,
+
+  /// Pas de paiement possible ici (ex. simple lecteur du foyer) : « Détail » seul.
+  none,
 }
 
 class _Meta extends StatelessWidget {

@@ -50,6 +50,10 @@ Future<List<BillSummary>> _toPayOrNone(Ref ref) async {
   }
 }
 
+/// Deux lectures EN MÊME TEMPS ; en cas d'échec, l'erreur d'ORIGINE (`ApiFailure` : message,
+/// « Hors connexion », référence), pas une `ParallelWaitError` comme avec `(a, b).wait`.
+Future<List<Object?>> _both(Future<Object?> a, Future<Object?> b) => Future.wait([a, b]);
+
 // --- Foyer affiché ---------------------------------------------------------------------------
 
 /// Où est gardé le foyer choisi dans le sélecteur.
@@ -180,10 +184,19 @@ const homeChartDays = 12;
 /// Carte « Novembre, du 1er au 12 » : résumé du mois + estimation, et les 12 derniers jours.
 @immutable
 class MonthConsumption {
-  const MonthConsumption({required this.summary, required this.days});
+  const MonthConsumption({
+    required this.summary,
+    required this.days,
+    this.meter,
+    this.meterCount = 1,
+  });
 
   final Fetched<ConsumptionSummary> summary;
   final Fetched<ConsumptionSeries> days;
+
+  /// Compteur montré, et nombre de compteurs du foyer (plusieurs : son nom est écrit sur la carte).
+  final MeterDetail? meter;
+  final int meterCount;
 }
 
 /// `null` : aucun compteur. Les dates sont celles du téléphone (la carte montre des relevés
@@ -191,23 +204,31 @@ class MonthConsumption {
 final monthConsumptionProvider = FutureProvider<MonthConsumption?>((ref) async {
   final meterId = await ref.watch(shownMeterIdProvider.future);
   if (meterId == null) return null;
+  final householdId = (await ref.watch(shownHouseholdIdProvider.future))!;
+  final meters = (await ref.watch(householdMetersProvider(householdId).future)).data;
   final api = ref.watch(cachedApiProvider);
   final today = DateTime.now();
   String day(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-  final (summary, days) = await (
-    api.get('/meters/$meterId/consumption/summary', ConsumptionSummary.fromJson),
-    api.get(
-      '/meters/$meterId/consumption',
-      ConsumptionSeries.fromJson,
-      query: {
-        'granularity': 'day',
-        'from': day(today.subtract(const Duration(days: homeChartDays - 1))),
-        'to': day(today),
-      },
-    ),
-  ).wait;
-  return MonthConsumption(summary: summary, days: days);
+  final [summary as Fetched<ConsumptionSummary>, days as Fetched<ConsumptionSeries>] =
+      await _both(
+        api.get('/meters/$meterId/consumption/summary', ConsumptionSummary.fromJson),
+        api.get(
+          '/meters/$meterId/consumption',
+          ConsumptionSeries.fromJson,
+          query: {
+            'granularity': 'day',
+            'from': day(today.subtract(const Duration(days: homeChartDays - 1))),
+            'to': day(today),
+          },
+        ),
+      );
+  return MonthConsumption(
+    summary: summary,
+    days: days,
+    meter: meters.where((m) => m.id == meterId).firstOrNull,
+    meterCount: meters.length,
+  );
 });
 
 // --- Activité récente ---------------------------------------------------------------------------
@@ -228,14 +249,14 @@ class RecentActivity {
 /// Paiements réussis + dernières factures émises (comme la maquette), du plus récent.
 final recentActivityProvider = FutureProvider<RecentActivity>((ref) async {
   final api = ref.watch(cachedApiProvider);
-  final (payments, bills) = await (
+  final [payments as Fetched<PaymentPage>, bills as Fetched<BillList>] = await _both(
     api.get(
       '/payments',
       PaymentPage.fromJson,
       query: {'status': TransactionStatuses.succeeded, 'size': homeActivityCount},
     ),
     api.get('/bills', BillList.fromJson, query: {'size': homeActivityCount}),
-  ).wait;
+  );
   final cached = [payments, bills].whereType<CachedData<Object?>>().toList()
     ..sort((a, b) => a.savedAt.compareTo(b.savedAt)); // la plus ancienne des deux
   return RecentActivity(

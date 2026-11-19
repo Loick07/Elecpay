@@ -66,6 +66,8 @@ class FakeHomeBackend {
 
   int unread = 3;
 
+  Map<String, Object?> user = {..._api.sample('UserPublic'), 'full_name': 'Loick Makosso'};
+
   static Map<String, Object?> _meter(int id, int household) => {
     ..._api.sample('MeterDetail'),
     'id': id,
@@ -119,7 +121,7 @@ class FakeHomeBackend {
     final query = request.queryParameters;
     final meterMatch = RegExp(r'^/meters/(\d+)/consumption(/summary)?$').firstMatch(path);
     final householdMeters = RegExp(r'^/households/(\d+)/meters$').firstMatch(path);
-    if (path == '/me') return JsonReply(200, _api.sample('UserPublic'));
+    if (path == '/me') return JsonReply(200, user);
     if (path == '/households') return JsonReply(200, households);
     if (householdMeters != null) {
       return JsonReply(200, meters[int.parse(householdMeters.group(1)!)] ?? <Object>[]);

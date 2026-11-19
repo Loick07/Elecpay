@@ -19,8 +19,10 @@ const lucideFontFamily = 'Lucide';
 /// générées ; Flutter ne garde dans l'APK que les icônes réellement utilisées dans le code.
 const lucideIcons = <String, String>{
   'ban': 'ban',
+  'bell': 'bell',
   'chartNoAxesColumn': 'chart-no-axes-column',
   'check': 'check',
+  'chevronDown': 'chevron-down',
   'chevronLeft': 'chevron-left',
   'circle': 'circle',
   'circleCheck': 'circle-check',

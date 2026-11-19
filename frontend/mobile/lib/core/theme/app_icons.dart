@@ -43,6 +43,10 @@ abstract final class AppIcons {
   static const securePay = Lucide.shieldCheck;
   static const info = Lucide.info;
 
+  // Accueil : cloche des notifications, sélecteur de foyer.
+  static const notifications = Lucide.bell;
+  static const dropdown = Lucide.chevronDown;
+
   // Barre du bas (maquette : Accueil, Factures, Payer, Conso, Compte).
   static const navHome = Lucide.house;
   static const navBills = Lucide.fileText;

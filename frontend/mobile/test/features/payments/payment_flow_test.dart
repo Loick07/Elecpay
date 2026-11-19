@@ -61,17 +61,6 @@ void main() {
     expect(newIdempotencyKey(Random(1)), newIdempotencyKey(Random(1)));
   });
 
-  test('par défaut, AUCUN paiement réel ne part (arrêt avant POST /payments)', () async {
-    final container = ProviderContainer(retry: noAutomaticRetry);
-    addTearDown(container.dispose);
-    final sub = container.listen(paymentFlowProvider(101), (_, _) {});
-    addTearDown(sub.close);
-    await container.read(paymentFlowProvider(101).notifier).pay(request);
-    final state = container.read(paymentFlowProvider(101));
-    expect(state, isA<PaymentRefused>());
-    expect((state as PaymentRefused).message, NotYetConnectedPaymentGateway.message);
-  });
-
   group('parcours réussi', () {
     test('une demande, suivie toutes les 3 s, jusqu’au succès', () async {
       final h = Harness();

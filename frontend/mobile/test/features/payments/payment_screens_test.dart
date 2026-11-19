@@ -204,19 +204,26 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('sans accord de Loick : la vraie passerelle n’envoie RIEN', (tester) async {
-      // La passerelle par défaut (non remplacée) refuse localement, sans requête.
+    testWidgets('de bout en bout par l’API (faux serveur) : une demande, puis l’attente', (
+      tester,
+    ) async {
+      // La VRAIE passerelle (non remplacée) : seul le réseau est simulé.
       final backend = FakeHomeBackend()
         ..user = {...FakeHomeBackend().user, 'phone': '+242061234567'};
       tester.view.physicalSize = itelPhysicalSize;
       tester.view.devicePixelRatio = itelPixelRatio;
       addTearDown(tester.view.reset);
+      final timing = FakeTiming();
       final router = GoRouter(
         initialLocation: Routes.bill(101),
         routes: [
           GoRoute(
             path: Routes.billPath,
             builder: (context, state) => const BillDetailScreen(billId: 101),
+          ),
+          GoRoute(
+            path: Routes.paymentPath,
+            builder: (context, state) => const PaymentScreen(billId: 101),
           ),
         ],
       );
@@ -227,6 +234,7 @@ void main() {
           overrides: [
             ...backend.overrides(),
             homeClockProvider.overrideWithValue(() => DateTime.utc(2026, 11, 12, 9)),
+            paymentTimingProvider.overrideWithValue(timing.timing),
           ],
           child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
         ),
@@ -234,8 +242,14 @@ void main() {
       await settle(tester);
       await openSheet(tester);
       await tapSheetPay(tester);
-      expect(find.text(NotYetConnectedPaymentGateway.message), findsOneWidget);
-      expect(backend.requestsTo('/payments').where((r) => r.method == 'POST'), isEmpty);
+      final posts = backend.server.requests.where(
+        (r) => r.path == '/payments' && r.method == 'POST',
+      );
+      expect(posts, hasLength(1));
+      expect(posts.single.headers['Idempotency-Key'], isNotEmpty);
+      expect(find.byType(PaymentScreen), findsOneWidget);
+      expect(find.text('Confirmez sur votre téléphone'), findsOneWidget);
+      await unmount(tester);
     });
   });
 

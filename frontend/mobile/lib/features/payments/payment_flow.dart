@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/payments.dart';
+import '../../core/network/api_client.dart';
 import '../../core/network/api_failure.dart';
+import '../../core/session/session_providers.dart';
 import '../../core/widgets/payment_sheet.dart';
 import '../../core/widgets/transaction_status_view.dart';
 
@@ -50,31 +52,41 @@ abstract interface class PaymentGateway {
   Future<PaymentPublic> fetch(int paymentId);
 }
 
-/// Le paiement réel n'est PAS encore branché : arrêt prévu par Loick avant `POST /payments`
-/// (AUTONOMIE.md, section 3). Aucune requête ne part ; la demande est refusée avec un message clair.
-class NotYetConnectedPaymentGateway implements PaymentGateway {
-  const NotYetConnectedPaymentGateway();
+/// Paiement par l'API ElecPay (branché en F6.3 avec l'accord de Loick du 20/11/2026) :
+/// - `POST /payments` : `bill_id`, `operator`, `phone_number` — **jamais le montant** (celui de la
+///   facture fait foi côté API) — et l'en-tête `Idempotency-Key` ; client authentifié, AUCUNE
+///   relance automatique (le seul rejeu est celui qui suit un rafraîchissement du jeton) ;
+/// - `GET /payments/{id}` : TOUJOURS en direct (client authentifié, jamais le cache hors ligne :
+///   `cache_policy.dart` le range dans les lectures jamais gardées).
+/// En mode démo, l'API utilise le prestataire SIMULÉ : aucun débit réel.
+class ApiPaymentGateway implements PaymentGateway {
+  const ApiPaymentGateway(this._api);
 
-  static const message = 'Le paiement n’est pas encore activé dans cette version.';
+  final ApiClient _api;
+
+  /// Nom de l'en-tête de la clé d'idempotence (contrat).
+  static const idempotencyHeader = 'Idempotency-Key';
 
   @override
   Future<PaymentPublic> create(PaymentRequest request, {required String idempotencyKey}) =>
-      Future.error(const PaymentNotConnected());
+      _api.postObject(
+        '/payments',
+        PaymentPublic.fromJson,
+        body: {
+          'bill_id': request.billId,
+          'operator': request.operator.apiValue,
+          'phone_number': request.phone,
+        },
+        headers: {idempotencyHeader: idempotencyKey},
+      );
 
   @override
-  Future<PaymentPublic> fetch(int paymentId) => Future.error(const PaymentNotConnected());
-}
-
-/// Refus local : paiement pas encore branché (aucune requête envoyée).
-final class PaymentNotConnected implements Exception {
-  const PaymentNotConnected();
-
-  @override
-  String toString() => NotYetConnectedPaymentGateway.message;
+  Future<PaymentPublic> fetch(int paymentId) =>
+      _api.getObject('/payments/$paymentId', PaymentPublic.fromJson);
 }
 
 final paymentGatewayProvider = Provider<PaymentGateway>(
-  (ref) => const NotYetConnectedPaymentGateway(),
+  (ref) => ApiPaymentGateway(ref.watch(authenticatedApiProvider)),
 );
 
 /// Rythme du suivi, remplaçable dans les tests (attente commandée, horloge choisie).
@@ -189,7 +201,7 @@ final class PaymentFinished extends PaymentFlowState {
 }
 
 /// L'API a refusé la demande AVANT de créer un paiement (numéro d'un autre opérateur, facture déjà
-/// payée, trop de demandes…), ou le paiement n'est pas encore branché. Rien n'a été débité.
+/// payée, trop de demandes…). Rien n'a été débité.
 final class PaymentRefused extends PaymentFlowState {
   const PaymentRefused(this.request, this.failure);
 
@@ -303,9 +315,6 @@ class PaymentFlow extends Notifier<PaymentFlowState> {
     final PaymentPublic created;
     try {
       created = await _gateway.create(request, idempotencyKey: key);
-    } on PaymentNotConnected catch (failure) {
-      if (!_disposed) state = PaymentRefused(request, failure);
-      return;
     } on ApiRejected catch (failure) {
       if (_disposed) return;
       // Un paiement de cette facture attend déjà sa confirmation : on suit celui-là.

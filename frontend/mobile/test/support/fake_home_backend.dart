@@ -190,6 +190,28 @@ class FakeHomeBackend {
 
   int unread = 3;
 
+  /// Réponses de `POST /payments`, dans l'ordre (vide : un paiement « en attente » n° 500).
+  final paymentReplies = <FakeReply>[];
+
+  /// État renvoyé par `GET /payments/{id}` (absent : 404 `PAYMENT_NOT_FOUND`).
+  final Map<int, Map<String, Object?>> paymentStates = {};
+
+  /// Un paiement au format du contrat (`PaymentPublic`).
+  static Map<String, Object?> paymentJson(int id, String status, {String? reason}) => {
+    ..._api.sample('PaymentPublic'),
+    'id': id,
+    'reference': 'TX-${id.toString().padLeft(8, '0')}',
+    'bill_id': 101,
+    'status': status,
+    'failure_reason': reason,
+    'amount': 31420,
+    'operator_label': 'MTN MoMo',
+    'phone_number': '+242061234567',
+    'bill_period_start': '2026-09-01',
+    'bill_period_end': '2026-10-31',
+    'source': 'simulated',
+  };
+
   /// Notifications (`GET /notifications`), de la plus récente à la plus ancienne.
   List<Map<String, Object?>> notifications = [
     notification(1, type: 'payment_succeeded', group: 'today', title: 'Paiement réussi'),
@@ -329,6 +351,20 @@ class FakeHomeBackend {
         ..._api.sample('ConsumptionSeries'),
         'meter_id': int.parse(meterMatch.group(1)!),
       });
+    }
+    if (path == '/payments' && request.method == 'POST') {
+      if (paymentReplies.isNotEmpty) return paymentReplies.removeAt(0);
+      final created = paymentJson(500, TransactionStatuses.pending);
+      paymentStates[500] ??= created;
+      return JsonReply(201, created);
+    }
+    final paymentMatch = RegExp(r'^/payments/(\d+)$').firstMatch(path);
+    if (paymentMatch != null) {
+      final state = paymentStates[int.parse(paymentMatch.group(1)!)];
+      if (state == null) {
+        return JsonReply(404, apiError('PAYMENT_NOT_FOUND', 'Paiement introuvable.'));
+      }
+      return JsonReply(200, state);
     }
     if (path == '/payments') {
       // Filtres de l'API : `status` et `bill_id` (comme GET /payments).

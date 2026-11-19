@@ -34,9 +34,11 @@ void main() {
     await tapOn(tester, find.byKey(const Key('home.household')));
     await waitFor(tester, find.text('Choisir un foyer'));
     await shot(tester, 'f4-2-choix-foyer');
-    final other = container.read(householdsProvider).value!.data.firstWhere(
-      (h) => h.id != container.read(shownHouseholdIdProvider).value,
-    );
+    final other = container
+        .read(householdsProvider)
+        .value!
+        .data
+        .firstWhere((h) => h.id != container.read(shownHouseholdIdProvider).value);
     await tapOn(tester, find.byKey(Key('home.household.${other.id}')));
     await waitFor(tester, find.text('${other.name} · 2 foyers'));
     await shot(tester, 'f4-3-autre-foyer');

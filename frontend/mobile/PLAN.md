@@ -12,8 +12,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F1 | Accès à l'API et cache hors ligne | ✅ terminé le 17/11/2026 |
 | F2 | Composants de la charte et formats | ✅ terminé le 18/11/2026 |
 | F3 | Connexion | ✅ terminé le 18/11/2026 |
-| F4 | Accueil et notifications | prochaine étape |
-| F5 | Factures | à faire |
+| F4 | Accueil et notifications | ✅ terminé le 19/11/2026 |
+| F5 | Factures | prochaine étape |
 | F6 | Paiement, reçus et historique | à faire |
 | F7 | Consommation | à faire |
 | F8 | Compteurs et foyers | à faire |
@@ -22,7 +22,7 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
 
-## Point de reprise (mis à jour le 18/11/2026)
+## Point de reprise (mis à jour le 19/11/2026)
 
 - **Terminé** : le backend (B0 → B11, `backend/PLAN.md`), commité, poussé, CI verte.
 - **Plan validé par Loick le 15/11/2026** (avec ses réponses et ajouts ci-dessous).
@@ -92,9 +92,15 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
     jalons seulement) ; **icône ElecPay** générée par script (adaptative + monochrome) et **lancement navy**
     sans flash blanc ; `apk_check --launcher-icon=custom` ; `tool/telephone.ps1 -Device`.
   - 596 tests ; APK release de l'itel (armeabi-v7a) **15,6 Mo** (14,6 Mo à la fin de F2).
-- **Prochaine étape : F4** (accueil et notifications). Proposer d'abord son découpage. Au début de F4 :
-  les tests d'intégration des parcours de F3 (conditions ci-dessous). Jalon sur l'itel à mi-parcours
-  (F4–F5).
+- **F4 ✅ terminé le 19/11/2026** (développement en autonomie, `AUTONOMIE.md` ; rapport
+  `rapports/F4.md`) : F4.0 tests d'intégration de F3 sur la base dédiée `elecpay_e2e` ; F4.1 lectures de
+  l'accueil (une par carte, chacune échoue seule) ; F4.2 écran Accueil (`lib/features/home/`) et pages
+  d'attente des écrans suivants (`/accueil/bientot`) ; F4.3 écran Notifications
+  (`lib/features/notifications/`, toucher → onglet concerné, cloche sans interrogation périodique) ;
+  F4.4 test d'intégration `integration_test/home_notifications_test.dart` (pas encore joué : jalon après
+  F5). 1003 tests ; APK release de l'itel 16,1 Mo.
+- **Découpages de F5 à F10 validés** le 19/11/2026 : `DECOUPAGES.md` (avec les précisions de Loick).
+- **Prochaine étape : F5** (factures), après le « Continue » de Loick. Jalon sur l'itel après F5.
 
 ## Méthode (la même que pour le backend)
 

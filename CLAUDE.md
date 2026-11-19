@@ -229,5 +229,13 @@ base de démo remise à zéro avant chaque passage ; ils complètent le regard d
 Avec `adb input text`, l'itel perd des caractères (taper lettre par lettre, vérifier à l'œil). 596 tests,
 APK release de l'itel 15,6 Mo.
 
-**Prochaine étape : F4** (accueil et notifications) : proposer d'abord son découpage. Au début de F4 : les
-tests d'intégration des parcours de F3. Jalon sur l'itel à mi-parcours (F4–F5).
+**F4 (accueil et notifications) ✅ terminé le 19/11/2026** — en autonomie (`frontend/mobile/AUTONOMIE.md`,
+reprise : `frontend/mobile/JOURNAL.md`), rapport `frontend/mobile/rapports/F4.md`. Accueil
+(`lib/features/home/` : une lecture par carte, chacune échoue seule ; facture urgente, foyer gardé, mois
+estimé, activité ; liens vers les étapes suivantes = pages d'attente `/accueil/bientot`) et Notifications
+(`lib/features/notifications/` : groupes, lu / tout lu, pages de 20, toucher → onglet concerné ; cloche
+sans interrogation périodique). Découpages F5 → F10 validés : `frontend/mobile/DECOUPAGES.md`.
+1003 tests, APK release de l'itel 16,1 Mo.
+
+**Prochaine étape : F5** (factures), après le « Continue » de Loick. Jalon sur l'itel après F5
+(tests d'intégration de F3 et F4 sur la base `elecpay_e2e`).

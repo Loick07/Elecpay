@@ -103,6 +103,18 @@ Jalon de mi-parcours (après F5) : si mon itel est connecté (adb devices), joue
 
 ## 4. Règles toujours valables
 
+> **Règles ajoutées par Loick le 19/11/2026 :**
+>
+> - Ne jamais supprimer, désactiver ou affaiblir un test, un contrôle (`apk_check`, contrat, analyse) ou
+>   une règle de sécurité pour faire passer la CI. Si un test semble faux : s'arrêter et expliquer
+>   pourquoi à Loick **avant** de le changer.
+> - Ne jamais supprimer un fichier ou une fonction existante hors du périmètre de l'étape. Une suppression
+>   qui semble nécessaire est notée dans le rapport, avec sa raison.
+> - Ne jamais modifier les maquettes, la charte (`frontend/design/`) ni `DECOUPAGES.md` sans l'accord de
+>   Loick, sauf pour une correction qu'il a demandée.
+> - Chaque rapport de fin d'étape contient une section « Ce qui a été modifié ou supprimé en dehors de
+>   l'étape » et une section « Tests modifiés ou supprimés, et pourquoi », même vides.
+
 - Maquettes et charte font foi ; pour les factures, backend/docs/FACTURES.md et FACTURE_E2C.md.
 - formats.dart est le seul endroit des formats ; montants entiers en FCFA.
 - Badge Mode démo, et jamais une donnée simulée présentée comme réelle. Jamais le mot « temps réel ».

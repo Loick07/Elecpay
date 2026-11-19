@@ -5,53 +5,41 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## État au 19/11/2026
 
-- **Étape en cours** : F4 (accueil et notifications), branche **`f4`**. Sous-étapes validées : F4.0 (tests
-  d'intégration sur le téléphone, base `elecpay_e2e`), F4.1 (modèles et lectures de l'accueil, f295202).
-- **Autonomie en place** :
-  - `.claude/settings.local.json` écrit avec l'accord de Loick (19/11/2026), ignoré par git (ligne ajoutée
-    au `.gitignore` du dépôt). Pas d'`Edit` dans `backend/` : si le backend doit changer, s'arrêter et
-    demander.
-  - `frontend/mobile/DECOUPAGES.md` **validé par Loick le 19/11/2026** (toutes les recommandations +
-    précisions en tête du fichier : versions fixes share_plus / open_filex, contrôle des autorisations de
-    l'APK, interrogation lente toutes les 15 s après 2 min, légende du calendrier, F9.5 Mise en ligne
-    Oracle + Caddy + DuckDNS). Enchaîner F4 → F5 → F6 (jusqu'à l'arrêt avant `POST /payments`).
-- **En cours** : F4.2 (écran Accueil, maquette `Main.dc.html`) sur `f4`.
-  - Fait (sauvegarde 2122940) : `lib/features/home/home_screen.dart` + `home_cards.dart`, page d'attente
-    `lib/features/pending/` (route `/accueil/bientot?ecran=…&etape=…`, protégée), formats
-    `formatWeekdayDate`, `formatMonthSoFar`, `formatApproxKwh`, `formatApproxFcfa`, icônes cloche et
-    chevron, `HeroBillCard(payment: HeroPayment.inProgress / none)`, 26 tests de l'écran.
-  - Défauts trouvés par les tests et corrigés : ligne d'activité qui débordait à 200 % (montant sous le
-    titre au-delà de 130 %) ; `(a, b).wait` enveloppait l'erreur (`ParallelWaitError`) → carte sans
-    « Hors connexion » ni référence (remplacé par `Future.wait`) ; libellé de la cloche fusionné avec la
-    date pour TalkBack (`Semantics(container: true)`).
-  - Reste : suite complète + analyse au vert, commit propre, intégration dans `main`, CI.
-- **CI** : verte sur bc09e44 (main, contient F4.1). L'échec de F4.0 (ea3bad7) était passager.
-  `gh` installé (2.105.0) mais **pas encore connecté** (`gh auth login` à faire par Loick) : en attendant,
-  état de la CI lu par l'API publique de GitHub.
+- **F4 terminé** (rapport `rapports/F4.md`), intégré dans `main`. **On attend le « Continue » de Loick**
+  avant de commencer F5 (méthode du 19/11/2026 : arrêt en fin d'étape).
+- `DECOUPAGES.md` validé (précisions de Loick en tête du fichier : elles l'emportent).
+- Règles ajoutées le 19/11/2026 (`AUTONOMIE.md`, section 4) : ne jamais affaiblir un test ou un contrôle
+  pour passer la CI ; pas de suppression hors périmètre ; pas de modification de `frontend/design/` ni de
+  `DECOUPAGES.md` sans accord ; deux sections obligatoires dans chaque rapport.
+- `.claude/settings.local.json` écrit (accord du 19/11/2026). Pas d'`Edit` dans `backend/`.
+- `gh` installé mais pas connecté : CI lue par l'API publique de GitHub.
 
 ## Prochaine action
 
-1. F4.2 : écran Accueil (en-tête, sélecteur de foyer, HeroBillCard / AllPaidCard, carte du mois, activité
-   récente, états, tirer pour actualiser, pages d'attente).
-2. Intégrer la réponse de Loick sur DECOUPAGES.md dès qu'elle arrive.
+1. Après le « Continue » de Loick : branche `f5` depuis `main`, puis F5.1 (modèles et lectures des
+   factures) selon `DECOUPAGES.md` (avec `share_plus` et `open_filex` en versions fixes, et le contrôle
+   des autorisations de l'APK dans `apk_check` pour F5.4).
+2. Jalon de mi-parcours après F5 : si l'itel est connecté, `tool/integration.ps1` avec
+   `auth_flows_test.dart` puis `home_notifications_test.dart` (base `elecpay_e2e`).
 
 ## Choix faits en route
 
-- Statuts (facture, transaction, rôle) gardés en texte dans les modèles, comme `statuses.dart` (une valeur
-  nouvelle de l'API ne fait pas planter l'application).
+- Statuts (facture, transaction, rôle) et types de notification gardés en texte dans les modèles.
 - Aucune relance automatique des lectures (`noAutomaticRetry`), sur tout conteneur Riverpod.
-- Accueil : compte neuf (aucun compteur, rien à payer) → seulement « Ajoutez votre premier compteur »
-  (pas de « Tout est payé » trompeur). Ni compte, ni foyers, ni factures lisibles → un seul bloc d'état.
-- Estimation de fin de mois : énergie seule (`energy_cost`, comme la maquette), arrondie (≈ kWh entier,
-  ≈ centaine de FCFA). Barres : la dernière (journée pas finie) et les jours estimés en pointillé.
-- Liens vers F4.3 → F8 : page d'attente poussée (sans barre du bas, bouton retour).
+- Deux lectures en parallèle : `Future.wait` (garde l'`ApiFailure` d'origine), jamais `(a, b).wait`.
+- Accueil : compte neuf → seulement « Ajoutez votre premier compteur » ; rien de lisible → un seul bloc.
+- Liens vers les étapes suivantes : page d'attente poussée `/accueil/bientot?ecran=…&etape=…`.
+- Notifications : toucher → onglet concerné ; hors ligne, lecture seule.
 
 ## Commandes utiles
 
-- Tests et analyse : `cd frontend/mobile; flutter analyze; flutter test`
-- Format (jamais les fichiers générés) :
-  `find lib test tool integration_test test_driver -name '*.dart' ! -name '*.g.dart' ! -name '*.freezed.dart' | xargs dart format`
+- Tests et analyse (depuis `frontend/mobile`) : `flutter analyze`, `flutter test --reporter failures-only`
+- Format exactement comme la CI, **juste avant chaque commit** :
+  `git ls-files '*.dart' | grep -vE '\.(g|freezed)\.dart$' | xargs dart format --output=none --set-exit-if-changed`
 - Code généré : `dart run build_runner build -d`
+- APK de l'itel : `flutter build apk --release --target-platform android-arm` ; contrôles :
+  `dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk --cleartext=false --diagnostic=absent --demo-password=absent --lucide=reduced --launcher-icon=custom`
 - API de démo : `cd backend; .\.venv\Scripts\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000`
-- Tests sur le téléphone : `.\tool\integration.ps1 -Device <IP:port>` (base `elecpay_e2e`, jamais `elecpay`)
+- Tests sur le téléphone : `.\tool\integration.ps1 -Device <IP:port> [-Target integration_test/…]`
+  (base `elecpay_e2e`, jamais `elecpay`)
 - État de la CI sans `gh` : API publique `https://api.github.com/repos/Loick07/Elecpay/actions/runs`

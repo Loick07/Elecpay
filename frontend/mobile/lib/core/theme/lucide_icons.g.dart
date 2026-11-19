@@ -80,6 +80,9 @@ abstract final class Lucide {
   /// `refresh-cw`
   static const refreshCw = IconData(0xe145, fontFamily: lucideFontFamily);
 
+  /// `share-2`
+  static const share2 = IconData(0xe156, fontFamily: lucideFontFamily);
+
   /// `shield-check`
   static const shieldCheck = IconData(0xe1ff, fontFamily: lucideFontFamily);
 

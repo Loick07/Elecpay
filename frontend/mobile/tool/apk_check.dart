@@ -2,6 +2,8 @@
 // des manifestes main / debug / profile) :
 // - le réglage « HTTP en clair » (attendu : true en debug / profile, false en release) ;
 // - l'absence de sauvegarde Android (`allowBackup="false"`, exigé pour toutes les versions) ;
+// - les autorisations : seulement celles de la liste blanche (`allowedPermissions`), jamais
+//   `REQUEST_INSTALL_PACKAGES` ni l'accès aux fichiers (toutes les versions) ;
 // - les règles d'extraction de données (Android 12+) : le manifeste y fait référence, et le fichier
 //   compilé exclut TOUTES les données, en sauvegarde cloud comme en transfert d'appareil à appareil ;
 // - avec `--diagnostic=absent` : la page Diagnostic n'est PAS dans le code compilé (release) ;
@@ -53,6 +55,53 @@ bool? allowBackupFromXmlTree(String xmlTree) {
   final match = RegExp(r'allowBackup\([^)]*\)=(true|false)').firstMatch(xmlTree);
   return match == null ? null : match.group(1) == 'true';
 }
+
+/// Autorisations Android déclarées (`uses-permission`, `uses-permission-sdk-23`) dans la sortie de
+/// `aapt2 dump xmltree` du manifeste compilé.
+List<String> permissionsFromXmlTree(String manifestTree) {
+  final permissions = <String>[];
+  var inPermission = false;
+  for (final line in manifestTree.split('\n')) {
+    final trimmed = line.trimLeft();
+    if (trimmed.startsWith('E: ')) {
+      inPermission = RegExp(r'^E: uses-permission(-sdk-23)?\b').hasMatch(trimmed);
+      continue;
+    }
+    if (!inPermission) continue;
+    final name = RegExp(r':name\([^)]*\)="([^"]+)"').firstMatch(trimmed)?.group(1);
+    if (name != null) {
+      permissions.add(name);
+      inPermission = false;
+    }
+  }
+  return permissions;
+}
+
+/// Autorisations PERMISES dans l'APK (liste blanche, décision de Loick du 19/11/2026 : aucune
+/// autorisation sensible). Toute autre autorisation fait échouer le contrôle : en ajouter une
+/// demande une décision. `<paquet>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` est propre à
+/// l'application (ajoutée par AndroidX, protège ses récepteurs internes).
+const allowedPermissions = {
+  'android.permission.INTERNET',
+  'android.permission.ACCESS_NETWORK_STATE',
+};
+
+/// Autorisations nommées dans le message d'erreur, en plus de la liste blanche (exemples connus
+/// ajoutés par des paquets : installation d'APK, accès aux fichiers…).
+const knownSensitivePermissions = {
+  'android.permission.REQUEST_INSTALL_PACKAGES',
+  'android.permission.READ_EXTERNAL_STORAGE',
+  'android.permission.WRITE_EXTERNAL_STORAGE',
+  'android.permission.MANAGE_EXTERNAL_STORAGE',
+  'android.permission.QUERY_ALL_PACKAGES',
+};
+
+/// Autorisations refusées parmi `permissions` (celles hors de la liste blanche).
+List<String> forbiddenPermissions(Iterable<String> permissions) => [
+  for (final p in permissions)
+    if (!allowedPermissions.contains(p) && !p.endsWith('.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'))
+      p,
+];
 
 /// Identifiant de la ressource désignée par `android:dataExtractionRules` (ex. `0x7f0e0000`).
 String? dataExtractionRulesId(String manifestTree) =>
@@ -292,6 +341,19 @@ void main(List<String> args) {
   final wanted = cleartextOption == 'true';
   stdout.writeln('HTTP en clair (usesCleartextTraffic) : ${cleartext ?? 'absent'}');
   if (cleartext != wanted) error('usesCleartextTraffic devrait valoir $wanted dans cet APK.');
+
+  // Toujours vérifié : aucune autorisation sensible (liste blanche).
+  final permissions = permissionsFromXmlTree(manifest);
+  stdout.writeln('Autorisations : ${permissions.isEmpty ? 'aucune' : permissions.join(', ')}');
+  final forbidden = forbiddenPermissions(permissions);
+  if (forbidden.isNotEmpty) {
+    final sensitive = forbidden.where(knownSensitivePermissions.contains);
+    error(
+      'autorisations non permises dans l’APK : ${forbidden.join(', ')}'
+      '${sensitive.isEmpty ? '' : ' (dont sensibles connues : ${sensitive.join(', ')})'}. '
+      'Les retirer (tools:node="remove" dans le manifeste) ou faire décider Loick.',
+    );
+  }
 
   // Toujours interdit, quelle que soit la version : jetons et cache hors des sauvegardes.
   final backup = allowBackupFromXmlTree(manifest);

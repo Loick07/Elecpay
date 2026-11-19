@@ -161,4 +161,62 @@ void main() {
   test('taille affichée en Mo, à la française', () {
     expect(formatSize(15099494), '14,4 Mo');
   });
+
+  group('autorisations (liste blanche, aucune autorisation sensible)', () {
+    /// Manifeste compilé, au format de `aapt2 dump xmltree`.
+    String manifest(List<String> permissions, {bool sdk23 = false}) {
+      final out = StringBuffer('N: android=http://schemas.android.com/apk/res/android\n')
+        ..writeln('  E: manifest (line=2)');
+      for (final p in permissions) {
+        out
+          ..writeln('    E: uses-permission${sdk23 ? '-sdk-23' : ''} (line=3)')
+          ..writeln(
+            '      A: http://schemas.android.com/apk/res/android:name(0x01010003)="$p" (Raw: "$p")',
+          );
+      }
+      out
+        ..writeln('    E: application (line=10)')
+        ..writeln(
+          '      A: http://schemas.android.com/apk/res/android:name(0x01010003)='
+          '"android.app.Application" (Raw: "android.app.Application")',
+        );
+      return out.toString();
+    }
+
+    test('lit les autorisations, pas les autres éléments nommés', () {
+      expect(permissionsFromXmlTree(manifest(['android.permission.INTERNET'])), [
+        'android.permission.INTERNET',
+      ]);
+      expect(permissionsFromXmlTree(manifest([])), isEmpty);
+      expect(permissionsFromXmlTree(manifest(['android.permission.CAMERA'], sdk23: true)), [
+        'android.permission.CAMERA',
+      ]);
+    });
+
+    test('INTERNET, état du réseau et récepteurs internes : permis', () {
+      expect(
+        forbiddenPermissions([
+          'android.permission.INTERNET',
+          'android.permission.ACCESS_NETWORK_STATE',
+          'cg.elecpay.client.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION',
+        ]),
+        isEmpty,
+      );
+    });
+
+    test('REQUEST_INSTALL_PACKAGES et l’accès aux fichiers : refusés', () {
+      expect(
+        forbiddenPermissions([
+          'android.permission.INTERNET',
+          'android.permission.REQUEST_INSTALL_PACKAGES',
+          'android.permission.READ_EXTERNAL_STORAGE',
+        ]),
+        ['android.permission.REQUEST_INSTALL_PACKAGES', 'android.permission.READ_EXTERNAL_STORAGE'],
+      );
+    });
+
+    test('toute autorisation inconnue est refusée (il faut la décider)', () {
+      expect(forbiddenPermissions(['android.permission.CAMERA']), ['android.permission.CAMERA']);
+    });
+  });
 }

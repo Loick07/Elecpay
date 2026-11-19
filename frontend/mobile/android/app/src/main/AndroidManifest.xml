@@ -1,6 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Appels à l'API ElecPay (aussi dans la version livrée). -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Aucune autorisation sensible (décision de Loick, 19/11/2026 ; vérifié par apk_check) :
+         open_filex déclare l'accès au stockage et aux médias, inutile ici (les PDF sont rangés dans
+         le dossier privé de l'application, qu'il ouvre sans autorisation). Retirées à la fusion. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove"/>
     <!-- usesCleartextTraffic="false" : HTTP en clair INTERDIT dans la version livrée (HTTPS seulement).
          Il est permis uniquement en développement (src/debug et src/profile).
          allowBackup="false" : ni les jetons (stockage sécurisé) ni le cache hors ligne ne partent dans
@@ -50,6 +58,11 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Ouvrir le PDF d'une facture ou d'un reçu : voir les lecteurs PDF installés (Android 11+). -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:mimeType="application/pdf"/>
         </intent>
     </queries>
 </manifest>

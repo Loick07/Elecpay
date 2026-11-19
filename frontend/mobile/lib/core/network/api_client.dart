@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,6 +58,32 @@ class ApiClient {
     () => _dio.get<Object?>(path, queryParameters: query, options: _options(authenticated)),
     (data) => decode(data! as List<dynamic>),
   );
+
+  /// Lecture d'un FICHIER (ex. `GET /bills/{id}/pdf`) : les octets reçus. Jamais mis en cache.
+  Future<Uint8List> getBytes(String path, {bool authenticated = true}) => _send(() async {
+    try {
+      return await _dio.get<Object?>(
+        path,
+        options: _options(authenticated).copyWith(responseType: ResponseType.bytes),
+      );
+    } on DioException catch (error) {
+      throw _withJsonBody(error);
+    }
+  }, (data) => Uint8List.fromList(data! as List<int>));
+
+  /// Refus d'une route de FICHIER : son corps arrive en octets ; il est relu en JSON pour garder
+  /// le message et le code de l'API (« Facture introuvable. »), comme pour les autres routes.
+  static DioException _withJsonBody(DioException error) {
+    final response = error.response;
+    final data = response?.data;
+    if (response == null || data is! List<int>) return error;
+    try {
+      response.data = jsonDecode(utf8.decode(data));
+    } on Object {
+      // Corps illisible : laissé tel quel (l'erreur reste « réponse inattendue »).
+    }
+    return error;
+  }
 
   /// Envoi d'un corps JSON (`body` : un modèle avec `toJson`, ou une Map), réponse objet.
   Future<T> postObject<T>(

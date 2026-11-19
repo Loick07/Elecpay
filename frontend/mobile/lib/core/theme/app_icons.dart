@@ -42,6 +42,7 @@ abstract final class AppIcons {
   static const household = Lucide.house;
   static const securePay = Lucide.shieldCheck;
   static const info = Lucide.info;
+  static const share = Lucide.share2;
 
   // Accueil : cloche des notifications, sélecteur de foyer.
   static const notifications = Lucide.bell;

@@ -24,6 +24,8 @@ dependencies:
   flutter_animate: 4.5.2       # animations de la charte
   skeletonizer: 3.0.0          # squelettes de chargement
   path_provider: 2.1.6         # dossier privé de l'application (cache hors ligne)
+  share_plus: 13.3.1           # partager le PDF d'une facture ou d'un reçu (D5.1, version fixe)
+  open_filex: 5.0.0            # ouvrir le PDF dans le lecteur du téléphone (D5.1, version fixe)
   # Pas de google_fonts : la police Poppins est EMBARQUÉE (assets/fonts), hors ligne et sans
   # téléchargement au premier lancement (décision de Loick, 15/11/2026).
   # Pas de paquet d'icônes : la police Lucide est EMBARQUÉE (assets/fonts/Lucide.ttf), réduite par

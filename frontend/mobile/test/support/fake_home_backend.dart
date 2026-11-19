@@ -287,6 +287,17 @@ class FakeHomeBackend {
         'total': items.length,
       });
     }
+    final pdfMatch = RegExp(r'^/bills/(\d+)/pdf$').firstMatch(path);
+    if (pdfMatch != null) {
+      if (!billDetails.containsKey(int.parse(pdfMatch.group(1)!))) {
+        return JsonReply(404, apiError('BILL_NOT_FOUND', 'Facture introuvable.'));
+      }
+      return const RawReply(
+        200,
+        '%PDF-1.4 facture de démonstration',
+        contentType: 'application/pdf',
+      );
+    }
     final billMatch = RegExp(r'^/bills/(\d+)$').firstMatch(path);
     if (billMatch != null) {
       final id = int.parse(billMatch.group(1)!);

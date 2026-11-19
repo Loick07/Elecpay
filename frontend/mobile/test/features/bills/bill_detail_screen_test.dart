@@ -189,12 +189,13 @@ void main() {
     expect(button.online, isFalse);
   });
 
-  testWidgets('simple lecteur (can_pay faux) : pas de Payer', (tester) async {
+  testWidgets('simple lecteur (can_pay faux) : pas de Payer, le PDF seul', (tester) async {
     final backend = FakeHomeBackend()
       ..billDetails[101] = FakeHomeBackend.billDetail(101, canPay: false);
     await pumpDetail(tester, backend);
     expect(find.byType(PayButton), findsNothing);
-    expect(find.byKey(const Key('bill.footer')), findsNothing);
+    // F5.4 : le PDF reste proposé à tout membre du foyer (maquette : PDF collé en bas).
+    expect(find.byKey(const Key('bill.pdf')), findsOneWidget);
   });
 
   testWidgets('paiement en cours : « Paiement en cours », pas de deuxième paiement', (

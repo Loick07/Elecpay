@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../core/cache/cached_api.dart';
+import '../../core/documents/documents.dart';
 import '../../core/format/formats.dart';
 import '../../core/models/bills.dart';
 import '../../core/network/api_failure.dart';
@@ -52,6 +53,17 @@ class BillDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Facture'),
         actions: [
+          if (fetched != null)
+            IconButton(
+              key: const Key('bill.share'),
+              tooltip: fetched is FreshData<BillDetail>
+                  ? 'Partager la facture'
+                  : 'Partager la facture (connexion nécessaire)',
+              onPressed: fetched is FreshData<BillDetail>
+                  ? () => openBillPdf(context, ref, fetched.data, share: true)
+                  : null,
+              icon: const AppIcon(AppIcons.share),
+            ),
           if (fetched?.data.source == 'simulated')
             const Padding(
               padding: EdgeInsets.only(right: Space.s4),
@@ -520,18 +532,24 @@ class _Comparison extends StatelessWidget {
   }
 }
 
-/// Bas de l'écran, collé : Payer (si `can_pay`), « Paiement en cours », ou rien (payée, annulée,
-/// simple lecteur). Hors ligne : Payer désactivé avec « Connexion nécessaire pour payer ».
-class _Footer extends StatelessWidget {
+/// Bas de l'écran, collé (maquette) : « PDF » puis Payer (si `can_pay`), « Paiement en cours », ou
+/// le PDF seul (payée, annulée, simple lecteur). HORS LIGNE : PDF et Payer désactivés, avec
+/// « Connexion nécessaire » (aucun téléchargement ni paiement sans réseau).
+class _Footer extends ConsumerWidget {
   const _Footer({required this.fetched, required this.onPay});
 
   final Fetched<BillDetail> fetched;
   final VoidCallback onPay;
 
+  /// Mention sous le PDF hors ligne, quand Payer n'affiche pas déjà la sienne.
+  static const pdfOfflineHint = 'Connexion nécessaire pour le PDF';
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final bill = fetched.data;
+    final online = fetched is FreshData<BillDetail>;
+    final busy = ref.watch(billPdfBusyProvider(bill.id));
     final Widget? action = switch (bill) {
       BillDetail(status: BillStatuses.pendingPayment) => const AppButton(
         label: 'Paiement en cours',
@@ -539,14 +557,21 @@ class _Footer extends StatelessWidget {
         variant: ButtonVariant.secondary,
         onPressed: null,
       ),
-      BillDetail(canPay: true) => PayButton(
-        amount: bill.amountTotal,
-        online: fetched is FreshData<BillDetail>,
-        onPay: onPay,
-      ),
+      BillDetail(canPay: true) => PayButton(amount: bill.amountTotal, online: online, onPay: onPay),
       _ => null,
     };
-    if (action == null) return const SizedBox.shrink();
+    final pdf = Semantics(
+      hint: online ? null : 'connexion nécessaire',
+      child: AppButton(
+        key: const Key('bill.pdf'),
+        label: 'PDF',
+        icon: AppIcons.bill,
+        variant: ButtonVariant.secondary,
+        loading: busy,
+        loadingLabel: 'PDF…',
+        onPressed: online ? () => openBillPdf(context, ref, bill, share: false) : null,
+      ),
+    );
     return Container(
       key: const Key('bill.footer'),
       decoration: BoxDecoration(
@@ -554,8 +579,100 @@ class _Footer extends StatelessWidget {
         border: Border(top: BorderSide(color: c.line)),
       ),
       padding: const EdgeInsets.fromLTRB(Space.s4, Space.s3, Space.s4, Space.s3),
-      child: SafeArea(top: false, child: action),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (action == null)
+                  Expanded(child: pdf)
+                else ...[
+                  pdf,
+                  const SizedBox(width: Space.s2),
+                  Expanded(child: action),
+                ],
+              ],
+            ),
+            if (!online && action is! PayButton) ...[
+              const SizedBox(height: Space.s2),
+              Text(
+                pdfOfflineHint,
+                textAlign: TextAlign.center,
+                style: AppText.bodySm.copyWith(color: c.inkMuted),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
+  }
+}
+
+/// Un PDF de cette facture est-il en cours de téléchargement ? (un seul à la fois)
+class _PdfBusyNotifier extends Notifier<bool> {
+  _PdfBusyNotifier(this.billId);
+
+  final int billId;
+
+  @override
+  bool build() => false;
+
+  void set(bool busy) => state = busy;
+}
+
+final billPdfBusyProvider = NotifierProvider.family<_PdfBusyNotifier, bool, int>(
+  _PdfBusyNotifier.new,
+);
+
+/// Télécharge le PDF de `bill` (`GET /bills/{id}/pdf`, jamais en cache), puis l'ouvre dans le
+/// lecteur du téléphone, ou le partage (`share`). Un double toucher ne lance qu'un téléchargement.
+Future<void> openBillPdf(
+  BuildContext context,
+  WidgetRef ref,
+  BillDetail bill, {
+  required bool share,
+}) async {
+  final busy = ref.read(billPdfBusyProvider(bill.id).notifier);
+  if (ref.read(billPdfBusyProvider(bill.id))) return;
+  busy.set(true);
+  final messenger = ScaffoldMessenger.of(context);
+  void say(String text, {SnackBarAction? action}) => messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(text), action: action));
+  final actions = ref.read(documentActionsProvider);
+  final subject = 'Facture ElecPay ${formatReference(bill.reference)}';
+  try {
+    final file = await ref
+        .read(documentDownloaderProvider)
+        .download('/bills/${bill.id}/pdf', documentFileName('facture', bill.reference));
+    if (share) {
+      await actions.share(file.path, subject: subject);
+      return;
+    }
+    switch (await actions.open(file.path)) {
+      case OpenOutcome.opened:
+        break;
+      case OpenOutcome.noApp:
+        say(
+          'Aucune application pour ouvrir le PDF.',
+          action: SnackBarAction(
+            label: 'Partager',
+            onPressed: () => unawaited(actions.share(file.path, subject: subject)),
+          ),
+        );
+      case OpenOutcome.failed:
+        say('Impossible d’ouvrir le PDF. Réessayez dans un instant.');
+    }
+  } on ApiFailure catch (failure) {
+    say([failure.message, if (failure.reference case final r?) 'Référence : $r'].join(' '));
+  } on Object {
+    say('Impossible d’enregistrer le PDF sur le téléphone.');
+  } finally {
+    busy.set(false);
   }
 }
 

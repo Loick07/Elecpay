@@ -23,6 +23,7 @@ import '../home/home_screen.dart' show homeClockProvider;
 import 'consumption_chart.dart';
 import 'consumption_data.dart';
 import 'consumption_day.dart';
+import 'consumption_direct.dart';
 import 'consumption_rules.dart';
 
 /// Écran 11 : Consommation (maquette `Consommation.dc.html`). Onglets Direct · Jour · Semaine ·
@@ -143,7 +144,8 @@ class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
         AsyncError(:final error) => [const SizedBox(height: Space.s6), _failure(error, retry)],
         _ when cursor.level == ConsumptionLevel.direct => [
           const SizedBox(height: Space.s4),
-          const _DirectUnavailable(),
+          if (id != null)
+            _DirectTab(meterId: id, subscribedPowerVa: choice?.meter.subscribedPowerVa),
         ],
         _ => [
           const SizedBox(height: Space.s2),
@@ -187,17 +189,28 @@ class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
       },
     ];
 
+    // Simulation de l'onglet Direct : seulement si /health a CONFIRMÉ le mode démo (D7.2).
+    final simulating =
+        cursor.level == ConsumptionLevel.direct && ref.watch(demoModeProvider).known == true;
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: RefreshIndicator(
-          onRefresh: () => _refresh(ref, key),
-          child: ListView(
-            key: const Key('conso.list'),
-            controller: _scroll,
-            padding: const EdgeInsets.fromLTRB(Space.s4, Space.s5, Space.s4, 120),
-            children: children,
-          ),
+        child: Column(
+          children: [
+            // Fixé hors de la liste : toujours visible, même en faisant défiler.
+            if (simulating) const DirectDemoBanner(),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => _refresh(ref, key),
+                child: ListView(
+                  key: const Key('conso.list'),
+                  controller: _scroll,
+                  padding: const EdgeInsets.fromLTRB(Space.s4, Space.s5, Space.s4, 120),
+                  children: children,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -892,6 +905,36 @@ class _ReadingLegend extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Onglet Direct : simulation en mode démo confirmé, sinon « phase 2 ».
+class _DirectTab extends ConsumerWidget {
+  const _DirectTab({required this.meterId, required this.subscribedPowerVa});
+
+  final int meterId;
+  final int? subscribedPowerVa;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(demoModeProvider).known != true) return const _DirectUnavailable();
+    final summary = ref.watch(consumptionSummaryProvider(meterId));
+    return switch (summary) {
+      AsyncValue(:final value?) => DirectSimulation(
+        key: ValueKey('conso.direct.$meterId'),
+        summary: value.data,
+        subscribedPowerVa: subscribedPowerVa,
+        now: toBrazzaville(ref.read(homeClockProvider)()),
+        random: ref.read(directRandomProvider),
+      ),
+      AsyncError(:final error) => _failure(
+        error,
+        () => ref.invalidate(consumptionSummaryProvider(meterId)),
+      ),
+      _ => const Center(
+        child: Padding(padding: EdgeInsets.all(Space.s6), child: CircularProgressIndicator()),
+      ),
+    };
   }
 }
 

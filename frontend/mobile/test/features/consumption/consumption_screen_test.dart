@@ -1,12 +1,15 @@
+import 'dart:math';
 import 'dart:ui' show Tristate;
 
 import 'package:elecpay/app/riverpod_config.dart';
 import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/demo/demo_mode.dart';
 import 'package:elecpay/core/format/formats.dart';
+import 'package:elecpay/core/network/api_health.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
 import 'package:elecpay/core/widgets/demo_badge.dart';
+import 'package:elecpay/features/consumption/consumption_data.dart';
 import 'package:elecpay/features/consumption/consumption_screen.dart';
 import 'package:elecpay/features/home/home_screen.dart' show homeClockProvider;
 import 'package:flutter/material.dart';
@@ -30,6 +33,7 @@ Future<void> pumpConso(
   FakeHomeBackend backend, {
   double textScale = 1.0,
   bool wait = true,
+  FakeHealthService? health,
 }) async {
   tester.view.physicalSize = itelPhysicalSize;
   tester.view.devicePixelRatio = itelPixelRatio;
@@ -61,9 +65,10 @@ Future<void> pumpConso(
       retry: noAutomaticRetry,
       overrides: [
         ...backend.overrides(),
-        ...healthOverrides(demoApi()),
+        ...healthOverrides(health ?? demoApi()),
         demoModeStoreProvider.overrideWithValue(MemoryDemoModeStore()),
         homeClockProvider.overrideWithValue(() => _now),
+        directRandomProvider.overrideWithValue(Random(7)),
       ],
       child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
     ),
@@ -103,6 +108,14 @@ Map<String, Object?> realisticSummary(int meterId) {
   return {
     ...api.sample('ConsumptionSummary'),
     'meter_id': meterId,
+    'this_month': {
+      ...api.sample('MonthSoFar'),
+      'days_with_data': 11,
+      'consumption_wh': 99000,
+      'consumption_kwh': 99.0,
+      'daily_average_wh': 9000,
+      'energy_cost': 4851,
+    },
     'month_end_estimate': {
       ...api.sample('MonthEndEstimate'),
       'consumption_wh': 279300,
@@ -120,6 +133,7 @@ FakeHomeBackend namedMeters() {
     'label': label,
     'reference': reference,
     'installed_at': '2025-01-10',
+    'subscribed_power_va': 6000,
   };
   backend.meters = {
     1: [
@@ -309,11 +323,103 @@ void main() {
     expect(find.text('DU 1ER AU 11 NOVEMBRE'), findsOneWidget);
   });
 
-  testWidgets('Direct sans simulation : phase 2, jamais « temps réel »', (tester) async {
-    await pumpConso(tester, namedMeters());
-    await tapKey(tester, 'conso.tab.direct');
-    expect(find.text('Disponible avec un compteur communicant (phase 2)'), findsOneWidget);
-    expect(find.byKey(const Key('conso.period')), findsNothing);
+  group('onglet Direct (F7.5, D7.2)', () {
+    testWidgets('hors mode démo : « Disponible avec un compteur communicant (phase 2) »', (
+      tester,
+    ) async {
+      final real = FakeHealthService(const ApiReachable(demoMode: false, databaseOk: true));
+      await pumpConso(tester, namedMeters(), health: real);
+      await tapKey(tester, 'conso.tab.direct');
+      expect(find.text('Disponible avec un compteur communicant (phase 2)'), findsOneWidget);
+      expect(find.byKey(const Key('conso.direct')), findsNothing);
+      expect(find.byKey(const Key('conso.directBanner')), findsNothing);
+      expect(find.byKey(const Key('conso.period')), findsNothing);
+    });
+
+    testWidgets('mode démo jamais confirmé (API injoignable) : pas de simulation', (tester) async {
+      await pumpConso(tester, namedMeters(), health: unreachableApi());
+      await tapKey(tester, 'conso.tab.direct');
+      expect(find.text('Disponible avec un compteur communicant (phase 2)'), findsOneWidget);
+      expect(find.byKey(const Key('conso.direct')), findsNothing);
+    });
+
+    testWidgets('mode démo : simulation toutes les 2 s, bandeau fixé, rien d’envoyé', (
+      tester,
+    ) async {
+      final backend = namedMeters();
+      backend.forced['/meters/20/consumption/summary'] = JsonReply(200, realisticSummary(20));
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.tab.direct');
+      expect(find.byKey(const Key('conso.directBanner')), findsOneWidget);
+      expect(find.text('Mode démo · simulation'), findsOneWidget);
+      expect(find.byKey(const Key('conso.direct')), findsOneWidget);
+      expect(find.byKey(const Key('conso.directChart')), findsOneWidget);
+      expect(find.textContaining('Mode démo : valeurs simulées'), findsOneWidget);
+      String kw() =>
+          tester.widget<Text>(find.byKey(const Key('conso.directKw'))).textSpan!.toPlainText();
+      final requestsBefore = backend.server.requests.length;
+      final values = {kw()};
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(seconds: 2));
+        values.add(kw());
+      }
+      expect(values.length, greaterThan(1), reason: 'une nouvelle valeur toutes les 2 s');
+      // Rien n'est envoyé ni lu pendant la simulation (aucune requête, aucun enregistrement).
+      expect(backend.server.requests.length, requestsBefore);
+      expect(backend.server.requests.where((r) => r.method != 'GET'), isEmpty);
+
+      // Le bandeau reste visible en faisant défiler.
+      await tester.drag(find.byKey(const Key('conso.list')), const Offset(0, -600));
+      await settle(tester);
+      expect(find.byKey(const Key('conso.directBanner')).hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('jauge : part de la puissance souscrite (6 kVA) ; inconnue : pas de jauge', (
+      tester,
+    ) async {
+      final backend = namedMeters();
+      backend.forced['/meters/20/consumption/summary'] = JsonReply(200, realisticSummary(20));
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.tab.direct');
+      expect(find.textContaining('% de la puissance souscrite (6\u00A0kVA)'), findsOneWidget);
+
+      final unknown = namedMeters();
+      unknown.meters[2] = [
+        {...unknown.meters[2]![0], 'subscribed_power_va': null},
+      ];
+      unknown.forced['/meters/20/consumption/summary'] = JsonReply(200, realisticSummary(20));
+      await pumpConso(tester, unknown);
+      await tapKey(tester, 'conso.tab.direct');
+      expect(find.byKey(const Key('conso.direct')), findsOneWidget);
+      expect(find.textContaining('puissance souscrite'), findsNothing);
+    });
+
+    testWidgets('quitter l’onglet arrête la simulation (plus de bandeau, plus de minuterie)', (
+      tester,
+    ) async {
+      final backend = namedMeters();
+      backend.forced['/meters/20/consumption/summary'] = JsonReply(200, realisticSummary(20));
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.tab.direct');
+      expect(find.byKey(const Key('conso.direct')), findsOneWidget);
+      await tester.drag(find.byKey(const Key('conso.list')), const Offset(0, 2000));
+      await settle(tester);
+      await tapKey(tester, 'conso.tab.month');
+      expect(find.byKey(const Key('conso.direct')), findsNothing);
+      expect(find.byKey(const Key('conso.directBanner')), findsNothing);
+      // Une minuterie restée active ferait échouer le test à sa fin.
+    });
+
+    testWidgets('jamais « temps réel », même en simulation', (tester) async {
+      final backend = namedMeters();
+      backend.forced['/meters/20/consumption/summary'] = JsonReply(200, realisticSummary(20));
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.tab.direct');
+      final texts = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((t) => (t.data ?? t.textSpan?.toPlainText() ?? '').toLowerCase());
+      expect(texts.where((t) => t.contains('temps réel')), isEmpty);
+    });
   });
 
   testWidgets('jamais « temps réel » sur aucun onglet', (tester) async {

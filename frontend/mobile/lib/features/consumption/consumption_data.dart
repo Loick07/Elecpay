@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/cache/cached_api.dart';
@@ -80,6 +82,9 @@ class ConsumptionCursorNotifier extends Notifier<ConsumptionCursor> {
 final consumptionCursorProvider = NotifierProvider<ConsumptionCursorNotifier, ConsumptionCursor>(
   ConsumptionCursorNotifier.new,
 );
+
+/// Hasard de la simulation de l'onglet Direct (`null` : vrai hasard ; fixé dans les tests).
+final directRandomProvider = Provider<Random?>((ref) => null);
 
 /// Clé d'une série : compteur + plage.
 typedef SeriesKey = ({int meterId, String granularity, DateTime from, DateTime to});

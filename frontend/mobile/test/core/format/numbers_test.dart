@@ -119,4 +119,11 @@ void main() {
     expect(visible(formatAboutFcfa(441)), '≈·441·FCFA');
     expect(visible(formatAboutFcfa(10112)), '≈·10·112·FCFA');
   });
+
+  test('puissance (onglet Direct) : toujours au centième, « 1,23 kW »', () {
+    expect(formatKwValue(1.234), '1,23');
+    expect(formatKwValue(0.5), '0,50');
+    expect(formatKwValue(12.005), '12,01');
+    expect(visible(formatKw(3.4)), '3,40·kW');
+  });
 }

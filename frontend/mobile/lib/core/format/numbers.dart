@@ -67,6 +67,15 @@ String formatDecimal(num value, {int maxDecimals = 2}) {
   return '$sign${_group(whole)}${decimals.isEmpty ? '' : ',$decimals'}';
 }
 
+/// Puissance (onglet Direct), toujours au centième : 1.234 → « 1,23 » ; 0.5 → « 0,50 ».
+String formatKwValue(double kw) {
+  final hundredths = (kw * 100).round();
+  return '${_group(hundredths ~/ 100)},${hundredths.remainder(100).abs().toString().padLeft(2, '0')}';
+}
+
+/// Puissance avec son unité : « 1,23 kW ».
+String formatKw(double kw) => '${formatKwValue(kw)}${unitSpace}kW';
+
 /// Taux : 18.0 → « 18 % » ; 5.5 → « 5,5 % ».
 String formatPercent(num percent) => '${formatDecimal(percent)}$unitSpace%';
 

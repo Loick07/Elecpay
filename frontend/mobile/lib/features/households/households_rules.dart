@@ -66,3 +66,32 @@ List<String> memberInitials(HouseholdDetail h) => [
 /// Invitation reçue : « Marie Loemba vous invite comme payeur délégué ».
 String invitationTitle(InvitationPublic i) =>
     '${i.invitedBy.fullName} vous invite comme ${memberRoleLabel(i.role)}';
+
+/// Champ vide de la feuille « Ajouter un compteur » : son message ; rempli : `null`. Les formats
+/// (branchement, N° client) sont vérifiés par l'API, qui accepte espaces, tirets et minuscules.
+String? addMeterFieldError(String field, String value) {
+  if (value.trim().isNotEmpty) return null;
+  return switch (field) {
+    'reference' => 'Saisissez le N° de branchement.',
+    'customer_number' => 'Saisissez le N° client.',
+    'name' => 'Donnez un nom au foyer.',
+    _ => 'Indiquez la ville.',
+  };
+}
+
+/// Compteur ajouté : « Branchement 0018095408 · Centre POINTE-NOIRE · 6 kVA » (ce qu'E²C a renvoyé).
+String addedMeterLine(MeterDetail meter) => [
+  'Branchement ${formatReference(meter.reference)}',
+  if (meter.e2cCenter case final center?) 'Centre $center',
+  if (meter.subscribedPowerVa case final va?) subscribedPowerLabel(va),
+].join(' · ');
+
+/// Historique importé avec le compteur : « Historique importé : 9 factures et 540 relevés (données
+/// de démo) ». Jamais une donnée simulée présentée comme réelle.
+String importedHistoryLine(HistoryImportPublic history) {
+  String plural(int n, String word) => '$n $word${n > 1 ? 's' : ''}';
+  final demo = history.source == 'simulated' ? ' (données de démo)' : '';
+  if (history.bills == 0 && history.readings == 0) return 'Aucun historique importé$demo.';
+  return 'Historique importé : ${plural(history.bills, 'facture')} et '
+      '${plural(history.readings, 'relevé')}$demo.';
+}

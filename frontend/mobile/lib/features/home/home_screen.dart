@@ -177,7 +177,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       'Avec votre N° de branchement et votre N° client E²C, ElecPay affiche '
                       'votre consommation et vos factures.',
                   actionLabel: 'Ajouter un compteur',
-                  onAction: () => context.push(Routes.households),
+                  onAction: () => context.push(Routes.addMeter),
                 )
               else ...[
                 _urgentSection(urgent, householdList.length),

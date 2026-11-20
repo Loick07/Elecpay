@@ -41,6 +41,7 @@ abstract final class AppIcons {
   static const bill = Lucide.fileText;
   static const energy = Lucide.zap;
   static const meter = Lucide.gauge;
+  static const add = Lucide.plus;
   static const household = Lucide.house;
   static const securePay = Lucide.shieldCheck;
   static const info = Lucide.info;

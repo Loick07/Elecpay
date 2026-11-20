@@ -89,6 +89,7 @@ void main() {
     await tester.scrollUntilVisible(find.byKey(const Key('households.members.2')), 200);
     expect(find.text('Grâce Ngoma · payeur délégué'), findsOneWidget);
     expect(find.text('9\u00A0kVA'), findsOneWidget);
+    await tester.scrollUntilVisible(find.textContaining('Un payeur délégué voit et paie'), 200);
     expect(find.textContaining('Un payeur délégué voit et paie'), findsOneWidget);
   });
 

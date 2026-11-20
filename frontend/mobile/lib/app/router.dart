@@ -65,7 +65,11 @@ List<RouteBase> appRoutes() => [
   // Écrans poussés (sans barre du bas).
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
   GoRoute(path: Routes.history, builder: (context, state) => const HistoryScreen()),
-  GoRoute(path: Routes.households, builder: (context, state) => const HouseholdsScreen()),
+  GoRoute(
+    path: Routes.households,
+    builder: (context, state) =>
+        HouseholdsScreen(openAddMeter: state.uri.queryParameters['ajouter'] == '1'),
+  ),
   GoRoute(
     path: Routes.receiptPath,
     builder: (context, state) =>

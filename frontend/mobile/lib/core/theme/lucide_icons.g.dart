@@ -80,6 +80,9 @@ abstract final class Lucide {
   /// `log-in`
   static const logIn = IconData(0xe10d, fontFamily: lucideFontFamily);
 
+  /// `plus`
+  static const plus = IconData(0xe13d, fontFamily: lucideFontFamily);
+
   /// `refresh-cw`
   static const refreshCw = IconData(0xe145, fontFamily: lucideFontFamily);
 

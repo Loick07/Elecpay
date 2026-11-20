@@ -30,6 +30,9 @@ abstract final class Routes {
   /// l'état « Ajoutez votre premier compteur », Consommation sans compteur et les invitations.
   static final households = '${AppTab.account.path}/compteurs';
 
+  /// Le même écran, feuille « Ajouter un compteur » ouverte (accueil et Conso sans compteur).
+  static final addMeter = '$households?ajouter=1';
+
   /// Écran poussé pas encore construit (page d'attente), sous l'accueil : donc protégé.
   static final pendingPath = '${AppTab.home.path}/bientot';
 

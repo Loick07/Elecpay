@@ -17,13 +17,17 @@ import '../../core/widgets/offline_banner.dart';
 import '../../core/widgets/skeleton.dart';
 import '../../core/widgets/state_block.dart';
 import '../home/home_data.dart';
+import 'add_meter_sheet.dart';
 import 'households_data.dart';
 import 'households_rules.dart';
 
 /// Écran 15 : Compteurs et foyers (maquette `Compteurs.dc.html`). Invitations reçues en haut, une
 /// carte par foyer (compteurs, puissance, membres, mon rôle). Les droits viennent du serveur.
-class HouseholdsScreen extends ConsumerWidget {
-  const HouseholdsScreen({super.key});
+class HouseholdsScreen extends ConsumerStatefulWidget {
+  const HouseholdsScreen({this.openAddMeter = false, super.key});
+
+  /// Ouvrir tout de suite la feuille « Ajouter un compteur » (venu de « Ajouter un compteur »).
+  final bool openAddMeter;
 
   static Future<void> refresh(WidgetRef ref) async {
     ref
@@ -39,11 +43,39 @@ class HouseholdsScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HouseholdsScreen> createState() => _HouseholdsScreenState();
+}
+
+class _HouseholdsScreenState extends ConsumerState<HouseholdsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.openAddMeter) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_addMeter()));
+    }
+  }
+
+  /// Feuille « Ajouter un compteur » : mes foyers (propriétaire) sont proposés ; illisibles ou
+  /// aucun : un nouveau foyer est créé avec le compteur.
+  Future<void> _addMeter() async {
+    List<HouseholdSummary> owned;
+    try {
+      owned = [
+        for (final h in (await ref.read(householdsProvider.future)).data)
+          if (h.myRole == HouseholdRoles.owner) h,
+      ];
+    } on Object {
+      owned = const [];
+    }
+    if (mounted) await showAddMeterSheet(context, owned: owned);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     final households = ref.watch(householdsProvider);
     final invitations = ref.watch(invitationsProvider).value ?? const <InvitationPublic>[];
-    void retry() => unawaited(refresh(ref));
+    void retry() => unawaited(HouseholdsScreen.refresh(ref));
 
     final children = <Widget>[
       // Badge dans la page, pas dans la barre : à 200 %, il y écrasait le titre.
@@ -106,11 +138,24 @@ class HouseholdsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => refresh(ref),
+          onRefresh: () => HouseholdsScreen.refresh(ref),
           child: ListView(
             key: const Key('households.list'),
             padding: const EdgeInsets.fromLTRB(Space.s4, Space.s3, Space.s4, Space.s8),
             children: children,
+          ),
+        ),
+      ),
+      // Maquette : « Ajouter un compteur » fixé en bas de l'écran.
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(Space.s4, Space.s2, Space.s4, Space.s3),
+          child: AppButton(
+            key: const Key('households.add'),
+            label: 'Ajouter un compteur',
+            icon: AppIcons.add,
+            // Sans attendre la fermeture de la feuille : le bouton ne tourne pas derrière elle.
+            onPressed: () => unawaited(_addMeter()),
           ),
         ),
       ),

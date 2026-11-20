@@ -15,8 +15,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F4 | Accueil et notifications | ✅ terminé le 19/11/2026 |
 | F5 | Factures | ✅ terminé le 19/11/2026 (sans le jalon sur le téléphone) |
 | F6 | Paiement, reçus et historique | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
-| F7 | Consommation | prochaine étape |
-| F8 | Compteurs et foyers | à faire |
+| F7 | Consommation | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
+| F8 | Compteurs et foyers | prochaine étape |
 | F9 | Compte et assistance | à faire |
 | F10 | Finitions et livraison (APK) | à faire |
 
@@ -115,7 +115,15 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   après l'accord de Loick) ; F6.4 reçu (`lib/features/receipts/`), bascule seule au succès ; F6.5
   historique (`history_screen.dart`). Pas de « Simuler la confirmation » (seul le prestataire confirme).
   1341 tests ; APK release de l'itel 16,7 Mo.
-- **Prochaine étape : F7** (consommation), après le « Continue » de Loick.
+- **F7 ✅ terminé le 20/11/2026** (rapport `rapports/F7.md`) : F7.1 règles et lectures
+  (`lib/features/consumption/`) ; F7.2 écran, onglets (Mois à l'ouverture), fil d'Ariane, flèches,
+  sélecteur de compteur, états ; F7.3 Année et Mois (barres fl_chart lues par TalkBack, fin de mois
+  estimée, listes, lien vers la facture) ; F7.4 Semaine et Jour (index des relevés, calendrier en 4
+  niveaux avec légende et niveau lu par TalkBack, carte du jour) ; F7.5 Direct simulé seulement si
+  `/health` confirme le mode démo, bandeau « Mode démo · simulation » fixe, rien d'enregistré, sinon
+  « phase 2 ». Test de fluidité `integration_test/consumption_perf_test.dart` (prochain jalon).
+  1478 tests ; APK release de l'itel 17,3 Mo.
+- **Prochaine étape : F8** (compteurs et foyers), après le « Continue » de Loick.
 
 ## Méthode (la même que pour le backend)
 
@@ -138,7 +146,7 @@ l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, s
 |---|---|
 | Fin de F1 | connexion de démo, hors ligne, déconnexion |
 | Fin de F3 | premiers vrais écrans : connexion, inscription |
-| Mi-parcours, **groupé F4 + F5 + F6** (itel en panne le 19/11/2026 ; à jouer dès son retour) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement |
+| Mi-parcours, **groupé F4 + F5 + F6** (itel en panne le 19/11/2026 ; à jouer dès son retour) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement ; **fluidité des graphiques de F7** (`consumption_perf_test.dart`, demande de Loick du 20/11/2026) |
 | Fin de F10 | APK release installé à la main + backend en ligne en HTTPS |
 
 Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.

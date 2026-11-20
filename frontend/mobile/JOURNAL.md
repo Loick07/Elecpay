@@ -3,21 +3,21 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/mobile/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 20/11/2026
+## État au 20/11/2026 (fin de F7)
 
-- **F4, F5 et F6 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md`, `F5.md`,
-  `F6-avant-paiement.md`, `F6.md`). **On attend le « Continue » de Loick** avant F7.
-- Paiement réel branché avec l'accord de Loick (F6.3). Dates de période ajoutées au contrat du backend
-  (branche `f6-dates-periode`, accord de Loick, ajout seulement).
-- Jalon sur le téléphone : **groupé F4 + F5 + F6**, dès que l'itel revient (liste dans `rapports/F6.md`).
-- `test/_debug` : supprimé par Loick, vérifié absent le 20/11/2026.
-- Proposition en attente de Loick : cache Gradle dans la CI (touche `.github/`, hors de mes droits).
+- **F4, F5, F6 et F7 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md`, `F5.md`,
+  `F6-avant-paiement.md`, `F6.md`, `F7.md`). **On attend le « Continue » de Loick** avant F8.
+- Jalon sur le téléphone : **groupé F4 + F5 + F6** (+ fluidité des graphiques de F7, demande de Loick),
+  dès que l'itel revient.
+- Cache Gradle : déjà dans `.github/workflows/mobile.yml` depuis F0 ; rien modifié ; options
+  (`setup-gradle`, relance) à décider par Loick (rapport F7).
+- Fichiers temporaires à supprimer par Loick (suppression refusée par mes règles) :
+  `test/zz_capture_tmp_test.dart`, `test/zz_measure_tmp_test.dart`. **Ne jamais les commiter** :
+  ajouter les fichiers un par un et relire `git status` avant chaque commit.
 
 ## Prochaine action
 
-1. Après le « Continue » : branche `f7` depuis `main`, découpage de F7 dans `DECOUPAGES.md` (F7.1
-   lectures de consommation…), avec D7.1 (Mois par défaut), D7.2 (Direct simulé en démo seulement),
-   D7.3 (légende du calendrier + niveau lu par TalkBack).
+1. Après le « Continue » : branche `f8` depuis `main`, découpage de F8 dans `DECOUPAGES.md`.
 
 ## Choix faits en route
 
@@ -30,6 +30,11 @@ Mis à jour et commité avec chaque sauvegarde.
 - Onglets de filtre en `Wrap` (pas de défilement horizontal) : tout reste visible à 200 %.
 - Police des tests = police carrée de Flutter (lettres plus larges que Poppins) : lignes plus hautes
   qu'en vrai, il faut beaucoup défiler dans les tests ; ce n'est pas un défaut de l'écran.
+- **F7 : la police carrée des tests cache les problèmes de largeur** (onglets empilés, « → » absent de
+  Poppins) : une capture avec les vraies polices (test temporaire, `FontLoader` sur `assets/fonts/`)
+  les a montrés. À refaire pour tout écran dense, tant que l'itel est en panne.
+- F7 : en test, `dragUntilVisible(finder.hitTestable(), …)` (un élément construit hors écran n'est pas
+  « visible » pour un toucher).
 
 ## Commandes utiles
 

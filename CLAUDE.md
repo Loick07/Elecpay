@@ -255,4 +255,15 @@ reçu (`lib/features/receipts/`) et historique. Backend : dates de période ajou
 (`bill_period_start` / `bill_period_end`, `period_start` / `period_end`), ajout seulement, 1945 tests.
 1341 tests de l'application, APK release de l'itel 16,7 Mo.
 
-**Prochaine étape : F7** (consommation), après le « Continue » de Loick.
+**F7 (consommation) ✅ terminé le 20/11/2026** — rapport `frontend/mobile/rapports/F7.md`. Écran 11
+(`lib/features/consumption/`) : onglets Direct · Jour · Semaine · Mois · Année (**Mois à l'ouverture**),
+fil d'Ariane, flèches (ni futur, ni avant la pose), sélecteur de compteur ; barres fl_chart avec une zone
+tactile par barre lue par TalkBack ; calendrier en 4 niveaux avec légende et niveau lu par TalkBack ;
+index par `GET /meters/{id}/readings`. **Direct simulé seulement si `/health` confirme le mode démo**,
+bandeau « Mode démo · simulation » fixe, rien d'envoyé ni d'enregistré, sinon « Disponible avec un
+compteur communicant (phase 2) » ; jamais « temps réel ». Poppins n'a pas « → » (ni U+202F) : ne pas
+les écrire. Test de fluidité `integration_test/consumption_perf_test.dart` pour le prochain jalon.
+Cache Gradle : déjà dans `mobile.yml` depuis F0 (aucune modification). 1478 tests, APK release de
+l'itel 17,3 Mo.
+
+**Prochaine étape : F8** (compteurs et foyers), après le « Continue » de Loick.

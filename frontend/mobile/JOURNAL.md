@@ -3,21 +3,23 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/mobile/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 20/11/2026 (fin de F7)
+## État au 20/11/2026 (fin de F7, jalon F4 + F5 + F6 + F7)
 
-- **F4, F5, F6 et F7 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md`, `F5.md`,
-  `F6-avant-paiement.md`, `F6.md`, `F7.md`). **On attend le « Continue » de Loick** avant F8.
-- Jalon sur le téléphone : **groupé F4 + F5 + F6** (+ fluidité des graphiques de F7, demande de Loick),
-  dès que l'itel revient.
-- Cache Gradle : déjà dans `.github/workflows/mobile.yml` depuis F0 ; rien modifié ; options
-  (`setup-gradle`, relance) à décider par Loick (rapport F7).
-- Fichiers temporaires à supprimer par Loick (suppression refusée par mes règles) :
-  `test/zz_capture_tmp_test.dart`, `test/zz_measure_tmp_test.dart`. **Ne jamais les commiter** :
-  ajouter les fichiers un par un et relire `git status` avant chaque commit.
+- **F4, F5, F6 et F7 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md` à `F7.md`).
+  Rapport F7 validé par Loick le 20/11/2026.
+- **Jalon groupé F4 + F5 + F6 + F7** sur l'itel (de retour, débogage sans fil `192.168.1.68:42519`) :
+  branche `jalon-f4-f7`, rapport `rapports/jalon-F4-F7.md`. Ensuite : **F8, « Continue » donné**.
+- Décisions de Loick (20/11/2026) :
+  - CI : rien ne change, pas de relance automatique ; lire le journal avant de relancer ;
+    `gradle/actions/setup-gradle` seulement si les pannes Maven deviennent fréquentes ;
+  - captures avec les vraies polices : méthode à garder ;
+  - `tool/integration.ps1` autorisé aux jalons, base `elecpay_e2e` seulement (noté dans `AUTONOMIE.md`).
+- Rappel : ajouter les fichiers un par un et relire `git status` avant chaque commit.
 
 ## Prochaine action
 
-1. Après le « Continue » : branche `f8` depuis `main`, découpage de F8 dans `DECOUPAGES.md`.
+1. Finir le jalon F4 → F7 (rapport, fusion), puis branche `f8` depuis `main`, découpage de F8 dans
+   `DECOUPAGES.md`.
 
 ## Choix faits en route
 

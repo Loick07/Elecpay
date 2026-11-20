@@ -30,6 +30,12 @@ Propose-moi le contenu de .claude/settings.local.json (vérifie qu'il est ignor�
 
 Interdit : suppression en masse, git push --force, git reset --hard, git clean, reset_db sur la base de démo elecpay, et toute commande hors du dépôt. Utilise la syntaxe exacte de ta version de Claude Code. Montre-moi le fichier et attends mon accord : c'est le seul accord à attendre avant de démarrer.
 
+### Autorisation des jalons sur le téléphone (Loick, 20/11/2026)
+
+Lancer `tool/integration.ps1` est autorisé pour les jalons sur le téléphone, **uniquement sur la base
+`elecpay_e2e`**, avec son garde-fou qui refuse toute autre base. **Jamais** `reset_db` lancé directement,
+et **jamais** sur `elecpay`.
+
 ## 2. Protection contre les coupures de courant
 
 ### a) Branche par étape, sauvegardée en continu

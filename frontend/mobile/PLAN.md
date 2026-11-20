@@ -146,7 +146,7 @@ l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, s
 |---|---|
 | Fin de F1 | connexion de démo, hors ligne, déconnexion |
 | Fin de F3 | premiers vrais écrans : connexion, inscription |
-| Mi-parcours, **groupé F4 + F5 + F6** (itel en panne le 19/11/2026 ; à jouer dès son retour) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement ; **fluidité des graphiques de F7** (`consumption_perf_test.dart`, demande de Loick du 20/11/2026) |
+| Mi-parcours, **groupé F4 + F5 + F6 + F7** (itel en panne le 19/11/2026 ; joué à son retour, le 20/11/2026, rapport `rapports/jalon-F4-F7.md`) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement ; **fluidité des graphiques de F7** (`consumption_perf_test.dart`, demande de Loick du 20/11/2026) |
 | Fin de F10 | APK release installé à la main + backend en ligne en HTTPS |
 
 Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.

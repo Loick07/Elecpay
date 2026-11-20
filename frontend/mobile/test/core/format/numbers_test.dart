@@ -102,6 +102,7 @@ void main() {
     test('index : toujours au dixième, « 18 247,0 kWh »', () {
       expect(visible(formatIndexKwh(18247.0)), '18·247,0·kWh');
       expect(visible(formatIndexKwh(18664.44)), '18·664,4·kWh');
+      expect(visible(formatIndexValue(18247)), '18·247,0');
     });
 
     test('variation à une décimale : « +0,6 % », « −2,5 % », « 0 % »', () {

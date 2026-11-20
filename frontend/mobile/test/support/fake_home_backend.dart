@@ -284,6 +284,41 @@ class FakeHomeBackend {
     };
   }
 
+  /// Index du compteur à la fin d'un jour (Wh) : 18 000 kWh au 31 déc. 2025, puis `dailyWh`.
+  int indexAtEndOf(DateTime day) {
+    var index = 18000000;
+    for (var x = DateTime(2026); !x.isAfter(day); x = DateTime(x.year, x.month, x.day + 1)) {
+      index += dailyWh(x);
+    }
+    return index;
+  }
+
+  /// Relevés (`GET /meters/{id}/readings?from&to`) : un par jour relevé, lu le lendemain à 06:00
+  /// (Brazzaville).
+  Map<String, Object?> readingsJson(Map<String, dynamic> query) {
+    final from = DateTime.parse(query['from'] as String);
+    final to = DateTime.parse(query['to'] as String);
+    String iso(DateTime x) =>
+        '${x.year}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
+    final items = <Map<String, Object?>>[
+      for (var x = from; !x.isAfter(to); x = DateTime(x.year, x.month, x.day + 1))
+        if (!x.isAfter(measuredUntil))
+          {
+            'id': x.day,
+            'read_at': '${iso(DateTime(x.year, x.month, x.day + 1))}T05:00:00Z',
+            'day': iso(x),
+            'index_wh': indexAtEndOf(x),
+            'consumption_wh': dailyWh(x),
+            'consumption_kwh': dailyWh(x) / 1000,
+            'source': 'simulated',
+            'is_estimated': estimatedDays.contains(x),
+            'is_anomaly': false,
+            'anomaly_reason': null,
+          },
+    ];
+    return {'items': items, 'page': 1, 'size': 31, 'total': items.length};
+  }
+
   /// Détail d'un jour (`GET /meters/{id}/consumption/days/{day}`) ; jour sans relevé : 404.
   Map<String, Object?>? dayDetailJson(int meterId, DateTime day) {
     if (day.isAfter(measuredUntil)) return null;
@@ -296,8 +331,8 @@ class FakeHomeBackend {
       'consumption_wh': wh,
       'consumption_kwh': wh / 1000,
       'energy_cost': wh * 49 ~/ 1000,
-      'index_start_wh': 18247000,
-      'index_end_wh': 18247000 + wh,
+      'index_start_wh': indexAtEndOf(day) - wh,
+      'index_end_wh': indexAtEndOf(day),
       'is_estimated': estimatedDays.contains(day),
       'is_anomaly': false,
       'anomaly_reason': null,
@@ -503,6 +538,9 @@ class FakeHomeBackend {
         return JsonReply(404, apiError('CONSUMPTION_DAY_NOT_FOUND', 'Journée non relevée.'));
       }
       return JsonReply(200, detail);
+    }
+    if (RegExp(r'^/meters/\d+/readings$').hasMatch(path)) {
+      return JsonReply(200, readingsJson(query));
     }
     if (path == '/payments' && request.method == 'POST') {
       if (paymentReplies.isNotEmpty) return paymentReplies.removeAt(0);

@@ -203,3 +203,38 @@ abstract class DayDetail with _$DayDetail {
 
   factory DayDetail.fromJson(Map<String, dynamic> json) => _$DayDetailFromJson(json);
 }
+
+/// Schéma OpenAPI : `ReadingPublic` (`GET /meters/{id}/readings`). Un relevé par jour : `day` est
+/// la journée dont il porte la consommation (la veille du relevé) ; `read_at` l'instant du relevé
+/// (UTC). `index_wh` : index du compteur au relevé ; l'index de début du jour vaut
+/// `index_wh - consumption_wh`.
+@freezed
+abstract class ReadingPublic with _$ReadingPublic {
+  const factory ReadingPublic({
+    required int id,
+    required DateTime readAt,
+    required DateTime day,
+    required int indexWh,
+    required int consumptionWh,
+    required double consumptionKwh,
+    required String source,
+    required bool isEstimated,
+    required bool isAnomaly,
+    required String? anomalyReason,
+  }) = _ReadingPublic;
+
+  factory ReadingPublic.fromJson(Map<String, dynamic> json) => _$ReadingPublicFromJson(json);
+}
+
+/// Schéma OpenAPI : `Page_ReadingPublic_` (`GET /meters/{id}/readings`).
+@freezed
+abstract class ReadingPage with _$ReadingPage {
+  const factory ReadingPage({
+    required List<ReadingPublic> items,
+    required int page,
+    required int size,
+    required int total,
+  }) = _ReadingPage;
+
+  factory ReadingPage.fromJson(Map<String, dynamic> json) => _$ReadingPageFromJson(json);
+}

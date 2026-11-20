@@ -55,6 +55,8 @@ const cases = <ContractCase>[
   ContractCase('ConsumptionComparison', ConsumptionComparison.fromJson),
   ContractCase('ConsumptionSeries', ConsumptionSeries.fromJson),
   ContractCase('DayDetail', DayDetail.fromJson),
+  ContractCase('ReadingPublic', ReadingPublic.fromJson),
+  ContractCase('Page_ReadingPublic_', ReadingPage.fromJson),
   ContractCase('UnreadCount', UnreadCount.fromJson),
   ContractCase('ReceiptPublic', ReceiptPublic.fromJson),
   ContractCase('Page_ReceiptPublic_', ReceiptPage.fromJson),

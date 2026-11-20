@@ -355,7 +355,7 @@ List<PeriodStat> monthStats(ConsumptionSeries series, {MonthEndEstimate? estimat
       value: '${formatDayCrumb(peak.start)} · ${formatKwh(peak.consumptionWh / 1000)}',
       estimate: false,
     ),
-    if (estimate != null)
+    if (estimate != null && (estimate.consumptionWh / 1000).round() > 0)
       (
         label: 'Fin de mois estimée',
         value: [
@@ -412,4 +412,149 @@ List<PeriodRow> monthWeekRows(ConsumptionSeries series) {
     ));
   }
   return rows;
+}
+
+/// Vue Semaine : 7 barres avec leur valeur au-dessus, « Lun 9 » dessous.
+List<ChartBar> weekBars(ConsumptionSeries series) => [
+  for (final p in series.points)
+    (
+      wh: p.consumptionWh,
+      hasData: p.daysWithData > 0,
+      estimated: p.daysWithData > 0 && p.isEstimated,
+      axis: formatWeekdayBar(p.start),
+      value: p.daysWithData > 0 ? formatKwhValue(p.consumptionWh / 1000) : null,
+      spoken:
+          '${formatWeekdayName(p.start)} ${_dayInMonth(p.start)} : '
+          '${_spokenValue(p, estimated: p.isEstimated)}',
+      target: p.daysWithData > 0 ? ConsumptionCursor.of(ConsumptionLevel.day, p.start) : null,
+    ),
+];
+
+/// « Jour par jour » de la semaine : « Lundi 9 nov. », « Index 18 247,0 – 18 256,0 » (relevés de
+/// la semaine), sinon le coût d'énergie du jour.
+List<PeriodRow> weekDayRows(ConsumptionSeries series, List<ReadingPublic> readings) => [
+  for (final p in series.points)
+    if (p.daysWithData > 0)
+      (
+        title: '${formatWeekdayName(p.start)} ${formatDayMonth(p.start)}',
+        subtitle: switch (readings.where((r) => r.day == p.start).firstOrNull) {
+          final r? =>
+            // Pas de « → » (maquette) : Poppins n'a pas ce caractère.
+            'Index ${formatIndexValue((r.indexWh - r.consumptionWh) / 1000)} $enDash '
+                '${formatIndexValue(r.indexWh / 1000)}',
+          null => _cost(p.energyCost).replaceFirst(' · ', ''),
+        },
+        wh: p.consumptionWh,
+        estimated: p.isEstimated,
+        target: ConsumptionCursor.of(ConsumptionLevel.day, p.start),
+      ),
+];
+
+/// Une case du calendrier de la vue Jour (D7.3). `day` nul : case vide avant le 1er du mois.
+typedef CalendarCell = ({
+  DateTime? day,
+  int wh,
+  bool hasData,
+  bool estimated,
+  DayLevel? level,
+  bool selected,
+  String spoken,
+});
+
+/// Calendrier du mois (semaines du lundi au dimanche) : niveau de chaque jour par rapport à la
+/// moyenne des jours relevés du mois. Le niveau est écrit dans ce que lit TalkBack, et la légende
+/// le nomme : la couleur n'est jamais le seul repère.
+List<CalendarCell> calendarCells(ConsumptionSeries series, DateTime selected) {
+  final read = series.points.where((p) => p.daysWithData > 0).toList();
+  final average = read.isEmpty ? 0 : read.fold(0, (s, p) => s + p.consumptionWh) / read.length;
+  final first = series.points.isEmpty ? selected : series.points.first.start;
+  return [
+    for (var i = 1; i < first.weekday; i++)
+      (
+        day: null,
+        wh: 0,
+        hasData: false,
+        estimated: false,
+        level: null,
+        selected: false,
+        spoken: '',
+      ),
+    for (final p in series.points)
+      if (dayLevel(p.consumptionWh, average) case final level)
+        (
+          day: p.start,
+          wh: p.consumptionWh,
+          hasData: p.daysWithData > 0,
+          estimated: p.daysWithData > 0 && p.isEstimated,
+          level: p.daysWithData > 0 ? level : null,
+          selected: p.start == selected,
+          spoken: [
+            _dayInMonth(p.start),
+            if (p.daysWithData == 0)
+              'pas encore de données'
+            else ...[
+              formatKwh(p.consumptionWh / 1000),
+              'consommation ${level.label.toLowerCase()}',
+              if (p.isEstimated) 'estimation',
+            ],
+            if (p.start == selected) 'jour affiché',
+          ].join(', '),
+        ),
+  ];
+}
+
+/// Carte « détail du jour » de la vue Jour (maquette).
+typedef DayCard = ({
+  String title,
+  String badge,
+  bool estimated,
+  String indexStart,
+  String indexEnd,
+  String averageLabel,
+  String average,
+  String rank,
+  String note,
+});
+
+/// Contenu de la carte du jour. `reading` : le relevé du jour (heure du relevé), s'il est lu.
+DayCard dayCard(DayDetail detail, {ReadingPublic? reading}) {
+  final rank = detail.rankInMonth;
+  final start = detail.indexStartWh;
+  final average = detail.weekdayAverageWh;
+  return (
+    title: formatLongDate(detail.day),
+    badge: detail.isEstimated
+        ? 'Estimation'
+        : reading == null
+        ? 'Relevé'
+        : 'Relevé ${formatTime(reading.readAt)}',
+    estimated: detail.isEstimated,
+    indexStart: start == null ? '—' : formatIndexKwh(start / 1000),
+    indexEnd: formatIndexKwh(detail.indexEndWh / 1000),
+    averageLabel: 'Moyenne des ${formatWeekdayName(detail.day).toLowerCase()}s',
+    average: average == null ? '—' : formatKwh(average / 1000),
+    rank: detail.daysRanked == 0
+        ? '—'
+        : '${rank == 1 ? '1er' : '${rank}e'} sur ${detail.daysRanked} jours',
+    note: detail.isEstimated
+        ? 'Relevé manquant : valeur estimée à partir des jours précédents, corrigée dès '
+              'réception du relevé.'
+        : "ElecPay reçoit un relevé par jour : le détail heure par heure n'est pas disponible.",
+  );
+}
+
+/// Total de la vue Jour depuis son détail : comparé à la moyenne du même jour de la semaine.
+PeriodTotals dayTotals(DayDetail detail) {
+  final average = detail.weekdayAverageWh;
+  final percent = average == null || average == 0
+      ? null
+      : (detail.consumptionWh - average) / average * 100;
+  return (
+    label: detail.isEstimated ? 'Consommation estimée' : 'Consommation du jour',
+    wh: detail.consumptionWh,
+    daysWithData: 1,
+    energyCost: detail.energyCost,
+    comparison: percent == null ? null : '${formatVariation(percent).text} vs moyenne',
+    trend: percent == null ? null : formatVariation(percent).trend,
+  );
 }

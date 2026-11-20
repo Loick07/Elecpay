@@ -71,9 +71,12 @@ String formatDecimal(num value, {int maxDecimals = 2}) {
 String formatPercent(num percent) => '${formatDecimal(percent)}$unitSpace%';
 
 /// Index de compteur, toujours au dixième (maquette de l'écran 7) : 18247.0 → « 18 247,0 kWh ».
-String formatIndexKwh(num kwh) {
+String formatIndexKwh(num kwh) => '${formatIndexValue(kwh)}${unitSpace}kWh';
+
+/// Index seul, au dixième (liste « Jour par jour » : « Index 18 247,0 – 18 256,0 »).
+String formatIndexValue(num kwh) {
   final tenths = (kwh * 10).round();
-  return '${_group(tenths ~/ 10)},${tenths.remainder(10).abs()}${unitSpace}kWh';
+  return '${_group(tenths ~/ 10)},${tenths.remainder(10).abs()}';
 }
 
 /// Sens d'une variation (la couleur en dépend : baisse = vert, hausse = orange).

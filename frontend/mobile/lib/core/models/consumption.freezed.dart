@@ -3092,4 +3092,586 @@ as String,
 
 }
 
+
+/// @nodoc
+mixin _$ReadingPublic {
+
+ int get id; DateTime get readAt; DateTime get day; int get indexWh; int get consumptionWh; double get consumptionKwh; String get source; bool get isEstimated; bool get isAnomaly; String? get anomalyReason;
+/// Create a copy of ReadingPublic
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ReadingPublicCopyWith<ReadingPublic> get copyWith => _$ReadingPublicCopyWithImpl<ReadingPublic>(this as ReadingPublic, _$identity);
+
+  /// Serializes this ReadingPublic to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ReadingPublic;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingPublic&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.readAt, _this.readAt) || other.readAt == _this.readAt)&&(identical(other.day, _this.day) || other.day == _this.day)&&(identical(other.indexWh, _this.indexWh) || other.indexWh == _this.indexWh)&&(identical(other.consumptionWh, _this.consumptionWh) || other.consumptionWh == _this.consumptionWh)&&(identical(other.consumptionKwh, _this.consumptionKwh) || other.consumptionKwh == _this.consumptionKwh)&&(identical(other.source, _this.source) || other.source == _this.source)&&(identical(other.isEstimated, _this.isEstimated) || other.isEstimated == _this.isEstimated)&&(identical(other.isAnomaly, _this.isAnomaly) || other.isAnomaly == _this.isAnomaly)&&(identical(other.anomalyReason, _this.anomalyReason) || other.anomalyReason == _this.anomalyReason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ReadingPublic;
+  return Object.hash(runtimeType,_this.id,_this.readAt,_this.day,_this.indexWh,_this.consumptionWh,_this.consumptionKwh,_this.source,_this.isEstimated,_this.isAnomaly,_this.anomalyReason);
+}
+
+@override
+String toString() {
+  final _this = this as ReadingPublic;
+  return 'ReadingPublic(id: ${_this.id}, readAt: ${_this.readAt}, day: ${_this.day}, indexWh: ${_this.indexWh}, consumptionWh: ${_this.consumptionWh}, consumptionKwh: ${_this.consumptionKwh}, source: ${_this.source}, isEstimated: ${_this.isEstimated}, isAnomaly: ${_this.isAnomaly}, anomalyReason: ${_this.anomalyReason})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ReadingPublicCopyWith<$Res>  {
+  factory $ReadingPublicCopyWith(ReadingPublic value, $Res Function(ReadingPublic) _then) = _$ReadingPublicCopyWithImpl;
+@useResult
+$Res call({
+ int id, DateTime readAt, DateTime day, int indexWh, int consumptionWh, double consumptionKwh, String source, bool isEstimated, bool isAnomaly, String? anomalyReason
+});
+
+
+
+
+}
+/// @nodoc
+class _$ReadingPublicCopyWithImpl<$Res>
+    implements $ReadingPublicCopyWith<$Res> {
+  _$ReadingPublicCopyWithImpl(this._self, this._then);
+
+  final ReadingPublic _self;
+  final $Res Function(ReadingPublic) _then;
+
+/// Create a copy of ReadingPublic
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? readAt = null,Object? day = null,Object? indexWh = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? source = null,Object? isEstimated = null,Object? isAnomaly = null,Object? anomalyReason = freezed,}) {
+  return _then(ReadingPublic(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,readAt: null == readAt ? _self.readAt : readAt // ignore: cast_nullable_to_non_nullable
+as DateTime,day: null == day ? _self.day : day // ignore: cast_nullable_to_non_nullable
+as DateTime,indexWh: null == indexWh ? _self.indexWh : indexWh // ignore: cast_nullable_to_non_nullable
+as int,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
+as int,consumptionKwh: null == consumptionKwh ? _self.consumptionKwh : consumptionKwh // ignore: cast_nullable_to_non_nullable
+as double,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,isEstimated: null == isEstimated ? _self.isEstimated : isEstimated // ignore: cast_nullable_to_non_nullable
+as bool,isAnomaly: null == isAnomaly ? _self.isAnomaly : isAnomaly // ignore: cast_nullable_to_non_nullable
+as bool,anomalyReason: freezed == anomalyReason ? _self.anomalyReason : anomalyReason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ReadingPublic].
+extension ReadingPublicPatterns on ReadingPublic {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ReadingPublic value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ReadingPublic() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ReadingPublic value)  $default,){
+final _that = this;
+switch (_that) {
+case _ReadingPublic():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ReadingPublic value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ReadingPublic() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DateTime readAt,  DateTime day,  int indexWh,  int consumptionWh,  double consumptionKwh,  String source,  bool isEstimated,  bool isAnomaly,  String? anomalyReason)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ReadingPublic() when $default != null:
+return $default(_that.id,_that.readAt,_that.day,_that.indexWh,_that.consumptionWh,_that.consumptionKwh,_that.source,_that.isEstimated,_that.isAnomaly,_that.anomalyReason);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DateTime readAt,  DateTime day,  int indexWh,  int consumptionWh,  double consumptionKwh,  String source,  bool isEstimated,  bool isAnomaly,  String? anomalyReason)  $default,) {final _that = this;
+switch (_that) {
+case _ReadingPublic():
+return $default(_that.id,_that.readAt,_that.day,_that.indexWh,_that.consumptionWh,_that.consumptionKwh,_that.source,_that.isEstimated,_that.isAnomaly,_that.anomalyReason);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DateTime readAt,  DateTime day,  int indexWh,  int consumptionWh,  double consumptionKwh,  String source,  bool isEstimated,  bool isAnomaly,  String? anomalyReason)?  $default,) {final _that = this;
+switch (_that) {
+case _ReadingPublic() when $default != null:
+return $default(_that.id,_that.readAt,_that.day,_that.indexWh,_that.consumptionWh,_that.consumptionKwh,_that.source,_that.isEstimated,_that.isAnomaly,_that.anomalyReason);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ReadingPublic implements ReadingPublic {
+  const _ReadingPublic({required this.id, required this.readAt, required this.day, required this.indexWh, required this.consumptionWh, required this.consumptionKwh, required this.source, required this.isEstimated, required this.isAnomaly, required this.anomalyReason});
+  factory _ReadingPublic.fromJson(Map<String, dynamic> json) => _$ReadingPublicFromJson(json);
+
+@override final  int id;
+@override final  DateTime readAt;
+@override final  DateTime day;
+@override final  int indexWh;
+@override final  int consumptionWh;
+@override final  double consumptionKwh;
+@override final  String source;
+@override final  bool isEstimated;
+@override final  bool isAnomaly;
+@override final  String? anomalyReason;
+
+/// Create a copy of ReadingPublic
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ReadingPublicCopyWith<_ReadingPublic> get copyWith => __$ReadingPublicCopyWithImpl<_ReadingPublic>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ReadingPublicToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingPublic&&(identical(other.id, id) || other.id == id)&&(identical(other.readAt, readAt) || other.readAt == readAt)&&(identical(other.day, day) || other.day == day)&&(identical(other.indexWh, indexWh) || other.indexWh == indexWh)&&(identical(other.consumptionWh, consumptionWh) || other.consumptionWh == consumptionWh)&&(identical(other.consumptionKwh, consumptionKwh) || other.consumptionKwh == consumptionKwh)&&(identical(other.source, source) || other.source == source)&&(identical(other.isEstimated, isEstimated) || other.isEstimated == isEstimated)&&(identical(other.isAnomaly, isAnomaly) || other.isAnomaly == isAnomaly)&&(identical(other.anomalyReason, anomalyReason) || other.anomalyReason == anomalyReason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,readAt,day,indexWh,consumptionWh,consumptionKwh,source,isEstimated,isAnomaly,anomalyReason);
+}
+
+@override
+String toString() {
+    return 'ReadingPublic(id: $id, readAt: $readAt, day: $day, indexWh: $indexWh, consumptionWh: $consumptionWh, consumptionKwh: $consumptionKwh, source: $source, isEstimated: $isEstimated, isAnomaly: $isAnomaly, anomalyReason: $anomalyReason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ReadingPublicCopyWith<$Res> implements $ReadingPublicCopyWith<$Res> {
+  factory _$ReadingPublicCopyWith(_ReadingPublic value, $Res Function(_ReadingPublic) _then) = __$ReadingPublicCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, DateTime readAt, DateTime day, int indexWh, int consumptionWh, double consumptionKwh, String source, bool isEstimated, bool isAnomaly, String? anomalyReason
+});
+
+
+
+
+}
+/// @nodoc
+class __$ReadingPublicCopyWithImpl<$Res>
+    implements _$ReadingPublicCopyWith<$Res> {
+  __$ReadingPublicCopyWithImpl(this._self, this._then);
+
+  final _ReadingPublic _self;
+  final $Res Function(_ReadingPublic) _then;
+
+/// Create a copy of ReadingPublic
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? readAt = null,Object? day = null,Object? indexWh = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? source = null,Object? isEstimated = null,Object? isAnomaly = null,Object? anomalyReason = freezed,}) {
+  return _then(_ReadingPublic(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,readAt: null == readAt ? _self.readAt : readAt // ignore: cast_nullable_to_non_nullable
+as DateTime,day: null == day ? _self.day : day // ignore: cast_nullable_to_non_nullable
+as DateTime,indexWh: null == indexWh ? _self.indexWh : indexWh // ignore: cast_nullable_to_non_nullable
+as int,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
+as int,consumptionKwh: null == consumptionKwh ? _self.consumptionKwh : consumptionKwh // ignore: cast_nullable_to_non_nullable
+as double,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,isEstimated: null == isEstimated ? _self.isEstimated : isEstimated // ignore: cast_nullable_to_non_nullable
+as bool,isAnomaly: null == isAnomaly ? _self.isAnomaly : isAnomaly // ignore: cast_nullable_to_non_nullable
+as bool,anomalyReason: freezed == anomalyReason ? _self.anomalyReason : anomalyReason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ReadingPage {
+
+ List<ReadingPublic> get items; int get page; int get size; int get total;
+/// Create a copy of ReadingPage
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ReadingPageCopyWith<ReadingPage> get copyWith => _$ReadingPageCopyWithImpl<ReadingPage>(this as ReadingPage, _$identity);
+
+  /// Serializes this ReadingPage to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ReadingPage;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingPage&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.total, _this.total) || other.total == _this.total));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ReadingPage;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.page,_this.size,_this.total);
+}
+
+@override
+String toString() {
+  final _this = this as ReadingPage;
+  return 'ReadingPage(items: ${_this.items}, page: ${_this.page}, size: ${_this.size}, total: ${_this.total})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ReadingPageCopyWith<$Res>  {
+  factory $ReadingPageCopyWith(ReadingPage value, $Res Function(ReadingPage) _then) = _$ReadingPageCopyWithImpl;
+@useResult
+$Res call({
+ List<ReadingPublic> items, int page, int size, int total
+});
+
+
+
+
+}
+/// @nodoc
+class _$ReadingPageCopyWithImpl<$Res>
+    implements $ReadingPageCopyWith<$Res> {
+  _$ReadingPageCopyWithImpl(this._self, this._then);
+
+  final ReadingPage _self;
+  final $Res Function(ReadingPage) _then;
+
+/// Create a copy of ReadingPage
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? page = null,Object? size = null,Object? total = null,}) {
+  return _then(ReadingPage(
+items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as List<ReadingPublic>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ReadingPage].
+extension ReadingPagePatterns on ReadingPage {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ReadingPage value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ReadingPage() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ReadingPage value)  $default,){
+final _that = this;
+switch (_that) {
+case _ReadingPage():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ReadingPage value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ReadingPage() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ReadingPublic> items,  int page,  int size,  int total)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ReadingPage() when $default != null:
+return $default(_that.items,_that.page,_that.size,_that.total);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ReadingPublic> items,  int page,  int size,  int total)  $default,) {final _that = this;
+switch (_that) {
+case _ReadingPage():
+return $default(_that.items,_that.page,_that.size,_that.total);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ReadingPublic> items,  int page,  int size,  int total)?  $default,) {final _that = this;
+switch (_that) {
+case _ReadingPage() when $default != null:
+return $default(_that.items,_that.page,_that.size,_that.total);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ReadingPage implements ReadingPage {
+  const _ReadingPage({required  List<ReadingPublic> items, required this.page, required this.size, required this.total}): _items = items;
+  factory _ReadingPage.fromJson(Map<String, dynamic> json) => _$ReadingPageFromJson(json);
+
+ final  List<ReadingPublic> _items;
+@override List<ReadingPublic> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
+}
+
+@override final  int page;
+@override final  int size;
+@override final  int total;
+
+/// Create a copy of ReadingPage
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ReadingPageCopyWith<_ReadingPage> get copyWith => __$ReadingPageCopyWithImpl<_ReadingPage>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ReadingPageToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingPage&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.page, page) || other.page == page)&&(identical(other.size, size) || other.size == size)&&(identical(other.total, total) || other.total == total));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),page,size,total);
+}
+
+@override
+String toString() {
+    return 'ReadingPage(items: $items, page: $page, size: $size, total: $total)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ReadingPageCopyWith<$Res> implements $ReadingPageCopyWith<$Res> {
+  factory _$ReadingPageCopyWith(_ReadingPage value, $Res Function(_ReadingPage) _then) = __$ReadingPageCopyWithImpl;
+@override @useResult
+$Res call({
+ List<ReadingPublic> items, int page, int size, int total
+});
+
+
+
+
+}
+/// @nodoc
+class __$ReadingPageCopyWithImpl<$Res>
+    implements _$ReadingPageCopyWith<$Res> {
+  __$ReadingPageCopyWithImpl(this._self, this._then);
+
+  final _ReadingPage _self;
+  final $Res Function(_ReadingPage) _then;
+
+/// Create a copy of ReadingPage
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? page = null,Object? size = null,Object? total = null,}) {
+  return _then(_ReadingPage(
+items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<ReadingPublic>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
 // dart format on

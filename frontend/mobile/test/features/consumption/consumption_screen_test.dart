@@ -3,6 +3,7 @@ import 'dart:ui' show Tristate;
 import 'package:elecpay/app/riverpod_config.dart';
 import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/demo/demo_mode.dart';
+import 'package:elecpay/core/format/formats.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
 import 'package:elecpay/core/widgets/demo_badge.dart';
@@ -18,6 +19,7 @@ import '../../support/fake_health.dart';
 import '../../support/fake_home_backend.dart';
 import '../../support/fake_server.dart';
 import '../../support/itel_screen.dart';
+import '../../support/openapi.dart';
 
 /// Jeudi 12 novembre 2026, 10 h à Brazzaville (dernier relevé du faux backend : le 11).
 final _now = DateTime.utc(2026, 11, 12, 9);
@@ -94,6 +96,21 @@ String period(WidgetTester tester) =>
 List<Map<String, dynamic>> seriesRequests(FakeHomeBackend backend, int meterId) => [
   for (final r in backend.requestsTo('/meters/$meterId/consumption')) r.queryParameters,
 ];
+
+/// Résumé réaliste (l'exemple du contrat a une estimation de fin de mois quasi nulle, cachée).
+Map<String, Object?> realisticSummary(int meterId) {
+  final api = OpenApi.load();
+  return {
+    ...api.sample('ConsumptionSummary'),
+    'meter_id': meterId,
+    'month_end_estimate': {
+      ...api.sample('MonthEndEstimate'),
+      'consumption_wh': 279300,
+      'consumption_kwh': 279.3,
+      'energy_cost': 13708,
+    },
+  };
+}
 
 /// Faux backend avec des compteurs nommés : 2 dans Maison Mpita, 1 dans la Boutique.
 FakeHomeBackend namedMeters() {
@@ -184,13 +201,14 @@ void main() {
     expect(period(tester), 'Sem. du 9 nov.');
     expect(find.text('SEMAINE EN COURS · 3 JOURS'), findsOneWidget);
 
+    // Jour : le dernier jour relevé (le 11), pas aujourd'hui (relevé demain matin).
     await tapKey(tester, 'conso.tab.day');
-    expect(period(tester), 'Jeu. 12 nov.');
-    // Fil d'Ariane : 2026 › Novembre › Sem. du 9 nov. › Jeu. 12.
-    expect(find.text('Jeu. 12'), findsOneWidget);
-    await tapKey(tester, 'conso.previous');
     expect(period(tester), 'Mer. 11 nov.');
+    // Fil d'Ariane : 2026 › Novembre › Sem. du 9 nov. › Mer. 11.
+    expect(find.text('Mer. 11'), findsOneWidget);
     expect(find.text('CONSOMMATION DU JOUR'), findsOneWidget);
+    await tapKey(tester, 'conso.previous');
+    expect(period(tester), 'Mar. 10 nov.');
 
     await tapKey(tester, 'conso.crumb.month');
     expect(period(tester), 'Novembre 2026');
@@ -200,13 +218,23 @@ void main() {
     );
   });
 
-  testWidgets('jour non encore relevé : « Pas encore de relevé », pas de faux zéro', (
-    tester,
-  ) async {
+  testWidgets('jour non encore relevé : « Pas encore de relevé », pas de faux zéro, le '
+      'calendrier reste là', (tester) async {
     await pumpConso(tester, namedMeters());
     await tapKey(tester, 'conso.tab.day');
-    expect(find.byKey(const Key('conso.emptyPeriod')), findsOneWidget);
+    await tapKey(tester, 'conso.next');
+    expect(period(tester), 'Jeu. 12 nov.');
+    expect(find.byKey(const Key('conso.dayNotRead')), findsOneWidget);
     expect(find.text('Pas encore de relevé'), findsOneWidget);
+    expect(find.byKey(const Key('conso.totals')), findsNothing);
+    expect(find.byKey(const Key('conso.dayCard')), findsNothing);
+    expect(find.byKey(const Key('conso.calendar')), findsOneWidget);
+  });
+
+  testWidgets('mois sans aucun relevé : « Pas encore de relevé » pour la période', (tester) async {
+    final backend = namedMeters()..measuredUntil = DateTime(2026, 10, 31);
+    await pumpConso(tester, backend);
+    expect(find.byKey(const Key('conso.emptyPeriod')), findsOneWidget);
     expect(find.byKey(const Key('conso.totals')), findsNothing);
   });
 
@@ -299,6 +327,21 @@ void main() {
     }
   });
 
+  testWidgets('onglets à 200 % : à la ligne, à la largeur de leur libellé (jamais empilés)', (
+    tester,
+  ) async {
+    await pumpConso(tester, namedMeters(), textScale: 2);
+    final boxes = [
+      for (final tab in ['direct', 'day', 'week', 'month', 'year'])
+        tester.getRect(find.byKey(Key('conso.tab.$tab'))),
+    ];
+    for (final box in boxes) {
+      expect(box.width, lessThan(240), reason: 'un onglet ne prend pas toute la largeur');
+    }
+    expect(boxes[0].top, boxes[1].top, reason: 'Direct et Jour sur la même ligne');
+    expect(boxes.map((b) => b.top).toSet().length, lessThan(5));
+  });
+
   for (final scale in [1.3, 2.0]) {
     testWidgets('texte à ${(scale * 100).round()} % : tout reste lisible, sans débordement', (
       tester,
@@ -315,10 +358,16 @@ void main() {
 
   group('vue Mois (F7.3)', () {
     testWidgets('pastilles, barres lues par TalkBack, toucher un jour', (tester) async {
-      await pumpConso(tester, namedMeters());
+      final backend = namedMeters();
+      backend.forced['/meters/20/consumption/summary'] = JsonReply(200, realisticSummary(20));
+      await pumpConso(tester, backend);
       expect(find.byKey(const Key('conso.stat.Moyenne')), findsOneWidget);
       expect(find.byKey(const Key('conso.stat.Pic')), findsOneWidget);
       expect(find.byKey(const Key('conso.stat.Fin de mois estimée')), findsOneWidget);
+      expect(
+        find.textContaining('≈\u00A0279\u00A0kWh · ≈\u00A013\u00A0700\u00A0FCFA'),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('conso.chart')), findsOneWidget);
       expect(find.bySemanticsLabel('1er novembre : 11\u00A0kWh'), findsOneWidget);
       expect(find.bySemanticsLabel('12 novembre : pas encore de données'), findsOneWidget);
@@ -391,6 +440,103 @@ void main() {
       expect(find.text('Novembre 2026'), findsOneWidget);
       await tapKey(tester, 'conso.row.1');
       expect(period(tester), 'Octobre 2026');
+    });
+  });
+
+  group('vue Semaine (F7.4)', () {
+    testWidgets('7 barres avec leur valeur ; toucher un jour ouvre ce jour', (tester) async {
+      await pumpConso(tester, namedMeters());
+      await tapKey(tester, 'conso.tab.week');
+      expect(find.byKey(const Key('conso.stat.Moyenne')), findsOneWidget);
+      expect(find.text('Lun 9'), findsOneWidget);
+      expect(find.text('Dim 15'), findsOneWidget);
+      expect(find.bySemanticsLabel('Lundi 9 novembre : 9\u00A0kWh'), findsOneWidget);
+      expect(find.bySemanticsLabel('Jeudi 12 novembre : pas encore de données'), findsOneWidget);
+      await tapKey(tester, 'conso.bar.2');
+      expect(period(tester), 'Mer. 11 nov.');
+    });
+
+    testWidgets('« Jour par jour » : index de début et de fin de chaque jour', (tester) async {
+      final backend = namedMeters();
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.tab.week');
+      final end = backend.indexAtEndOf(DateTime(2026, 11, 9));
+      await tester.dragUntilVisible(
+        find.byKey(const Key('conso.row.0')).hitTestable(),
+        find.byKey(const Key('conso.list')),
+        const Offset(0, -150),
+      );
+      expect(find.text('JOUR PAR JOUR'), findsOneWidget);
+      expect(find.text('Lundi 9 nov.'), findsOneWidget);
+      expect(
+        find.text(
+          'Index ${formatIndexValue((end - 9000) / 1000)} – ${formatIndexValue(end / 1000)}',
+        ),
+        findsOneWidget,
+      );
+      await tapKey(tester, 'conso.row.0');
+      expect(period(tester), 'Lun. 9 nov.');
+    });
+  });
+
+  group('vue Jour (F7.4)', () {
+    testWidgets('calendrier : légende des 4 niveaux, niveau lu par TalkBack, toucher un jour', (
+      tester,
+    ) async {
+      await pumpConso(tester, namedMeters());
+      await tapKey(tester, 'conso.tab.day');
+      expect(find.byKey(const Key('conso.calendar')), findsOneWidget);
+      for (final label in ['Faible', 'Normale', 'Élevée', 'Très élevée', 'Estimation']) {
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('conso.calendarLegend')),
+            matching: find.text(label),
+          ),
+          findsOneWidget,
+          reason: label,
+        );
+      }
+      expect(
+        tester.getSemantics(find.byKey(const Key('conso.day.3'))).label,
+        startsWith('3 novembre, 9\u00A0kWh, consommation '),
+      );
+      expect(
+        tester.getSemantics(find.byKey(const Key('conso.day.11'))).label,
+        endsWith('jour affiché'),
+      );
+      expect(
+        tester.getSemantics(find.byKey(const Key('conso.day.11'))).flagsCollection.isSelected,
+        Tristate.isTrue,
+      );
+      expect(
+        tester.getSemantics(find.byKey(const Key('conso.day.20'))).label,
+        '20 novembre, pas encore de données',
+      );
+      await tapKey(tester, 'conso.day.3');
+      expect(period(tester), 'Mar. 3 nov.');
+    });
+
+    testWidgets('carte du jour : index, moyenne des mercredis, classement, relevé 06:00', (
+      tester,
+    ) async {
+      final backend = namedMeters();
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.tab.day');
+      // 9 kWh contre 9,5 kWh en moyenne les mercredis.
+      expect(find.text('−5\u00A0% vs moyenne'), findsOneWidget);
+      await tester.dragUntilVisible(
+        find.byKey(const Key('conso.dayCard')).hitTestable(),
+        find.byKey(const Key('conso.list')),
+        const Offset(0, -150),
+      );
+      expect(find.text('Mercredi 11 novembre 2026'), findsOneWidget);
+      expect(find.text('Relevé 06:00'), findsOneWidget);
+      expect(find.text('Moyenne des mercredis'), findsOneWidget);
+      expect(find.text('3e sur 30 jours'), findsOneWidget);
+      final end = backend.indexAtEndOf(DateTime(2026, 11, 11));
+      expect(find.text(formatIndexKwh(end / 1000)), findsOneWidget);
+      expect(find.text(formatIndexKwh((end - 9000) / 1000)), findsOneWidget);
+      expect(find.textContaining('relevé par jour'), findsWidgets);
     });
   });
 }

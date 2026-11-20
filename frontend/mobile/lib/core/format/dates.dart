@@ -122,6 +122,14 @@ const _weekdaysShort = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
 /// Nom du jour d'une date du calendrier, avec sa majuscule : « Lundi ».
 String formatWeekdayName(DateTime day) => _capitalized(_weekdays[day.weekday - 1]);
 
+/// Date du calendrier en toutes lettres : « Mercredi 14 octobre 2026 », « Dimanche 1er mars 2026 ».
+String formatLongDate(DateTime day) =>
+    '${formatWeekdayName(day)} ${_day(day.day)} ${_monthsLong[day.month - 1]} ${day.year}';
+
+/// Jour court des barres de la semaine (maquette) : « Lun 9 », « Dim 15 ».
+String formatWeekdayBar(DateTime day) =>
+    '${_weekdaysShort[day.weekday - 1].replaceAll('.', '')} ${day.day}';
+
 /// Moment d'une notification (maquette de l'écran 13), à Brazzaville, selon son groupe (`group` de
 /// l'API) : aujourd'hui « 14:32 » ; cette semaine « Dim. » ; plus tôt « 3 nov. » (« 3 nov. 2025 »
 /// si ce n'est pas l'année de `now`).

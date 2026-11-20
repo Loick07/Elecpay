@@ -22,6 +22,7 @@ import '../../core/widgets/state_block.dart';
 import '../home/home_screen.dart' show homeClockProvider;
 import 'consumption_chart.dart';
 import 'consumption_data.dart';
+import 'consumption_day.dart';
 import 'consumption_rules.dart';
 
 /// Écran 11 : Consommation (maquette `Consommation.dc.html`). Onglets Direct · Jour · Semaine ·
@@ -93,7 +94,11 @@ class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
         children: [
           Semantics(
             header: true,
-            child: Text('Consommation', style: AppText.h1.copyWith(color: c.ink)),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text('Consommation', style: AppText.h1.copyWith(color: c.ink)),
+            ),
           ),
           Wrap(
             spacing: Space.s2,
@@ -115,7 +120,9 @@ class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
       const SizedBox(height: Space.s3),
       _LevelTabs(
         selected: cursor.level,
-        onSelect: (l) => ref.read(consumptionCursorProvider.notifier).level(l),
+        onSelect: (l) => ref
+            .read(consumptionCursorProvider.notifier)
+            .level(l, lastReading: series?.value?.data.measuredUntil),
       ),
       if (series?.value case final CachedData<ConsumptionSeries> cached) ...[
         const SizedBox(height: Space.s3),
@@ -196,10 +203,6 @@ class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
     );
   }
 
-  Widget _failure(Object error, VoidCallback retry) => error is ApiFailure
-      ? stateForFailure(error, what: 'votre consommation', onRetry: retry)
-      : StateBlock.error(what: 'votre consommation', onRetry: retry);
-
   Future<void> _chooseMeter(
     BuildContext context,
     WidgetRef ref,
@@ -224,6 +227,10 @@ class _PeriodBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Vue Jour : le calendrier du mois reste visible même si le jour n'est pas encore relevé.
+    if (cursor.level == ConsumptionLevel.day && series.points.any((p) => p.daysWithData > 0)) {
+      return _DayBody(cursor: cursor, series: series, meterId: meterId);
+    }
     final totals = periodTotals(cursor, series);
     if (totals.daysWithData == 0) {
       return const Padding(
@@ -297,7 +304,23 @@ class _PeriodBody extends ConsumerWidget {
             ),
           ]);
         }
-      case ConsumptionLevel.week || ConsumptionLevel.day || ConsumptionLevel.direct:
+      case ConsumptionLevel.week:
+        addStats(monthStats(series));
+        addChart(
+          ConsumptionBars(
+            bars: weekBars(series),
+            label: 'Consommation par jour de la semaine',
+            hint: 'Touchez un jour pour son détail',
+            onSelect: open,
+          ),
+        );
+        final readings = ref
+            .watch(readingsProvider((meterId: meterId, from: a, to: cursor.end)))
+            .value
+            ?.data
+            .items;
+        addList('Jour par jour', weekDayRows(series, readings ?? const []));
+      case ConsumptionLevel.day || ConsumptionLevel.direct:
         break;
     }
     children.addAll([
@@ -307,6 +330,86 @@ class _PeriodBody extends ConsumerWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
   }
 }
+
+/// Vue Jour : total du jour (comparé à la moyenne du même jour), calendrier du mois, carte du
+/// jour. Jour pas encore relevé : un message à la place du total et de la carte.
+class _DayBody extends ConsumerWidget {
+  const _DayBody({required this.cursor, required this.series, required this.meterId});
+
+  final ConsumptionCursor cursor;
+  final ConsumptionSeries series;
+  final int meterId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final day = cursor.anchor;
+    final detail = ref.watch(dayDetailProvider((meterId: meterId, day: day)));
+    final reading = ref
+        .watch(readingsProvider((meterId: meterId, from: day, to: day)))
+        .value
+        ?.data
+        .items
+        .firstOrNull;
+    final calendar = DayCalendar(
+      cells: calendarCells(series, day),
+      onSelect: (d) => ref
+          .read(consumptionCursorProvider.notifier)
+          .show(ConsumptionCursor.of(ConsumptionLevel.day, d)),
+    );
+    final notRead = switch (detail) {
+      AsyncError(:final error) => error is ApiRejected && error.statusCode == 404,
+      _ => false,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ...switch (detail) {
+          AsyncValue(:final value?) => [_TotalsBlock(totals: dayTotals(value.data))],
+          _ when notRead => [
+            const StateBlock.empty(
+              key: Key('conso.dayNotRead'),
+              icon: AppIcons.clock,
+              title: 'Pas encore de relevé',
+              message:
+                  'Le relevé de ce jour arrive le lendemain matin. ElecPay reçoit un relevé '
+                  'par jour.',
+            ),
+          ],
+          AsyncError(:final error) => [
+            _failure(error, () => ref.invalidate(dayDetailProvider((meterId: meterId, day: day)))),
+          ],
+          _ => [
+            const AppSkeleton(
+              loading: true,
+              child: _TotalsBlock(
+                totals: (
+                  label: 'Consommation du jour',
+                  wh: 9000,
+                  daysWithData: 1,
+                  energyCost: 441,
+                  comparison: null,
+                  trend: null,
+                ),
+              ),
+            ),
+          ],
+        },
+        const SizedBox(height: 14),
+        calendar,
+        if (detail.value?.data case final data?) ...[
+          const SizedBox(height: Space.s3),
+          DayDetailCard(card: dayCard(data, reading: reading)),
+        ],
+        const SizedBox(height: Space.s4),
+        _ReadingLegend(measuredUntil: series.measuredUntil),
+      ],
+    );
+  }
+}
+
+Widget _failure(Object error, VoidCallback retry) => error is ApiFailure
+    ? stateForFailure(error, what: 'votre consommation', onRetry: retry)
+    : StateBlock.error(what: 'votre consommation', onRetry: retry);
 
 /// Nom du compteur dans le sélecteur : le foyer seul (maquette), ou « foyer · compteur » quand le
 /// foyer a plusieurs compteurs.
@@ -438,7 +541,7 @@ class _LevelTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    Widget tab(ConsumptionLevel level) {
+    Widget tab(ConsumptionLevel level, {required bool fill}) {
       final on = level == selected;
       return Semantics(
         selected: on,
@@ -456,20 +559,24 @@ class _LevelTabs extends StatelessWidget {
             onTap: () => onSelect(level),
             child: Container(
               constraints: const BoxConstraints(minHeight: 40),
-              padding: const EdgeInsets.symmetric(horizontal: Space.s2),
-              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: fill ? 2 : Space.s3),
               decoration: on
                   ? BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: context.shadows.card,
                     )
                   : null,
-              child: Text(
-                level.label,
-                maxLines: 1,
-                style: AppText.bodySm.copyWith(
-                  color: on ? c.ink : c.inkMuted,
-                  fontWeight: on ? FontWeight.w600 : FontWeight.w500,
+              // En colonnes : centré dans sa colonne ; à la ligne : largeur du libellé.
+              child: Center(
+                widthFactor: fill ? null : 1,
+                heightFactor: 1,
+                child: Text(
+                  level.label,
+                  maxLines: 1,
+                  style: AppText.bodySm.copyWith(
+                    color: on ? c.ink : c.inkMuted,
+                    fontWeight: on ? FontWeight.w600 : FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -489,29 +596,31 @@ class _LevelTabs extends StatelessWidget {
         ),
         child: LayoutBuilder(
           builder: (context, box) {
-            // Les 5 libellés tiennent-ils dans 5 colonnes égales ? Sinon (texte agrandi), les
-            // onglets passent à la ligne : tous restent visibles, aucun n'est tronqué.
+            // Une ligne, chaque onglet à la mesure de son libellé (« Semaine » est deux fois plus
+            // long que « Mois » : 5 colonnes égales ne tiennent pas sur les 360 points de l'itel).
+            // Texte agrandi qui ne tient plus : les onglets passent à la ligne, tous visibles.
             final scaler = MediaQuery.textScalerOf(context);
             final style = AppText.bodySm.copyWith(fontWeight: FontWeight.w600);
-            final widest = ConsumptionLevel.values
-                .map((l) {
+            final widths = [
+              for (final l in ConsumptionLevel.values)
+                () {
                   final painter = TextPainter(
                     text: TextSpan(text: l.label, style: style),
                     textDirection: TextDirection.ltr,
                     textScaler: scaler,
                     maxLines: 1,
                   )..layout();
-                  final width = painter.width;
+                  final width = painter.width + Space.s2 * 2;
                   painter.dispose();
                   return width;
-                })
-                .reduce((a, b) => a > b ? a : b);
-            final column = (box.maxWidth - Space.s1 * 4) / ConsumptionLevel.values.length;
-            if (widest + Space.s2 * 2 <= column) {
+                }(),
+            ];
+            final needed = widths.fold(0.0, (s, w) => s + w) + Space.s1 * (widths.length - 1);
+            if (needed <= box.maxWidth) {
               return Row(
                 children: [
-                  for (final l in ConsumptionLevel.values) ...[
-                    Expanded(child: tab(l)),
+                  for (final (i, l) in ConsumptionLevel.values.indexed) ...[
+                    Expanded(flex: widths[i].round(), child: tab(l, fill: true)),
                     if (l != ConsumptionLevel.values.last) const SizedBox(width: Space.s1),
                   ],
                 ],
@@ -520,7 +629,7 @@ class _LevelTabs extends StatelessWidget {
             return Wrap(
               spacing: Space.s1,
               runSpacing: Space.s1,
-              children: [for (final l in ConsumptionLevel.values) tab(l)],
+              children: [for (final l in ConsumptionLevel.values) tab(l, fill: false)],
             );
           },
         ),

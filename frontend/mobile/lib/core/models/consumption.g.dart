@@ -524,3 +524,80 @@ Map<String, dynamic> _$DayDetailToJson(_DayDetail instance) =>
       'days_ranked': instance.daysRanked,
       'source': instance.source,
     };
+
+_ReadingPublic _$ReadingPublicFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      '_ReadingPublic',
+      json,
+      ($checkedConvert) {
+        final val = _ReadingPublic(
+          id: $checkedConvert('id', (v) => (v as num).toInt()),
+          readAt: $checkedConvert(
+            'read_at',
+            (v) => DateTime.parse(v as String),
+          ),
+          day: $checkedConvert('day', (v) => DateTime.parse(v as String)),
+          indexWh: $checkedConvert('index_wh', (v) => (v as num).toInt()),
+          consumptionWh: $checkedConvert(
+            'consumption_wh',
+            (v) => (v as num).toInt(),
+          ),
+          consumptionKwh: $checkedConvert(
+            'consumption_kwh',
+            (v) => (v as num).toDouble(),
+          ),
+          source: $checkedConvert('source', (v) => v as String),
+          isEstimated: $checkedConvert('is_estimated', (v) => v as bool),
+          isAnomaly: $checkedConvert('is_anomaly', (v) => v as bool),
+          anomalyReason: $checkedConvert('anomaly_reason', (v) => v as String?),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'readAt': 'read_at',
+        'indexWh': 'index_wh',
+        'consumptionWh': 'consumption_wh',
+        'consumptionKwh': 'consumption_kwh',
+        'isEstimated': 'is_estimated',
+        'isAnomaly': 'is_anomaly',
+        'anomalyReason': 'anomaly_reason',
+      },
+    );
+
+Map<String, dynamic> _$ReadingPublicToJson(_ReadingPublic instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'read_at': instance.readAt.toIso8601String(),
+      'day': instance.day.toIso8601String(),
+      'index_wh': instance.indexWh,
+      'consumption_wh': instance.consumptionWh,
+      'consumption_kwh': instance.consumptionKwh,
+      'source': instance.source,
+      'is_estimated': instance.isEstimated,
+      'is_anomaly': instance.isAnomaly,
+      'anomaly_reason': instance.anomalyReason,
+    };
+
+_ReadingPage _$ReadingPageFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('_ReadingPage', json, ($checkedConvert) {
+      final val = _ReadingPage(
+        items: $checkedConvert(
+          'items',
+          (v) => (v as List<dynamic>)
+              .map((e) => ReadingPublic.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
+        page: $checkedConvert('page', (v) => (v as num).toInt()),
+        size: $checkedConvert('size', (v) => (v as num).toInt()),
+        total: $checkedConvert('total', (v) => (v as num).toInt()),
+      );
+      return val;
+    });
+
+Map<String, dynamic> _$ReadingPageToJson(_ReadingPage instance) =>
+    <String, dynamic>{
+      'items': instance.items.map((e) => e.toJson()).toList(),
+      'page': instance.page,
+      'size': instance.size,
+      'total': instance.total,
+    };

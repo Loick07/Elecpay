@@ -66,12 +66,14 @@ class ConsumptionCursorNotifier extends Notifier<ConsumptionCursor> {
 
   void show(ConsumptionCursor cursor) => state = cursor;
 
-  /// Changer d'onglet en gardant la date (Direct : toujours aujourd'hui).
-  void level(ConsumptionLevel level) {
+  /// Changer d'onglet en gardant la date (Direct : toujours aujourd'hui). `lastReading` : dernier
+  /// jour relevé ; la vue Jour s'ouvre sur lui plutôt que sur aujourd'hui, pas encore relevé.
+  void level(ConsumptionLevel level, {DateTime? lastReading}) {
     final today = consumptionToday(ref);
+    final latest = lastReading != null && lastReading.isBefore(today) ? lastReading : today;
     state = level == ConsumptionLevel.direct
         ? ConsumptionCursor.of(level, today)
-        : state.withLevel(level, today);
+        : state.withLevel(level, level == ConsumptionLevel.day ? latest : today);
   }
 }
 
@@ -106,6 +108,18 @@ final consumptionSummaryProvider = FutureProvider.family<Fetched<ConsumptionSumm
       .get('/meters/$meterId/consumption/summary', ConsumptionSummary.fromJson),
 );
 
+/// Relevés d'une plage (index et heure du relevé) : « Jour par jour » et badge du jour.
+final readingsProvider =
+    FutureProvider.family<Fetched<ReadingPage>, ({int meterId, DateTime from, DateTime to})>(
+      (ref, key) => ref
+          .watch(cachedApiProvider)
+          .get(
+            '/meters/${key.meterId}/readings',
+            ReadingPage.fromJson,
+            query: {'from': formatApiDate(key.from), 'to': formatApiDate(key.to), 'size': 31},
+          ),
+    );
+
 /// Détail d'un jour (vue Jour) : index, coût, moyenne du même jour, classement, relevé ou estimé.
 final dayDetailProvider = FutureProvider.family<Fetched<DayDetail>, ({int meterId, DateTime day})>(
   (ref, key) => ref
@@ -131,7 +145,7 @@ final billForMonthProvider = FutureProvider.family<BillSummary?, ({int meterId, 
   final first = DateTime(key.month.year, key.month.month);
   final last = DateTime(key.month.year, key.month.month + 1, 0);
   return list.data.items
-      .where((b) => b.status != BillStatuses.cancelled)
+      .where((b) => b.meterId == key.meterId && b.status != BillStatuses.cancelled)
       .where((b) => !b.periodStart.isAfter(last) && !b.periodEnd.isBefore(first))
       .firstOrNull;
 });

@@ -343,6 +343,11 @@ void main() {
         ('Fin de mois estimée', '≈\u00A0279\u00A0kWh · ≈\u00A013\u00A0700\u00A0FCFA', true),
       ]);
       expect(monthStats(s), hasLength(2), reason: 'mois passé : pas d’estimation');
+      expect(
+        monthStats(s, estimate: estimate.copyWith(consumptionWh: 300)),
+        hasLength(2),
+        reason: 'estimation arrondie à 0 kWh : rien à montrer',
+      );
     });
 
     test('« Semaine par semaine » : semaines coupées au mois, jours relevés seulement', () {
@@ -357,6 +362,166 @@ void main() {
       expect(rows[1].estimated, isTrue);
       expect(rows[1].wh, 66000);
       expect(rows[1].target, ConsumptionCursor.of(ConsumptionLevel.week, DateTime(2026, 11, 2)));
+    });
+  });
+
+  group('vue Semaine (F7.4)', () {
+    // Semaine du lundi 9 novembre : relevés du 9 au 11 (le 10 estimé).
+    final week = [
+      for (var i = 0; i < 7; i++)
+        point(
+          DateTime(2026, 11, 9 + i),
+          i < 3 ? 9000 : 0,
+          days: i < 3 ? 1 : 0,
+        ).copyWith(isEstimated: i == 1),
+    ];
+    final s = series(week, until: DateTime(2026, 11, 11));
+    ReadingPublic reading(DateTime day, int indexWh, int wh) => ReadingPublic(
+      id: day.day,
+      readAt: DateTime.utc(day.year, day.month, day.day + 1, 5),
+      day: day,
+      indexWh: indexWh,
+      consumptionWh: wh,
+      consumptionKwh: wh / 1000,
+      source: 'simulated',
+      isEstimated: false,
+      isAnomaly: false,
+      anomalyReason: null,
+    );
+
+    test('7 barres : valeur au-dessus, « Lun 9 » dessous, jour à venir sans valeur', () {
+      final bars = weekBars(s);
+      expect(bars.map((b) => b.axis), [
+        'Lun 9',
+        'Mar 10',
+        'Mer 11',
+        'Jeu 12',
+        'Ven 13',
+        'Sam 14',
+        'Dim 15',
+      ]);
+      expect(bars.map((b) => b.value), ['9', '9', '9', null, null, null, null]);
+      expect(bars[0].spoken, 'Lundi 9 novembre : 9\u00A0kWh');
+      expect(bars[1].spoken, 'Mardi 10 novembre : 9\u00A0kWh, estimation');
+      expect(bars[3].spoken, 'Jeudi 12 novembre : pas encore de données');
+      expect(bars[0].target, ConsumptionCursor.of(ConsumptionLevel.day, DateTime(2026, 11, 9)));
+    });
+
+    test('« Jour par jour » : index du relevé, sinon le coût d’énergie', () {
+      final rows = weekDayRows(s, [reading(DateTime(2026, 11, 9), 18256000, 9000)]);
+      expect(rows.map((r) => r.title), ['Lundi 9 nov.', 'Mardi 10 nov.', 'Mercredi 11 nov.']);
+      expect(rows[0].subtitle, 'Index 18\u00A0247,0 – 18\u00A0256,0');
+      expect(rows[1].subtitle, '≈\u00A0441\u00A0FCFA');
+      expect(rows[1].estimated, isTrue);
+    });
+  });
+
+  group('vue Jour (F7.4)', () {
+    // Novembre 2026 commence un dimanche : 6 cases vides avant le 1er.
+    final days = [
+      for (var d = 1; d <= 30; d++)
+        point(DateTime(2026, 11, d), switch (d) {
+          > 11 => 0,
+          3 => 4000,
+          5 => 15000,
+          6 => 20000,
+          _ => 10000,
+        }, days: d > 11 ? 0 : 1).copyWith(isEstimated: d == 4),
+    ];
+    final s = series(days, until: DateTime(2026, 11, 11));
+    final selected = DateTime(2026, 11, 4);
+
+    test('calendrier : cases vides avant le 1er, niveau de chaque jour lu par TalkBack', () {
+      final cells = calendarCells(s, selected);
+      expect(cells.where((c) => c.day == null), hasLength(6));
+      expect(cells, hasLength(36));
+      final byDay = {
+        for (final c in cells)
+          if (c.day != null) c.day!.day: c,
+      };
+      // Moyenne : 11 jours, 119 kWh → 10,8 kWh.
+      expect(byDay[3]!.level, DayLevel.low);
+      expect(byDay[1]!.level, DayLevel.normal);
+      expect(byDay[5]!.level, DayLevel.high);
+      expect(byDay[6]!.level, DayLevel.veryHigh);
+      expect(byDay[3]!.spoken, '3 novembre, 4\u00A0kWh, consommation faible');
+      expect(byDay[6]!.spoken, '6 novembre, 20\u00A0kWh, consommation très élevée');
+      expect(
+        byDay[4]!.spoken,
+        '4 novembre, 10\u00A0kWh, consommation normale, estimation, jour affiché',
+      );
+      expect((byDay[4]!.estimated, byDay[4]!.selected), (true, true));
+      expect(byDay[12]!.spoken, '12 novembre, pas encore de données');
+      expect((byDay[12]!.hasData, byDay[12]!.level), (false, null));
+      expect(byDay[1]!.spoken.contains('1er novembre'), isTrue);
+    });
+
+    DayDetail detail({
+      bool estimated = false,
+      int rank = 3,
+      int? start = 18247000,
+      int? average = 9500,
+    }) => DayDetail(
+      meterId: 11,
+      day: DateTime(2026, 10, 14),
+      label: '',
+      consumptionWh: 10450,
+      consumptionKwh: 10.45,
+      energyCost: 512,
+      indexStartWh: start,
+      indexEndWh: 18257450,
+      isEstimated: estimated,
+      isAnomaly: false,
+      anomalyReason: null,
+      weekdayAverageWh: average,
+      weekdaySamples: 4,
+      rankInMonth: rank,
+      daysRanked: 30,
+      source: 'simulated',
+    );
+
+    test('carte du jour (maquette) : index, moyenne du même jour, classement, relevé 06:00', () {
+      final r = ReadingPublic(
+        id: 1,
+        readAt: DateTime.utc(2026, 10, 15, 5),
+        day: DateTime(2026, 10, 14),
+        indexWh: 18257450,
+        consumptionWh: 10450,
+        consumptionKwh: 10.45,
+        source: 'simulated',
+        isEstimated: false,
+        isAnomaly: false,
+        anomalyReason: null,
+      );
+      final card = dayCard(detail(), reading: r);
+      expect(card.title, 'Mercredi 14 octobre 2026');
+      expect(card.badge, 'Relevé 06:00');
+      expect(card.indexStart, '18\u00A0247,0\u00A0kWh');
+      expect(card.indexEnd, '18\u00A0257,5\u00A0kWh');
+      expect(card.averageLabel, 'Moyenne des mercredis');
+      expect(card.average, '9,5\u00A0kWh');
+      expect(card.rank, '3e sur 30 jours');
+      expect(card.note, contains('un relevé par jour'));
+      expect(dayCard(detail()).badge, 'Relevé');
+      expect(dayCard(detail(rank: 1)).rank, '1er sur 30 jours');
+    });
+
+    test('jour estimé, premier relevé, moyenne inconnue', () {
+      final card = dayCard(detail(estimated: true, start: null, average: null));
+      expect(card.badge, 'Estimation');
+      expect(card.estimated, isTrue);
+      expect(card.indexStart, '—');
+      expect(card.average, '—');
+      expect(card.note, startsWith('Relevé manquant'));
+    });
+
+    test('total du jour : comparé à la moyenne du même jour de la semaine', () {
+      final t = dayTotals(detail());
+      expect((t.label, t.wh, t.energyCost), ('Consommation du jour', 10450, 512));
+      expect(t.comparison, '+10\u00A0% vs moyenne');
+      expect(t.trend, Trend.up);
+      expect(dayTotals(detail(estimated: true)).label, 'Consommation estimée');
+      expect(dayTotals(detail(average: null)).comparison, isNull);
     });
   });
 }

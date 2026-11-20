@@ -99,6 +99,13 @@ final consumptionSeriesProvider = FutureProvider.family<Fetched<ConsumptionSerie
 SeriesKey seriesKey(int meterId, SeriesRange range) =>
     (meterId: meterId, granularity: range.granularity, from: range.from, to: range.to);
 
+/// Résumé du compteur (estimation de fin du mois en cours, vue Mois).
+final consumptionSummaryProvider = FutureProvider.family<Fetched<ConsumptionSummary>, int>(
+  (ref, meterId) => ref
+      .watch(cachedApiProvider)
+      .get('/meters/$meterId/consumption/summary', ConsumptionSummary.fromJson),
+);
+
 /// Détail d'un jour (vue Jour) : index, coût, moyenne du même jour, classement, relevé ou estimé.
 final dayDetailProvider = FutureProvider.family<Fetched<DayDetail>, ({int meterId, DateTime day})>(
   (ref, key) => ref

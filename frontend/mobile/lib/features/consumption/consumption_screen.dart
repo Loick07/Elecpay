@@ -12,6 +12,7 @@ import '../../core/models/consumption.dart';
 import '../../core/network/api_failure.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/motion.dart';
 import '../../core/theme/tokens.g.dart';
 import '../../core/widgets/bottom_sheet.dart';
 import '../../core/widgets/demo_badge.dart';
@@ -19,14 +20,39 @@ import '../../core/widgets/offline_banner.dart';
 import '../../core/widgets/skeleton.dart';
 import '../../core/widgets/state_block.dart';
 import '../home/home_screen.dart' show homeClockProvider;
+import 'consumption_chart.dart';
 import 'consumption_data.dart';
 import 'consumption_rules.dart';
 
 /// Écran 11 : Consommation (maquette `Consommation.dc.html`). Onglets Direct · Jour · Semaine ·
 /// Mois · Année (Mois par défaut), fil d'Ariane, flèches ‹ ›, sélecteur de compteur.
 /// Relevés journaliers ou estimés : jamais « temps réel ».
-class ConsumptionScreen extends ConsumerWidget {
+class ConsumptionScreen extends ConsumerStatefulWidget {
   const ConsumptionScreen({super.key});
+
+  @override
+  ConsumerState<ConsumptionScreen> createState() => _ConsumptionScreenState();
+}
+
+class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Nouvelle période (barre, ligne, onglet, fil d'Ariane) : elle se lit depuis le haut.
+  void _backToTop() {
+    if (!_scroll.hasClients || _scroll.offset == 0) return;
+    final duration = Motion.of(context, Motion.appear);
+    if (duration == Duration.zero) {
+      _scroll.jumpTo(0);
+    } else {
+      unawaited(_scroll.animateTo(0, duration: duration, curve: Motion.curve));
+    }
+  }
 
   Future<void> _refresh(WidgetRef ref, SeriesKey? key) async {
     ref.invalidate(allMetersProvider);
@@ -40,8 +66,9 @@ class ConsumptionScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final c = context.colors;
+    ref.listen(consumptionCursorProvider, (_, _) => _backToTop());
     final cursor = ref.watch(consumptionCursorProvider);
     final meterId = ref.watch(consumptionMeterIdProvider);
     final meters = ref.watch(allMetersProvider);
@@ -129,7 +156,9 @@ class ConsumptionScreen extends ConsumerWidget {
           ),
           const SizedBox(height: Space.s3),
           ...switch (series) {
-            AsyncValue(:final value?) => _period(cursor, value.data),
+            AsyncValue(:final value?) => [
+              _PeriodBody(cursor: cursor, series: value.data, meterId: id!),
+            ],
             AsyncError(:final error) => [const SizedBox(height: Space.s4), _failure(error, retry)],
             _ => [
               const AppSkeleton(
@@ -158,6 +187,7 @@ class ConsumptionScreen extends ConsumerWidget {
           onRefresh: () => _refresh(ref, key),
           child: ListView(
             key: const Key('conso.list'),
+            controller: _scroll,
             padding: const EdgeInsets.fromLTRB(Space.s4, Space.s5, Space.s4, 120),
             children: children,
           ),
@@ -170,27 +200,6 @@ class ConsumptionScreen extends ConsumerWidget {
       ? stateForFailure(error, what: 'votre consommation', onRetry: retry)
       : StateBlock.error(what: 'votre consommation', onRetry: retry);
 
-  /// Contenu d'une période (année, mois, semaine, jour) une fois la série lue.
-  List<Widget> _period(ConsumptionCursor cursor, ConsumptionSeries series) {
-    final totals = periodTotals(cursor, series);
-    if (totals.daysWithData == 0) {
-      return [
-        const SizedBox(height: Space.s4),
-        const StateBlock.empty(
-          key: Key('conso.emptyPeriod'),
-          icon: AppIcons.meter,
-          title: 'Pas encore de relevé',
-          message: 'Aucun relevé pour cette période. ElecPay reçoit un relevé par jour.',
-        ),
-      ];
-    }
-    return [
-      _TotalsBlock(totals: totals),
-      const SizedBox(height: Space.s4),
-      _ReadingLegend(measuredUntil: series.measuredUntil),
-    ];
-  }
-
   Future<void> _chooseMeter(
     BuildContext context,
     WidgetRef ref,
@@ -202,6 +211,100 @@ class ConsumptionScreen extends ConsumerWidget {
       child: _MeterChoiceList(meters: meters, shownId: shownId),
     );
     if (chosen != null) ref.read(chosenConsumptionMeterProvider.notifier).choose(chosen);
+  }
+}
+
+/// Contenu d'une période une fois sa série lue : total, pastilles, graphique, liste, facture.
+class _PeriodBody extends ConsumerWidget {
+  const _PeriodBody({required this.cursor, required this.series, required this.meterId});
+
+  final ConsumptionCursor cursor;
+  final ConsumptionSeries series;
+  final int meterId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final totals = periodTotals(cursor, series);
+    if (totals.daysWithData == 0) {
+      return const Padding(
+        padding: EdgeInsets.only(top: Space.s4),
+        child: StateBlock.empty(
+          key: Key('conso.emptyPeriod'),
+          icon: AppIcons.meter,
+          title: 'Pas encore de relevé',
+          message: 'Aucun relevé pour cette période. ElecPay reçoit un relevé par jour.',
+        ),
+      );
+    }
+    void open(ConsumptionCursor target) =>
+        ref.read(consumptionCursorProvider.notifier).show(target);
+    final a = cursor.anchor;
+    final children = <Widget>[_TotalsBlock(totals: totals)];
+
+    void addStats(List<PeriodStat> stats) {
+      if (stats.isEmpty) return;
+      children.addAll([const SizedBox(height: Space.s3), PeriodStats(stats: stats)]);
+    }
+
+    void addChart(ConsumptionBars chart) => children.addAll([const SizedBox(height: 14), chart]);
+
+    void addList(String title, List<PeriodRow> rows) {
+      if (rows.isEmpty) return;
+      children.addAll([
+        const SizedBox(height: Space.s4),
+        PeriodList(title: title, rows: rows, onSelect: open),
+      ]);
+    }
+
+    switch (cursor.level) {
+      case ConsumptionLevel.year:
+        addStats(yearStats(series));
+        addChart(
+          ConsumptionBars(
+            bars: yearBars(series),
+            label: 'Consommation par mois en ${a.year}',
+            hint: 'Touchez un mois pour voir ses jours et ses semaines',
+            onSelect: open,
+          ),
+        );
+        addList('Mois par mois', yearRows(series));
+      case ConsumptionLevel.month:
+        // Estimation de fin de mois : seulement pour le mois en cours.
+        final current = series.points.any((p) => p.isCurrent);
+        final estimate = current
+            ? ref.watch(consumptionSummaryProvider(meterId)).value?.data.monthEndEstimate
+            : null;
+        addStats(monthStats(series, estimate: estimate));
+        addChart(
+          ConsumptionBars(
+            bars: monthBars(series),
+            gap: 2,
+            label: 'Consommation par jour en ${formatMonthYear(a.year, a.month).toLowerCase()}',
+            hint: 'Touchez un jour pour son détail, ou une semaine ci-dessous',
+            onSelect: open,
+          ),
+        );
+        addList('Semaine par semaine', monthWeekRows(series));
+        final bill = ref.watch(billForMonthProvider((meterId: meterId, month: a))).value;
+        if (bill != null) {
+          children.addAll([
+            const SizedBox(height: Space.s3),
+            BillLink(
+              text:
+                  'Voir la facture de ${formatBillPeriodLong(bill.periodStart, bill.periodEnd)} '
+                  '(bimestrielle)',
+              onTap: () => unawaited(context.push(Routes.bill(bill.id))),
+            ),
+          ]);
+        }
+      case ConsumptionLevel.week || ConsumptionLevel.day || ConsumptionLevel.direct:
+        break;
+    }
+    children.addAll([
+      const SizedBox(height: Space.s4),
+      _ReadingLegend(measuredUntil: series.measuredUntil),
+    ]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
   }
 }
 
@@ -325,7 +428,7 @@ class _MeterChoiceList extends StatelessWidget {
 }
 
 /// Onglets « Niveau de détail » (contrôle segmenté de la maquette). Texte agrandi : les onglets
-/// gardent leur largeur naturelle et défilent de côté au lieu d'être tronqués.
+/// passent sur deux lignes plutôt que d'être tronqués ou cachés.
 class _LevelTabs extends StatelessWidget {
   const _LevelTabs({required this.selected, required this.onSelect});
 
@@ -335,7 +438,6 @@ class _LevelTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final large = MediaQuery.textScalerOf(context).scale(13) > 16;
     Widget tab(ConsumptionLevel level) {
       final on = level == selected;
       return Semantics(
@@ -385,26 +487,43 @@ class _LevelTabs extends StatelessWidget {
           color: c.surface2,
           borderRadius: const BorderRadius.all(Radius.circular(Radii.md)),
         ),
-        child: large
-            ? SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final l in ConsumptionLevel.values) ...[
-                      tab(l),
-                      if (l != ConsumptionLevel.values.last) const SizedBox(width: Space.s1),
-                    ],
-                  ],
-                ),
-              )
-            : Row(
+        child: LayoutBuilder(
+          builder: (context, box) {
+            // Les 5 libellés tiennent-ils dans 5 colonnes égales ? Sinon (texte agrandi), les
+            // onglets passent à la ligne : tous restent visibles, aucun n'est tronqué.
+            final scaler = MediaQuery.textScalerOf(context);
+            final style = AppText.bodySm.copyWith(fontWeight: FontWeight.w600);
+            final widest = ConsumptionLevel.values
+                .map((l) {
+                  final painter = TextPainter(
+                    text: TextSpan(text: l.label, style: style),
+                    textDirection: TextDirection.ltr,
+                    textScaler: scaler,
+                    maxLines: 1,
+                  )..layout();
+                  final width = painter.width;
+                  painter.dispose();
+                  return width;
+                })
+                .reduce((a, b) => a > b ? a : b);
+            final column = (box.maxWidth - Space.s1 * 4) / ConsumptionLevel.values.length;
+            if (widest + Space.s2 * 2 <= column) {
+              return Row(
                 children: [
                   for (final l in ConsumptionLevel.values) ...[
                     Expanded(child: tab(l)),
                     if (l != ConsumptionLevel.values.last) const SizedBox(width: Space.s1),
                   ],
                 ],
-              ),
+              );
+            }
+            return Wrap(
+              spacing: Space.s1,
+              runSpacing: Space.s1,
+              children: [for (final l in ConsumptionLevel.values) tab(l)],
+            );
+          },
+        ),
       ),
     );
   }

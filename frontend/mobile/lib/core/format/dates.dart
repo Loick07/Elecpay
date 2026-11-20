@@ -119,6 +119,9 @@ String formatWeekdayDate(DateTime moment) {
 
 const _weekdaysShort = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
 
+/// Nom du jour d'une date du calendrier, avec sa majuscule : « Lundi ».
+String formatWeekdayName(DateTime day) => _capitalized(_weekdays[day.weekday - 1]);
+
 /// Moment d'une notification (maquette de l'écran 13), à Brazzaville, selon son groupe (`group` de
 /// l'API) : aujourd'hui « 14:32 » ; cette semaine « Dim. » ; plus tôt « 3 nov. » (« 3 nov. 2025 »
 /// si ce n'est pas l'année de `now`).

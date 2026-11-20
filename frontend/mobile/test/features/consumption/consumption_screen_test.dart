@@ -42,6 +42,11 @@ Future<void> pumpConso(
         builder: (context, state) => const ConsumptionScreen(),
       ),
       GoRoute(
+        path: Routes.billPath,
+        builder: (context, state) =>
+            Scaffold(body: Text('Facture ${state.pathParameters['billId']}')),
+      ),
+      GoRoute(
         path: Routes.pendingPath,
         builder: (context, state) =>
             Scaffold(body: Text('Attente ${state.uri.queryParameters['etape']}')),
@@ -70,9 +75,15 @@ Future<void> settle(WidgetTester tester) async {
   }
 }
 
+/// Toucher un élément de l'écran, en faisant défiler la liste vers le bas s'il le faut.
 Future<void> tapKey(WidgetTester tester, String key) async {
-  await tester.ensureVisible(find.byKey(Key(key)));
-  await tester.tap(find.byKey(Key(key)));
+  final target = find.byKey(Key(key));
+  await tester.dragUntilVisible(
+    target.hitTestable(),
+    find.byKey(const Key('conso.list')),
+    const Offset(0, -150),
+  );
+  await tester.tap(target);
   await settle(tester);
 }
 
@@ -247,6 +258,11 @@ void main() {
     await pumpConso(tester, backend);
     expect(find.text('Chargement impossible'), findsOneWidget);
     backend.forced.clear();
+    await tester.dragUntilVisible(
+      find.text('Réessayer').hitTestable(),
+      find.byKey(const Key('conso.list')),
+      const Offset(0, -150),
+    );
     await tester.tap(find.text('Réessayer'));
     await settle(tester);
     expect(find.text('DU 1ER AU 11 NOVEMBRE'), findsOneWidget);
@@ -296,4 +312,85 @@ void main() {
       expect(period(tester), 'Novembre 2026');
     });
   }
+
+  group('vue Mois (F7.3)', () {
+    testWidgets('pastilles, barres lues par TalkBack, toucher un jour', (tester) async {
+      await pumpConso(tester, namedMeters());
+      expect(find.byKey(const Key('conso.stat.Moyenne')), findsOneWidget);
+      expect(find.byKey(const Key('conso.stat.Pic')), findsOneWidget);
+      expect(find.byKey(const Key('conso.stat.Fin de mois estimée')), findsOneWidget);
+      expect(find.byKey(const Key('conso.chart')), findsOneWidget);
+      expect(find.bySemanticsLabel('1er novembre : 11\u00A0kWh'), findsOneWidget);
+      expect(find.bySemanticsLabel('12 novembre : pas encore de données'), findsOneWidget);
+      expect(
+        find.text('Touchez un jour pour son détail, ou une semaine ci-dessous'),
+        findsOneWidget,
+      );
+      await tapKey(tester, 'conso.bar.1');
+      expect(period(tester), 'Lun. 2 nov.');
+    });
+
+    testWidgets('« Semaine par semaine » : toucher une semaine ouvre la semaine', (tester) async {
+      await pumpConso(tester, namedMeters());
+      expect(find.text('SEMAINE PAR SEMAINE'), findsOneWidget);
+      expect(find.text('Du 2 au 8 nov.'), findsOneWidget);
+      await tapKey(tester, 'conso.row.1');
+      expect(period(tester), 'Sem. du 2 nov.');
+    });
+
+    testWidgets('mois passé : pas d’estimation ; lien vers la facture bimestrielle', (
+      tester,
+    ) async {
+      final backend = namedMeters()
+        ..latestBills = [
+          {
+            ...FakeHomeBackend.bill(201, household: 2, meter: 20),
+            'period_start': '2026-09-01',
+            'period_end': '2026-10-31',
+          },
+        ];
+      await pumpConso(tester, backend);
+      await tapKey(tester, 'conso.previous');
+      expect(find.byKey(const Key('conso.stat.Fin de mois estimée')), findsNothing);
+      await tester.dragUntilVisible(
+        find.byKey(const Key('conso.bill')),
+        find.byKey(const Key('conso.list')),
+        const Offset(0, -150),
+      );
+      expect(find.text('Voir la facture de septembre–octobre 2026 (bimestrielle)'), findsOneWidget);
+      await tapKey(tester, 'conso.bill');
+      expect(find.text('Facture 201'), findsOneWidget);
+    });
+
+    testWidgets('mois sans facture : pas de lien', (tester) async {
+      await pumpConso(tester, namedMeters()..latestBills = []);
+      await tester.dragUntilVisible(
+        find.byKey(const Key('conso.legend')),
+        find.byKey(const Key('conso.list')),
+        const Offset(0, -150),
+      );
+      expect(find.byKey(const Key('conso.bill')), findsNothing);
+    });
+  });
+
+  group('vue Année (F7.3)', () {
+    testWidgets('12 barres ; toucher un mois ouvre ce mois', (tester) async {
+      await pumpConso(tester, namedMeters());
+      await tapKey(tester, 'conso.tab.year');
+      expect(find.text('Touchez un mois pour voir ses jours et ses semaines'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^Octobre 2026 : ')), findsOneWidget);
+      expect(find.bySemanticsLabel('Décembre 2026 : pas encore de données'), findsOneWidget);
+      await tapKey(tester, 'conso.bar.9');
+      expect(period(tester), 'Octobre 2026');
+    });
+
+    testWidgets('« Mois par mois » : du plus récent ; toucher ouvre le mois', (tester) async {
+      await pumpConso(tester, namedMeters());
+      await tapKey(tester, 'conso.tab.year');
+      expect(find.text('MOIS PAR MOIS'), findsOneWidget);
+      expect(find.text('Novembre 2026'), findsOneWidget);
+      await tapKey(tester, 'conso.row.1');
+      expect(period(tester), 'Octobre 2026');
+    });
+  });
 }

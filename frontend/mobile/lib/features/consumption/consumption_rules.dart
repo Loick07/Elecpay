@@ -102,12 +102,6 @@ class ConsumptionCursor {
     _ => (granularity: 'day', from: DateTime(anchor.year, anchor.month), to: _lastOfMonth(anchor)),
   };
 
-  /// Liste « Semaine par semaine » du mois (semaines du lundi au dimanche qui touchent le mois).
-  /// `null` pour les autres niveaux (leur liste vient du graphique).
-  SeriesRange? get weeksRange => level == ConsumptionLevel.month
-      ? (granularity: 'week', from: _monday(anchor), to: _monday(end).add(const Duration(days: 6)))
-      : null;
-
   /// Titre au milieu des flèches : « 2026 », « Octobre 2026 », « Sem. du 12 oct. », « Mer. 14 oct. ».
   String get title => switch (level) {
     ConsumptionLevel.year => '${anchor.year}',
@@ -241,4 +235,181 @@ String? comparisonText(num? percent, String mode, ConsumptionLevel level, int ye
     _ => 'vs période préc.',
   };
   return '$variation $against';
+}
+
+// --- Graphiques et listes (F7.3, F7.4) ------------------------------------------------------------
+
+/// Une barre du graphique. `hasData` faux : barre plate grise, rien à toucher.
+/// `estimated` : en pointillé (valeur estimée, ou période incomplète).
+typedef ChartBar = ({
+  int wh,
+  bool hasData,
+  bool estimated,
+
+  /// Étiquette sous la barre (« O », « 15 », « Lun 9 ») ; vide : pas d'étiquette.
+  String axis,
+
+  /// Valeur écrite au-dessus de la barre (vue Semaine), sinon `null`.
+  String? value,
+
+  /// Ce que lit TalkBack : « Octobre 2026 : 212,4 kWh ».
+  String spoken,
+
+  /// Période ouverte en touchant la barre (`null` sans relevé).
+  ConsumptionCursor? target,
+});
+
+/// Une ligne de « Mois par mois », « Semaine par semaine » ou « Jour par jour ».
+typedef PeriodRow = ({
+  String title,
+  String subtitle,
+  int wh,
+  bool estimated,
+  ConsumptionCursor target,
+});
+
+/// Une pastille sous le total (« Moyenne 6,9 kWh/jour », « Pic Mer. 14 · 9,4 kWh »).
+/// `estimate` : pastille d'estimation (fond orange pâle).
+typedef PeriodStat = ({String label, String value, bool estimate});
+
+String _dayInMonth(DateTime d) =>
+    '${d.day == 1 ? '1er' : d.day} ${formatMonthName(d.month).toLowerCase()}';
+
+String _spokenValue(ConsumptionPoint p, {required bool estimated}) => p.daysWithData == 0
+    ? 'pas encore de données'
+    : '${formatKwh(p.consumptionWh / 1000)}${estimated ? ', estimation' : ''}';
+
+/// « · ≈ 10 409 FCFA » d'énergie, ou rien si le tarif est inconnu.
+String _cost(int? energyCost) => energyCost == null ? '' : ' · ${formatAboutFcfa(energyCost)}';
+
+/// Somme des coûts d'énergie, `null` si un seul manque (jamais un faux total).
+int? _sumCosts(Iterable<ConsumptionPoint> points) {
+  var total = 0;
+  for (final p in points) {
+    final cost = p.energyCost;
+    if (cost == null) return null;
+    total += cost;
+  }
+  return total;
+}
+
+String _days(int n) => '$n jour${n > 1 ? 's' : ''}';
+
+/// Vue Année : 12 barres (initiales des mois), mois incomplet en pointillé.
+List<ChartBar> yearBars(ConsumptionSeries series) => [
+  for (final p in series.points)
+    (
+      wh: p.consumptionWh,
+      hasData: p.daysWithData > 0,
+      estimated: p.daysWithData > 0 && (p.isPartial || p.isEstimated),
+      axis: formatMonthInitial(p.start.month),
+      value: null,
+      spoken:
+          '${formatMonthYear(p.start.year, p.start.month)} : '
+          '${_spokenValue(p, estimated: p.isPartial || p.isEstimated)}',
+      target: p.daysWithData > 0 ? ConsumptionCursor.of(ConsumptionLevel.month, p.start) : null,
+    ),
+];
+
+/// Vue Mois : une barre par jour, étiquettes les 1er, 8, 15, 22 et 29 (maquette).
+List<ChartBar> monthBars(ConsumptionSeries series) => [
+  for (final p in series.points)
+    (
+      wh: p.consumptionWh,
+      hasData: p.daysWithData > 0,
+      estimated: p.daysWithData > 0 && p.isEstimated,
+      axis: const [1, 8, 15, 22, 29].contains(p.start.day) ? '${p.start.day}' : '',
+      value: null,
+      spoken: '${_dayInMonth(p.start)} : ${_spokenValue(p, estimated: p.isEstimated)}',
+      target: p.daysWithData > 0 ? ConsumptionCursor.of(ConsumptionLevel.day, p.start) : null,
+    ),
+];
+
+/// Pastilles de l'année : moyenne et pic des mois COMPLETS (un mois commencé fausserait tout).
+List<PeriodStat> yearStats(ConsumptionSeries series) {
+  final full = series.points.where((p) => p.daysWithData > 0 && !p.isPartial).toList();
+  if (full.isEmpty) return const [];
+  final average = full.fold(0, (s, p) => s + p.consumptionWh) / full.length;
+  final peak = full.reduce((a, b) => b.consumptionWh > a.consumptionWh ? b : a);
+  return [
+    (label: 'Moyenne', value: '${formatKwh(average / 1000)}/mois', estimate: false),
+    (
+      label: 'Pic',
+      value: '${formatMonthName(peak.start.month)} · ${formatKwh(peak.consumptionWh / 1000)}',
+      estimate: false,
+    ),
+  ];
+}
+
+/// Pastilles du mois : moyenne des jours relevés, jour le plus consommé, et pour le mois en
+/// cours l'estimation de fin de mois (`estimate`, du résumé de l'API).
+List<PeriodStat> monthStats(ConsumptionSeries series, {MonthEndEstimate? estimate}) {
+  final days = series.points.where((p) => p.daysWithData > 0).toList();
+  if (days.isEmpty) return const [];
+  final total = days.fold(0, (s, p) => s + p.consumptionWh);
+  final peak = days.reduce((a, b) => b.consumptionWh > a.consumptionWh ? b : a);
+  return [
+    (label: 'Moyenne', value: '${formatKwh(total / days.length / 1000)}/jour', estimate: false),
+    (
+      label: 'Pic',
+      value: '${formatDayCrumb(peak.start)} · ${formatKwh(peak.consumptionWh / 1000)}',
+      estimate: false,
+    ),
+    if (estimate != null)
+      (
+        label: 'Fin de mois estimée',
+        value: [
+          formatApproxKwh(estimate.consumptionWh / 1000),
+          if (estimate.energyCost case final cost?) formatApproxFcfa(cost),
+        ].join(' · '),
+        estimate: true,
+      ),
+  ];
+}
+
+/// « Mois par mois » : du plus récent au plus ancien, mois relevés seulement. Mois en cours :
+/// « Du 1er au 11 » ; sinon le nombre de jours relevés.
+List<PeriodRow> yearRows(ConsumptionSeries series) {
+  final until = series.measuredUntil;
+  return [
+    for (final p in series.points.reversed)
+      if (p.daysWithData > 0)
+        (
+          title: formatMonthYear(p.start.year, p.start.month),
+          subtitle:
+              (p.isCurrent && until != null
+                  ? 'Du 1er au ${until.day == 1 ? '1er' : until.day}'
+                  : _days(p.daysWithData)) +
+              _cost(p.energyCost),
+          wh: p.consumptionWh,
+          estimated: p.isPartial || p.isEstimated,
+          target: ConsumptionCursor.of(ConsumptionLevel.month, p.start),
+        ),
+  ];
+}
+
+/// « Semaine par semaine » d'un mois, depuis ses jours : semaines du lundi au dimanche COUPÉES au
+/// mois (« Du 1er au 2 nov. », « Lundi 30 nov. »), jours relevés seulement.
+List<PeriodRow> monthWeekRows(ConsumptionSeries series) {
+  final weeks = <DateTime, List<ConsumptionPoint>>{};
+  for (final p in series.points) {
+    weeks.putIfAbsent(_monday(p.start), () => []).add(p);
+  }
+  final rows = <PeriodRow>[];
+  for (final days in weeks.values) {
+    final read = days.where((p) => p.daysWithData > 0).toList();
+    if (read.isEmpty) continue;
+    final first = days.first.start;
+    final last = days.last.start;
+    rows.add((
+      title: first == last
+          ? '${formatWeekdayName(first)} ${formatDayMonth(first)}'
+          : 'Du ${first.day == 1 ? '1er' : first.day} au ${formatDayMonth(last)}',
+      subtitle: _days(read.length) + _cost(_sumCosts(read)),
+      wh: read.fold(0, (s, p) => s + p.consumptionWh),
+      estimated: read.any((p) => p.isEstimated),
+      target: ConsumptionCursor.of(ConsumptionLevel.week, first),
+    ));
+  }
+  return rows;
 }

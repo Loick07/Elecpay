@@ -6,6 +6,59 @@ import 'package:flutter_test/flutter_test.dart';
 /// Jeudi 12 novembre 2026.
 final today = DateTime(2026, 11, 12);
 
+ConsumptionPoint point(DateTime day, int wh, {int days = 1}) => ConsumptionPoint(
+  start: day,
+  end: day,
+  label: '',
+  consumptionWh: wh,
+  consumptionKwh: wh / 1000,
+  daysWithData: days,
+  dailyAverageWh: wh,
+  energyCost: days == 0 ? null : wh * 49 ~/ 1000,
+  estimatedTotal: null,
+  isCurrent: false,
+  isPartial: false,
+  isEstimated: false,
+  hasAnomaly: false,
+);
+ConsumptionSeries series(
+  List<ConsumptionPoint> points, {
+  DateTime? until,
+  double? percent,
+  String mode = 'last_year',
+}) => ConsumptionSeries(
+  meterId: 11,
+  granularity: 'day',
+  start: points.first.start,
+  end: points.last.end,
+  measuredUntil: until,
+  points: points,
+  comparison: percent == null
+      ? null
+      : ConsumptionComparison(
+          mode: mode,
+          current: ConsumptionTotals(
+            start: points.first.start,
+            end: points.last.end,
+            consumptionWh: 0,
+            consumptionKwh: 0,
+            daysWithData: 0,
+            energyCost: 0,
+          ),
+          reference: ConsumptionTotals(
+            start: points.first.start,
+            end: points.last.end,
+            consumptionWh: 0,
+            consumptionKwh: 0,
+            daysWithData: 0,
+            energyCost: 0,
+          ),
+          variationPercent: percent,
+        ),
+  tariffIsAssumption: false,
+  source: 'simulated',
+);
+
 void main() {
   test('onglets dans l’ordre de la maquette ; Mois par défaut, jamais Direct (D7.1)', () {
     expect(ConsumptionLevel.values.map((l) => l.label), [
@@ -68,14 +121,6 @@ void main() {
       final day = ConsumptionCursor.of(ConsumptionLevel.day, DateTime(2026, 10, 14)).chartRange;
       expect(day, (granularity: 'day', from: DateTime(2026, 10), to: DateTime(2026, 10, 31)));
     });
-
-    test('semaine par semaine : du lundi au dimanche, alignées', () {
-      final oct = ConsumptionCursor.of(ConsumptionLevel.month, DateTime(2026, 10)).weeksRange!;
-      expect(oct, (granularity: 'week', from: DateTime(2026, 9, 28), to: DateTime(2026, 11, 1)));
-      expect(oct.from.weekday, DateTime.monday);
-      expect(oct.to.weekday, DateTime.sunday);
-      expect(ConsumptionCursor.of(ConsumptionLevel.year, today).weeksRange, isNull);
-    });
   });
 
   test('titres et fil d’Ariane de la maquette (2026 › Octobre › Sem. du 12 oct. › Mer. 14)', () {
@@ -133,58 +178,6 @@ void main() {
   });
 
   group('total de la période (maquette : « DU 1ER AU 12 NOVEMBRE »)', () {
-    ConsumptionPoint point(DateTime day, int wh, {int days = 1}) => ConsumptionPoint(
-      start: day,
-      end: day,
-      label: '',
-      consumptionWh: wh,
-      consumptionKwh: wh / 1000,
-      daysWithData: days,
-      dailyAverageWh: wh,
-      energyCost: days == 0 ? null : wh * 49 ~/ 1000,
-      estimatedTotal: null,
-      isCurrent: false,
-      isPartial: false,
-      isEstimated: false,
-      hasAnomaly: false,
-    );
-    ConsumptionSeries series(
-      List<ConsumptionPoint> points, {
-      DateTime? until,
-      double? percent,
-      String mode = 'last_year',
-    }) => ConsumptionSeries(
-      meterId: 11,
-      granularity: 'day',
-      start: points.first.start,
-      end: points.last.end,
-      measuredUntil: until,
-      points: points,
-      comparison: percent == null
-          ? null
-          : ConsumptionComparison(
-              mode: mode,
-              current: ConsumptionTotals(
-                start: points.first.start,
-                end: points.last.end,
-                consumptionWh: 0,
-                consumptionKwh: 0,
-                daysWithData: 0,
-                energyCost: 0,
-              ),
-              reference: ConsumptionTotals(
-                start: points.first.start,
-                end: points.last.end,
-                consumptionWh: 0,
-                consumptionKwh: 0,
-                daysWithData: 0,
-                energyCost: 0,
-              ),
-              variationPercent: percent,
-            ),
-      tariffIsAssumption: false,
-      source: 'simulated',
-    );
     final nov = ConsumptionCursor.initial(today);
     List<ConsumptionPoint> novDays() => [
       for (var d = 1; d <= 30; d++)
@@ -259,6 +252,111 @@ void main() {
       final t = periodTotals(nov, series(empty, until: DateTime(2026, 10, 31)));
       expect(t.daysWithData, 0);
       expect(t.label, 'Novembre 2026');
+    });
+  });
+
+  group('vue Année (F7.3)', () {
+    // 2026 : janvier → octobre complets (octobre le plus fort), novembre commencé, décembre vide.
+    final months = [
+      for (var m = 1; m <= 12; m++)
+        point(
+          DateTime(2026, m),
+          m == 12 ? 0 : (m == 10 ? 212400 : (m == 11 ? 99000 : 200000)),
+          days: m == 12 ? 0 : (m == 11 ? 11 : 30),
+        ).copyWith(end: DateTime(2026, m + 1, 0), isPartial: m >= 11, isCurrent: m == 11),
+    ];
+    final s = series(months, until: DateTime(2026, 11, 11));
+
+    test('12 barres : initiales, mois commencé en pointillé, mois vide sans toucher', () {
+      final bars = yearBars(s);
+      expect(bars.map((b) => b.axis).join(), 'JFMAMJJASOND');
+      expect(bars[9].spoken, 'Octobre 2026 : 212,4\u00A0kWh');
+      expect(bars[10].estimated, isTrue);
+      expect(bars[10].spoken, 'Novembre 2026 : 99\u00A0kWh, estimation');
+      expect((bars[11].hasData, bars[11].target), (false, null));
+      expect(bars[11].spoken, 'Décembre 2026 : pas encore de données');
+      expect(bars[9].target, ConsumptionCursor.of(ConsumptionLevel.month, DateTime(2026, 10)));
+    });
+
+    test('moyenne et pic des mois COMPLETS seulement', () {
+      final stats = yearStats(s);
+      expect(stats.map((x) => x.label), ['Moyenne', 'Pic']);
+      expect(stats[0].value, '201,2\u00A0kWh/mois');
+      expect(stats[1].value, 'Octobre · 212,4\u00A0kWh');
+      expect(yearStats(series([months[10]], until: DateTime(2026, 11, 11))), isEmpty);
+    });
+
+    test('« Mois par mois » : du plus récent, mois en cours « Du 1er au 11 »', () {
+      final rows = yearRows(s);
+      expect(rows, hasLength(11));
+      expect(rows.first.title, 'Novembre 2026');
+      expect(rows.first.subtitle, 'Du 1er au 11 · ≈\u00A04\u00A0851\u00A0FCFA');
+      expect(rows.first.estimated, isTrue);
+      expect(rows[1].title, 'Octobre 2026');
+      expect(rows[1].subtitle, '30 jours · ≈\u00A010\u00A0407\u00A0FCFA');
+      expect(rows[1].estimated, isFalse);
+    });
+  });
+
+  group('vue Mois (F7.3)', () {
+    // Novembre 2026 : relevés du 1er au 11 (9 kWh ; le 4 : 12 kWh, estimé).
+    final days = [
+      for (var d = 1; d <= 30; d++)
+        point(
+          DateTime(2026, 11, d),
+          d > 11 ? 0 : (d == 4 ? 12000 : 9000),
+          days: d > 11 ? 0 : 1,
+        ).copyWith(isEstimated: d == 4),
+    ];
+    final s = series(days, until: DateTime(2026, 11, 11));
+
+    test('une barre par jour, étiquettes 1, 8, 15, 22, 29 ; estimé en pointillé', () {
+      final bars = monthBars(s);
+      expect(bars, hasLength(30));
+      expect(
+        [
+          for (final b in bars)
+            if (b.axis.isNotEmpty) b.axis,
+        ],
+        ['1', '8', '15', '22', '29'],
+      );
+      expect(bars[3].estimated, isTrue);
+      expect(bars[0].spoken, '1er novembre : 9\u00A0kWh');
+      expect(bars[3].spoken, '4 novembre : 12\u00A0kWh, estimation');
+      expect(bars[11].spoken, '12 novembre : pas encore de données');
+      expect(bars[0].target, ConsumptionCursor.of(ConsumptionLevel.day, DateTime(2026, 11)));
+    });
+
+    test('pastilles : moyenne, pic, estimation de fin de mois (mois en cours)', () {
+      const estimate = MonthEndEstimate(
+        consumptionWh: 279300,
+        consumptionKwh: 279.3,
+        energyCost: 13708,
+        estimatedTotal: 18000,
+        remainingDays: 19,
+        basis: 'current_month',
+      );
+      final stats = monthStats(s, estimate: estimate);
+      expect(stats.map((x) => (x.label, x.value, x.estimate)), [
+        ('Moyenne', '9,3\u00A0kWh/jour', false),
+        ('Pic', 'Mer. 4 · 12\u00A0kWh', false),
+        ('Fin de mois estimée', '≈\u00A0279\u00A0kWh · ≈\u00A013\u00A0700\u00A0FCFA', true),
+      ]);
+      expect(monthStats(s), hasLength(2), reason: 'mois passé : pas d’estimation');
+    });
+
+    test('« Semaine par semaine » : semaines coupées au mois, jours relevés seulement', () {
+      final rows = monthWeekRows(s);
+      // Dim. 1er seul (semaine du 26 oct.), du 2 au 8, du 9 au 11 (la suite n’est pas relevée).
+      expect(rows.map((r) => r.title), ['Dimanche 1er nov.', 'Du 2 au 8 nov.', 'Du 9 au 15 nov.']);
+      expect(rows.map((r) => r.subtitle), [
+        '1 jour · ≈\u00A0441\u00A0FCFA',
+        '7 jours · ≈\u00A03\u00A0234\u00A0FCFA',
+        '3 jours · ≈\u00A01\u00A0323\u00A0FCFA',
+      ]);
+      expect(rows[1].estimated, isTrue);
+      expect(rows[1].wh, 66000);
+      expect(rows[1].target, ConsumptionCursor.of(ConsumptionLevel.week, DateTime(2026, 11, 2)));
     });
   });
 }

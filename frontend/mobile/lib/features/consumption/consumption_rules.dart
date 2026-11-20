@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../core/format/formats.dart';
+import '../../core/models/consumption.dart';
 
 // Règles de l'écran 11 (Consommation), sans réseau ni affichage : testées une à une
 // (test/features/consumption/consumption_rules_test.dart). Guide : backend/docs/CONSOMMATION.md.
@@ -80,6 +81,9 @@ class ConsumptionCursor {
 
   /// La période suivante a-t-elle commencé ? (Jamais de période dans le futur.)
   bool canGoNext(DateTime today) => !next.anchor.isAfter(_date(today));
+
+  /// Peut-on reculer ? Pas au-delà de la pose du compteur (`since` ; `null` : date inconnue → oui).
+  bool canGoPrevious(DateTime? since) => since == null || !previous.end.isBefore(_date(since));
 
   /// Changer de niveau en gardant le jour (ex. Mois → Année : l'année de ce mois).
   /// Vers un niveau plus fin : le dernier jour PASSÉ de la période (Année 2025 → Décembre 2025 ;
@@ -171,6 +175,58 @@ DayLevel dayLevel(int consumptionWh, num averageWh) {
   if (ratio < 1.25) return DayLevel.normal;
   if (ratio < 1.6) return DayLevel.high;
   return DayLevel.veryHigh;
+}
+
+/// Bloc du total de la période (maquette : « DU 1ER AU 12 NOVEMBRE · 82,6 kWh · ≈ 4 054 FCFA
+/// d'énergie », pastille de comparaison à droite).
+typedef PeriodTotals = ({
+  String label,
+  int wh,
+  int daysWithData,
+
+  /// Énergie seule (FCFA entiers) ; `null` si un jour relevé n'a pas de tarif connu.
+  int? energyCost,
+  String? comparison,
+  Trend? trend,
+});
+
+/// Total d'une période depuis sa série (année, mois, semaine). Les jours sans relevé ne comptent
+/// pas ; une période commencée n'est comparée que sur ses jours relevés (règle de l'API).
+PeriodTotals periodTotals(ConsumptionCursor cursor, ConsumptionSeries series) {
+  // Vue Jour : la série est celle du mois (calendrier) ; le total est celui du jour affiché.
+  final points = cursor.level == ConsumptionLevel.day
+      ? series.points.where((p) => p.start == cursor.anchor)
+      : series.points;
+  final withData = points.where((p) => p.daysWithData > 0).toList();
+  final wh = withData.fold(0, (s, p) => s + p.consumptionWh);
+  final days = withData.fold(0, (s, p) => s + p.daysWithData);
+  final costs = withData.map((p) => p.energyCost).toList();
+  final cost = costs.contains(null) ? null : costs.fold(0, (s, c) => s + c!);
+  final until = series.measuredUntil;
+  final started = until != null && cursor.end.isAfter(until);
+  final a = cursor.anchor;
+  final label = switch (cursor.level) {
+    ConsumptionLevel.year when started && days > 0 =>
+      'Du 1er janv. au ${formatDayMonth(until)} ${a.year}',
+    ConsumptionLevel.year => 'Année ${a.year}',
+    ConsumptionLevel.month when started && days > 0 =>
+      'Du 1er au ${until.day == 1 ? '1er' : until.day} ${formatMonthName(a.month).toLowerCase()}',
+    ConsumptionLevel.month => formatMonthYear(a.year, a.month),
+    ConsumptionLevel.week when days >= 7 => 'Semaine complète',
+    ConsumptionLevel.week =>
+      '${started ? 'Semaine en cours' : 'Début des relevés'} · $days jour${days > 1 ? 's' : ''}',
+    _ => 'Consommation du jour',
+  };
+  // Jour : la comparaison est celle du détail du jour (moyenne du même jour), pas celle du mois.
+  final percent = cursor.level == ConsumptionLevel.day ? null : series.comparison?.variationPercent;
+  return (
+    label: label,
+    wh: wh,
+    daysWithData: days,
+    energyCost: cost,
+    comparison: comparisonText(percent, series.comparison?.mode ?? '', cursor.level, a.year),
+    trend: percent == null ? null : formatVariation(percent).trend,
+  );
 }
 
 /// Comparaison d'une période (« +6 % vs 2025 », « −3 % vs sem. préc. ») : `mode` de l'API

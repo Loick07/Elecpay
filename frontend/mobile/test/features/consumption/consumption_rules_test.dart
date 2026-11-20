@@ -1,3 +1,5 @@
+import 'package:elecpay/core/format/formats.dart';
+import 'package:elecpay/core/models/consumption.dart';
 import 'package:elecpay/features/consumption/consumption_rules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -120,5 +122,143 @@ void main() {
       '−3\u00A0% vs sem. préc.',
     );
     expect(comparisonText(null, 'previous', ConsumptionLevel.week, 2026), isNull);
+  });
+
+  test('pas avant la pose du compteur (date inconnue : pas de limite)', () {
+    final oct = ConsumptionCursor.of(ConsumptionLevel.month, DateTime(2026, 10));
+    expect(oct.canGoPrevious(null), isTrue);
+    expect(oct.canGoPrevious(DateTime(2026, 9, 20)), isTrue, reason: 'septembre a des relevés');
+    expect(oct.canGoPrevious(DateTime(2026, 10, 3)), isFalse);
+    expect(oct.canGoPrevious(DateTime.utc(2026, 9, 30, 23)), isTrue, reason: 'date seule');
+  });
+
+  group('total de la période (maquette : « DU 1ER AU 12 NOVEMBRE »)', () {
+    ConsumptionPoint point(DateTime day, int wh, {int days = 1}) => ConsumptionPoint(
+      start: day,
+      end: day,
+      label: '',
+      consumptionWh: wh,
+      consumptionKwh: wh / 1000,
+      daysWithData: days,
+      dailyAverageWh: wh,
+      energyCost: days == 0 ? null : wh * 49 ~/ 1000,
+      estimatedTotal: null,
+      isCurrent: false,
+      isPartial: false,
+      isEstimated: false,
+      hasAnomaly: false,
+    );
+    ConsumptionSeries series(
+      List<ConsumptionPoint> points, {
+      DateTime? until,
+      double? percent,
+      String mode = 'last_year',
+    }) => ConsumptionSeries(
+      meterId: 11,
+      granularity: 'day',
+      start: points.first.start,
+      end: points.last.end,
+      measuredUntil: until,
+      points: points,
+      comparison: percent == null
+          ? null
+          : ConsumptionComparison(
+              mode: mode,
+              current: ConsumptionTotals(
+                start: points.first.start,
+                end: points.last.end,
+                consumptionWh: 0,
+                consumptionKwh: 0,
+                daysWithData: 0,
+                energyCost: 0,
+              ),
+              reference: ConsumptionTotals(
+                start: points.first.start,
+                end: points.last.end,
+                consumptionWh: 0,
+                consumptionKwh: 0,
+                daysWithData: 0,
+                energyCost: 0,
+              ),
+              variationPercent: percent,
+            ),
+      tariffIsAssumption: false,
+      source: 'simulated',
+    );
+    final nov = ConsumptionCursor.initial(today);
+    List<ConsumptionPoint> novDays() => [
+      for (var d = 1; d <= 30; d++)
+        point(DateTime(2026, 11, d), d <= 11 ? 9000 : 0, days: d <= 11 ? 1 : 0),
+    ];
+
+    test('mois en cours : jours relevés seulement, coût d’énergie additionné', () {
+      final t = periodTotals(nov, series(novDays(), until: DateTime(2026, 11, 11), percent: 6.2));
+      expect(t.label, 'Du 1er au 11 novembre');
+      expect((t.wh, t.daysWithData, t.energyCost), (99000, 11, 11 * 441));
+      expect(t.comparison, '+6\u00A0% vs 2025');
+      expect(t.trend, Trend.up);
+    });
+
+    test('mois complet ; année complète et année en cours', () {
+      final oct = ConsumptionCursor.of(ConsumptionLevel.month, DateTime(2026, 10));
+      final octDays = [for (var d = 1; d <= 31; d++) point(DateTime(2026, 10, d), 7000)];
+      expect(
+        periodTotals(oct, series(octDays, until: DateTime(2026, 11, 11))).label,
+        'Octobre 2026',
+      );
+      final y2025 = ConsumptionCursor.of(ConsumptionLevel.year, DateTime(2025, 3));
+      expect(
+        periodTotals(y2025, series(octDays, until: DateTime(2026, 11, 11))).label,
+        'Année 2025',
+      );
+      final y2026 = ConsumptionCursor.of(ConsumptionLevel.year, today);
+      expect(
+        periodTotals(y2026, series(octDays, until: DateTime(2026, 11, 11))).label,
+        'Du 1er janv. au 11 nov. 2026',
+      );
+    });
+
+    test('semaine : complète, en cours, début des relevés ; baisse en vert', () {
+      final week = ConsumptionCursor.of(ConsumptionLevel.week, DateTime(2026, 11, 9));
+      List<ConsumptionPoint> days(int n) => [
+        for (var i = 0; i < 7; i++) point(DateTime(2026, 11, 9 + i), 9000, days: i < n ? 1 : 0),
+      ];
+      final current = periodTotals(week, series(days(3), until: DateTime(2026, 11, 11)));
+      expect(current.label, 'Semaine en cours · 3 jours');
+      final last = ConsumptionCursor.of(ConsumptionLevel.week, DateTime(2026, 11, 2));
+      final full = periodTotals(
+        last,
+        series(days(7), until: DateTime(2026, 11, 11), percent: -3, mode: 'previous'),
+      );
+      expect(full.label, 'Semaine complète');
+      expect(full.comparison, '−3\u00A0% vs sem. préc.');
+      expect(full.trend, Trend.down);
+      final first = periodTotals(last, series(days(1), until: DateTime(2026, 11, 11)));
+      expect(first.label, 'Début des relevés · 1 jour');
+    });
+
+    test('un jour relevé sans tarif connu : pas de coût (jamais un faux zéro)', () {
+      final points = [
+        point(DateTime(2026, 11, 1), 9000),
+        point(DateTime(2026, 11, 2), 9000).copyWith(energyCost: null),
+      ];
+      final t = periodTotals(nov, series(points, until: DateTime(2026, 11, 2)));
+      expect(t.energyCost, isNull);
+      expect(t.wh, 18000);
+    });
+
+    test('jour : le total du jour seul (la série est celle du mois), sans comparaison du mois', () {
+      final day = ConsumptionCursor.of(ConsumptionLevel.day, DateTime(2026, 11, 3));
+      final t = periodTotals(day, series(novDays(), until: DateTime(2026, 11, 11), percent: 6.2));
+      expect((t.label, t.wh, t.daysWithData), ('Consommation du jour', 9000, 1));
+      expect(t.comparison, isNull);
+    });
+
+    test('aucun relevé dans la période : rien à totaliser', () {
+      final empty = [for (var d = 1; d <= 30; d++) point(DateTime(2026, 11, d), 0, days: 0)];
+      final t = periodTotals(nov, series(empty, until: DateTime(2026, 10, 31)));
+      expect(t.daysWithData, 0);
+      expect(t.label, 'Novembre 2026');
+    });
   });
 }

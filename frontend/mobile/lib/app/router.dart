@@ -12,6 +12,7 @@ import '../features/auth/register_screen.dart';
 import '../features/bills/bill_detail_screen.dart';
 import '../features/bills/bills_screen.dart';
 import '../features/catalogue/catalogue_screen.dart';
+import '../features/consumption/consumption_screen.dart';
 import '../features/design_check/charte_screen.dart';
 import '../features/diagnostic/diagnostic_access.dart';
 import '../features/diagnostic/diagnostic_screen.dart';
@@ -36,7 +37,7 @@ List<RouteBase> appRoutes() => [
   for (final document in LegalDocument.values)
     GoRoute(path: document.path, builder: (context, state) => LegalScreen(document)),
   GoRoute(path: Routes.forgotPassword, builder: (context, state) => const ForgotPasswordScreen()),
-  // Écrans principaux, sous la barre du bas (pages d'attente jusqu'à F7 → F9).
+  // Écrans principaux, sous la barre du bas (page d'attente de Compte jusqu'à F9).
   ShellRoute(
     builder: (context, state, child) => AppShell(location: state.uri.path, child: child),
     routes: [
@@ -48,13 +49,16 @@ List<RouteBase> appRoutes() => [
         path: AppTab.bills.path,
         pageBuilder: (context, state) => const NoTransitionPage(child: BillsScreen()),
       ),
-      for (final (tab, step) in [(AppTab.consumption, 'F7'), (AppTab.account, 'F9')])
-        GoRoute(
-          path: tab.path,
-          pageBuilder: (context, state) => NoTransitionPage(
-            child: PendingTab(tab: tab, step: step),
-          ),
+      GoRoute(
+        path: AppTab.consumption.path,
+        pageBuilder: (context, state) => const NoTransitionPage(child: ConsumptionScreen()),
+      ),
+      GoRoute(
+        path: AppTab.account.path,
+        pageBuilder: (context, state) => const NoTransitionPage(
+          child: PendingTab(tab: AppTab.account, step: 'F9'),
         ),
+      ),
     ],
   ),
   // Écrans poussés (sans barre du bas).

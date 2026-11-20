@@ -113,4 +113,9 @@ void main() {
       expect(visible(formatVariation(0.58).text), '+1·%');
     });
   });
+
+  test('coût d’énergie calculé : « ≈ 441 FCFA » (au franc près, jamais une facture)', () {
+    expect(visible(formatAboutFcfa(441)), '≈·441·FCFA');
+    expect(visible(formatAboutFcfa(10112)), '≈·10·112·FCFA');
+  });
 }

@@ -6,6 +6,7 @@ import '../../core/models/bills.dart';
 import '../../core/models/consumption.dart';
 import '../../core/models/households.dart';
 import '../home/home_data.dart';
+import '../home/home_screen.dart' show homeClockProvider;
 import 'consumption_rules.dart';
 
 // Lectures de l'écran 11, toutes par le cache hors ligne (routes de consommation rangées dans
@@ -53,6 +54,30 @@ final consumptionMeterIdProvider = FutureProvider<int?>((ref) async {
   final meters = await ref.watch(allMetersProvider.future);
   return meters.firstOrNull?.meter.id;
 });
+
+/// Date du jour à Brazzaville (les périodes de consommation sont des dates de Brazzaville).
+DateTime consumptionToday(Ref ref) => toBrazzaville(ref.read(homeClockProvider)());
+
+/// Période affichée (onglet + date), gardée tant que l'application est ouverte. À l'ouverture :
+/// le mois en cours (D7.1).
+class ConsumptionCursorNotifier extends Notifier<ConsumptionCursor> {
+  @override
+  ConsumptionCursor build() => ConsumptionCursor.initial(consumptionToday(ref));
+
+  void show(ConsumptionCursor cursor) => state = cursor;
+
+  /// Changer d'onglet en gardant la date (Direct : toujours aujourd'hui).
+  void level(ConsumptionLevel level) {
+    final today = consumptionToday(ref);
+    state = level == ConsumptionLevel.direct
+        ? ConsumptionCursor.of(level, today)
+        : state.withLevel(level, today);
+  }
+}
+
+final consumptionCursorProvider = NotifierProvider<ConsumptionCursorNotifier, ConsumptionCursor>(
+  ConsumptionCursorNotifier.new,
+);
 
 /// Clé d'une série : compteur + plage.
 typedef SeriesKey = ({int meterId, String granularity, DateTime from, DateTime to});

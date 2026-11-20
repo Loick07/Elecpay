@@ -29,6 +29,9 @@ abstract final class Lucide {
   /// `chevron-left`
   static const chevronLeft = IconData(0xe06e, fontFamily: lucideFontFamily);
 
+  /// `chevron-right`
+  static const chevronRight = IconData(0xe06f, fontFamily: lucideFontFamily);
+
   /// `circle`
   static const circle = IconData(0xe076, fontFamily: lucideFontFamily);
 

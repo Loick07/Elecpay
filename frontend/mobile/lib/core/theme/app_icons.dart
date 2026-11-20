@@ -24,6 +24,8 @@ abstract final class AppIcons {
   static const hide = Lucide.eyeOff;
   static const phone = Lucide.smartphone;
   static const back = Lucide.chevronLeft;
+  static const previous = Lucide.chevronLeft;
+  static const next = Lucide.chevronRight;
   static const ruleUnmet = Lucide.circle;
   static const ruleMet = Lucide.circleCheck;
 

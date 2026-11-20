@@ -45,6 +45,10 @@ String formatApproxKwh(num kwh) => '$_approx$unitSpace${_group(kwh.round())}${un
 String formatApproxFcfa(int amount) =>
     '$_approx$unitSpace${formatFcfa(((amount / 100).round()) * 100)}';
 
+/// Coût d'énergie calculé (kWh × tarif, sans taxes) : « ≈ 441 FCFA ». Le « ≈ » rappelle que ce
+/// n'est pas une facture (seule la facture bimestrielle E²C fait foi).
+String formatAboutFcfa(int amount) => '$_approx$unitSpace${formatFcfa(amount)}';
+
 /// Nombre décimal d'AFFICHAGE (prix unitaire, quantité), au plus `maxDecimals` décimales utiles,
 /// virgule : 49.08 → « 49,08 » ; 2550.0 → « 2 550 » ; 417.4 → « 417,4 ». Jamais pour un montant
 /// (les montants sont des FCFA entiers : `formatFcfa`).

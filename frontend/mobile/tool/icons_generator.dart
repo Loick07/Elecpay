@@ -24,6 +24,7 @@ const lucideIcons = <String, String>{
   'check': 'check',
   'chevronDown': 'chevron-down',
   'chevronLeft': 'chevron-left',
+  'chevronRight': 'chevron-right',
   'circle': 'circle',
   'circleCheck': 'circle-check',
   'circleAlert': 'circle-alert',

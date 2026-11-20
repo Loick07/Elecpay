@@ -52,3 +52,16 @@ abstract class ReceiptPublic with _$ReceiptPublic {
 
   factory ReceiptPublic.fromJson(Map<String, dynamic> json) => _$ReceiptPublicFromJson(json);
 }
+
+/// Schéma OpenAPI : `Page_ReceiptPublic_` (`GET /receipts`).
+@freezed
+abstract class ReceiptPage with _$ReceiptPage {
+  const factory ReceiptPage({
+    required List<ReceiptPublic> items,
+    required int page,
+    required int size,
+    required int total,
+  }) = _ReceiptPage;
+
+  factory ReceiptPage.fromJson(Map<String, dynamic> json) => _$ReceiptPageFromJson(json);
+}

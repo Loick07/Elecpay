@@ -105,3 +105,27 @@ Map<String, dynamic> _$ReceiptPublicToJson(_ReceiptPublic instance) =>
       'transaction_reference': instance.transactionReference,
       'source': instance.source,
     };
+
+_ReceiptPage _$ReceiptPageFromJson(Map<String, dynamic> json) =>
+    $checkedCreate('_ReceiptPage', json, ($checkedConvert) {
+      final val = _ReceiptPage(
+        items: $checkedConvert(
+          'items',
+          (v) => (v as List<dynamic>)
+              .map((e) => ReceiptPublic.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        ),
+        page: $checkedConvert('page', (v) => (v as num).toInt()),
+        size: $checkedConvert('size', (v) => (v as num).toInt()),
+        total: $checkedConvert('total', (v) => (v as num).toInt()),
+      );
+      return val;
+    });
+
+Map<String, dynamic> _$ReceiptPageToJson(_ReceiptPage instance) =>
+    <String, dynamic>{
+      'items': instance.items.map((e) => e.toJson()).toList(),
+      'page': instance.page,
+      'size': instance.size,
+      'total': instance.total,
+    };

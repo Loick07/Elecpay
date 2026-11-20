@@ -47,6 +47,10 @@ Future<void> pumpHome(
         builder: (context, state) => const Scaffold(body: Text('Écran Conso')),
       ),
       GoRoute(
+        path: Routes.history,
+        builder: (context, state) => const Scaffold(body: Text('Écran Historique')),
+      ),
+      GoRoute(
         path: Routes.billPath,
         builder: (context, state) =>
             Scaffold(body: Text('Facture ${state.pathParameters['billId']}')),
@@ -215,12 +219,12 @@ void main() {
       expect(find.byKey(const Key('home.bell.dot')), findsNothing);
     });
 
-    testWidgets('« Tout voir » → page d’attente de l’historique', (tester) async {
+    testWidgets('« Tout voir » → historique des paiements (F6.5)', (tester) async {
       await pumpHome(tester, FakeHomeBackend());
       await scrollThrough(tester);
       await tester.tap(find.byKey(const Key('home.activity.all')));
       await settle(tester);
-      expect(find.text('Historique des paiements : bientôt'), findsOneWidget);
+      expect(find.text('Écran Historique'), findsOneWidget);
     });
 
     testWidgets('carte du mois → onglet Conso', (tester) async {

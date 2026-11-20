@@ -407,7 +407,23 @@ class FakeHomeBackend {
               (query['bill_id'] == null || p['bill_id'] == query['bill_id']))
             p,
       ];
-      return JsonReply(200, {'items': items, 'page': 1, 'size': 3, 'total': items.length});
+      final page = query['page'] as int? ?? 1;
+      final size = query['size'] as int? ?? 20;
+      return JsonReply(200, {
+        'items': items.skip((page - 1) * size).take(size).toList(),
+        'page': page,
+        'size': size,
+        'total': items.length,
+      });
+    }
+    if (path == '/receipts') {
+      // Reçus de l'année demandée (`year`), comme GET /receipts.
+      final year = query['year'] as int?;
+      final items = [
+        for (final r in receipts.values)
+          if (year == null || (r['issued_at']! as String).startsWith('$year')) r,
+      ];
+      return JsonReply(200, {'items': items, 'page': 1, 'size': 100, 'total': items.length});
     }
     if (path == '/notifications/unread-count') return JsonReply(200, {'unread_count': unread});
     if (path == '/notifications' && request.method == 'GET') {

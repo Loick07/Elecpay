@@ -56,6 +56,7 @@ const cases = <ContractCase>[
   ContractCase('ConsumptionSeries', ConsumptionSeries.fromJson),
   ContractCase('UnreadCount', UnreadCount.fromJson),
   ContractCase('ReceiptPublic', ReceiptPublic.fromJson),
+  ContractCase('Page_ReceiptPublic_', ReceiptPage.fromJson),
   ContractCase('NotificationPublic', NotificationPublic.fromJson),
   ContractCase('NotificationList', NotificationList.fromJson),
   ContractCase('ReadAllResult', ReadAllResult.fromJson),

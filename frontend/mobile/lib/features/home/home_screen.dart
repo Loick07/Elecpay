@@ -308,7 +308,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _activitySection(AsyncValue<RecentActivity> activity) => switch (activity) {
     AsyncData(:final value) => ActivityCard(
       lines: activityLines(value.items),
-      onSeeAll: () => _open('Historique des paiements', 'F6'),
+      onSeeAll: () => context.push(Routes.history),
     ),
     AsyncError(:final error) => CardFailure(
       error: error,

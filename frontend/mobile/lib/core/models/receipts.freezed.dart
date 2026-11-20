@@ -362,4 +362,289 @@ as String,
 
 }
 
+
+/// @nodoc
+mixin _$ReceiptPage {
+
+ List<ReceiptPublic> get items; int get page; int get size; int get total;
+/// Create a copy of ReceiptPage
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ReceiptPageCopyWith<ReceiptPage> get copyWith => _$ReceiptPageCopyWithImpl<ReceiptPage>(this as ReceiptPage, _$identity);
+
+  /// Serializes this ReceiptPage to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ReceiptPage;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReceiptPage&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.total, _this.total) || other.total == _this.total));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ReceiptPage;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.page,_this.size,_this.total);
+}
+
+@override
+String toString() {
+  final _this = this as ReceiptPage;
+  return 'ReceiptPage(items: ${_this.items}, page: ${_this.page}, size: ${_this.size}, total: ${_this.total})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ReceiptPageCopyWith<$Res>  {
+  factory $ReceiptPageCopyWith(ReceiptPage value, $Res Function(ReceiptPage) _then) = _$ReceiptPageCopyWithImpl;
+@useResult
+$Res call({
+ List<ReceiptPublic> items, int page, int size, int total
+});
+
+
+
+
+}
+/// @nodoc
+class _$ReceiptPageCopyWithImpl<$Res>
+    implements $ReceiptPageCopyWith<$Res> {
+  _$ReceiptPageCopyWithImpl(this._self, this._then);
+
+  final ReceiptPage _self;
+  final $Res Function(ReceiptPage) _then;
+
+/// Create a copy of ReceiptPage
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? page = null,Object? size = null,Object? total = null,}) {
+  return _then(ReceiptPage(
+items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as List<ReceiptPublic>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ReceiptPage].
+extension ReceiptPagePatterns on ReceiptPage {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ReceiptPage value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ReceiptPage() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ReceiptPage value)  $default,){
+final _that = this;
+switch (_that) {
+case _ReceiptPage():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ReceiptPage value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ReceiptPage() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<ReceiptPublic> items,  int page,  int size,  int total)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ReceiptPage() when $default != null:
+return $default(_that.items,_that.page,_that.size,_that.total);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<ReceiptPublic> items,  int page,  int size,  int total)  $default,) {final _that = this;
+switch (_that) {
+case _ReceiptPage():
+return $default(_that.items,_that.page,_that.size,_that.total);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<ReceiptPublic> items,  int page,  int size,  int total)?  $default,) {final _that = this;
+switch (_that) {
+case _ReceiptPage() when $default != null:
+return $default(_that.items,_that.page,_that.size,_that.total);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ReceiptPage implements ReceiptPage {
+  const _ReceiptPage({required  List<ReceiptPublic> items, required this.page, required this.size, required this.total}): _items = items;
+  factory _ReceiptPage.fromJson(Map<String, dynamic> json) => _$ReceiptPageFromJson(json);
+
+ final  List<ReceiptPublic> _items;
+@override List<ReceiptPublic> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
+}
+
+@override final  int page;
+@override final  int size;
+@override final  int total;
+
+/// Create a copy of ReceiptPage
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ReceiptPageCopyWith<_ReceiptPage> get copyWith => __$ReceiptPageCopyWithImpl<_ReceiptPage>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ReceiptPageToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReceiptPage&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.page, page) || other.page == page)&&(identical(other.size, size) || other.size == size)&&(identical(other.total, total) || other.total == total));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),page,size,total);
+}
+
+@override
+String toString() {
+    return 'ReceiptPage(items: $items, page: $page, size: $size, total: $total)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ReceiptPageCopyWith<$Res> implements $ReceiptPageCopyWith<$Res> {
+  factory _$ReceiptPageCopyWith(_ReceiptPage value, $Res Function(_ReceiptPage) _then) = __$ReceiptPageCopyWithImpl;
+@override @useResult
+$Res call({
+ List<ReceiptPublic> items, int page, int size, int total
+});
+
+
+
+
+}
+/// @nodoc
+class __$ReceiptPageCopyWithImpl<$Res>
+    implements _$ReceiptPageCopyWith<$Res> {
+  __$ReceiptPageCopyWithImpl(this._self, this._then);
+
+  final _ReceiptPage _self;
+  final $Res Function(_ReceiptPage) _then;
+
+/// Create a copy of ReceiptPage
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? page = null,Object? size = null,Object? total = null,}) {
+  return _then(_ReceiptPage(
+items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<ReceiptPublic>,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
 // dart format on

@@ -20,6 +20,9 @@ abstract final class Routes {
   static final receiptPath = '${AppTab.bills.path}/recus/:receiptId';
   static String receipt(int receiptId) => '${AppTab.bills.path}/recus/$receiptId';
 
+  /// Écran 12 : historique des paiements, poussé depuis « Tout voir » de l'accueil.
+  static final history = '${AppTab.home.path}/paiements';
+
   /// Écran 13, poussé depuis la cloche de l'accueil.
   static final notifications = '${AppTab.home.path}/notifications';
 

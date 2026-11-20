@@ -448,3 +448,79 @@ Map<String, dynamic> _$ConsumptionSeriesToJson(_ConsumptionSeries instance) =>
       'tariff_is_assumption': instance.tariffIsAssumption,
       'source': instance.source,
     };
+
+_DayDetail _$DayDetailFromJson(Map<String, dynamic> json) => $checkedCreate(
+  '_DayDetail',
+  json,
+  ($checkedConvert) {
+    final val = _DayDetail(
+      meterId: $checkedConvert('meter_id', (v) => (v as num).toInt()),
+      day: $checkedConvert('day', (v) => DateTime.parse(v as String)),
+      label: $checkedConvert('label', (v) => v as String),
+      consumptionWh: $checkedConvert(
+        'consumption_wh',
+        (v) => (v as num).toInt(),
+      ),
+      consumptionKwh: $checkedConvert(
+        'consumption_kwh',
+        (v) => (v as num).toDouble(),
+      ),
+      energyCost: $checkedConvert('energy_cost', (v) => (v as num?)?.toInt()),
+      indexStartWh: $checkedConvert(
+        'index_start_wh',
+        (v) => (v as num?)?.toInt(),
+      ),
+      indexEndWh: $checkedConvert('index_end_wh', (v) => (v as num).toInt()),
+      isEstimated: $checkedConvert('is_estimated', (v) => v as bool),
+      isAnomaly: $checkedConvert('is_anomaly', (v) => v as bool),
+      anomalyReason: $checkedConvert('anomaly_reason', (v) => v as String?),
+      weekdayAverageWh: $checkedConvert(
+        'weekday_average_wh',
+        (v) => (v as num?)?.toInt(),
+      ),
+      weekdaySamples: $checkedConvert(
+        'weekday_samples',
+        (v) => (v as num).toInt(),
+      ),
+      rankInMonth: $checkedConvert('rank_in_month', (v) => (v as num).toInt()),
+      daysRanked: $checkedConvert('days_ranked', (v) => (v as num).toInt()),
+      source: $checkedConvert('source', (v) => v as String),
+    );
+    return val;
+  },
+  fieldKeyMap: const {
+    'meterId': 'meter_id',
+    'consumptionWh': 'consumption_wh',
+    'consumptionKwh': 'consumption_kwh',
+    'energyCost': 'energy_cost',
+    'indexStartWh': 'index_start_wh',
+    'indexEndWh': 'index_end_wh',
+    'isEstimated': 'is_estimated',
+    'isAnomaly': 'is_anomaly',
+    'anomalyReason': 'anomaly_reason',
+    'weekdayAverageWh': 'weekday_average_wh',
+    'weekdaySamples': 'weekday_samples',
+    'rankInMonth': 'rank_in_month',
+    'daysRanked': 'days_ranked',
+  },
+);
+
+Map<String, dynamic> _$DayDetailToJson(_DayDetail instance) =>
+    <String, dynamic>{
+      'meter_id': instance.meterId,
+      'day': instance.day.toIso8601String(),
+      'label': instance.label,
+      'consumption_wh': instance.consumptionWh,
+      'consumption_kwh': instance.consumptionKwh,
+      'energy_cost': instance.energyCost,
+      'index_start_wh': instance.indexStartWh,
+      'index_end_wh': instance.indexEndWh,
+      'is_estimated': instance.isEstimated,
+      'is_anomaly': instance.isAnomaly,
+      'anomaly_reason': instance.anomalyReason,
+      'weekday_average_wh': instance.weekdayAverageWh,
+      'weekday_samples': instance.weekdaySamples,
+      'rank_in_month': instance.rankInMonth,
+      'days_ranked': instance.daysRanked,
+      'source': instance.source,
+    };

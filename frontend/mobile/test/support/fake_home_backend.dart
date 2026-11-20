@@ -196,6 +196,119 @@ class FakeHomeBackend {
   /// État renvoyé par `GET /payments/{id}` (absent : 404 `PAYMENT_NOT_FOUND`).
   final Map<int, Map<String, Object?>> paymentStates = {};
 
+  /// Consommation d'un jour (Wh) pour les séries de jour : 9 kWh par défaut, plus le week-end.
+  int Function(DateTime day) dailyWh = (day) => day.weekday >= DateTime.saturday ? 11000 : 9000;
+
+  /// Dernier jour relevé (les jours après n'ont pas de relevé).
+  DateTime measuredUntil = DateTime(2026, 11, 11);
+
+  /// Jours estimés (relevé manquant).
+  final Set<DateTime> estimatedDays = {DateTime(2026, 10, 7)};
+
+  /// Série au format du contrat, construite depuis `dailyWh` (jour, semaine ou mois).
+  Map<String, Object?> seriesJson(int meterId, Map<String, dynamic> query) {
+    final granularity = query['granularity'] as String? ?? 'month';
+    final from = DateTime.parse(query['from'] as String);
+    final to = DateTime.parse(query['to'] as String);
+    String iso(DateTime x) =>
+        '${x.year}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
+    Map<String, Object?> point(DateTime start, DateTime end, String label) {
+      var wh = 0;
+      var days = 0;
+      var estimated = false;
+      for (var x = start; !x.isAfter(end); x = DateTime(x.year, x.month, x.day + 1)) {
+        if (x.isAfter(measuredUntil)) continue;
+        wh += dailyWh(x);
+        days++;
+        estimated = estimated || estimatedDays.contains(x);
+      }
+      return {
+        'start': iso(start),
+        'end': iso(end),
+        'label': label,
+        'consumption_wh': wh,
+        'consumption_kwh': wh / 1000,
+        'days_with_data': days,
+        'daily_average_wh': days == 0 ? 0 : wh ~/ days,
+        'energy_cost': wh * 49 ~/ 1000,
+        'estimated_total': null,
+        'is_current': !start.isAfter(measuredUntil) && !end.isBefore(measuredUntil),
+        'is_partial': end.isAfter(measuredUntil),
+        'is_estimated': estimated,
+        'has_anomaly': false,
+      };
+    }
+
+    final points = <Map<String, Object?>>[];
+    var cursor = from;
+    while (!cursor.isAfter(to)) {
+      final end = switch (granularity) {
+        'week' => cursor.add(const Duration(days: 6)),
+        'month' => DateTime(cursor.year, cursor.month + 1, 0),
+        _ => cursor,
+      };
+      points.add(point(cursor, end, iso(cursor)));
+      cursor = DateTime(end.year, end.month, end.day + 1);
+    }
+    final total = points.fold<int>(0, (s, x) => s + (x['consumption_wh']! as int));
+    final days = points.fold<int>(0, (s, x) => s + (x['days_with_data']! as int));
+    return {
+      'meter_id': meterId,
+      'granularity': granularity,
+      'start': iso(from),
+      'end': iso(to),
+      'measured_until': iso(measuredUntil),
+      'points': points,
+      'comparison': {
+        'mode': granularity == 'month' ? 'last_year' : 'previous',
+        'current': {
+          'start': iso(from),
+          'end': iso(to),
+          'consumption_wh': total,
+          'consumption_kwh': total / 1000,
+          'days_with_data': days,
+          'energy_cost': total * 49 ~/ 1000,
+        },
+        'reference': {
+          'start': iso(from),
+          'end': iso(to),
+          'consumption_wh': total,
+          'consumption_kwh': total / 1000,
+          'days_with_data': days,
+          'energy_cost': total * 49 ~/ 1000,
+        },
+        'variation_percent': 6.2,
+      },
+      'tariff_is_assumption': true,
+      'source': 'simulated',
+    };
+  }
+
+  /// Détail d'un jour (`GET /meters/{id}/consumption/days/{day}`) ; jour sans relevé : 404.
+  Map<String, Object?>? dayDetailJson(int meterId, DateTime day) {
+    if (day.isAfter(measuredUntil)) return null;
+    final wh = dailyWh(day);
+    return {
+      'meter_id': meterId,
+      'day':
+          '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}',
+      'label': 'jour',
+      'consumption_wh': wh,
+      'consumption_kwh': wh / 1000,
+      'energy_cost': wh * 49 ~/ 1000,
+      'index_start_wh': 18247000,
+      'index_end_wh': 18247000 + wh,
+      'is_estimated': estimatedDays.contains(day),
+      'is_anomaly': false,
+      'anomaly_reason': null,
+      'weekday_average_wh': 9500,
+      'weekday_samples': 4,
+      'rank_in_month': 3,
+      'days_ranked': 30,
+      'source': 'simulated',
+    };
+  }
+
   /// Reçus (`GET /receipts/{id}`) : celui de la maquette de l'écran 10 sous l'identifiant 3.
   Map<int, Map<String, Object?>> receipts = {3: receiptJson(3)};
 
@@ -372,10 +485,24 @@ class FakeHomeBackend {
       });
     }
     if (meterMatch != null) {
-      return JsonReply(200, {
-        ..._api.sample('ConsumptionSeries'),
-        'meter_id': int.parse(meterMatch.group(1)!),
-      });
+      final meterId = int.parse(meterMatch.group(1)!);
+      // Avec une plage (écran Consommation) : une vraie série ; sinon l'exemple du contrat.
+      if (query['from'] != null && query['to'] != null) {
+        return JsonReply(200, seriesJson(meterId, query));
+      }
+      return JsonReply(200, {..._api.sample('ConsumptionSeries'), 'meter_id': meterId});
+    }
+    final dayMatch = RegExp(r'^/meters/(\d+)/consumption/days/(\d{4}-\d{2}-\d{2})$')
+        .firstMatch(path);
+    if (dayMatch != null) {
+      final detail = dayDetailJson(
+        int.parse(dayMatch.group(1)!),
+        DateTime.parse(dayMatch.group(2)!),
+      );
+      if (detail == null) {
+        return JsonReply(404, apiError('CONSUMPTION_DAY_NOT_FOUND', 'Journée non relevée.'));
+      }
+      return JsonReply(200, detail);
     }
     if (path == '/payments' && request.method == 'POST') {
       if (paymentReplies.isNotEmpty) return paymentReplies.removeAt(0);

@@ -251,4 +251,14 @@ void main() {
     );
     expect(formatBillPeriodLong(DateTime(2026, 10), DateTime(2026, 10, 31)), 'octobre 2026');
   });
+
+  test('consommation : semaine, jour, fil d’Ariane, mois, initiale, date d’API', () {
+    expect(formatWeekTitle(DateTime(2026, 10, 12)), 'Sem. du 12 oct.');
+    expect(formatDayTitle(DateTime(2026, 10, 14)), 'Mer. 14 oct.');
+    expect(formatDayCrumb(DateTime(2026, 10, 14)), 'Mer. 14');
+    expect(formatDayCrumb(DateTime(2026, 11)), 'Dim. 1er');
+    expect(formatMonthName(10), 'Octobre');
+    expect(formatMonthInitial(8), 'A');
+    expect(formatApiDate(DateTime(2026, 3, 5)), '2026-03-05');
+  });
 }

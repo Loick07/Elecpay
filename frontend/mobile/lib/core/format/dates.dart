@@ -131,6 +131,24 @@ String formatNotificationTime(DateTime moment, String group, {required DateTime 
   };
 }
 
+/// Titre d'une semaine (écran Consommation) : « Sem. du 12 oct. » (`monday` : date du calendrier).
+String formatWeekTitle(DateTime monday) => 'Sem. du ${formatDayMonth(monday)}';
+
+/// Titre d'un jour (écran Consommation) : « Mer. 14 oct. » (date du calendrier).
+String formatDayTitle(DateTime day) => '${_weekdaysShort[day.weekday - 1]} ${formatDayMonth(day)}';
+
+/// Jour court du fil d'Ariane : « Mer. 14 ».
+String formatDayCrumb(DateTime day) => '${_weekdaysShort[day.weekday - 1]} ${_day(day.day)}';
+
+/// Nom du mois seul, avec sa majuscule : « Octobre ».
+String formatMonthName(int month) => _capitalized(_monthsLong[month - 1]);
+
+/// Initiale du mois pour les barres de l'année : « J », « F », « M »…
+String formatMonthInitial(int month) => _monthsLong[month - 1][0].toUpperCase();
+
+/// Date d'API (« 2026-10-14 ») d'une date du calendrier.
+String formatApiDate(DateTime day) => '${day.year}-${_two(day.month)}-${_two(day.day)}';
+
 /// Mois en cours relevé (dates du calendrier) : « Novembre, du 1er au 12 » ; un seul jour :
 /// « Novembre, le 1er » ; rien de relevé (`end` nul) : « Novembre ».
 String formatMonthSoFar(DateTime start, DateTime? end) {

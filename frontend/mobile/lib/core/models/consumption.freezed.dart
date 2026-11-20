@@ -2769,4 +2769,327 @@ $ConsumptionComparisonCopyWith<$Res>? get comparison {
 }
 }
 
+
+/// @nodoc
+mixin _$DayDetail {
+
+ int get meterId; DateTime get day; String get label; int get consumptionWh; double get consumptionKwh;/// Énergie seule (kWh × tarif du jour), FCFA entiers ; `null` sans tarif connu.
+ int? get energyCost; int? get indexStartWh; int get indexEndWh;/// Valeur estimée (relevé manquant), pas relevée.
+ bool get isEstimated; bool get isAnomaly; String? get anomalyReason;/// Moyenne du même jour de la semaine (`null` sans assez de jours), et sur combien de jours.
+ int? get weekdayAverageWh; int get weekdaySamples;/// Classement dans le mois (1 = le plus consommé), sur `daysRanked` jours relevés.
+ int get rankInMonth; int get daysRanked; String get source;
+/// Create a copy of DayDetail
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DayDetailCopyWith<DayDetail> get copyWith => _$DayDetailCopyWithImpl<DayDetail>(this as DayDetail, _$identity);
+
+  /// Serializes this DayDetail to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as DayDetail;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DayDetail&&(identical(other.meterId, _this.meterId) || other.meterId == _this.meterId)&&(identical(other.day, _this.day) || other.day == _this.day)&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.consumptionWh, _this.consumptionWh) || other.consumptionWh == _this.consumptionWh)&&(identical(other.consumptionKwh, _this.consumptionKwh) || other.consumptionKwh == _this.consumptionKwh)&&(identical(other.energyCost, _this.energyCost) || other.energyCost == _this.energyCost)&&(identical(other.indexStartWh, _this.indexStartWh) || other.indexStartWh == _this.indexStartWh)&&(identical(other.indexEndWh, _this.indexEndWh) || other.indexEndWh == _this.indexEndWh)&&(identical(other.isEstimated, _this.isEstimated) || other.isEstimated == _this.isEstimated)&&(identical(other.isAnomaly, _this.isAnomaly) || other.isAnomaly == _this.isAnomaly)&&(identical(other.anomalyReason, _this.anomalyReason) || other.anomalyReason == _this.anomalyReason)&&(identical(other.weekdayAverageWh, _this.weekdayAverageWh) || other.weekdayAverageWh == _this.weekdayAverageWh)&&(identical(other.weekdaySamples, _this.weekdaySamples) || other.weekdaySamples == _this.weekdaySamples)&&(identical(other.rankInMonth, _this.rankInMonth) || other.rankInMonth == _this.rankInMonth)&&(identical(other.daysRanked, _this.daysRanked) || other.daysRanked == _this.daysRanked)&&(identical(other.source, _this.source) || other.source == _this.source));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as DayDetail;
+  return Object.hash(runtimeType,_this.meterId,_this.day,_this.label,_this.consumptionWh,_this.consumptionKwh,_this.energyCost,_this.indexStartWh,_this.indexEndWh,_this.isEstimated,_this.isAnomaly,_this.anomalyReason,_this.weekdayAverageWh,_this.weekdaySamples,_this.rankInMonth,_this.daysRanked,_this.source);
+}
+
+@override
+String toString() {
+  final _this = this as DayDetail;
+  return 'DayDetail(meterId: ${_this.meterId}, day: ${_this.day}, label: ${_this.label}, consumptionWh: ${_this.consumptionWh}, consumptionKwh: ${_this.consumptionKwh}, energyCost: ${_this.energyCost}, indexStartWh: ${_this.indexStartWh}, indexEndWh: ${_this.indexEndWh}, isEstimated: ${_this.isEstimated}, isAnomaly: ${_this.isAnomaly}, anomalyReason: ${_this.anomalyReason}, weekdayAverageWh: ${_this.weekdayAverageWh}, weekdaySamples: ${_this.weekdaySamples}, rankInMonth: ${_this.rankInMonth}, daysRanked: ${_this.daysRanked}, source: ${_this.source})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DayDetailCopyWith<$Res>  {
+  factory $DayDetailCopyWith(DayDetail value, $Res Function(DayDetail) _then) = _$DayDetailCopyWithImpl;
+@useResult
+$Res call({
+ int meterId, DateTime day, String label, int consumptionWh, double consumptionKwh, int? energyCost, int? indexStartWh, int indexEndWh, bool isEstimated, bool isAnomaly, String? anomalyReason, int? weekdayAverageWh, int weekdaySamples, int rankInMonth, int daysRanked, String source
+});
+
+
+
+
+}
+/// @nodoc
+class _$DayDetailCopyWithImpl<$Res>
+    implements $DayDetailCopyWith<$Res> {
+  _$DayDetailCopyWithImpl(this._self, this._then);
+
+  final DayDetail _self;
+  final $Res Function(DayDetail) _then;
+
+/// Create a copy of DayDetail
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? meterId = null,Object? day = null,Object? label = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? energyCost = freezed,Object? indexStartWh = freezed,Object? indexEndWh = null,Object? isEstimated = null,Object? isAnomaly = null,Object? anomalyReason = freezed,Object? weekdayAverageWh = freezed,Object? weekdaySamples = null,Object? rankInMonth = null,Object? daysRanked = null,Object? source = null,}) {
+  return _then(DayDetail(
+meterId: null == meterId ? _self.meterId : meterId // ignore: cast_nullable_to_non_nullable
+as int,day: null == day ? _self.day : day // ignore: cast_nullable_to_non_nullable
+as DateTime,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
+as int,consumptionKwh: null == consumptionKwh ? _self.consumptionKwh : consumptionKwh // ignore: cast_nullable_to_non_nullable
+as double,energyCost: freezed == energyCost ? _self.energyCost : energyCost // ignore: cast_nullable_to_non_nullable
+as int?,indexStartWh: freezed == indexStartWh ? _self.indexStartWh : indexStartWh // ignore: cast_nullable_to_non_nullable
+as int?,indexEndWh: null == indexEndWh ? _self.indexEndWh : indexEndWh // ignore: cast_nullable_to_non_nullable
+as int,isEstimated: null == isEstimated ? _self.isEstimated : isEstimated // ignore: cast_nullable_to_non_nullable
+as bool,isAnomaly: null == isAnomaly ? _self.isAnomaly : isAnomaly // ignore: cast_nullable_to_non_nullable
+as bool,anomalyReason: freezed == anomalyReason ? _self.anomalyReason : anomalyReason // ignore: cast_nullable_to_non_nullable
+as String?,weekdayAverageWh: freezed == weekdayAverageWh ? _self.weekdayAverageWh : weekdayAverageWh // ignore: cast_nullable_to_non_nullable
+as int?,weekdaySamples: null == weekdaySamples ? _self.weekdaySamples : weekdaySamples // ignore: cast_nullable_to_non_nullable
+as int,rankInMonth: null == rankInMonth ? _self.rankInMonth : rankInMonth // ignore: cast_nullable_to_non_nullable
+as int,daysRanked: null == daysRanked ? _self.daysRanked : daysRanked // ignore: cast_nullable_to_non_nullable
+as int,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [DayDetail].
+extension DayDetailPatterns on DayDetail {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DayDetail value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _DayDetail() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DayDetail value)  $default,){
+final _that = this;
+switch (_that) {
+case _DayDetail():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DayDetail value)?  $default,){
+final _that = this;
+switch (_that) {
+case _DayDetail() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int meterId,  DateTime day,  String label,  int consumptionWh,  double consumptionKwh,  int? energyCost,  int? indexStartWh,  int indexEndWh,  bool isEstimated,  bool isAnomaly,  String? anomalyReason,  int? weekdayAverageWh,  int weekdaySamples,  int rankInMonth,  int daysRanked,  String source)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _DayDetail() when $default != null:
+return $default(_that.meterId,_that.day,_that.label,_that.consumptionWh,_that.consumptionKwh,_that.energyCost,_that.indexStartWh,_that.indexEndWh,_that.isEstimated,_that.isAnomaly,_that.anomalyReason,_that.weekdayAverageWh,_that.weekdaySamples,_that.rankInMonth,_that.daysRanked,_that.source);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int meterId,  DateTime day,  String label,  int consumptionWh,  double consumptionKwh,  int? energyCost,  int? indexStartWh,  int indexEndWh,  bool isEstimated,  bool isAnomaly,  String? anomalyReason,  int? weekdayAverageWh,  int weekdaySamples,  int rankInMonth,  int daysRanked,  String source)  $default,) {final _that = this;
+switch (_that) {
+case _DayDetail():
+return $default(_that.meterId,_that.day,_that.label,_that.consumptionWh,_that.consumptionKwh,_that.energyCost,_that.indexStartWh,_that.indexEndWh,_that.isEstimated,_that.isAnomaly,_that.anomalyReason,_that.weekdayAverageWh,_that.weekdaySamples,_that.rankInMonth,_that.daysRanked,_that.source);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int meterId,  DateTime day,  String label,  int consumptionWh,  double consumptionKwh,  int? energyCost,  int? indexStartWh,  int indexEndWh,  bool isEstimated,  bool isAnomaly,  String? anomalyReason,  int? weekdayAverageWh,  int weekdaySamples,  int rankInMonth,  int daysRanked,  String source)?  $default,) {final _that = this;
+switch (_that) {
+case _DayDetail() when $default != null:
+return $default(_that.meterId,_that.day,_that.label,_that.consumptionWh,_that.consumptionKwh,_that.energyCost,_that.indexStartWh,_that.indexEndWh,_that.isEstimated,_that.isAnomaly,_that.anomalyReason,_that.weekdayAverageWh,_that.weekdaySamples,_that.rankInMonth,_that.daysRanked,_that.source);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _DayDetail implements DayDetail {
+  const _DayDetail({required this.meterId, required this.day, required this.label, required this.consumptionWh, required this.consumptionKwh, required this.energyCost, required this.indexStartWh, required this.indexEndWh, required this.isEstimated, required this.isAnomaly, required this.anomalyReason, required this.weekdayAverageWh, required this.weekdaySamples, required this.rankInMonth, required this.daysRanked, required this.source});
+  factory _DayDetail.fromJson(Map<String, dynamic> json) => _$DayDetailFromJson(json);
+
+@override final  int meterId;
+@override final  DateTime day;
+@override final  String label;
+@override final  int consumptionWh;
+@override final  double consumptionKwh;
+/// Énergie seule (kWh × tarif du jour), FCFA entiers ; `null` sans tarif connu.
+@override final  int? energyCost;
+@override final  int? indexStartWh;
+@override final  int indexEndWh;
+/// Valeur estimée (relevé manquant), pas relevée.
+@override final  bool isEstimated;
+@override final  bool isAnomaly;
+@override final  String? anomalyReason;
+/// Moyenne du même jour de la semaine (`null` sans assez de jours), et sur combien de jours.
+@override final  int? weekdayAverageWh;
+@override final  int weekdaySamples;
+/// Classement dans le mois (1 = le plus consommé), sur `daysRanked` jours relevés.
+@override final  int rankInMonth;
+@override final  int daysRanked;
+@override final  String source;
+
+/// Create a copy of DayDetail
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DayDetailCopyWith<_DayDetail> get copyWith => __$DayDetailCopyWithImpl<_DayDetail>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$DayDetailToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DayDetail&&(identical(other.meterId, meterId) || other.meterId == meterId)&&(identical(other.day, day) || other.day == day)&&(identical(other.label, label) || other.label == label)&&(identical(other.consumptionWh, consumptionWh) || other.consumptionWh == consumptionWh)&&(identical(other.consumptionKwh, consumptionKwh) || other.consumptionKwh == consumptionKwh)&&(identical(other.energyCost, energyCost) || other.energyCost == energyCost)&&(identical(other.indexStartWh, indexStartWh) || other.indexStartWh == indexStartWh)&&(identical(other.indexEndWh, indexEndWh) || other.indexEndWh == indexEndWh)&&(identical(other.isEstimated, isEstimated) || other.isEstimated == isEstimated)&&(identical(other.isAnomaly, isAnomaly) || other.isAnomaly == isAnomaly)&&(identical(other.anomalyReason, anomalyReason) || other.anomalyReason == anomalyReason)&&(identical(other.weekdayAverageWh, weekdayAverageWh) || other.weekdayAverageWh == weekdayAverageWh)&&(identical(other.weekdaySamples, weekdaySamples) || other.weekdaySamples == weekdaySamples)&&(identical(other.rankInMonth, rankInMonth) || other.rankInMonth == rankInMonth)&&(identical(other.daysRanked, daysRanked) || other.daysRanked == daysRanked)&&(identical(other.source, source) || other.source == source));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,meterId,day,label,consumptionWh,consumptionKwh,energyCost,indexStartWh,indexEndWh,isEstimated,isAnomaly,anomalyReason,weekdayAverageWh,weekdaySamples,rankInMonth,daysRanked,source);
+}
+
+@override
+String toString() {
+    return 'DayDetail(meterId: $meterId, day: $day, label: $label, consumptionWh: $consumptionWh, consumptionKwh: $consumptionKwh, energyCost: $energyCost, indexStartWh: $indexStartWh, indexEndWh: $indexEndWh, isEstimated: $isEstimated, isAnomaly: $isAnomaly, anomalyReason: $anomalyReason, weekdayAverageWh: $weekdayAverageWh, weekdaySamples: $weekdaySamples, rankInMonth: $rankInMonth, daysRanked: $daysRanked, source: $source)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DayDetailCopyWith<$Res> implements $DayDetailCopyWith<$Res> {
+  factory _$DayDetailCopyWith(_DayDetail value, $Res Function(_DayDetail) _then) = __$DayDetailCopyWithImpl;
+@override @useResult
+$Res call({
+ int meterId, DateTime day, String label, int consumptionWh, double consumptionKwh, int? energyCost, int? indexStartWh, int indexEndWh, bool isEstimated, bool isAnomaly, String? anomalyReason, int? weekdayAverageWh, int weekdaySamples, int rankInMonth, int daysRanked, String source
+});
+
+
+
+
+}
+/// @nodoc
+class __$DayDetailCopyWithImpl<$Res>
+    implements _$DayDetailCopyWith<$Res> {
+  __$DayDetailCopyWithImpl(this._self, this._then);
+
+  final _DayDetail _self;
+  final $Res Function(_DayDetail) _then;
+
+/// Create a copy of DayDetail
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? meterId = null,Object? day = null,Object? label = null,Object? consumptionWh = null,Object? consumptionKwh = null,Object? energyCost = freezed,Object? indexStartWh = freezed,Object? indexEndWh = null,Object? isEstimated = null,Object? isAnomaly = null,Object? anomalyReason = freezed,Object? weekdayAverageWh = freezed,Object? weekdaySamples = null,Object? rankInMonth = null,Object? daysRanked = null,Object? source = null,}) {
+  return _then(_DayDetail(
+meterId: null == meterId ? _self.meterId : meterId // ignore: cast_nullable_to_non_nullable
+as int,day: null == day ? _self.day : day // ignore: cast_nullable_to_non_nullable
+as DateTime,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,consumptionWh: null == consumptionWh ? _self.consumptionWh : consumptionWh // ignore: cast_nullable_to_non_nullable
+as int,consumptionKwh: null == consumptionKwh ? _self.consumptionKwh : consumptionKwh // ignore: cast_nullable_to_non_nullable
+as double,energyCost: freezed == energyCost ? _self.energyCost : energyCost // ignore: cast_nullable_to_non_nullable
+as int?,indexStartWh: freezed == indexStartWh ? _self.indexStartWh : indexStartWh // ignore: cast_nullable_to_non_nullable
+as int?,indexEndWh: null == indexEndWh ? _self.indexEndWh : indexEndWh // ignore: cast_nullable_to_non_nullable
+as int,isEstimated: null == isEstimated ? _self.isEstimated : isEstimated // ignore: cast_nullable_to_non_nullable
+as bool,isAnomaly: null == isAnomaly ? _self.isAnomaly : isAnomaly // ignore: cast_nullable_to_non_nullable
+as bool,anomalyReason: freezed == anomalyReason ? _self.anomalyReason : anomalyReason // ignore: cast_nullable_to_non_nullable
+as String?,weekdayAverageWh: freezed == weekdayAverageWh ? _self.weekdayAverageWh : weekdayAverageWh // ignore: cast_nullable_to_non_nullable
+as int?,weekdaySamples: null == weekdaySamples ? _self.weekdaySamples : weekdaySamples // ignore: cast_nullable_to_non_nullable
+as int,rankInMonth: null == rankInMonth ? _self.rankInMonth : rankInMonth // ignore: cast_nullable_to_non_nullable
+as int,daysRanked: null == daysRanked ? _self.daysRanked : daysRanked // ignore: cast_nullable_to_non_nullable
+as int,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
 // dart format on

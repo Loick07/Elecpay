@@ -169,3 +169,37 @@ abstract class ConsumptionSeries with _$ConsumptionSeries {
   factory ConsumptionSeries.fromJson(Map<String, dynamic> json) =>
       _$ConsumptionSeriesFromJson(json);
 }
+
+/// Schéma OpenAPI : `DayDetail` (`GET /meters/{id}/consumption/days/{day}`, vue Jour). Index exacts
+/// en Wh ; `index_start_wh` vaut `null` pour le tout premier relevé.
+@freezed
+abstract class DayDetail with _$DayDetail {
+  const factory DayDetail({
+    required int meterId,
+    required DateTime day,
+    required String label,
+    required int consumptionWh,
+    required double consumptionKwh,
+
+    /// Énergie seule (kWh × tarif du jour), FCFA entiers ; `null` sans tarif connu.
+    required int? energyCost,
+    required int? indexStartWh,
+    required int indexEndWh,
+
+    /// Valeur estimée (relevé manquant), pas relevée.
+    required bool isEstimated,
+    required bool isAnomaly,
+    required String? anomalyReason,
+
+    /// Moyenne du même jour de la semaine (`null` sans assez de jours), et sur combien de jours.
+    required int? weekdayAverageWh,
+    required int weekdaySamples,
+
+    /// Classement dans le mois (1 = le plus consommé), sur `daysRanked` jours relevés.
+    required int rankInMonth,
+    required int daysRanked,
+    required String source,
+  }) = _DayDetail;
+
+  factory DayDetail.fromJson(Map<String, dynamic> json) => _$DayDetailFromJson(json);
+}

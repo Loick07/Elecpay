@@ -108,6 +108,20 @@ class ApiClient {
     (_) {},
   );
 
+  /// Modification partielle (`PATCH`), réponse objet. Ex. renommer un compteur (F8).
+  Future<T> patchObject<T>(
+    String path,
+    T Function(Map<String, dynamic> json) decode, {
+    required Object body,
+  }) => _send(
+    () => _dio.patch<Object?>(path, data: _json(body), options: _options(true)),
+    (data) => decode(_asObject(data)),
+  );
+
+  /// Suppression (`DELETE`), sans contenu attendu. Ex. retirer un membre d'un foyer (F8).
+  Future<void> deleteNoContent(String path) =>
+      _send(() => _dio.delete<Object?>(path, options: _options(true)), (_) {});
+
   static Options _options(bool authenticated, [Map<String, String>? headers]) =>
       Options(headers: headers, extra: {publicRequest: !authenticated});
 

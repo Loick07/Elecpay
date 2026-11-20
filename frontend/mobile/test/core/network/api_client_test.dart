@@ -279,4 +279,38 @@ void main() {
       expect(formatWait(Duration.zero), '1 s');
     });
   });
+
+  group('PATCH et DELETE (F8 : renommer, retirer un membre)', () {
+    test('PATCH : seuls les champs donnés partent, réponse lue', () async {
+      final meter = OpenApi.load().sample('MeterDetail');
+      final (api, server) = client((_) => JsonReply(200, {...meter, 'label': 'Cuisine'}));
+      final result = await api.patchObject(
+        '/meters/11',
+        (json) => json['label'],
+        body: {'label': 'Cuisine'},
+      );
+      expect(result, 'Cuisine');
+      expect(server.requests.single.method, 'PATCH');
+      expect(jsonDecode(server.sentBodies.single!), {'label': 'Cuisine'});
+    });
+
+    test('DELETE : 204 accepté', () async {
+      final (api, server) = client((_) => const JsonReply(204, null));
+      await api.deleteNoContent('/households/1/members/7');
+      expect(server.requests.single.method, 'DELETE');
+      expect(server.requests.single.path, '/households/1/members/7');
+    });
+
+    for (final reply in [
+      const FailReply(DioExceptionType.receiveTimeout),
+      JsonReply(503, apiError('X', 'Erreur.')),
+    ]) {
+      test('PATCH / DELETE en échec (${reply.runtimeType}) : envoyés une seule fois', () async {
+        final (api, server) = client((_) => reply);
+        await failureOf(() => api.patchObject('/meters/1', (j) => j, body: {'label': 'x'}));
+        await failureOf(() => api.deleteNoContent('/households/1/members/7'));
+        expect(server.requests, hasLength(2));
+      });
+    }
+  });
 }

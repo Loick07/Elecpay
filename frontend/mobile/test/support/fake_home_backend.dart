@@ -43,6 +43,228 @@ class FakeHomeBackend {
     2: [_meter(20, 2)],
   };
 
+  /// Membres de chaque foyer (`GET /households/{id}` et `/members`), hors propriétaire.
+  Map<int, List<Map<String, Object?>>> members = {
+    2: [member(7, 'Grâce Ngoma')],
+  };
+
+  /// Invitations reçues en attente (`GET /invitations`).
+  List<Map<String, Object?>> invitations = [];
+
+  /// Corps reçus par les actions (POST / PATCH), par chemin.
+  final Map<String, List<Object?>> sent = {};
+
+  /// Membre actif (payeur délégué), numéro masqué comme dans l'API.
+  static Map<String, Object?> member(
+    int id,
+    String name, {
+    String role = 'payer',
+    String status = 'active',
+  }) => {
+    'id': id,
+    'person': {'id': 100 + id, 'full_name': name, 'phone_masked': '+242 06 *** ** 67'},
+    'role': role,
+    'status': status,
+    'created_at': '2026-10-01T10:00:00Z',
+  };
+
+  /// Invitation reçue pour un foyer d'un autre compte.
+  static Map<String, Object?> invitation(int id, String household) => {
+    'id': id,
+    'household': {'id': 30 + id, 'name': household, 'city': 'Pointe-Noire'},
+    'role': 'payer',
+    'invited_by': {'id': 9, 'full_name': 'Marie Loemba', 'phone_masked': '+242 05 *** ** 12'},
+    'created_at': '2026-11-10T09:00:00Z',
+  };
+
+  /// Carte d'un foyer (`GET /households/{id}`), construite depuis `households`, `meters`, `members`.
+  Map<String, Object?>? householdDetailJson(int id) {
+    final summary = households.where((h) => h['id'] == id).firstOrNull;
+    if (summary == null) return null;
+    final role = summary['my_role']! as String;
+    return {
+      'id': id,
+      'name': summary['name'],
+      'city': summary['city'],
+      'district': summary['district'],
+      'address': null,
+      'my_role': role,
+      'can_pay': role != 'viewer',
+      'can_manage': role == 'owner',
+      'owner': {'id': 42, 'full_name': 'Loick Makosso', 'phone_masked': '+242 06 *** ** 01'},
+      'meters': [
+        for (final m in meters[id] ?? <Map<String, Object?>>[])
+          {
+            'id': m['id'],
+            'reference': m['reference'],
+            'label': m['label'],
+            'type': m['type'],
+            'status': m['status'],
+            'subscribed_power_va': m['subscribed_power_va'],
+            'e2c_center': m['e2c_center'],
+          },
+      ],
+      // Le propriétaire voit aussi les invitations en attente ; les autres, les membres actifs.
+      'members': [
+        for (final m in members[id] ?? <Map<String, Object?>>[])
+          if (role == 'owner' || m['status'] == 'active') m,
+      ],
+      'created_at': '2026-01-05T10:00:00Z',
+    };
+  }
+
+  FakeReply? _households(RequestOptions request) {
+    final path = request.path;
+    final method = request.method;
+    Object? body() => request.data;
+    void record() => (sent[path] ??= []).add(body());
+    if (path == '/invitations' && method == 'GET') return JsonReply(200, invitations);
+    final invite = RegExp(r'^/invitations/(\d+)/(accept|decline)$').firstMatch(path);
+    if (invite != null && method == 'POST') {
+      final id = int.parse(invite.group(1)!);
+      final found = invitations.where((i) => i['id'] == id).firstOrNull;
+      if (found == null) {
+        return JsonReply(404, apiError('INVITATION_NOT_FOUND', 'Invitation introuvable.'));
+      }
+      invitations = [
+        for (final i in invitations)
+          if (i['id'] != id) i,
+      ];
+      record();
+      if (invite.group(2) == 'decline') return const JsonReply(204, null);
+      final brief = found['household']! as Map<String, Object?>;
+      households = [
+        ...households,
+        {
+          ..._api.sample('HouseholdSummary'),
+          'id': brief['id'],
+          'name': brief['name'],
+          'my_role': 'payer',
+        },
+      ];
+      return JsonReply(200, householdDetailJson(brief['id']! as int));
+    }
+    if (path == '/households' && method == 'POST') {
+      record();
+      final data = body()! as Map<String, dynamic>;
+      final id = 50 + households.length;
+      households = [
+        ...households,
+        {
+          ..._api.sample('HouseholdSummary'),
+          'id': id,
+          'name': data['name'],
+          'city': data['city'],
+          'district': data['district'],
+          'my_role': 'owner',
+          'meters_count': 0,
+        },
+      ];
+      return JsonReply(201, householdDetailJson(id));
+    }
+    final one = RegExp(r'^/households/(\d+)$').firstMatch(path);
+    if (one != null) {
+      final id = int.parse(one.group(1)!);
+      final detail = householdDetailJson(id);
+      if (detail == null) {
+        return JsonReply(404, apiError('HOUSEHOLD_NOT_FOUND', 'Foyer introuvable.'));
+      }
+      if (method == 'PATCH') {
+        record();
+        final data = body()! as Map<String, dynamic>;
+        households = [
+          for (final h in households) h['id'] == id ? {...h, ...data} : h,
+        ];
+        return JsonReply(200, householdDetailJson(id));
+      }
+      return JsonReply(200, detail);
+    }
+    final metersOf = RegExp(r'^/households/(\d+)/meters$').firstMatch(path);
+    if (metersOf != null && method == 'POST') {
+      record();
+      final id = int.parse(metersOf.group(1)!);
+      final data = body()! as Map<String, dynamic>;
+      final reference = data['reference']! as String;
+      if (reference.replaceAll(RegExp(r'\D'), '').endsWith('0000')) {
+        return JsonReply(
+          404,
+          apiError('E2C_METER_NOT_FOUND', 'Compteur introuvable chez E²C. Vérifiez les numéros.'),
+        );
+      }
+      final meter = {
+        ..._api.sample('MeterDetail'),
+        'id': 60 + (meters[id]?.length ?? 0),
+        'household_id': id,
+        'reference': reference,
+        'label': data['label'],
+        'customer_number': data['customer_number'],
+        'subscribed_power_va': 6000,
+        'e2c_center': 'POINTE-NOIRE',
+        'status': 'active',
+      };
+      meters[id] = [...?meters[id], meter];
+      return JsonReply(201, {
+        'meter': meter,
+        'history': {'readings': 540, 'bills': 9, 'source': 'simulated'},
+      });
+    }
+    final membersOf = RegExp(r'^/households/(\d+)/members$').firstMatch(path);
+    if (membersOf != null) {
+      final id = int.parse(membersOf.group(1)!);
+      if (method == 'POST') {
+        record();
+        final data = body()! as Map<String, dynamic>;
+        final created = member(
+          80 + (members[id]?.length ?? 0),
+          'Invité ${data['phone']}',
+          role: data['role']! as String,
+          status: 'invited',
+        );
+        members[id] = [...?members[id], created];
+        return JsonReply(201, created);
+      }
+      return JsonReply(200, members[id] ?? <Object>[]);
+    }
+    final memberOne = RegExp(r'^/households/(\d+)/members/(\d+)$').firstMatch(path);
+    if (memberOne != null && method == 'DELETE') {
+      record();
+      final id = int.parse(memberOne.group(1)!);
+      final memberId = int.parse(memberOne.group(2)!);
+      members[id] = [
+        for (final m in members[id] ?? <Map<String, Object?>>[])
+          if (m['id'] != memberId) m,
+      ];
+      return const JsonReply(204, null);
+    }
+    final leave = RegExp(r'^/households/(\d+)/leave$').firstMatch(path);
+    if (leave != null && method == 'POST') {
+      record();
+      final id = int.parse(leave.group(1)!);
+      households = [
+        for (final h in households)
+          if (h['id'] != id) h,
+      ];
+      return const JsonReply(204, null);
+    }
+    final meterOne = RegExp(r'^/meters/(\d+)$').firstMatch(path);
+    if (meterOne != null && method == 'PATCH') {
+      record();
+      final meterId = int.parse(meterOne.group(1)!);
+      final data = body()! as Map<String, dynamic>;
+      Map<String, Object?>? renamed;
+      meters = {
+        for (final e in meters.entries)
+          e.key: [
+            for (final m in e.value)
+              if (m['id'] == meterId) renamed = {...m, 'label': data['label']} else m,
+          ],
+      };
+      if (renamed == null) return JsonReply(404, apiError('METER_NOT_FOUND', 'Introuvable.'));
+      return JsonReply(200, renamed);
+    }
+    return null;
+  }
+
   /// Factures à payer de tous les foyers (`GET /bills?status=to_pay`).
   List<Map<String, Object?>> toPay = [
     bill(101, household: 1, meter: 11, due: '2026-11-18'),
@@ -471,12 +693,14 @@ class FakeHomeBackend {
     if (down.any((d) => path == d || path.startsWith('$d/'))) {
       return const FailReply(DioExceptionType.connectionError);
     }
+    final householdReply = _households(request);
+    if (householdReply != null) return householdReply;
     final query = request.queryParameters;
     final meterMatch = RegExp(r'^/meters/(\d+)/consumption(/summary)?$').firstMatch(path);
     final householdMeters = RegExp(r'^/households/(\d+)/meters$').firstMatch(path);
     if (path == '/me') return JsonReply(200, user);
-    if (path == '/households') return JsonReply(200, households);
-    if (householdMeters != null) {
+    if (path == '/households' && request.method == 'GET') return JsonReply(200, households);
+    if (householdMeters != null && request.method == 'GET') {
       return JsonReply(200, meters[int.parse(householdMeters.group(1)!)] ?? <Object>[]);
     }
     if (path == '/bills') {

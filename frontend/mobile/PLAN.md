@@ -14,8 +14,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F3 | Connexion | ✅ terminé le 18/11/2026 |
 | F4 | Accueil et notifications | ✅ terminé le 19/11/2026 |
 | F5 | Factures | ✅ terminé le 19/11/2026 (sans le jalon sur le téléphone) |
-| F6 | Paiement, reçus et historique | prochaine étape |
-| F7 | Consommation | à faire |
+| F6 | Paiement, reçus et historique | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
+| F7 | Consommation | prochaine étape |
 | F8 | Compteurs et foyers | à faire |
 | F9 | Compte et assistance | à faire |
 | F10 | Finitions et livraison (APK) | à faire |
@@ -108,8 +108,14 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   (pas encore joué). 1190 tests ; APK release de l'itel 16,6 Mo.
 - **Jalon sur le téléphone REPORTÉ** (itel en panne, 19/11/2026) : il devient un **jalon groupé
   F4 + F5 + F6**, à jouer dès que l'itel revient (voir le tableau des jalons ci-dessous).
-- **Prochaine étape : F6** (paiement, reçus, historique), après le « Continue » de Loick. Arrêt prévu
-  avant de brancher `POST /payments`.
+- **F6 ✅ terminé le 20/11/2026** (rapports `rapports/F6-avant-paiement.md` et `rapports/F6.md`) :
+  F6.0 libellés de période à partir des dates ; dates de période ajoutées au contrat (backend, accord de
+  Loick, ajout seulement) ; F6.1 règles du paiement (`lib/features/payments/payment_flow.dart`) ; F6.2
+  feuille et écran d'attente, bouton Payer central ; F6.3 paiement réel branché (`ApiPaymentGateway`,
+  après l'accord de Loick) ; F6.4 reçu (`lib/features/receipts/`), bascule seule au succès ; F6.5
+  historique (`history_screen.dart`). Pas de « Simuler la confirmation » (seul le prestataire confirme).
+  1341 tests ; APK release de l'itel 16,7 Mo.
+- **Prochaine étape : F7** (consommation), après le « Continue » de Loick.
 
 ## Méthode (la même que pour le backend)
 

@@ -247,5 +247,12 @@ en versions fixes) ; `apk_check` refuse toute autorisation hors liste blanche (l
 **Jalon sur le téléphone reporté** (itel en panne) : **jalon groupé F4 + F5 + F6** dès que l'itel revient
 (tests d'intégration F3 + F4 + F5, captures, PDF, texte agrandi, TalkBack, fluidité).
 
-**Prochaine étape : F6** (paiement, reçus, historique), après le « Continue » de Loick ; arrêt avant de
-brancher `POST /payments`.
+**F6 (paiement, reçus, historique) ✅ terminé le 20/11/2026** — rapports `frontend/mobile/rapports/F6-avant-paiement.md`
+et `F6.md`. Paiement Mobile Money (`lib/features/payments/` : clé d'idempotence par tentative, même clé
+après une réponse inconnue, jamais « Échoué » sur un délai, suivi 3 s puis 15 s après 2 min, arrêté écran
+fermé ; `ApiPaymentGateway` : `POST /payments` sans le montant, `GET /payments/{id}` jamais en cache),
+reçu (`lib/features/receipts/`) et historique. Backend : dates de période ajoutées au contrat
+(`bill_period_start` / `bill_period_end`, `period_start` / `period_end`), ajout seulement, 1945 tests.
+1341 tests de l'application, APK release de l'itel 16,7 Mo.
+
+**Prochaine étape : F7** (consommation), après le « Continue » de Loick.

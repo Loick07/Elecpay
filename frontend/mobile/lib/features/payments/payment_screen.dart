@@ -78,7 +78,14 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   Widget build(BuildContext context) {
     // Réponse finale : la facture, l'accueil et les listes sont relus (D6.4).
     ref.listen(paymentFlowProvider(widget.billId), (previous, next) {
-      if (next is PaymentFinished && previous is! PaymentFinished) _refreshBills();
+      if (next is PaymentFinished && previous is! PaymentFinished) {
+        _refreshBills();
+        // Réussi : l'écran bascule seul sur le reçu (D6.4).
+        if (next.payment.receiptId case final receiptId?
+            when next.payment.status == TransactionStatuses.succeeded) {
+          context.pushReplacement(Routes.receipt(receiptId));
+        }
+      }
     });
     final state = ref.watch(paymentFlowProvider(widget.billId));
     final bill = ref.watch(billDetailProvider(widget.billId)).value?.data;
@@ -132,7 +139,10 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                     phone: payment?.phoneNumber ?? request?.phone ?? '',
                     reference: payment?.reference ?? 'Référence en attente',
                     failureReason: payment?.failureReason,
-                    onViewReceipt: () => context.push(Routes.pending('Reçu', 'F6.4')),
+                    onViewReceipt: switch (payment?.receiptId) {
+                      final receiptId? => () => context.pushReplacement(Routes.receipt(receiptId)),
+                      null => null,
+                    },
                     onRetry: state is PaymentFinished && state.canRetry ? _flow.retry : null,
                     onHome: () => context.go(AppTab.home.path),
                   ),

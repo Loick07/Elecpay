@@ -239,4 +239,16 @@ void main() {
     expect(formatTime(DateTime.utc(2026, 11, 12, 13, 31)), '14:31');
     expect(formatTime(DateTime.utc(2026, 11, 12, 23, 5)), '00:05');
   });
+
+  test('période dans une phrase (reçu) : « septembre–octobre 2026 »', () {
+    expect(
+      formatBillPeriodLong(DateTime(2026, 9), DateTime(2026, 10, 31)),
+      'septembre\u2013octobre 2026',
+    );
+    expect(
+      formatBillPeriodLong(DateTime(2026, 12), DateTime(2027, 1, 31)),
+      'décembre 2026\u2013janvier 2027',
+    );
+    expect(formatBillPeriodLong(DateTime(2026, 10), DateTime(2026, 10, 31)), 'octobre 2026');
+  });
 }

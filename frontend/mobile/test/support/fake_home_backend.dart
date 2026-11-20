@@ -196,6 +196,31 @@ class FakeHomeBackend {
   /// État renvoyé par `GET /payments/{id}` (absent : 404 `PAYMENT_NOT_FOUND`).
   final Map<int, Map<String, Object?>> paymentStates = {};
 
+  /// Reçus (`GET /receipts/{id}`) : celui de la maquette de l'écran 10 sous l'identifiant 3.
+  Map<int, Map<String, Object?>> receipts = {3: receiptJson(3)};
+
+  /// Reçu de la maquette (Maison Mpita, sept.–oct. 2026, 31 420 FCFA, numéro masqué).
+  static Map<String, Object?> receiptJson(int id, {String source = 'simulated'}) => {
+    ..._api.sample('ReceiptPublic'),
+    'id': id,
+    'number': 'EP-2026-000123',
+    'issued_at': '2026-11-12T13:32:00Z',
+    'amount': 31420,
+    'verification_code': '8F3K-2Q9M-7XHT',
+    'bill_id': 101,
+    'bill_reference': '20261103000127',
+    'bill_period_label': 'TEXTE API',
+    'bill_period_start': '2026-09-01',
+    'bill_period_end': '2026-10-31',
+    'meter_reference': '0412-8833',
+    'household_name': 'Maison Mpita',
+    'payer_name': 'Loick Makosso',
+    'operator_label': 'MTN MoMo',
+    'phone_number': '+242 06 *** 45 67',
+    'transaction_reference': 'TX-00000500',
+    'source': source,
+  };
+
   /// Un paiement au format du contrat (`PaymentPublic`).
   static Map<String, Object?> paymentJson(int id, String status, {String? reason}) => {
     ..._api.sample('PaymentPublic'),
@@ -357,6 +382,14 @@ class FakeHomeBackend {
       final created = paymentJson(500, TransactionStatuses.pending);
       paymentStates[500] ??= created;
       return JsonReply(201, created);
+    }
+    final receiptMatch = RegExp(r'^/receipts/(\d+)$').firstMatch(path);
+    if (receiptMatch != null) {
+      final receipt = receipts[int.parse(receiptMatch.group(1)!)];
+      if (receipt == null) {
+        return JsonReply(404, apiError('RECEIPT_NOT_FOUND', 'Reçu introuvable.'));
+      }
+      return JsonReply(200, receipt);
     }
     final paymentMatch = RegExp(r'^/payments/(\d+)$').firstMatch(path);
     if (paymentMatch != null) {

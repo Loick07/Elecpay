@@ -5,6 +5,7 @@ import 'package:elecpay/core/models/consumption.dart';
 import 'package:elecpay/core/models/households.dart';
 import 'package:elecpay/core/models/notifications.dart';
 import 'package:elecpay/core/models/payments.dart';
+import 'package:elecpay/core/models/receipts.dart';
 import 'package:elecpay/core/network/models/api_error.dart';
 import 'package:elecpay/features/auth/models/auth_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,6 +55,7 @@ const cases = <ContractCase>[
   ContractCase('ConsumptionComparison', ConsumptionComparison.fromJson),
   ContractCase('ConsumptionSeries', ConsumptionSeries.fromJson),
   ContractCase('UnreadCount', UnreadCount.fromJson),
+  ContractCase('ReceiptPublic', ReceiptPublic.fromJson),
   ContractCase('NotificationPublic', NotificationPublic.fromJson),
   ContractCase('NotificationList', NotificationList.fromJson),
   ContractCase('ReadAllResult', ReadAllResult.fromJson),

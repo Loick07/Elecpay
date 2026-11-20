@@ -56,6 +56,11 @@ class PayHarness {
           ),
         ),
         GoRoute(
+          path: Routes.receiptPath,
+          builder: (context, state) =>
+              Scaffold(body: Text('Reçu ${state.pathParameters['receiptId']}')),
+        ),
+        GoRoute(
           path: Routes.paymentPath,
           builder: (context, state) =>
               PaymentScreen(billId: int.parse(state.pathParameters['billId']!)),
@@ -272,7 +277,7 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('réussi : « Paiement réussi », « Voir le reçu », factures relues', (tester) async {
+    testWidgets('réussi : bascule seule sur le reçu (D6.4), factures relues', (tester) async {
       final h = PayHarness();
       await h.pump(tester);
       await openSheet(tester);
@@ -282,8 +287,12 @@ void main() {
       h.gateway.onFetch = (id) => fakePayment(id, TransactionStatuses.succeeded);
       h.timing.release();
       await settle(tester);
-      expect(find.text('Paiement réussi'), findsOneWidget);
-      expect(find.text('Voir le reçu'), findsOneWidget);
+      // F6.4 : le reçu s'ouvre de lui-même (D6.4) au lieu de rester sur « Paiement réussi ».
+      expect(
+        find.text('Reçu ${fakePayment(1, TransactionStatuses.succeeded).receiptId}'),
+        findsOneWidget,
+      );
+      expect(find.byType(PaymentScreen), findsNothing);
       expect(billReads(), greaterThan(before), reason: 'facture et listes relues (D6.4)');
       await unmount(tester);
     });

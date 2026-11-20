@@ -20,6 +20,7 @@ import '../features/legal/legal_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/payments/payment_screen.dart';
 import '../features/pending/pending_screen.dart';
+import '../features/receipts/receipt_screen.dart';
 import '../features/startup/splash_screen.dart';
 import 'app_shell.dart';
 import 'routes.dart';
@@ -57,6 +58,11 @@ List<RouteBase> appRoutes() => [
   ),
   // Écrans poussés (sans barre du bas).
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
+  GoRoute(
+    path: Routes.receiptPath,
+    builder: (context, state) =>
+        ReceiptScreen(receiptId: int.tryParse(state.pathParameters['receiptId'] ?? '') ?? 0),
+  ),
   GoRoute(
     path: Routes.paymentPath,
     builder: (context, state) =>

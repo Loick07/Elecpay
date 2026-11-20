@@ -46,6 +46,11 @@ Future<ProviderContainer> pumpNotifications(
           path: tab.path,
           builder: (context, state) => Scaffold(body: Text('Onglet ${tab.label}')),
         ),
+      GoRoute(
+        path: Routes.receiptPath,
+        builder: (context, state) =>
+            Scaffold(body: Text('Reçu ${state.pathParameters['receiptId']}')),
+      ),
       GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
     ],
   );
@@ -147,6 +152,19 @@ void main() {
       expect(backend.server.requests.where((r) => r.path == '/notifications/3/read'), hasLength(1));
       expect(container.read(notificationsProvider).value!.unreadCount, 2);
       expect(container.read(unreadCountProvider).value, 2);
+    });
+
+    testWidgets('« Paiement réussi » avec son reçu : le reçu s’ouvre (F6.4)', (tester) async {
+      final backend = FakeHomeBackend();
+      backend.notifications[0] = {
+        ...backend.notifications[0],
+        'data': {'bill_id': 101, 'receipt_id': 3, 'transaction_id': 500},
+      };
+      await pumpNotifications(tester, backend);
+      await tester.tap(find.byKey(const Key('notification.1')));
+      await settle(tester);
+      expect(find.text('Reçu 3'), findsOneWidget);
+      expect(backend.server.requests.where((r) => r.path == '/notifications/1/read'), hasLength(1));
     });
 
     testWidgets('déjà lue : rien n’est envoyé, l’onglet s’ouvre quand même', (tester) async {

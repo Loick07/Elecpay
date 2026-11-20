@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/routes.dart';
 import '../../core/format/formats.dart';
 import '../../core/models/notifications.dart';
 import '../../core/network/api_failure.dart';
@@ -40,6 +41,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   Future<void> _open(NotificationPublic n) async {
     unawaited(ref.read(notificationsProvider.notifier).markRead(n));
+    // « Paiement réussi » avec son reçu : le reçu (écran 10, F6.4) ; sinon l'onglet concerné.
+    if (n.type == NotificationTypes.paymentSucceeded && n.data?['receipt_id'] is int) {
+      await context.push(Routes.receipt(n.data!['receipt_id'] as int));
+      return;
+    }
     final tab = notificationTab(n);
     if (tab != null) context.go(tab.path);
   }

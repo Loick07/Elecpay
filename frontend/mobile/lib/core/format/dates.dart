@@ -168,6 +168,16 @@ String formatBillPeriodGroup(DateTime start, DateTime end) {
   return '$from ${start.year} $enDash $to ${end.year}';
 }
 
+/// Période en toutes lettres, dans une phrase (maquette du reçu, écran 10) :
+/// « septembre–octobre 2026 » ; sur deux années : « décembre 2026–janvier 2027 » ; un mois : « octobre 2026 ».
+String formatBillPeriodLong(DateTime start, DateTime end) {
+  final from = _monthsLong[start.month - 1];
+  final to = _monthsLong[end.month - 1];
+  if (_monthIndex(start) == _monthIndex(end)) return '$to ${end.year}';
+  if (start.year == end.year) return '$from$enDash$to ${end.year}';
+  return '$from ${start.year}$enDash$to ${end.year}';
+}
+
 /// Période courte (listes) : « sept.–oct. 2026 » ; « déc. 2026–janv. 2027 » ; un seul mois : « oct. 2026 ».
 String formatBillPeriodShort(DateTime start, DateTime end) {
   if (_monthIndex(start) == _monthIndex(end)) return '${_short(end.month)} ${end.year}';

@@ -16,6 +16,10 @@ abstract final class Routes {
   static final paymentPath = '${AppTab.bills.path}/:billId/paiement';
   static String payment(int billId) => '${AppTab.bills.path}/$billId/paiement';
 
+  /// Écran 10 : reçu d'un paiement réussi, poussé (sous `/factures/` : protégé).
+  static final receiptPath = '${AppTab.bills.path}/recus/:receiptId';
+  static String receipt(int receiptId) => '${AppTab.bills.path}/recus/$receiptId';
+
   /// Écran 13, poussé depuis la cloche de l'accueil.
   static final notifications = '${AppTab.home.path}/notifications';
 

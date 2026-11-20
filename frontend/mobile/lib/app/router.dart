@@ -17,6 +17,7 @@ import '../features/design_check/charte_screen.dart';
 import '../features/diagnostic/diagnostic_access.dart';
 import '../features/diagnostic/diagnostic_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/households/households_screen.dart';
 import '../features/legal/legal_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/payments/history_screen.dart';
@@ -64,6 +65,7 @@ List<RouteBase> appRoutes() => [
   // Écrans poussés (sans barre du bas).
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
   GoRoute(path: Routes.history, builder: (context, state) => const HistoryScreen()),
+  GoRoute(path: Routes.households, builder: (context, state) => const HouseholdsScreen()),
   GoRoute(
     path: Routes.receiptPath,
     builder: (context, state) =>

@@ -16,6 +16,7 @@ import '../core/widgets/state_block.dart';
 import '../features/diagnostic/diagnostic_access.dart';
 import '../features/home/home_data.dart';
 import '../features/payments/payment_entry.dart';
+import 'routes.dart';
 
 /// Coquille des écrans principaux (connecté) : le contenu de l'onglet, et la barre du bas flottante
 /// par-dessus (le contenu passe dessous, la barre est en verre).
@@ -95,6 +96,17 @@ class PendingTab extends ConsumerWidget {
               title: '${tab.label} : bientôt',
               message: 'Cet écran arrive à l’étape $step du plan.',
             ),
+            // D8.3 : « Compteurs et foyers » depuis Compte (en attendant l'écran Compte, F9).
+            if (tab == AppTab.account) ...[
+              AppButton(
+                key: const Key('account.households'),
+                label: 'Compteurs et foyers',
+                icon: AppIcons.meter,
+                variant: ButtonVariant.secondary,
+                onPressed: () => context.push(Routes.households),
+              ),
+              const SizedBox(height: Space.s3),
+            ],
             if (tab == AppTab.account)
               AppButton(
                 label: 'Se déconnecter',

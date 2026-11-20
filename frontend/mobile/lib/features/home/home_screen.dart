@@ -84,8 +84,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (mounted) await _refreshBell();
   }
 
-  void _open(String screen, String step) => context.push(Routes.pending(screen, step));
-
   Future<void> _chooseHousehold(List<HouseholdSummary> households, int? shownId) async {
     final chosen = await showAppSheet<int>(
       context,
@@ -179,7 +177,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       'Avec votre N° de branchement et votre N° client E²C, ElecPay affiche '
                       'votre consommation et vos factures.',
                   actionLabel: 'Ajouter un compteur',
-                  onAction: () => _open('Compteurs et foyers', 'F8'),
+                  onAction: () => context.push(Routes.households),
                 )
               else ...[
                 _urgentSection(urgent, householdList.length),

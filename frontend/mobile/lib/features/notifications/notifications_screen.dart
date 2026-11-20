@@ -46,6 +46,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       await context.push(Routes.receipt(n.data!['receipt_id'] as int));
       return;
     }
+    // Invitation reçue : l'écran Compteurs et foyers, où elle s'accepte (F8).
+    if (n.type == NotificationTypes.invitationReceived) {
+      await context.push(Routes.households);
+      return;
+    }
     final tab = notificationTab(n);
     if (tab != null) context.go(tab.path);
   }

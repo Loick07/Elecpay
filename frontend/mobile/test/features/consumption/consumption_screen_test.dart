@@ -27,7 +27,7 @@ import '../../support/openapi.dart';
 /// Jeudi 12 novembre 2026, 10 h à Brazzaville (dernier relevé du faux backend : le 11).
 final _now = DateTime.utc(2026, 11, 12, 9);
 
-/// Écran 11 seul, sur l'itel ; la page d'attente F8 est une simple page.
+/// Écran 11 seul, sur l'itel ; les autres écrans sont de simples pages.
 Future<void> pumpConso(
   WidgetTester tester,
   FakeHomeBackend backend, {
@@ -46,6 +46,10 @@ Future<void> pumpConso(
       GoRoute(
         path: AppTab.consumption.path,
         builder: (context, state) => const ConsumptionScreen(),
+      ),
+      GoRoute(
+        path: Routes.households,
+        builder: (context, state) => const Scaffold(body: Text('Écran Compteurs et foyers')),
       ),
       GoRoute(
         path: Routes.billPath,
@@ -288,7 +292,8 @@ void main() {
     expect(find.byKey(const Key('conso.tab.month')), findsOneWidget, reason: 'onglets visibles');
     await tester.tap(find.text('Ajouter un compteur'));
     await settle(tester);
-    expect(find.text('Attente F8'), findsOneWidget);
+    // F8 : le vrai écran Compteurs et foyers (avant : sa page d'attente).
+    expect(find.text('Écran Compteurs et foyers'), findsOneWidget);
   });
 
   testWidgets('erreur du serveur : message et Réessayer', (tester) async {

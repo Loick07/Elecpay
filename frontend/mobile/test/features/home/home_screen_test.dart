@@ -55,6 +55,10 @@ Future<void> pumpHome(
         builder: (context, state) =>
             Scaffold(body: Text('Facture ${state.pathParameters['billId']}')),
       ),
+      GoRoute(
+        path: Routes.households,
+        builder: (context, state) => const Scaffold(body: Text('Écran Compteurs et foyers')),
+      ),
       GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
       GoRoute(
         path: Routes.pendingPath,
@@ -154,7 +158,8 @@ void main() {
       expect(find.text('Tout est payé'), findsNothing);
       await tester.tap(find.text('Ajouter un compteur'));
       await settle(tester);
-      expect(find.text('Compteurs et foyers : bientôt'), findsOneWidget);
+      // F8 : le vrai écran Compteurs et foyers (avant : sa page d'attente).
+      expect(find.text('Écran Compteurs et foyers'), findsOneWidget);
     });
   });
 

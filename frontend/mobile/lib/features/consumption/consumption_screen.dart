@@ -138,7 +138,7 @@ class _ConsumptionScreenState extends ConsumerState<ConsumptionScreen> {
             title: 'Aucun compteur',
             message: 'Ajoutez votre compteur E²C pour suivre votre consommation.',
             actionLabel: 'Ajouter un compteur',
-            onAction: () => unawaited(context.push(Routes.pending('Compteurs & foyers', 'F8'))),
+            onAction: () => unawaited(context.push(Routes.households)),
           ),
         ],
         AsyncError(:final error) => [const SizedBox(height: Space.s6), _failure(error, retry)],

@@ -51,6 +51,10 @@ Future<ProviderContainer> pumpNotifications(
         builder: (context, state) =>
             Scaffold(body: Text('Reçu ${state.pathParameters['receiptId']}')),
       ),
+      GoRoute(
+        path: Routes.households,
+        builder: (context, state) => const Scaffold(body: Text('Écran Compteurs et foyers')),
+      ),
       GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
     ],
   );
@@ -165,6 +169,19 @@ void main() {
       await settle(tester);
       expect(find.text('Reçu 3'), findsOneWidget);
       expect(backend.server.requests.where((r) => r.path == '/notifications/1/read'), hasLength(1));
+    });
+
+    testWidgets('invitation reçue : l’écran Compteurs et foyers s’ouvre (F8)', (tester) async {
+      final backend = FakeHomeBackend();
+      backend.notifications[0] = {
+        ...backend.notifications[0],
+        'type': 'invitation_received',
+        'data': {'household_id': 31, 'invitation_id': 1},
+      };
+      await pumpNotifications(tester, backend);
+      await tester.tap(find.byKey(const Key('notification.1')));
+      await settle(tester);
+      expect(find.text('Écran Compteurs et foyers'), findsOneWidget);
     });
 
     testWidgets('déjà lue : rien n’est envoyé, l’onglet s’ouvre quand même', (tester) async {

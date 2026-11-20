@@ -26,6 +26,10 @@ abstract final class Routes {
   /// Écran 13, poussé depuis la cloche de l'accueil.
   static final notifications = '${AppTab.home.path}/notifications';
 
+  /// Écran 15 : Compteurs et foyers, poussé (sous `/compte/` : protégé). D8.3 : depuis Compte,
+  /// l'état « Ajoutez votre premier compteur », Consommation sans compteur et les invitations.
+  static final households = '${AppTab.account.path}/compteurs';
+
   /// Écran poussé pas encore construit (page d'attente), sous l'accueil : donc protégé.
   static final pendingPath = '${AppTab.home.path}/bientot';
 

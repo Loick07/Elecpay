@@ -61,14 +61,25 @@ void main() {
     await shot(tester, 'f6-4-injoignable');
   });
 
-  testWidgets('paiement réussi (numéro du compte) : étapes, puis « Paiement réussi »', (
+  // Depuis F6.4 (D6.4), l'écran d'attente bascule SEUL sur le reçu au succès (plus de « Voir le
+  // reçu » à toucher). Le PDF ouvre une autre application : il se vérifie à l'œil, pas ici.
+  testWidgets('paiement réussi (numéro du compte) : étapes, puis bascule seule sur le reçu', (
     tester,
   ) async {
     await loginAndOpenSheet(tester);
     await tapOn(tester, find.textContaining('Payer ').last);
     await waitFor(tester, find.byType(PaymentScreen));
-    await waitFor(tester, find.text('Paiement réussi'), timeout: const Duration(seconds: 60));
-    await shot(tester, 'f6-5-reussi');
-    expect(find.text('Voir le reçu'), findsOneWidget);
+    await shot(tester, 'f6-5-attente-reussite');
+    await waitFor(
+      tester,
+      find.byKey(const Key('receipt.screen')),
+      timeout: const Duration(seconds: 60),
+    );
+    await shot(tester, 'f6-6-recu');
+    expect(find.byKey(const Key('receipt.download')), findsOneWidget);
+    expect(find.byKey(const Key('receipt.share')), findsOneWidget);
+    await tapOn(tester, find.byKey(const Key('receipt.done')));
+    await tester.pump(const Duration(seconds: 2));
+    await shot(tester, 'f6-7-apres-recu');
   });
 }

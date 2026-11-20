@@ -794,7 +794,7 @@ class _TotalsBlock extends StatelessWidget {
     ].join(', ');
     return Semantics(
       container: true,
-      label: spoken,
+      label: spokenUnits(spoken),
       excludeSemantics: true,
       child: Wrap(
         key: const Key('conso.totals'),

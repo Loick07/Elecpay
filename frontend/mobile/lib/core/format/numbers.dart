@@ -76,6 +76,25 @@ String formatKwValue(double kw) {
 /// Puissance avec son unité : « 1,23 kW ».
 String formatKw(double kw) => '${formatKwValue(kw)}${unitSpace}kW';
 
+/// Pour TalkBack : unités d'énergie et de puissance en toutes lettres. « 19,3 kWh » était lu
+/// « 19.3 KWAT » sur l'itel (jalon F4 → F7) ; l'écran, lui, garde « kWh ». Singulier sous 2
+/// (« 0 kilowattheure », « 1,5 kilowattheure »), pluriel au-delà.
+String spokenUnits(String text) => text.replaceAllMapped(
+  RegExp(
+    '([0-9][0-9\u00A0]*(?:,[0-9]+)?)\u00A0(kWh|kW|kVA)'
+    r'\b',
+  ),
+  (m) {
+    final value = double.parse(m[1]!.replaceAll(groupSpace, '').replaceAll(',', '.'));
+    final word = switch (m[2]) {
+      'kWh' => 'kilowattheure',
+      'kW' => 'kilowatt',
+      _ => 'kilovoltampère',
+    };
+    return '${m[1]} $word${value.abs() < 2 ? '' : 's'}';
+  },
+);
+
 /// Taux : 18.0 → « 18 % » ; 5.5 → « 5,5 % ».
 String formatPercent(num percent) => '${formatDecimal(percent)}$unitSpace%';
 

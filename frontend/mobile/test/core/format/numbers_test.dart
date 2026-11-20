@@ -126,4 +126,22 @@ void main() {
     expect(formatKwValue(12.005), '12,01');
     expect(visible(formatKw(3.4)), '3,40·kW');
   });
+
+  test(
+    'TalkBack : « kWh » dit « kilowattheures » (lu « KWAT » sur l’itel), l’écran ne change pas',
+    () {
+      expect(
+        spokenUnits('3 novembre, 19,3\u00A0kWh, consommation élevée'),
+        '3 novembre, 19,3 kilowattheures, consommation élevée',
+      );
+      expect(spokenUnits('12 novembre, 0\u00A0kWh'), '12 novembre, 0 kilowattheure');
+      expect(spokenUnits('Index : 15\u00A0555,7\u00A0kWh'), 'Index : 15\u00A0555,7 kilowattheures');
+      expect(
+        spokenUnits('Puissance : 1,36\u00A0kW, 9\u00A0kVA'),
+        'Puissance : 1,36 kilowatt, 9 kilovoltampères',
+      );
+      expect(spokenUnits('Moyenne : 15,4\u00A0kWh/jour'), 'Moyenne : 15,4 kilowattheures/jour');
+      expect(spokenUnits('sans unité'), 'sans unité');
+    },
+  );
 }

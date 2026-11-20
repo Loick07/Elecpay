@@ -256,4 +256,15 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  // Vu sur l'itel à 200 % (jalon F4 → F7) : « Mes fa / ctures », coupé en plein mot à côté du badge.
+  testWidgets('texte à 200 % : le badge passe sous le titre, qui garde toute la largeur', (
+    tester,
+  ) async {
+    await pumpBills(tester, mockupBackend(), textScale: 2);
+    final title = tester.getRect(find.text('Mes factures'));
+    final badge = tester.getRect(find.text('MODE DÉMO'));
+    expect(badge.top, greaterThanOrEqualTo(title.bottom - 1));
+    expect(tester.takeException(), isNull);
+  });
 }

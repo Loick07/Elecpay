@@ -328,7 +328,7 @@ class _Facts extends StatelessWidget {
                   width: width,
                   child: Semantics(
                     container: true,
-                    label: '$label : $value',
+                    label: spokenUnits('$label : $value'),
                     excludeSemantics: true,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

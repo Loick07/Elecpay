@@ -263,7 +263,13 @@ void main() {
           DateTime(2026, m),
           m == 12 ? 0 : (m == 10 ? 212400 : (m == 11 ? 99000 : 200000)),
           days: m == 12 ? 0 : (m == 11 ? 11 : 30),
-        ).copyWith(end: DateTime(2026, m + 1, 0), isPartial: m >= 11, isCurrent: m == 11),
+        ).copyWith(
+          end: DateTime(2026, m + 1, 0),
+          isPartial: m >= 11,
+          isCurrent: m == 11,
+          // Mars : complet, avec un jour estimé (relevé manquant).
+          isEstimated: m == 3,
+        ),
     ];
     final s = series(months, until: DateTime(2026, 11, 11));
 
@@ -275,6 +281,9 @@ void main() {
       expect(bars[10].spoken, 'Novembre 2026 : 99\u00A0kWh, estimation');
       expect((bars[11].hasData, bars[11].target), (false, null));
       expect(bars[11].spoken, 'Décembre 2026 : pas encore de données');
+      // Défaut vu sur l'itel : un mois COMPLET avec un jour estimé n'est pas en pointillé.
+      expect(bars[2].estimated, isFalse);
+      expect(bars[2].spoken.contains('estimation'), isFalse);
       expect(bars[9].target, ConsumptionCursor.of(ConsumptionLevel.month, DateTime(2026, 10)));
     });
 
@@ -295,6 +304,7 @@ void main() {
       expect(rows[1].title, 'Octobre 2026');
       expect(rows[1].subtitle, '30 jours · ≈\u00A010\u00A0407\u00A0FCFA');
       expect(rows[1].estimated, isFalse);
+      expect(rows.firstWhere((r) => r.title == 'Mars 2026').estimated, isFalse);
     });
   });
 

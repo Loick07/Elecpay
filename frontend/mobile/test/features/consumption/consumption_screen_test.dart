@@ -475,7 +475,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const Key('conso.chart')), findsOneWidget);
-      expect(find.bySemanticsLabel('1er novembre : 11\u00A0kWh'), findsOneWidget);
+      expect(find.bySemanticsLabel('1er novembre : 11 kilowattheures'), findsOneWidget);
       expect(find.bySemanticsLabel('12 novembre : pas encore de données'), findsOneWidget);
       expect(
         find.text('Touchez un jour pour son détail, ou une semaine ci-dessous'),
@@ -556,7 +556,7 @@ void main() {
       expect(find.byKey(const Key('conso.stat.Moyenne')), findsOneWidget);
       expect(find.text('Lun 9'), findsOneWidget);
       expect(find.text('Dim 15'), findsOneWidget);
-      expect(find.bySemanticsLabel('Lundi 9 novembre : 9\u00A0kWh'), findsOneWidget);
+      expect(find.bySemanticsLabel('Lundi 9 novembre : 9 kilowattheures'), findsOneWidget);
       expect(find.bySemanticsLabel('Jeudi 12 novembre : pas encore de données'), findsOneWidget);
       await tapKey(tester, 'conso.bar.2');
       expect(period(tester), 'Mer. 11 nov.');
@@ -604,7 +604,7 @@ void main() {
       }
       expect(
         tester.getSemantics(find.byKey(const Key('conso.day.3'))).label,
-        startsWith('3 novembre, 9\u00A0kWh, consommation '),
+        startsWith('3 novembre, 9 kilowattheures, consommation '),
       );
       expect(
         tester.getSemantics(find.byKey(const Key('conso.day.11'))).label,
@@ -644,5 +644,29 @@ void main() {
       expect(find.text(formatIndexKwh((end - 9000) / 1000)), findsOneWidget);
       expect(find.textContaining('relevé par jour'), findsWidgets);
     });
+  });
+
+  // Vu sur l'itel à 200 % (jalon F4 → F7) : « 15 555,7 k / Wh », « Classemen / t du mois ».
+  testWidgets('carte du jour à 200 % : une seule colonne ; à 100 % : deux colonnes', (
+    tester,
+  ) async {
+    for (final (scale, oneColumn) in [(2.0, true), (1.0, false)]) {
+      await pumpConso(tester, namedMeters(), textScale: scale);
+      await tapKey(tester, 'conso.tab.day');
+      await tester.dragUntilVisible(
+        find.text('Index de fin').hitTestable(),
+        find.byKey(const Key('conso.list')),
+        const Offset(0, -150),
+      );
+      final start = tester.getRect(find.text('Index de début'));
+      final end = tester.getRect(find.text('Index de fin'));
+      if (oneColumn) {
+        expect(end.left, start.left, reason: 'à $scale');
+        expect(end.top, greaterThan(start.bottom));
+      } else {
+        expect(end.left, greaterThan(start.right), reason: 'à $scale');
+      }
+      expect(tester.takeException(), isNull);
+    }
   });
 }

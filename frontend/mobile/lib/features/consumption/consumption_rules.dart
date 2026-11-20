@@ -295,18 +295,20 @@ int? _sumCosts(Iterable<ConsumptionPoint> points) {
 
 String _days(int n) => '$n jour${n > 1 ? 's' : ''}';
 
-/// Vue Année : 12 barres (initiales des mois), mois incomplet en pointillé.
+/// Vue Année : 12 barres (initiales des mois). SEUL le mois incomplet est en pointillé (maquette) :
+/// un mois complet avec un jour estimé reste plein (vu sur l'itel au jalon F4 → F7 : un seul jour
+/// estimé suffisait à mettre tout le mois en pointillé, et presque toute l'année l'était).
 List<ChartBar> yearBars(ConsumptionSeries series) => [
   for (final p in series.points)
     (
       wh: p.consumptionWh,
       hasData: p.daysWithData > 0,
-      estimated: p.daysWithData > 0 && (p.isPartial || p.isEstimated),
+      estimated: p.daysWithData > 0 && p.isPartial,
       axis: formatMonthInitial(p.start.month),
       value: null,
       spoken:
           '${formatMonthYear(p.start.year, p.start.month)} : '
-          '${_spokenValue(p, estimated: p.isPartial || p.isEstimated)}',
+          '${_spokenValue(p, estimated: p.isPartial)}',
       target: p.daysWithData > 0 ? ConsumptionCursor.of(ConsumptionLevel.month, p.start) : null,
     ),
 ];
@@ -382,7 +384,8 @@ List<PeriodRow> yearRows(ConsumptionSeries series) {
                   : _days(p.daysWithData)) +
               _cost(p.energyCost),
           wh: p.consumptionWh,
-          estimated: p.isPartial || p.isEstimated,
+          // « Estimé » sur le mois incomplet seulement (comme ses barres).
+          estimated: p.isPartial,
           target: ConsumptionCursor.of(ConsumptionLevel.month, p.start),
         ),
   ];

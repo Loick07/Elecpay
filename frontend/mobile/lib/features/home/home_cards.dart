@@ -40,75 +40,87 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final count = unread ?? 0;
-    return Row(
+    final texts = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(date, style: AppText.bodySm.copyWith(color: c.inkMuted)),
-              Semantics(
-                header: true,
-                child: Text(
-                  firstName == null ? 'Bonjour' : 'Bonjour $firstName',
-                  style: AppText.h1.copyWith(color: c.ink),
-                ),
-              ),
-            ],
+        Text(date, style: AppText.bodySm.copyWith(color: c.inkMuted)),
+        Semantics(
+          header: true,
+          child: Text(
+            firstName == null ? 'Bonjour' : 'Bonjour $firstName',
+            style: AppText.h1.copyWith(color: c.ink),
           ),
         ),
-        const SizedBox(width: Space.s3),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: Space.s2,
-          runSpacing: Space.s2,
-          children: [
-            if (showDemoBadge) const DemoBadge(),
-            Semantics(
-              container: true, // un élément à part pour TalkBack (pas fusionné avec la date)
-              button: true,
-              label: count > 0
-                  ? 'Notifications, $count non lue${count > 1 ? 's' : ''}'
-                  : 'Notifications',
-              excludeSemantics: true,
-              child: Material(
-                color: c.surface1,
-                shape: CircleBorder(side: BorderSide(color: c.line)),
-                child: InkWell(
-                  key: const Key('home.bell'),
-                  customBorder: const CircleBorder(),
-                  onTap: onNotifications,
-                  child: SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        AppIcon(AppIcons.notifications, color: c.ink),
-                        if (count > 0)
-                          Positioned(
-                            key: const Key('home.bell.dot'),
-                            top: 11,
-                            right: 12,
-                            child: Container(
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: c.error,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: c.bg, width: 2),
-                              ),
-                            ),
+      ],
+    );
+    final actions = Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: Space.s2,
+      runSpacing: Space.s2,
+      children: [
+        if (showDemoBadge) const DemoBadge(),
+        Semantics(
+          container: true, // un élément à part pour TalkBack (pas fusionné avec la date)
+          button: true,
+          label: count > 0
+              ? 'Notifications, $count non lue${count > 1 ? 's' : ''}'
+              : 'Notifications',
+          excludeSemantics: true,
+          child: Material(
+            color: c.surface1,
+            shape: CircleBorder(side: BorderSide(color: c.line)),
+            child: InkWell(
+              key: const Key('home.bell'),
+              customBorder: const CircleBorder(),
+              onTap: onNotifications,
+              child: SizedBox(
+                width: 48,
+                height: 48,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AppIcon(AppIcons.notifications, color: c.ink),
+                    if (count > 0)
+                      Positioned(
+                        key: const Key('home.bell.dot'),
+                        top: 11,
+                        right: 12,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: c.error,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: c.bg, width: 2),
                           ),
-                      ],
-                    ),
-                  ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
-          ],
+          ),
         ),
+      ],
+    );
+    // Texte très agrandi (vu sur l'itel à 200 % : « Vendr / edi », « Bon / jour ») : le badge et la
+    // cloche passent AU-DESSUS, la date et le salut prennent toute la largeur.
+    if (MediaQuery.textScalerOf(context).scale(10) > 14) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(alignment: Alignment.centerRight, child: actions),
+          const SizedBox(height: Space.s2),
+          texts,
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: texts),
+        const SizedBox(width: Space.s3),
+        actions,
       ],
     );
   }

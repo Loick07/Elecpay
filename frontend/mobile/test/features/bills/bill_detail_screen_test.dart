@@ -93,8 +93,8 @@ void main() {
     );
     expect(semantics, findsNWidgets(6));
     expect(find.bySemanticsLabel('Période : 1er sept. – 31 oct. 2026 · 2 mois'), findsOneWidget);
-    expect(find.bySemanticsLabel('Ancien index : 18\u00A0247,0\u00A0kWh'), findsOneWidget);
-    expect(find.bySemanticsLabel('Nouvel index : 18\u00A0664,4\u00A0kWh'), findsOneWidget);
+    expect(find.bySemanticsLabel('Ancien index : 18\u00A0247,0 kilowattheures'), findsOneWidget);
+    expect(find.bySemanticsLabel('Nouvel index : 18\u00A0664,4 kilowattheures'), findsOneWidget);
     expect(find.bySemanticsLabel('N° facture : 20261103000127'), findsOneWidget);
     expect(find.bySemanticsLabel('Émise le : 3 nov. 2026'), findsOneWidget);
   });

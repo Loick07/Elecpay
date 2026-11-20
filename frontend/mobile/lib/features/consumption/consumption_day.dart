@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/format/formats.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/tokens.g.dart';
 import 'consumption_rules.dart';
@@ -149,7 +150,7 @@ class _DayCell extends StatelessWidget {
     return Semantics(
       button: cell.hasData,
       selected: cell.selected,
-      label: cell.spoken,
+      label: spokenUnits(cell.spoken),
       excludeSemantics: true,
       child: GestureDetector(
         key: Key('conso.day.${cell.day!.day}'),
@@ -253,12 +254,34 @@ class DayDetailCard extends StatelessWidget {
 
   final DayCard card;
 
+  /// Deux colonnes ; texte très agrandi (vu sur l'itel à 200 % : « 15 555,7 k / Wh ») : une seule.
+  static List<Widget> _fields(BuildContext context, List<Widget> fields) {
+    if (MediaQuery.textScalerOf(context).scale(10) > 14) {
+      return [
+        for (final (i, f) in fields.indexed) ...[if (i > 0) const SizedBox(height: 10), f],
+      ];
+    }
+    return [
+      for (var i = 0; i < fields.length; i += 2) ...[
+        if (i > 0) const SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: fields[i]),
+            const SizedBox(width: Space.s3),
+            Expanded(child: fields[i + 1]),
+          ],
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     Widget field(String label, String value) => Semantics(
       container: true,
-      label: '$label : $value',
+      label: spokenUnits('$label : $value'),
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,23 +334,12 @@ class DayDetailCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: field('Index de début', card.indexStart)),
-              const SizedBox(width: Space.s3),
-              Expanded(child: field('Index de fin', card.indexEnd)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: field(card.averageLabel, card.average)),
-              const SizedBox(width: Space.s3),
-              Expanded(child: field('Classement du mois', card.rank)),
-            ],
-          ),
+          ..._fields(context, [
+            field('Index de début', card.indexStart),
+            field('Index de fin', card.indexEnd),
+            field(card.averageLabel, card.average),
+            field('Classement du mois', card.rank),
+          ]),
           const SizedBox(height: 10),
           Text(card.note, style: AppText.caption.copyWith(color: c.inkFaint)),
         ],

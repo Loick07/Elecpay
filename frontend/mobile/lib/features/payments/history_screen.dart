@@ -149,7 +149,14 @@ class HistoryScreen extends ConsumerWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Historique des paiements')),
+      // Titre rétréci plutôt que coupé (« Historique des paieme… » sur l'itel, jalon F4 → F7).
+      appBar: AppBar(
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text('Historique des paiements'),
+        ),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => _refresh(ref, filter, year),

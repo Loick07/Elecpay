@@ -67,13 +67,17 @@ class BillsScreen extends ConsumerWidget {
     void retry() => unawaited(_refresh(ref, filter));
 
     final children = <Widget>[
-      Row(
+      // Wrap : texte très agrandi, le badge passe sous le titre au lieu de le couper en plein mot
+      // (« Mes fa / ctures », vu sur l'itel à 200 %).
+      Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: Space.s3,
+        runSpacing: Space.s2,
         children: [
-          Expanded(
-            child: Semantics(
-              header: true,
-              child: Text('Mes factures', style: AppText.h1.copyWith(color: c.ink)),
-            ),
+          Semantics(
+            header: true,
+            child: Text('Mes factures', style: AppText.h1.copyWith(color: c.ink)),
           ),
           if (ref.watch(demoModeProvider).showBadge) const DemoBadge(),
         ],

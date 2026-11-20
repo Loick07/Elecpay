@@ -354,4 +354,27 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  // Vu sur l'itel à 200 % (jalon F4 → F7) : « Vendr / edi », « Bon / jour » coupés en plein mot, le
+  // badge et la cloche prenant la moitié de la largeur.
+  testWidgets('texte à 200 % : badge et cloche AU-DESSUS, salut sur toute la largeur', (
+    tester,
+  ) async {
+    await pumpHome(tester, FakeHomeBackend(), textScale: 2);
+    final bell = tester.getRect(find.byKey(const Key('home.bell')));
+    final hello = tester.getRect(find.text('Bonjour Loick'));
+    expect(bell.bottom, lessThanOrEqualTo(hello.top), reason: 'cloche au-dessus du salut');
+    expect(tester.getRect(find.text('Jeudi 12 novembre')).left, hello.left);
+    // Toute la largeur (avant : la colonne serrée à côté du badge et de la cloche).
+    expect(tester.getRect(find.text('Jeudi 12 novembre')).width, greaterThan(250));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('texte à 100 % : en-tête de la maquette (cloche à droite du salut)', (tester) async {
+    await pumpHome(tester, FakeHomeBackend());
+    final bell = tester.getRect(find.byKey(const Key('home.bell')));
+    final date = tester.getRect(find.text('Jeudi 12 novembre'));
+    expect(bell.left, greaterThan(date.left));
+    expect(bell.top, lessThan(date.bottom), reason: 'même ligne que la date');
+  });
 }

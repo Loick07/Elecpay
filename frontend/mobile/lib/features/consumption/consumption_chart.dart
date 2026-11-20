@@ -46,6 +46,10 @@ class ConsumptionBars extends StatelessWidget {
     final showValues = bars.any((b) => b.value != null);
     // Place au-dessus des barres pour leur valeur (vue Semaine).
     final maxY = top * (showValues ? 1.3 : 1.0);
+    // Hauteur minimale visible : 3 points. Un jour relevé à 0 kWh (boutique fermée) reste une
+    // petite barre BLEUE, distincte du trait gris « pas de relevé » (défaut vu au jalon F4 → F7).
+    final minY = maxY * 3 / chartHeight;
+    double rodY(ChartBar b) => b.hasData && b.wh / 1000 > minY ? b.wh / 1000 : minY;
     final axisStyle = AppText.caption.copyWith(
       color: c.inkMuted,
       fontSize: 10,
@@ -96,8 +100,8 @@ class ConsumptionBars extends StatelessWidget {
                                     x: i,
                                     barRods: [
                                       BarChartRodData(
-                                        // Sans relevé : un trait de 3 points.
-                                        toY: b.hasData ? b.wh / 1000 : maxY * 3 / chartHeight,
+                                        // Au moins 3 points : sans relevé, trait gris ; relevé à 0 kWh, barre bleue.
+                                        toY: rodY(b),
                                         width: width,
                                         color: !b.hasData
                                             ? c.surface3
@@ -129,7 +133,7 @@ class ConsumptionBars extends StatelessWidget {
                             Expanded(
                               child: Semantics(
                                 button: b.target != null,
-                                label: b.spoken,
+                                label: spokenUnits(b.spoken),
                                 excludeSemantics: true,
                                 child: GestureDetector(
                                   key: Key('conso.bar.$i'),
@@ -151,8 +155,7 @@ class ConsumptionBars extends StatelessWidget {
                                             ),
                                             SizedBox(
                                               height:
-                                                  (b.hasData ? b.wh / 1000 / maxY : 0) *
-                                                      chartHeight +
+                                                  (b.hasData ? rodY(b) / maxY : 0) * chartHeight +
                                                   4,
                                             ),
                                           ],
@@ -215,7 +218,7 @@ class PeriodStats extends StatelessWidget {
         for (final s in stats)
           Semantics(
             container: true,
-            label: '${s.label} : ${s.value}',
+            label: spokenUnits('${s.label} : ${s.value}'),
             excludeSemantics: true,
             child: Container(
               key: Key('conso.stat.${s.label}'),
@@ -279,12 +282,14 @@ class PeriodList extends StatelessWidget {
                 for (final (i, r) in rows.indexed)
                   Semantics(
                     button: true,
-                    label: [
-                      r.title,
-                      formatKwh(r.wh / 1000),
-                      r.subtitle,
-                      if (r.estimated) 'estimé',
-                    ].join(', '),
+                    label: spokenUnits(
+                      [
+                        r.title,
+                        formatKwh(r.wh / 1000),
+                        r.subtitle,
+                        if (r.estimated) 'estimé',
+                      ].join(', '),
+                    ),
                     excludeSemantics: true,
                     child: InkWell(
                       key: Key('conso.row.$i'),

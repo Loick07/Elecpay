@@ -98,6 +98,12 @@ class AccountScreen extends ConsumerWidget {
               AccountGroup(
                 rows: [
                   AccountRow(
+                    key: const Key('account.support'),
+                    icon: AppIcons.question,
+                    label: 'Assistance',
+                    onTap: () => context.push(Routes.support),
+                  ),
+                  AccountRow(
                     key: const Key('account.logout'),
                     icon: AppIcons.signOut,
                     label: 'Se déconnecter',

@@ -42,6 +42,8 @@ Future<void> pumpAccount(
       GoRoute(path: Routes.profile, builder: (context, state) => const ProfileScreen()),
       GoRoute(path: Routes.households, builder: (context, state) => page('Écran Foyers')),
       GoRoute(path: Routes.history, builder: (context, state) => page('Écran Historique')),
+      GoRoute(path: Routes.security, builder: (context, state) => page('Écran Sécurité')),
+      GoRoute(path: Routes.support, builder: (context, state) => page('Écran Assistance')),
       for (final extra in extraRoutes)
         GoRoute(path: extra, builder: (context, state) => page('Écran $extra')),
     ],
@@ -73,7 +75,16 @@ Future<void> settle(WidgetTester tester) async {
 
 Future<void> tapKey(WidgetTester tester, String key) async {
   final target = find.byKey(Key(key));
-  await tester.ensureVisible(target);
+  if (key.startsWith('account.')) {
+    // Ligne de l'écran Compte : la liste est construite au fil du défilement.
+    await tester.dragUntilVisible(
+      target.hitTestable(),
+      find.byKey(const Key('account.list')),
+      const Offset(0, -150),
+    );
+  } else {
+    await tester.ensureVisible(target);
+  }
   await settle(tester);
   await tester.tap(target);
   await settle(tester);
@@ -123,6 +134,8 @@ void main() {
       for (final (key, page) in [
         ('account.households', 'Écran Foyers'),
         ('account.history', 'Écran Historique'),
+        ('account.security', 'Écran Sécurité'),
+        ('account.support', 'Écran Assistance'),
       ]) {
         await pumpAccount(tester, withUser());
         await tapKey(tester, key);

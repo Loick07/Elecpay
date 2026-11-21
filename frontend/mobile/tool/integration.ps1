@@ -60,10 +60,18 @@ try {
     if ($created -ne 0) { throw 'Impossible de préparer elecpay_e2e (Docker et elecpay-mysql lancés ?).' }
     Push-Location $backend
     try {
-        & $python -m scripts.reset_db
-        if ($LASTEXITCODE -ne 0) { throw 'reset_db a échoué.' }
-        & $python -m scripts.seed | Select-Object -Last 2
-        if ($LASTEXITCODE -ne 0) { throw 'seed a échoué.' }
+        # Erreurs Python affichées EN ENTIER (avec 'Stop', PowerShell ne gardait que la première
+        # ligne de la trace : vu au jalon F10). Le code de sortie décide, comme avant.
+        $ErrorActionPreference = 'Continue'
+        & $python -m scripts.reset_db 2>&1 | ForEach-Object { "$_" }
+        $resetCode = $LASTEXITCODE
+        $ErrorActionPreference = 'Stop'
+        if ($resetCode -ne 0) { throw 'reset_db a échoué (trace ci-dessus).' }
+        $ErrorActionPreference = 'Continue'
+        & $python -m scripts.seed 2>&1 | ForEach-Object { "$_" } | Select-Object -Last 15
+        $seedCode = $LASTEXITCODE
+        $ErrorActionPreference = 'Stop'
+        if ($seedCode -ne 0) { throw 'seed a échoué (trace ci-dessus).' }
     } finally { Pop-Location }
 
     # 3. API de test (base elecpay_e2e, jetons d'une minute)

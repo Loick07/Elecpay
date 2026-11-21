@@ -11,6 +11,7 @@ import '../../core/network/api_failure.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/tokens.g.dart';
+import '../../core/widgets/load_more.dart';
 import '../../core/widgets/offline_banner.dart';
 import '../../core/widgets/skeleton.dart';
 import '../../core/widgets/state_block.dart';
@@ -211,23 +212,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       }
       children.add(const SizedBox(height: Space.s4));
       if (view.moreFailure != null) {
+        // Même bas de liste que Factures et Historique (`LoadMoreFooter`).
         children.add(
-          Center(
-            child: TextButton(
-              key: const Key('notifications.more.retry'),
-              onPressed: () => ref.read(notificationsProvider.notifier).loadMore(),
-              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-              child: Text(
-                'Impossible de charger la suite. Réessayer',
-                textAlign: TextAlign.center,
-                style: AppText.bodySm.copyWith(color: c.currentText),
-              ),
-            ),
+          LoadMoreFooter(
+            key: const Key('notifications.more.retry'),
+            failed: true,
+            onLoad: () => ref.read(notificationsProvider.notifier).loadMore(),
           ),
         );
       } else if (view.hasMore) {
         children.add(
-          _LoadMore(onVisible: () => ref.read(notificationsProvider.notifier).loadMore()),
+          LoadMoreFooter(
+            key: ValueKey('notifications.more.${view.items.length}'),
+            onLoad: () => ref.read(notificationsProvider.notifier).loadMore(),
+          ),
         );
       }
     }
@@ -238,35 +236,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       children: children,
     );
   }
-}
-
-/// Fin de la liste : demande la page suivante dès qu'elle est construite (donc presque visible).
-class _LoadMore extends StatefulWidget {
-  const _LoadMore({required this.onVisible});
-
-  final VoidCallback onVisible;
-
-  @override
-  State<_LoadMore> createState() => _LoadMoreState();
-}
-
-class _LoadMoreState extends State<_LoadMore> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => widget.onVisible());
-  }
-
-  @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.all(Space.s4),
-    child: Center(
-      child: SizedBox.square(
-        dimension: 24,
-        child: CircularProgressIndicator(strokeWidth: 2, semanticsLabel: 'Chargement de la suite'),
-      ),
-    ),
-  );
 }
 
 class _GroupCard extends StatelessWidget {

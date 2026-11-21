@@ -4,9 +4,9 @@ import 'package:elecpay/core/models/bills.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/pay_button.dart';
 import 'package:elecpay/core/widgets/payment_sheet.dart';
+import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/bills/bill_detail_screen.dart';
 import 'package:elecpay/features/home/home_screen.dart';
-import 'package:elecpay/features/pending/pending_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +23,7 @@ Future<void> pumpDetail(
   FakeHomeBackend backend, {
   int billId = 101,
   double textScale = 1.0,
+  bool wait = true,
   ThemeData? theme,
 }) async {
   tester.view.physicalSize = itelPhysicalSize;
@@ -38,13 +39,6 @@ Future<void> pumpDetail(
         builder: (context, state) =>
             BillDetailScreen(billId: int.parse(state.pathParameters['billId']!)),
       ),
-      GoRoute(
-        path: Routes.pendingPath,
-        builder: (context, state) => PendingScreen(
-          screen: state.uri.queryParameters['ecran']!,
-          step: state.uri.queryParameters['etape']!,
-        ),
-      ),
     ],
   );
   addTearDown(router.dispose);
@@ -55,7 +49,7 @@ Future<void> pumpDetail(
       child: MaterialApp.router(theme: theme ?? AppTheme.dark, routerConfig: router),
     ),
   );
-  await settle(tester);
+  if (wait) await settle(tester);
 }
 
 Future<void> settle(WidgetTester tester) async {
@@ -76,6 +70,15 @@ Future<void> scrollThrough(WidgetTester tester) async {
 String label(WidgetTester tester, String key) => tester.getSemantics(find.byKey(Key(key))).label;
 
 void main() {
+  // F10.1 : état « chargement » de l'écran.
+  testWidgets('chargement : squelettes, puis le contenu', (tester) async {
+    await pumpDetail(tester, FakeHomeBackend(), wait: false);
+    expect(find.byType(AppSkeleton), findsWidgets);
+    await settle(tester);
+    expect(find.byType(AppSkeleton), findsNothing);
+    expect(find.text('À payer'), findsOneWidget);
+  });
+
   testWidgets('maquette : montant, échéance, période, compteur, index, N°, émission', (
     tester,
   ) async {

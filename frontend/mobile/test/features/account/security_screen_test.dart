@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:elecpay/app/router.dart';
 import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/app_harness.dart';
 import '../../support/fake_auth_backend.dart';
+import '../../support/fake_server.dart';
 
 /// L'application complète (vraie session), ouverte sur « Mot de passe et sécurité ».
 Future<AppHarness> openSecurity(WidgetTester tester) async {
@@ -37,6 +39,26 @@ Future<void> tapKey(WidgetTester tester, String key) async {
 }
 
 void main() {
+  // F10.1 : état « hors connexion » d'une action (aucune relance automatique).
+  testWidgets('hors connexion : message clair, rien de changé, toujours connecté', (tester) async {
+    final h = await openSecurity(tester);
+    h.backend.forced['/me/password'] = const FailReply(DioExceptionType.connectionError);
+    await fill(tester, 'security.current', 'Demo2026!');
+    await fill(tester, 'security.next', 'Nouveau2026!');
+    await tapKey(tester, 'security.change');
+    expect(
+      find.text('Pas de connexion à ElecPay. Vérifiez votre connexion internet puis réessayez.'),
+      findsOneWidget,
+    );
+    expect(h.tokens.tokens!.accessToken, 'at-1', reason: 'jetons inchangés');
+    expect(location(tester), Routes.security);
+    expect(
+      h.backend.server.requests.where((r) => r.path == '/me/password'),
+      hasLength(1),
+      reason: 'aucune relance automatique',
+    );
+  });
+
   testWidgets('changer de mot de passe : nouveaux jetons enregistrés, toujours connecté', (
     tester,
   ) async {

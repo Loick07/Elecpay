@@ -56,11 +56,6 @@ Future<void> pumpConso(
         builder: (context, state) =>
             Scaffold(body: Text('Facture ${state.pathParameters['billId']}')),
       ),
-      GoRoute(
-        path: Routes.pendingPath,
-        builder: (context, state) =>
-            Scaffold(body: Text('Attente ${state.uri.queryParameters['etape']}')),
-      ),
     ],
   );
   addTearDown(router.dispose);

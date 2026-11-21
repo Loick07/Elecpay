@@ -13,7 +13,6 @@ import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/payments/payment_entry.dart';
 import 'package:elecpay/features/payments/payment_flow.dart';
 import 'package:elecpay/features/payments/payment_screen.dart';
-import 'package:elecpay/features/pending/pending_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,13 +68,6 @@ class PayHarness {
           path: Routes.billPath,
           builder: (context, state) =>
               BillDetailScreen(billId: int.parse(state.pathParameters['billId']!)),
-        ),
-        GoRoute(
-          path: Routes.pendingPath,
-          builder: (context, state) => PendingScreen(
-            screen: state.uri.queryParameters['ecran']!,
-            step: state.uri.queryParameters['etape']!,
-          ),
         ),
       ],
     );

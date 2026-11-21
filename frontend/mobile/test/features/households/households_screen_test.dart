@@ -2,6 +2,7 @@ import 'package:elecpay/app/riverpod_config.dart';
 import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/demo/demo_mode.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
+import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/households/households_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ Future<void> pumpHouseholds(
   WidgetTester tester,
   FakeHomeBackend backend, {
   double textScale = 1.0,
+  bool wait = true,
 }) async {
   tester.view.physicalSize = itelPhysicalSize;
   tester.view.devicePixelRatio = itelPixelRatio;
@@ -43,7 +45,7 @@ Future<void> pumpHouseholds(
       child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
     ),
   );
-  await settle(tester);
+  if (wait) await settle(tester);
 }
 
 Future<void> settle(WidgetTester tester) async {
@@ -74,6 +76,15 @@ FakeHomeBackend mockupBackend() {
 }
 
 void main() {
+  // F10.1 : état « chargement » de l'écran.
+  testWidgets('chargement : squelettes, puis le contenu', (tester) async {
+    await pumpHouseholds(tester, mockupBackend(), wait: false);
+    expect(find.byType(AppSkeleton), findsWidgets);
+    await settle(tester);
+    expect(find.byType(AppSkeleton), findsNothing);
+    expect(find.text('Maison Mpita'), findsOneWidget);
+  });
+
   testWidgets('une carte par foyer (maquette) : compteur, puissance, rôle, membres, « À payer »', (
     tester,
   ) async {

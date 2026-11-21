@@ -42,13 +42,6 @@ abstract final class Routes {
   /// Le même écran, feuille « Ajouter un compteur » ouverte (accueil et Conso sans compteur).
   static final addMeter = '$households?ajouter=1';
 
-  /// Écran poussé pas encore construit (page d'attente), sous l'accueil : donc protégé.
-  static final pendingPath = '${AppTab.home.path}/bientot';
-
-  /// Adresse de la page d'attente de `screen` (« Détail de la facture »), apporté à l'étape `step`.
-  static String pending(String screen, String step) =>
-      Uri(path: pendingPath, queryParameters: {'ecran': screen, 'etape': step}).toString();
-
   /// Écrans de connexion : interdits une fois connecté.
   static const auth = {login, register, forgotPassword};
 

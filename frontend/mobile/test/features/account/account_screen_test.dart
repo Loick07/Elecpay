@@ -7,9 +7,11 @@ import 'package:elecpay/core/format/formats.dart';
 import 'package:elecpay/core/settings/app_settings.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
+import 'package:elecpay/core/widgets/offline_banner.dart';
 import 'package:elecpay/features/account/account_data.dart';
 import 'package:elecpay/features/account/account_screen.dart';
 import 'package:elecpay/features/account/profile_screen.dart';
+import 'package:elecpay/features/home/home_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +29,7 @@ Future<void> pumpAccount(
   FakeHomeBackend backend, {
   String location = '/compte',
   double textScale = 1.0,
+  bool wait = true,
   SettingsStore? settings,
 }) async {
   tester.view.physicalSize = itelPhysicalSize;
@@ -61,7 +64,7 @@ Future<void> pumpAccount(
       child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router),
     ),
   );
-  await settle(tester);
+  if (wait) await settle(tester);
 }
 
 /// Écrans ajoutés par les sous-étapes suivantes (sécurité, assistance) : de simples pages.
@@ -241,6 +244,57 @@ void main() {
       );
       expect(find.text('Adresse vérifiée'), findsOneWidget);
       expect(find.byKey(const Key('profile.sendCode')), findsNothing);
+    });
+  });
+
+  // F10.1 : états de l'écran Compte et de « Mon profil ».
+  group('états (F10.1)', () {
+    testWidgets('compte illisible hors connexion (sans cache) : on le dit, « Réessayer » relit', (
+      tester,
+    ) async {
+      final backend = withUser()..down.add('/me');
+      await pumpAccount(tester, backend);
+      expect(find.text('Hors connexion : profil non chargé. Réessayer'), findsOneWidget);
+      expect(find.text('Mon compte'), findsOneWidget);
+      backend.down.clear();
+      // Ligne visible en haut de l'écran : toucher sans faire défiler (le nom resterait caché).
+      await tester.tap(find.byKey(const Key('account.user.retry')));
+      await settle(tester);
+      expect(find.text('Loick Makosso'), findsOneWidget);
+      expect(find.byKey(const Key('account.user.retry')), findsNothing);
+    });
+
+    testWidgets('erreur du serveur : « Profil illisible : réessayer »', (tester) async {
+      final backend = withUser()..forced['/me'] = JsonReply(500, apiError('INTERNAL', 'Erreur'));
+      await pumpAccount(tester, backend);
+      expect(find.text('Profil illisible : réessayer'), findsOneWidget);
+    });
+
+    testWidgets('hors ligne avec le cache : bannière datée, le compte reste lisible', (
+      tester,
+    ) async {
+      final backend = withUser();
+      await pumpAccount(tester, backend);
+      backend.down.add('/me');
+      ProviderScope.containerOf(tester.element(find.byKey(const Key('account.list'))))
+          .invalidate(homeUserProvider);
+      await settle(tester);
+      expect(find.byType(OfflineBanner), findsOneWidget);
+      expect(find.text('Loick Makosso'), findsOneWidget);
+      expect(find.byKey(const Key('account.user.retry')), findsNothing);
+    });
+
+    testWidgets('Mon profil : chargement, puis le formulaire', (tester) async {
+      await pumpAccount(tester, withUser(), location: Routes.profile, wait: false);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await settle(tester);
+      expect(find.byKey(const Key('profile.form')), findsOneWidget);
+    });
+
+    testWidgets('Mon profil hors connexion, sans cache : bloc « Hors connexion »', (tester) async {
+      await pumpAccount(tester, withUser()..down.add('/me'), location: Routes.profile);
+      expect(find.text('Hors connexion'), findsOneWidget);
+      expect(find.byKey(const Key('profile.form')), findsNothing);
     });
   });
 }

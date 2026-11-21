@@ -5,6 +5,7 @@ import 'package:elecpay/core/documents/documents.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/app_button.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
+import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/receipts/receipt_screen.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class ReceiptHarness {
     WidgetTester tester, {
     int receiptId = 3,
     double textScale = 1.0,
+    bool wait = true,
     ThemeData? theme,
   }) async {
     tester.view.physicalSize = itelPhysicalSize;
@@ -59,7 +61,7 @@ class ReceiptHarness {
         child: MaterialApp.router(theme: theme ?? AppTheme.dark, routerConfig: router),
       ),
     );
-    await settle(tester);
+    if (wait) await settle(tester);
   }
 }
 
@@ -82,6 +84,15 @@ Future<void> tapVisible(WidgetTester tester, String key) async {
 }
 
 void main() {
+  // F10.1 : état « chargement » de l'écran.
+  testWidgets('chargement : squelettes, puis le contenu', (tester) async {
+    await ReceiptHarness().pump(tester, wait: false);
+    expect(find.byType(AppSkeleton), findsWidgets);
+    await settle(tester);
+    expect(find.byType(AppSkeleton), findsNothing);
+    expect(find.text('MODE DÉMO'), findsOneWidget);
+  });
+
   test('reçu en cache (il ne change jamais) ; son PDF jamais', () {
     expect(isCacheable('/receipts/3'), isTrue);
     expect(isCacheable('/receipts/3/pdf'), isFalse);

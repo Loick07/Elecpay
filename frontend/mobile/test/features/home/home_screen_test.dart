@@ -9,7 +9,6 @@ import 'package:elecpay/core/widgets/payment_sheet.dart';
 import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/notifications/notifications_screen.dart';
-import 'package:elecpay/features/pending/pending_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,13 +64,6 @@ Future<void> pumpHome(
         builder: (context, state) => const Scaffold(body: Text('Écran Compteurs et foyers')),
       ),
       GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
-      GoRoute(
-        path: Routes.pendingPath,
-        builder: (context, state) => PendingScreen(
-          screen: state.uri.queryParameters['ecran']!,
-          step: state.uri.queryParameters['etape']!,
-        ),
-      ),
     ],
   );
   addTearDown(router.dispose);

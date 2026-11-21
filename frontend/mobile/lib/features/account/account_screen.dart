@@ -61,6 +61,22 @@ class AccountScreen extends ConsumerWidget {
                 phone: user == null ? null : formatPhone(user.data.phone),
                 onEdit: () => context.push(Routes.profile),
               ),
+              // F10.1 : compte illisible (et rien en cache) : on le dit, avec « Réessayer ».
+              if (ref.watch(homeUserProvider) case AsyncError(:final error) when user == null) ...[
+                const SizedBox(height: Space.s3),
+                AccountGroup(
+                  rows: [
+                    AccountRow(
+                      key: const Key('account.user.retry'),
+                      icon: AppIcons.retry,
+                      label: error is NoConnection
+                          ? 'Hors connexion : profil non chargé. Réessayer'
+                          : 'Profil illisible : réessayer',
+                      onTap: () => ref.invalidate(homeUserProvider),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 18),
               AccountGroup(
                 title: 'Mon compte',

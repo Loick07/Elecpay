@@ -3,6 +3,7 @@ import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/models/notifications.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
+import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/home/home_data.dart';
 import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/notifications/notifications_data.dart';
@@ -81,6 +82,15 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 void main() {
+  // F10.1 : état « chargement » de l'écran.
+  testWidgets('chargement : squelettes, puis le contenu', (tester) async {
+    await pumpNotifications(tester, FakeHomeBackend(), wait: false);
+    expect(find.byType(AppSkeleton), findsWidgets);
+    await settle(tester);
+    expect(find.byType(AppSkeleton), findsNothing);
+    expect(find.byKey(const Key('notifications.list')), findsOneWidget);
+  });
+
   group('règles', () {
     test('toucher une notification : l’onglet concerné (ou aucun)', () {
       expect(notificationTab(_n(NotificationTypes.billIssued)), AppTab.bills);

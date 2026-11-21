@@ -3,6 +3,7 @@ import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/cache/cache_policy.dart';
 import 'package:elecpay/core/models/payments.dart';
 import 'package:elecpay/core/theme/app_theme.dart';
+import 'package:elecpay/core/widgets/skeleton.dart';
 import 'package:elecpay/features/home/home_screen.dart';
 import 'package:elecpay/features/payments/history_data.dart';
 import 'package:elecpay/features/payments/history_screen.dart';
@@ -62,6 +63,7 @@ Future<void> pumpHistory(
   WidgetTester tester,
   FakeHomeBackend backend, {
   double textScale = 1.0,
+  bool wait = true,
   ThemeData? theme,
 }) async {
   tester.view.physicalSize = itelPhysicalSize;
@@ -96,7 +98,7 @@ Future<void> pumpHistory(
       child: MaterialApp.router(theme: theme ?? AppTheme.dark, routerConfig: router),
     ),
   );
-  await settle(tester);
+  if (wait) await settle(tester);
 }
 
 Future<void> settle(WidgetTester tester) async {
@@ -115,6 +117,15 @@ Future<void> scrollThrough(WidgetTester tester) async {
 PaymentPublic payment(Map<String, Object?> json) => PaymentPublic.fromJson(json);
 
 void main() {
+  // F10.1 : état « chargement » de l'écran.
+  testWidgets('chargement : squelettes, puis le contenu', (tester) async {
+    await pumpHistory(tester, mockupBackend(), wait: false);
+    expect(find.byType(AppSkeleton), findsWidgets);
+    await settle(tester);
+    expect(find.byType(AppSkeleton), findsNothing);
+    expect(find.text('NOVEMBRE 2026'), findsOneWidget);
+  });
+
   group('règles', () {
     test('groupes par MOIS de la demande, à l’heure de Brazzaville', () {
       final groups = groupByMonth(mockupPayments().map(payment));

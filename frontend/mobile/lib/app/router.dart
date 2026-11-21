@@ -26,7 +26,6 @@ import '../features/legal/legal_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/payments/history_screen.dart';
 import '../features/payments/payment_screen.dart';
-import '../features/pending/pending_screen.dart';
 import '../features/receipts/receipt_screen.dart';
 import '../features/startup/splash_screen.dart';
 import 'app_shell.dart';
@@ -89,14 +88,6 @@ List<RouteBase> appRoutes() => [
     path: Routes.billPath,
     builder: (context, state) =>
         BillDetailScreen(billId: int.tryParse(state.pathParameters['billId'] ?? '') ?? 0),
-  ),
-  // Écrans poussés des étapes suivantes : page d'attente.
-  GoRoute(
-    path: Routes.pendingPath,
-    builder: (context, state) => PendingScreen(
-      screen: state.uri.queryParameters['ecran'] ?? 'Écran',
-      step: state.uri.queryParameters['etape'] ?? 'suivante',
-    ),
   ),
   // Page de contrôle de la charte : seulement dans les versions de développement.
   if (kDebugMode) GoRoute(path: '/charte', builder: (context, state) => const CharteScreen()),

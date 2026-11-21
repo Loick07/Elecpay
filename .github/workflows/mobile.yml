@@ -90,3 +90,25 @@ jobs:
             --launcher-icon=custom
           size=$(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)
           echo "### APK release : $size (toutes architectures, non optimisé avant F10)" >> "$GITHUB_STEP_SUMMARY"
+
+      # APK livré (F10.4, accord de Loick du 21/11/2026, option a) : un APK par architecture, code
+      # obscurci, adresse https de l'API (ngrok, étape M1). En CI, signé avec la clé de DÉBOGAGE
+      # (aucun secret) : Loick signe l'APK livré sur son PC avec sa clé (docs/LIVRAISON.md).
+      - name: Construire les APK livrés (une par architecture, obscurcis)
+        run: >-
+          flutter build apk --release --split-per-abi
+          --obfuscate --split-debug-info=build/symbols
+          --dart-define=API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev
+
+      - name: Vérifier chaque APK livré (mêmes contrôles + adresse de l'API + signature)
+        run: |
+          echo "### APK livrés (signés en débogage en CI)" >> "$GITHUB_STEP_SUMMARY"
+          for abi in armeabi-v7a arm64-v8a x86_64; do
+            apk="build/app/outputs/flutter-apk/app-$abi-release.apk"
+            dart run tool/apk_check.dart "$apk" \
+              --cleartext=false --diagnostic=absent --demo-password=absent --lucide=reduced \
+              --launcher-icon=custom \
+              --api-url=https://omnivore-pardon-sixth.ngrok-free.dev --signature=debug
+            size=$(du -h "$apk" | cut -f1)
+            echo "- $abi : $size" >> "$GITHUB_STEP_SUMMARY"
+          done

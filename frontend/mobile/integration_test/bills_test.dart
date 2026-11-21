@@ -5,6 +5,7 @@
 // Base DÉDIÉE `elecpay_e2e` remise à zéro et remplie par le script (jamais la base de démo `elecpay`).
 // Compte de démo du seed : Arnaud Mavoungou (Maison Mpita + Boutique Tié-Tié). L'ouverture du PDF
 // lance une autre application (lecteur PDF) : elle se vérifie à l'œil, pas ici.
+import 'package:elecpay/core/widgets/bill_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,7 +30,9 @@ void main() {
     await login(tester);
     await tapOn(tester, find.text('Factures').last);
     await waitFor(tester, find.byKey(const Key('bills.outstanding')));
-    expect(find.text('RESTE À PAYER · 2 FOYERS'), findsOneWidget);
+    // Le seed date tout à partir du jour même : le nombre de foyers à payer change (2 le 20/11,
+    // 1 le 21/11). On vérifie la carte, pas ce nombre.
+    expect(find.textContaining('RESTE À PAYER'), findsOneWidget);
     await shot(tester, 'f5-1-mes-factures');
 
     for (final filter in ['toPay', 'paid', 'overdue', 'all']) {
@@ -50,7 +53,11 @@ void main() {
     tester,
   ) async {
     await login(tester);
-    await tapOn(tester, find.text('Détail'));
+    // Par l'onglet Factures : la carte « facture urgente » de l'accueil (bouton Détail) n'existe que
+    // si le foyer affiché a une facture à payer ce jour-là.
+    await tapOn(tester, find.text('Factures').last);
+    await waitFor(tester, find.byKey(const Key('bills.list')));
+    await tapOn(tester, find.byType(BillRow));
     await waitFor(tester, find.byKey(const Key('bill.detail')));
     expect(find.byKey(const Key('bill.pdf')), findsOneWidget);
     await shot(tester, 'f5-4-detail-haut');
@@ -61,6 +68,6 @@ void main() {
     await waitFor(tester, find.byKey(const Key('bill.total')));
     await shot(tester, 'f5-5-detail-lignes');
     await androidBack(tester);
-    await waitFor(tester, find.byKey(const Key('home.list')));
+    await waitFor(tester, find.byKey(const Key('bills.list'))); // ouverte depuis l'onglet Factures
   });
 }

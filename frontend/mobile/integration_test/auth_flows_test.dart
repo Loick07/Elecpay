@@ -30,9 +30,7 @@ void main() {
     expect(container.read(sessionStateProvider), isA<SessionActive>());
     await shot(tester, 'f3-1-accueil');
 
-    await tapOn(tester, find.text('Compte'));
-    await waitFor(tester, find.text('Se déconnecter'));
-    await tapOn(tester, find.text('Se déconnecter'));
+    await openAccountRow(tester, 'Se déconnecter');
     await waitFor(tester, find.text('Connexion'));
     expect(container.read(sessionStateProvider), isA<SessionEnded>());
     expect(find.text('Session expirée'), findsNothing);
@@ -140,9 +138,7 @@ void main() {
     );
     expect(status, 200);
 
-    await tapOn(tester, find.text('Compte'));
-    await waitFor(tester, find.text('Diagnostic'));
-    await tapOn(tester, find.text('Diagnostic'));
+    await openAccountRow(tester, 'Diagnostic');
     await waitFor(tester, find.text('Lire mon profil'));
     // Attendre que le jeton d'accès du téléphone ait expiré (une minute, plus une marge).
     final wait = const Duration(seconds: 65) - DateTime.now().difference(signedInAt);

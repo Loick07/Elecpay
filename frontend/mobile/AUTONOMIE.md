@@ -36,6 +36,13 @@ Lancer `tool/integration.ps1` est autorisé pour les jalons sur le téléphone, 
 `elecpay_e2e`**, avec son garde-fou qui refuse toute autre base. **Jamais** `reset_db` lancé directement,
 et **jamais** sur `elecpay`.
 
+Depuis le jalon F10 (Loick, 21/11/2026) : avant chaque passage, le script **supprime puis recrée**
+`elecpay_e2e` en entier (`DROP DATABASE` / `CREATE DATABASE`, nom écrit en dur dans le script), puis
+lance les migrations et le seed. Garde-fou strict : le nom de la base est lu dans l'adresse
+(`127.0.0.1` ou `localhost`), toute autre base est refusée, testé par
+`test/tool/integration_guard_test.dart`. **Ne jamais arrêter un passage pendant la préparation de la
+base.**
+
 ## 2. Protection contre les coupures de courant
 
 ### a) Branche par étape, sauvegardée en continu

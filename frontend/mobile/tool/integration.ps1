@@ -7,8 +7,8 @@
 #       -Driver test_driver/perf_driver.dart
 #
 # 1. refuse si une API tourne déjà sur le port 8000 (les tests lancent la leur) ;
-# 2. prépare la base DÉDIÉE `elecpay_e2e` (docker/mysql/init/02-e2e-database.sql), la remet à zéro et
-#    la remplit (reset_db + seed) : la base de démo `elecpay` n'est JAMAIS touchée par ces tests ;
+# 2. SUPPRIME puis RECRÉE la base DÉDIÉE `elecpay_e2e` (DROP / CREATE DATABASE, nom écrit en dur),
+#    puis migrations (alembic upgrade head) et seed : la base de démo `elecpay` n'est JAMAIS touchée ;
 # 3. lance l'API sur cette base, avec des jetons d'accès d'UNE minute (session expirée) ;
 # 4. ouvre le tunnel (tool/telephone.ps1) et joue les tests en profile (flutter drive) ;
 # 5. arrête l'API de test, même en cas d'échec. Captures et journaux : build/integration/ (jamais
@@ -17,23 +17,34 @@ param(
     [Parameter(Mandatory = $true)][string]$Device,
     [string]$Target = 'integration_test/auth_flows_test.dart',
     [string]$Driver = 'test_driver/integration_driver.dart',
-    [string]$DatabaseUrl = 'mysql+pymysql://elecpay:elecpay@127.0.0.1:3307/elecpay_e2e?charset=utf8mb4'
+    [string]$DatabaseUrl = 'mysql+pymysql://elecpay:elecpay@127.0.0.1:3307/elecpay_e2e?charset=utf8mb4',
+    # Vérifie seulement le garde-fou de la base, puis s'arrête (test/tool/integration_guard_test.dart).
+    [switch]$CheckOnly
 )
 $ErrorActionPreference = 'Stop'
+
+# Seule base que ce script supprime et recrée. Écrite EN DUR : jamais tirée de -DatabaseUrl.
+$e2eDatabase = 'elecpay_e2e'
 
 $mobile = Split-Path $PSScriptRoot -Parent
 $repo = Split-Path (Split-Path $mobile -Parent) -Parent
 $backend = Join-Path $repo 'backend'
 $python = Join-Path $backend '.venv\Scripts\python.exe'
 $uvicorn = Join-Path $backend '.venv\Scripts\uvicorn.exe'
-$e2eSql = Join-Path $repo 'docker\mysql\init\02-e2e-database.sql'
 $out = Join-Path $mobile 'build\integration'
 $health = 'http://127.0.0.1:8000/api/v1/health'
 
-# Garde-fou : jamais la base de démo (ni une autre) remise à zéro par erreur de paramètre.
-if ($DatabaseUrl -notmatch '/elecpay_e2e(\?|$)') {
-    Write-Host "Refusé : les tests d'intégration tournent uniquement sur la base elecpay_e2e ($DatabaseUrl)."
+# Garde-fou : jamais la base de démo (ni une autre) touchée par erreur de paramètre. Le NOM de la
+# base est lu strictement (juste après l'hôte, avant « ? ») : « …/elecpay?x=/elecpay_e2e » vise
+# `elecpay` et est refusé (l'ancienne règle l'acceptait). Hôte : ce PC seulement.
+$parsed = [regex]::Match($DatabaseUrl, '^mysql\+pymysql://[^/@]+@(127\.0\.0\.1|localhost):\d+/([^/?#]+)(\?[^/#]*)?$')
+if (-not $parsed.Success -or $parsed.Groups[2].Value -cne $e2eDatabase) {
+    Write-Host "Refusé : les tests d'intégration tournent uniquement sur la base $e2eDatabase de ce PC ($DatabaseUrl)."
     exit 1
+}
+if ($CheckOnly) {
+    Write-Host "Garde-fou : base $e2eDatabase acceptée."
+    exit 0
 }
 
 # 1. Port 8000 libre
@@ -46,27 +57,35 @@ if ($running) {
 }
 
 # 2. Base dédiée : créée si besoin (même fichier qu'à la création du volume MySQL), vidée, remplie.
-# Variables réservées à ce script et aux processus qu'il lance (reset_db, seed, API de test).
+# Variables réservées à ce script et aux processus qu'il lance (migrations, seed, API de test).
 $env:DATABASE_URL = $DatabaseUrl
 $env:ACCESS_TOKEN_MINUTES = '1'
 $api = $null
 $code = 1
 try {
-    Write-Host '== Base elecpay_e2e : création si besoin, remise à zéro, données de démo'
+    # Base SUPPRIMÉE puis RECRÉÉE entière à chaque passage (décision de Loick, jalon F10) : un
+    # passage interrompu ne peut plus laisser une base à moitié remise à zéro (vu le 21/11/2026).
+    Write-Host "== Base $($e2eDatabase) : supprimée, recréée, migrations, données de démo"
+    $recreate = @"
+DROP DATABASE IF EXISTS $e2eDatabase;
+CREATE DATABASE $e2eDatabase CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+GRANT ALL PRIVILEGES ON $e2eDatabase.* TO 'elecpay'@'%';
+FLUSH PRIVILEGES;
+"@
     $ErrorActionPreference = 'Continue' # mysql écrit un avertissement sur stderr (mot de passe)
-    Get-Content -Raw $e2eSql | docker exec -i elecpay-mysql mysql -uroot -proot 2>$null
+    $recreate | docker exec -i elecpay-mysql mysql -uroot -proot 2>$null
     $created = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
-    if ($created -ne 0) { throw 'Impossible de préparer elecpay_e2e (Docker et elecpay-mysql lancés ?).' }
+    if ($created -ne 0) { throw "Impossible de recréer $e2eDatabase (Docker et elecpay-mysql lancés ?)." }
     Push-Location $backend
     try {
         # Erreurs Python affichées EN ENTIER (avec 'Stop', PowerShell ne gardait que la première
-        # ligne de la trace : vu au jalon F10). Le code de sortie décide, comme avant.
+        # ligne de la trace : vu au jalon F10). Le code de sortie décide.
         $ErrorActionPreference = 'Continue'
-        & $python -m scripts.reset_db 2>&1 | ForEach-Object { "$_" }
-        $resetCode = $LASTEXITCODE
+        & $python -m alembic upgrade head 2>&1 | ForEach-Object { "$_" }
+        $migrateCode = $LASTEXITCODE
         $ErrorActionPreference = 'Stop'
-        if ($resetCode -ne 0) { throw 'reset_db a échoué (trace ci-dessus).' }
+        if ($migrateCode -ne 0) { throw 'Migrations (alembic upgrade head) en échec (trace ci-dessus).' }
         $ErrorActionPreference = 'Continue'
         & $python -m scripts.seed 2>&1 | ForEach-Object { "$_" } | Select-Object -Last 15
         $seedCode = $LASTEXITCODE

@@ -84,6 +84,20 @@ Future<void> keyboardAction(WidgetTester tester, TextInputAction action) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
+/// Onglet Compte, puis la ligne `text` (« Se déconnecter », « Diagnostic »…) : depuis F9, l'écran Compte
+/// est une longue liste construite au fil du défilement, il faut la faire défiler jusqu'à la ligne.
+Future<void> openAccountRow(WidgetTester tester, String text) async {
+  await tapOn(tester, find.text('Compte'));
+  await waitFor(tester, find.byKey(const Key('account.list')));
+  await tester.dragUntilVisible(
+    find.text(text),
+    find.byKey(const Key('account.list')),
+    const Offset(0, -300),
+  );
+  await tester.pump(const Duration(milliseconds: 300));
+  await tapOn(tester, find.text(text));
+}
+
 /// Retour Android (bouton ou geste).
 Future<void> androidBack(WidgetTester tester) async {
   await binding.handlePopRoute();

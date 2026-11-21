@@ -95,3 +95,19 @@ String importedHistoryLine(HistoryImportPublic history) {
   return 'Historique importé : ${plural(history.bills, 'facture')} et '
       '${plural(history.readings, 'relevé')}$demo.';
 }
+
+/// D8.2 : le numéro invité n'a pas de compte (`INVITEE_NOT_FOUND`). Aucun SMS n'est envoyé.
+const inviteeWithoutAccount =
+    "Ce numéro n'a pas encore de compte ElecPay. Demandez-lui de s'inscrire, puis invitez-le.";
+
+/// Invitation envoyée : « Invitation envoyée au +242 06 … : la personne doit l'accepter dans
+/// ElecPay. »
+String inviteSentMessage(String phone) =>
+    "Invitation envoyée au $phone : la personne doit l'accepter dans ElecPay.";
+
+/// Bouton au bas d'une carte (maquette) : « Inviter un proche » quand le propriétaire est seul,
+/// sinon « Gérer » (membres, renommer ; pour un membre : quitter le foyer).
+String householdActionLabel(HouseholdDetail h) =>
+    h.canManage && h.members.where((m) => m.status != MemberStatuses.revoked).isEmpty
+    ? 'Inviter un proche'
+    : 'Gérer';

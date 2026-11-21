@@ -20,6 +20,7 @@ import '../home/home_data.dart';
 import 'add_meter_sheet.dart';
 import 'households_data.dart';
 import 'households_rules.dart';
+import 'manage_sheets.dart';
 
 /// Écran 15 : Compteurs et foyers (maquette `Compteurs.dc.html`). Invitations reçues en haut, une
 /// carte par foyer (compteurs, puissance, membres, mon rôle). Les droits viennent du serveur.
@@ -407,21 +408,78 @@ class _FullCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: c.line)),
             ),
-            child: Row(
+            // Wrap : texte très agrandi, le bouton passe sous les membres au lieu de déborder.
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: Space.s2,
+              runSpacing: Space.s2,
               children: [
-                ExcludeSemantics(child: _Avatars(initials: memberInitials(h))),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    membersLine(h),
-                    key: Key('households.members.${h.id}'),
-                    style: AppText.bodySm.copyWith(color: c.inkMuted),
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ExcludeSemantics(child: _Avatars(initials: memberInitials(h))),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        membersLine(h),
+                        key: Key('households.members.${h.id}'),
+                        style: AppText.bodySm.copyWith(color: c.inkMuted),
+                      ),
+                    ),
+                  ],
+                ),
+                // Maquette : « Inviter un proche » (propriétaire seul), sinon « Gérer ».
+                _SmallButton(
+                  key: Key('households.manage.${h.id}'),
+                  label: householdActionLabel(h),
+                  onTap: () => householdActionLabel(h) == 'Inviter un proche'
+                      ? unawaited(showInviteSheet(context, h))
+                      : unawaited(showManageSheet(context, h.id)),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Petit bouton à bord fin du bas d'une carte (maquette : 36 de haut ; 48 pour le toucher).
+class _SmallButton extends StatelessWidget {
+  const _SmallButton({required this.label, required this.onTap, super.key});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: Colors.transparent,
+        shape: StadiumBorder(side: BorderSide(color: c.line)),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Space.s3),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  label,
+                  style: AppText.bodySm.copyWith(color: c.ink, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

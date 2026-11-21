@@ -35,6 +35,7 @@ abstract final class AppIcons {
   static const offline = Lucide.wifiOff;
   static const locked = Lucide.lock;
   static const signIn = Lucide.logIn;
+  static const signOut = Lucide.logOut;
   static const retry = Lucide.refreshCw;
 
   // Factures et paiement.

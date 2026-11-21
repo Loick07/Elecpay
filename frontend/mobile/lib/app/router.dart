@@ -6,6 +6,8 @@ import '../core/session/session_expiry_notice.dart';
 import '../core/session/session_manager.dart';
 import '../core/session/session_providers.dart';
 import '../core/widgets/bottom_nav.dart';
+import '../features/account/account_screen.dart';
+import '../features/account/profile_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
@@ -38,7 +40,7 @@ List<RouteBase> appRoutes() => [
   for (final document in LegalDocument.values)
     GoRoute(path: document.path, builder: (context, state) => LegalScreen(document)),
   GoRoute(path: Routes.forgotPassword, builder: (context, state) => const ForgotPasswordScreen()),
-  // Écrans principaux, sous la barre du bas (page d'attente de Compte jusqu'à F9).
+  // Écrans principaux, sous la barre du bas.
   ShellRoute(
     builder: (context, state, child) => AppShell(location: state.uri.path, child: child),
     routes: [
@@ -56,15 +58,14 @@ List<RouteBase> appRoutes() => [
       ),
       GoRoute(
         path: AppTab.account.path,
-        pageBuilder: (context, state) => const NoTransitionPage(
-          child: PendingTab(tab: AppTab.account, step: 'F9'),
-        ),
+        pageBuilder: (context, state) => const NoTransitionPage(child: AccountScreen()),
       ),
     ],
   ),
   // Écrans poussés (sans barre du bas).
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
   GoRoute(path: Routes.history, builder: (context, state) => const HistoryScreen()),
+  GoRoute(path: Routes.profile, builder: (context, state) => const ProfileScreen()),
   GoRoute(
     path: Routes.households,
     builder: (context, state) =>

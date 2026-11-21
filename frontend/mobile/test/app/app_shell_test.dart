@@ -1,5 +1,6 @@
 import 'package:elecpay/app/router.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
+import 'package:elecpay/features/account/account_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -22,12 +23,13 @@ void main() {
     expect(paths, [for (final tab in AppTab.values) tab.path]);
   });
 
-  testWidgets('écran principal : barre du bas, page d’attente avec son étape', (tester) async {
-    // Conso (F7) n'a plus de page d'attente : Compte (F9) en garde une.
+  testWidgets('écran principal : barre du bas ; plus aucune page d’attente (F9 : Compte)', (
+    tester,
+  ) async {
     await openApp(tester, AppTab.account.path);
     expect(find.byType(AppBottomNav), findsOneWidget);
-    expect(find.text('Compte : bientôt'), findsOneWidget);
-    expect(find.text('Cet écran arrive à l’étape F9 du plan.'), findsOneWidget);
+    expect(find.byType(AccountScreen), findsOneWidget);
+    expect(find.textContaining(': bientôt'), findsNothing);
   });
 
   testWidgets('toucher un onglet change d’écran, l’onglet suit', (tester) async {

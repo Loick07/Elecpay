@@ -698,6 +698,36 @@ class FakeHomeBackend {
     final query = request.queryParameters;
     final meterMatch = RegExp(r'^/meters/(\d+)/consumption(/summary)?$').firstMatch(path);
     final householdMeters = RegExp(r'^/households/(\d+)/meters$').firstMatch(path);
+    if (path == '/me' && request.method == 'PATCH') {
+      (sent[path] ??= []).add(request.data);
+      final data = request.data as Map<String, dynamic>;
+      user = {
+        ...user,
+        ...data,
+        // Nouvelle adresse : à revérifier (comme l'API).
+        if (data.containsKey('email')) 'email_verified_at': null,
+      };
+      return JsonReply(200, user);
+    }
+    if (path == '/me/email/verification' && request.method == 'POST') {
+      (sent[path] ??= []).add(null);
+      return const JsonReply(200, {
+        'sent_to': 'l***@exemple.cg',
+        'expires_at': '2026-11-12T09:15:00Z',
+        'demo_code': '482913',
+      });
+    }
+    if (path == '/me/email/verification/confirm' && request.method == 'POST') {
+      final code = (request.data as Map<String, dynamic>)['code'];
+      if (code != '482913') {
+        return JsonReply(
+          400,
+          apiError('EMAIL_CODE_INVALID', 'Code invalide ou expiré. Demandez un nouveau code.'),
+        );
+      }
+      user = {...user, 'email_verified_at': '2026-11-12T09:05:00Z'};
+      return JsonReply(200, user);
+    }
     if (path == '/me') return JsonReply(200, user);
     if (path == '/households' && request.method == 'GET') return JsonReply(200, households);
     if (householdMeters != null && request.method == 'GET') {

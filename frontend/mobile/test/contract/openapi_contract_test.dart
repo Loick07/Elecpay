@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:elecpay/core/models/account.dart';
 import 'package:elecpay/core/models/bills.dart';
 import 'package:elecpay/core/models/consumption.dart';
 import 'package:elecpay/core/models/households.dart';
@@ -69,6 +70,11 @@ const cases = <ContractCase>[
   ContractCase('ReadingPublic', ReadingPublic.fromJson),
   ContractCase('Page_ReadingPublic_', ReadingPage.fromJson),
   ContractCase('UnreadCount', UnreadCount.fromJson),
+  ContractCase('VerificationSent', VerificationSent.fromJson),
+  ContractCase('VerificationConfirm', VerificationConfirm.fromJson),
+  ContractCase('NotificationPreferences', NotificationPreferences.fromJson),
+  ContractCase('ChangePasswordRequest', ChangePasswordRequest.fromJson),
+  ContractCase('LogoutAllResponse', LogoutAllResponse.fromJson),
   ContractCase('ReceiptPublic', ReceiptPublic.fromJson),
   ContractCase('Page_ReceiptPublic_', ReceiptPage.fromJson),
   ContractCase('NotificationPublic', NotificationPublic.fromJson),

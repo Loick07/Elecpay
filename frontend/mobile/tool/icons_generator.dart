@@ -42,6 +42,7 @@ const lucideIcons = <String, String>{
   'lock': 'lock',
   'plus': 'plus',
   'logIn': 'log-in',
+  'logOut': 'log-out',
   'refreshCw': 'refresh-cw',
   'share2': 'share-2',
   'shieldCheck': 'shield-check',

@@ -57,7 +57,10 @@ void main() {
     // si le foyer affiché a une facture à payer ce jour-là.
     await tapOn(tester, find.text('Factures').last);
     await waitFor(tester, find.byKey(const Key('bills.list')));
-    await tapOn(tester, find.byType(BillRow));
+    // La première facture VISIBLE : `tapOn` la ferait défiler sous la barre du bas (toucher perdu).
+    await waitFor(tester, find.byType(BillRow).hitTestable());
+    await tester.tap(find.byType(BillRow).hitTestable().first);
+    await tester.pump(const Duration(milliseconds: 500));
     await waitFor(tester, find.byKey(const Key('bill.detail')));
     expect(find.byKey(const Key('bill.pdf')), findsOneWidget);
     await shot(tester, 'f5-4-detail-haut');

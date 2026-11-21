@@ -78,7 +78,10 @@ void main() {
     await waitFor(tester, find.byKey(const Key('bills.list')));
     await tapOn(tester, find.byKey(const Key('bills.filter.toPay')));
     await waitFor(tester, find.byType(BillRow));
-    await tapOn(tester, find.byType(BillRow));
+    // La première facture VISIBLE (jamais une ligne passée sous la barre du bas).
+    await waitFor(tester, find.byType(BillRow).hitTestable());
+    await tester.tap(find.byType(BillRow).hitTestable().first);
+    await tester.pump(const Duration(milliseconds: 500));
     await waitFor(tester, find.byKey(const Key('bill.detail')));
     await shot(tester, 'f10-5-detail');
 

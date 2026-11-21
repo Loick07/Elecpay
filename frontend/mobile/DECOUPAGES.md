@@ -23,6 +23,8 @@ texte des décisions plus bas.
   **Cloudflare Tunnel** en secours. Nouvelle sous-étape **« Mise en ligne » pendant F9** (F9.5) : guide
   et fichiers de production rédigés ; **arrêt pour l'accord de Loick avant de toucher `backend/`** et
   pour les actions qu'il doit faire lui-même (compte Oracle).
+  **Remplacé le 21/11/2026** : mise en ligne reportée en **M1** (après F10), par **ngrok** sur le PC
+  (voir la section M1 plus bas).
 - **F9 ou F10** : remplacer les pages provisoires des conditions d'utilisation et de la confidentialité
   quand Loick fournit les vrais textes.
 Chaque étape suit la même méthode que F4 : sous-étapes commitées une à une sur la branche de l'étape,
@@ -244,8 +246,8 @@ de modifier quoi que ce soit dans `backend/`.
   ou service géré type Render / Railway) qui sort de l'application ; `backend/docs/DEPLOIEMENT.md` est prêt.
   **Recommandation : choisir l'hébergeur pendant F9** pour que F10.5 ne bloque pas ; sinon, vérification
   finale avec l'API du PC (`adb reverse`) et un APK profile, notée comme incomplète.
-  **Décidé le 21/11/2026** : Oracle Cloud Always Free (Johannesburg) + Caddy + DuckDNS, mais la mise
-  en ligne est **reportée en M1**, après F10. La vérification finale de F10 se fait **en local**
+  **Décidé le 21/11/2026** : la mise en ligne est **reportée en M1**, après F10, et passe par **ngrok**
+  (`omnivore-pardon-sixth.ngrok-free.dev`, API du PC sur le port 8000). La vérification finale de F10 se fait **en local**
   (APK profile sur l'API du PC) ; l'APK release, construit, signé et contrôlé en CI, ne sera
   utilisable qu'après M1 (il exige le HTTPS).
 - **D10.3 Suivi des plantages** (Sentry, Firebase Crashlytics) : **Recommandation : aucun pour le MVP**
@@ -256,21 +258,39 @@ de modifier quoi que ce soit dans `backend/`.
 
 ## M1 — Mise en ligne (après F10)
 
-Reportée de F9 (ancienne F9.5) : **tout reste en local jusqu'à la fin de F10**. Choix déjà faits (D10.2) :
+Reportée de F9 (ancienne F9.5) : **tout reste en local jusqu'à la fin de F10**.
+**Décision de Loick (21/11/2026) : M1 passe par ngrok**, à la place d'Oracle Cloud + Caddy + DuckDNS (qui
+restent une piste pour plus tard, si l'API doit tourner sans le PC).
 
-- **Oracle Cloud Always Free**, région d'origine **Johannesburg** (la plus proche du Congo ; elle ne se
-  change plus ensuite), machine **VM.Standard.A1.Flex** (ARM, 2 cœurs, 12 Go), **Ubuntu 24.04** ;
-  compte et clé SSH créés par Loick (jamais la clé privée transmise) ;
-- **Caddy** (HTTPS automatique Let's Encrypt) et **DuckDNS** (sous-domaine gratuit, jeton gardé sur le
-  serveur) ; **Cloudflare Tunnel** en secours seulement ;
-- fichiers de production dans **`backend/deploy/`** : `docker-compose.prod.yml` (API, MySQL 8 avec
-  volume, Caddy), `Caddyfile`, `.env.production.example` (sans secret), tâches planifiées
-  (`check_pending_payments`, `send_emails`, `send_announcements` chaque minute ; `daily_alerts` à 6 h),
-  `backup.sh` (sauvegarde MySQL quotidienne, 14 jours), `duckdns-update.sh` ;
-- **guide pas à pas** dans `backend/docs/DEPLOIEMENT.md` (créer la machine, ouvrir les ports, Docker,
-  lancer, vérifier, mettre à jour, restaurer une sauvegarde, Cloudflare Tunnel) ;
-- secrets (`JWT_SECRET`, `TWO_FACTOR_KEY`, `PAYMENT_WEBHOOK_SECRET`, mot de passe MySQL) **générés sur le
-  serveur**, jamais dans le dépôt ni dans la conversation.
+- **Domaine ngrok gratuit (fixe) : `omnivore-pardon-sixth.ngrok-free.dev`** ; l'API tourne **sur le PC, port 8000**
+  (`uvicorn` écoute **seulement `127.0.0.1`**), ngrok fournit le HTTPS. Valeurs à utiliser :
+  - `RECEIPT_VERIFY_URL=https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/receipts/verify` ;
+  - `CORS_ORIGINS=https://omnivore-pardon-sixth.ngrok-free.dev` (seule origine autorisée ; le back-office web ajoutera la sienne) ;
+  - `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev/api/v1` pour l'**APK release** (vérifié par `tool/apk_check.dart`) ;
+  - `TRUSTED_PROXIES=127.0.0.1/32,::1/128` (l'agent ngrok se connecte depuis le PC : l'IP réelle est
+    lue dans `X-Forwarded-For`, pour les limites de tentatives) ;
+  - `APP_ENV=production`, `DEMO_MODE=true` (tout est encore simulé), `AUTH_COOKIE_SECURE=true`.
+- **Rien n'est installé aujourd'hui.** Le guide fera installer ngrok à Loick (**Microsoft Store**, ou
+  **WinGet** : `winget install ngrok -s msstore`), puis **Loick ajoute lui-même l'authtoken**
+  (`ngrok config add-authtoken …`, enregistré dans son fichier de configuration ngrok, jamais dans le dépôt).
+  **L'authtoken n'est jamais transmis à Claude**, ni écrit dans un fichier du dépôt ou une conversation.
+- **Ordre imposé : ngrok seulement après M1.1** (seed sécurisé, testé, intégré, CI verte). Avant M1.1,
+  aucune API n'est exposée sur Internet.
+- **Base dédiée** à l'API publique (proposée : `elecpay_public`), jamais `elecpay`, `elecpay_test` ni
+  `elecpay_e2e` ; secrets (`JWT_SECRET`, `TWO_FACTOR_KEY`, `PAYMENT_WEBHOOK_SECRET`, mot de passe MySQL)
+  **générés sur le PC** par une commande du guide, dans un `.env` de production jamais commité.
+- Fichiers dans **`backend/deploy/`** (avec accord) : `.env.production.example` (sans secret, avec le
+  domaine ngrok), scripts PowerShell pour lancer l'API et le tunnel
+  (`ngrok http --url=omnivore-pardon-sixth.ngrok-free.dev 8000`), tâches planifiées Windows (`check_pending_payments`,
+  `send_emails`, `send_announcements` chaque minute ; `daily_alerts` à 6 h ; `daily_tick` si
+  `DEMO_MODE=true`), sauvegarde MySQL quotidienne (14 jours).
+- **Guide pas à pas** dans `backend/docs/DEPLOIEMENT.md` (section « ngrok sur le PC ») : base, secrets,
+  seed sécurisé, lancer l'API, **puis** installer ngrok, ajouter l'authtoken, ouvrir le tunnel, vérifier
+  `https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/health`, arrêter, sauvegarder et restaurer.
+- **Limites à connaître** (offre gratuite) : l'API n'est joignable **que si le PC est allumé**, l'API et
+  le tunnel lancés ; ngrok affiche une **page d'avertissement aux navigateurs** (pas à l'application, qui
+  n'est pas un navigateur) : le lien du QR code d'un reçu, ouvert dans un navigateur, passera d'abord par
+  cette page ; quotas mensuels de l'offre gratuite.
 
 **Condition de sécurité (obligatoire, testée)** : le mot de passe de démo `Demo2026!` et le secret 2FA de
 démo sont **publics** (dépôt, documentation). En production, le seed devra :
@@ -278,22 +298,24 @@ démo sont **publics** (dépôt, documentation). En production, le seed devra :
 - **générer les secrets 2FA de l'équipe au hasard** (jamais le secret de démo) ;
 - tout cela **couvert par des tests** du backend.
 Décision encore ouverte : autoriser `seed` et `daily_tick` en production **seulement si `DEMO_MODE=true`**
-(recommandé, environ 10 lignes + tests, jamais `reset_db`) ou faire tourner le serveur de démonstration en
-`APP_ENV=development` (rapport `rapports/F9-avant-mise-en-ligne.md`). **Aucune modification de `backend/`
-sans l'accord de Loick.**
+(recommandé, environ 10 lignes + tests, jamais `reset_db`). **Aucune modification de `backend/` sans
+l'accord de Loick.**
 
-Terminé quand : l'API répond en HTTPS sur le sous-domaine, le seed de production refuse `Demo2026!` (test),
+Terminé quand : `https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/health` répond, le seed de production refuse `Demo2026!` (test),
 les tâches planifiées tournent, une sauvegarde a été restaurée avec succès, et l'APK release (construit et
-contrôlé en CI) fonctionne sur l'itel contre cette API.
+contrôlé en CI, `API_BASE_URL` = le domaine ngrok) fonctionne sur l'itel contre cette API.
 
 ### Découpage proposé (à valider au moment de M1)
 
 - **M1.1 Seed de production sûr** (backend, avec accord) : mot de passe fourni par le serveur, refus de
   `Demo2026!`, secrets 2FA tirés au hasard, tests ; décision `seed` / `daily_tick` si `DEMO_MODE=true`.
-- **M1.2 Fichiers `backend/deploy/` et guide pas à pas** (avec accord).
-- **M1.3 Mise en ligne avec Loick** : machine Oracle (Johannesburg), DuckDNS, Caddy, secrets générés
-  sur le serveur, première sauvegarde restaurée.
-- **M1.4 APK release sur l'itel** contre l'API en HTTPS ; rapport `rapports/M1.md`.
+  **Rien n'est exposé avant la fin de M1.1.**
+- **M1.2 Fichiers `backend/deploy/` et guide pas à pas** (avec accord), domaine ngrok inscrit.
+- **M1.3 Mise en ligne avec Loick, sur le PC** : base dédiée, secrets générés sur le PC, seed sécurisé ;
+  **puis** Loick installe ngrok (Microsoft Store ou WinGet) et ajoute lui-même l'authtoken ; tunnel
+  ouvert, `/health` vérifié, première sauvegarde restaurée.
+- **M1.4 APK release sur l'itel** (`API_BASE_URL` = domaine ngrok, contrôlé par `apk_check`) contre
+  l'API en HTTPS ; rapport `rapports/M1.md`.
 
 ---
 
@@ -301,6 +323,6 @@ contrôlé en CI) fonctionne sur l'itel contre cette API.
 
 1. Les contacts réels du support, avant F9 (D9.3).
 2. Les vrais textes des conditions et de la confidentialité (F9 ou F10).
-3. Son accord en F6 (avant `POST /payments`, donné) et en M1 (avant `backend/`, compte Oracle,
-   compte DuckDNS).
+3. Son accord en F6 (avant `POST /payments`, donné) et en M1 (avant `backend/` ; installation de
+   ngrok et ajout de l'authtoken par Loick lui-même, après M1.1).
 4. Sa clé de signature release (D10.1) et sa présence pour la vérification finale sur l'itel.

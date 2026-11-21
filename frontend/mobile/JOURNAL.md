@@ -8,7 +8,9 @@ Mis à jour et commité avec chaque sauvegarde.
 - **F4 → F9 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md` à `F9.md`, et
   `jalon-F4-F7.md`). **On attend le « Continue » de Loick** avant F10.
 - **F9.5 reportée** : étape **M1 — Mise en ligne**, après F10 (`PLAN.md`, `DECOUPAGES.md`), avec la
-  condition de sécurité sur le seed de production. **Ne pas toucher `backend/`.**
+  condition de sécurité sur le seed de production. **Ne pas toucher `backend/`.** M1 passe par
+  **ngrok** (`omnivore-pardon-sixth.ngrok-free.dev`, API du PC port 8000) ; l'authtoken n'est jamais
+  transmis ; ngrok s'installe seulement après M1.1.
 - **F10 en local** : vérification finale sur l'itel avec un APK profile sur l'API du PC, comme aux
   jalons ; l'APK release (contrôlé en CI) n'est utilisable qu'après M1 : **à écrire dans le rapport de
   F10.**

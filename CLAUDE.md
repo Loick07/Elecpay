@@ -287,7 +287,9 @@ assistance (contacts « bientôt disponibles », aucun faux numéro). Plus aucun
 1706 tests, APK release de l'itel 17,6 Mo.
 
 **Mise en ligne reportée** (décision du 21/11/2026) : étape **M1**, après F10 (`frontend/mobile/PLAN.md`,
-`DECOUPAGES.md`) : Oracle Cloud (Johannesburg), Caddy, DuckDNS, `backend/deploy/`, guide pas à pas.
+`DECOUPAGES.md`) : API du PC (port 8000) exposée par **ngrok**, domaine `omnivore-pardon-sixth.ngrok-free.dev`
+(`RECEIPT_VERIFY_URL`, `CORS_ORIGINS`, `API_BASE_URL` de l'APK release) ; `backend/deploy/`, guide pas à pas.
+Loick installe ngrok et ajoute **lui-même** l'authtoken (jamais transmis), **seulement après le seed sécurisé (M1.1)**.
 **Condition de sécurité** : `Demo2026!` et le secret 2FA de démo sont publics ; en production, le seed
 devra exiger un mot de passe fourni par le serveur, refuser `Demo2026!` et générer des secrets 2FA au
 hasard, le tout testé. **F10 se fait en local** (APK profile sur l'API du PC) ; l'APK release, contrôlé

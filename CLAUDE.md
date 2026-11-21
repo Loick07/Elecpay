@@ -266,4 +266,17 @@ les écrire. Test de fluidité `integration_test/consumption_perf_test.dart` pou
 Cache Gradle : déjà dans `mobile.yml` depuis F0 (aucune modification). 1478 tests, APK release de
 l'itel 17,3 Mo.
 
-**Prochaine étape : F8** (compteurs et foyers), après le « Continue » de Loick.
+**Jalon F4 + F5 + F6 + F7 ✅ joué sur l'itel le 20/11/2026** — rapport
+`frontend/mobile/rapports/jalon-F4-F7.md` : 16 tests d'intégration sur 16 (base `elecpay_e2e` seulement,
+`tool/integration.ps1` autorisé aux jalons), paiements simulés jusqu'au reçu, PDF, fluidité (sans flou
+12 ms par image, graphiques 10–12 ms), texte agrandi, TalkBack ; 8 défauts corrigés (dont « kWh » lu
+« kilowattheures », mots coupés à 200 %). Garder les captures avec les vraies polices.
+
+**F8 (compteurs et foyers) ✅ terminé le 21/11/2026** — rapport `frontend/mobile/rapports/F8.md`. Écran 15
+(`lib/features/households/`, route `/compte/compteurs`) : invitations reçues (jamais en cache), une carte
+par foyer, feuille « Ajouter un compteur » (N° de branchement + N° client vérifiés chez E²C à l'ajout,
+foyer créé une seule fois), gérer (inviter, retirer, quitter, renommer, confirmations ; D8.2 sans SMS).
+Les droits suivent `can_manage` (le serveur décide). `ApiClient` : `patchObject`, `deleteNoContent`.
+1642 tests, APK release de l'itel 17,4 Mo.
+
+**Prochaine étape : F9** (compte et assistance), après le « Continue » de Loick.

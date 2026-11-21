@@ -16,8 +16,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F5 | Factures | ✅ terminé le 19/11/2026 (sans le jalon sur le téléphone) |
 | F6 | Paiement, reçus et historique | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
 | F7 | Consommation | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
-| F8 | Compteurs et foyers | prochaine étape |
-| F9 | Compte et assistance | à faire |
+| F8 | Compteurs et foyers | ✅ terminé le 21/11/2026 |
+| F9 | Compte et assistance | prochaine étape |
 | F10 | Finitions et livraison (APK) | à faire |
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
@@ -123,7 +123,15 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   `/health` confirme le mode démo, bandeau « Mode démo · simulation » fixe, rien d'enregistré, sinon
   « phase 2 ». Test de fluidité `integration_test/consumption_perf_test.dart` (prochain jalon).
   1478 tests ; APK release de l'itel 17,3 Mo.
-- **Prochaine étape : F8** (compteurs et foyers), après le « Continue » de Loick.
+- **Jalon F4 + F5 + F6 + F7 joué sur l'itel le 20/11/2026** (rapport `rapports/jalon-F4-F7.md`) : 16
+  tests d'intégration sur 16, paiements simulés, PDF, fluidité, texte agrandi, TalkBack ; 8 défauts
+  corrigés.
+- **F8 ✅ terminé le 21/11/2026** (rapport `rapports/F8.md`) : F8.1 modèles, lectures et actions
+  (`lib/features/households/`, PATCH et DELETE dans `ApiClient`) ; F8.2 écran Compteurs et foyers
+  (invitations reçues, une carte par foyer) ; F8.3 feuille « Ajouter un compteur » (vérifié chez E²C à
+  l'ajout) ; F8.4 gérer (inviter, retirer, quitter, renommer, avec confirmations). 1642 tests ; APK
+  release de l'itel 17,4 Mo.
+- **Prochaine étape : F9** (compte et assistance), après le « Continue » de Loick.
 
 ## Méthode (la même que pour le backend)
 

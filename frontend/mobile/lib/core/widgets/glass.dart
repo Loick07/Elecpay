@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../settings/app_settings.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.g.dart';
 
@@ -10,15 +12,21 @@ import '../theme/tokens.g.dart';
 ///
 /// SANS FLOU PAR DÉFAUT (décision de Loick au jalon F3, 18/11/2026) : mesuré sur l'itel A05s en
 /// profile, l'ouverture de la feuille de paiement passe de 17 ms (sans flou) à 62 ms (flou) par image
-/// au 90e centile (integration_test/glass_perf_test.dart). Le flou devient une option « Effet verre »
-/// de l'écran Compte (F9) ; en attendant, interrupteur sur les pages Diagnostic et Catalogue.
+/// au 90e centile (integration_test/glass_perf_test.dart). Le flou est l'option « Effet verre » de
+/// l'écran Compte (F9.2), aussi sur les pages Diagnostic et Catalogue.
 enum GlassMode { blur, opaque }
 
+/// Suit le réglage « Effet verre » de l'écran Compte (gardé d'un lancement à l'autre, F9.2).
+/// `set` (écran Compte, pages Diagnostic et Catalogue) change aussi le réglage enregistré.
 class GlassModeNotifier extends Notifier<GlassMode> {
   @override
-  GlassMode build() => GlassMode.opaque;
+  GlassMode build() =>
+      ref.watch(appSettingsProvider.select((s) => s.glass)) ? GlassMode.blur : GlassMode.opaque;
 
-  void set(GlassMode mode) => state = mode;
+  void set(GlassMode mode) {
+    state = mode;
+    unawaited(ref.read(appSettingsProvider.notifier).setGlass(mode == GlassMode.blur));
+  }
 }
 
 final glassModeProvider = NotifierProvider<GlassModeNotifier, GlassMode>(GlassModeNotifier.new);

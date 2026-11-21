@@ -4,6 +4,7 @@ import 'package:elecpay/app/routes.dart';
 import 'package:elecpay/core/session/session_manager.dart';
 import 'package:elecpay/core/session/session_providers.dart';
 import 'package:elecpay/core/widgets/bottom_nav.dart';
+import 'package:flutter/widgets.dart' show Key, Offset;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/app_harness.dart';
@@ -88,6 +89,12 @@ void main() {
       await h.start(tester);
       await tester.pumpAndSettle();
       await go(tester, AppTab.account.path);
+      // F9 : l'écran Compte est plus long ; on fait défiler jusqu'au bouton (sous la barre du bas).
+      await tester.dragUntilVisible(
+        find.text('Se déconnecter').hitTestable(),
+        find.byKey(const Key('account.list')),
+        const Offset(0, -150),
+      );
       await tester.tap(find.text('Se déconnecter'));
       await tester.pumpAndSettle();
       expect(location(tester), Routes.login);

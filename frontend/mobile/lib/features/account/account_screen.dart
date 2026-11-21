@@ -8,7 +8,10 @@ import '../../app/routes.dart';
 import '../../core/cache/cached_api.dart';
 import '../../core/demo/demo_mode.dart';
 import '../../core/format/formats.dart';
+import '../../core/models/account.dart';
+import '../../core/network/api_failure.dart';
 import '../../core/session/session_providers.dart';
+import '../../core/settings/app_settings.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/tokens.g.dart';
@@ -19,6 +22,7 @@ import '../diagnostic/diagnostic_access.dart';
 import '../home/home_data.dart';
 import '../households/households_rules.dart' show initials;
 import 'account_data.dart';
+import 'preferences_data.dart';
 
 /// Écran 14 : Compte (maquette `Profil.dc.html`). En-tête du profil (Modifier), « Mon compte »,
 /// réglages, assistance, déconnexion, version.
@@ -80,6 +84,10 @@ class AccountScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 14),
+              const _AlertsGroup(),
+              const SizedBox(height: 14),
+              const _DisplayGroup(),
               const SizedBox(height: 14),
               AccountGroup(
                 rows: [
@@ -325,6 +333,242 @@ class AccountRow extends StatelessWidget {
                 ],
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// « ME PRÉVENIR » : interrupteurs appliqués par le serveur. Hors connexion (préférences du
+/// cache) : affichés, mais pas modifiables.
+class _AlertsGroup extends ConsumerWidget {
+  const _AlertsGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final prefs = ref.watch(notificationPreferencesProvider);
+    final value = prefs.value;
+    final offline = value is CachedData<NotificationPreferences>;
+    Future<void> set(PreferenceSwitch which, bool on) async {
+      final messenger = ScaffoldMessenger.of(context);
+      try {
+        await ref.read(notificationPreferencesProvider.notifier).set(which, on);
+      } on ApiFailure catch (failure) {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(failure.message)));
+      }
+    }
+
+    return AccountGroup(
+      title: 'Me prévenir',
+      rows: switch (prefs) {
+        AsyncValue(value: final fetched?) => [
+          for (final which in PreferenceSwitch.values)
+            SwitchRow(
+              key: Key('account.pref.${which.name}'),
+              label: which.label,
+              detail: which.detail,
+              value: which.valueIn(fetched.data),
+              onChanged: offline ? null : (on) => set(which, on),
+            ),
+          if (offline)
+            Padding(
+              padding: const EdgeInsets.all(Space.s4),
+              child: Text(
+                'Hors connexion : réglages modifiables une fois reconnecté.',
+                style: AppText.caption.copyWith(color: c.inkMuted),
+              ),
+            ),
+        ],
+        AsyncError() => [
+          AccountRow(
+            key: const Key('account.pref.retry'),
+            icon: AppIcons.retry,
+            label: 'Réglages des alertes illisibles : réessayer',
+            onTap: () => ref.invalidate(notificationPreferencesProvider),
+          ),
+        ],
+        _ => [
+          const Padding(
+            padding: EdgeInsets.all(Space.s4),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ],
+      },
+    );
+  }
+}
+
+/// « AFFICHAGE » : thème Nuit / Jour / Auto (D9.2 : Nuit par défaut) et « Effet verre » (désactivé
+/// par défaut). Gardés sur l'appareil (D9.1).
+class _DisplayGroup extends ConsumerWidget {
+  const _DisplayGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final settings = ref.watch(appSettingsProvider);
+    return AccountGroup(
+      title: 'Affichage',
+      rows: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.s4, vertical: 10),
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: Space.s3,
+            runSpacing: Space.s2,
+            children: [
+              Text('Thème', style: AppText.body.copyWith(color: c.ink)),
+              Semantics(
+                container: true,
+                label: 'Thème',
+                child: Container(
+                  padding: const EdgeInsets.all(Space.s1),
+                  decoration: BoxDecoration(
+                    color: c.surface2,
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  ),
+                  // Wrap : texte très agrandi, les choix passent à la ligne au lieu de déborder.
+                  child: Wrap(
+                    spacing: 2,
+                    runSpacing: 2,
+                    children: [
+                      for (final theme in ThemeChoice.values)
+                        _ThemeOption(
+                          key: Key('account.theme.${theme.name}'),
+                          label: theme.label,
+                          selected: settings.theme == theme,
+                          onTap: () =>
+                              unawaited(ref.read(appSettingsProvider.notifier).setTheme(theme)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SwitchRow(
+          key: const Key('account.glass'),
+          label: 'Effet verre',
+          detail:
+              'Flou de la barre du bas et des feuilles. Plus joli, mais plus lent sur les '
+              'petits téléphones.',
+          value: settings.glass,
+          onChanged: (on) => ref.read(appSettingsProvider.notifier).setGlass(on),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  const _ThemeOption({required this.label, required this.selected, required this.onTap, super.key});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      selected: selected,
+      button: true,
+      inMutuallyExclusiveGroup: true,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: selected ? c.surface1 : Colors.transparent,
+        borderRadius: const BorderRadius.all(Radius.circular(9)),
+        child: InkWell(
+          borderRadius: const BorderRadius.all(Radius.circular(9)),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40, minWidth: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Space.s3),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  label,
+                  style: AppText.bodySm.copyWith(
+                    color: selected ? c.ink : c.inkMuted,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Ligne avec un interrupteur (maquette : libellé, sous-titre, interrupteur jaune). TalkBack lit
+/// le libellé, le sous-titre et l'état (activé / désactivé). `onChanged` `null` : grisé.
+class SwitchRow extends StatelessWidget {
+  const SwitchRow({
+    required this.label,
+    required this.detail,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  final String label;
+  final String detail;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final large = MediaQuery.textScalerOf(context).scale(10) > 14;
+    final texts = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppText.body.copyWith(color: c.ink)),
+        Text(detail, style: AppText.caption.copyWith(color: c.inkMuted)),
+      ],
+    );
+    final toggle = Switch(
+      value: value,
+      onChanged: onChanged,
+      activeThumbColor: c.onVolt,
+      activeTrackColor: c.volt,
+      inactiveThumbColor: c.inkMuted,
+      inactiveTrackColor: c.surface3,
+    );
+    return MergeSemantics(
+      child: InkWell(
+        onTap: onChanged == null ? null : () => onChanged!(!value),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Space.s4, vertical: Space.s2),
+            // Texte très agrandi : l'interrupteur passe sous le libellé (sinon « Consommatio / n »).
+            child: large
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      texts,
+                      const SizedBox(height: Space.s1),
+                      Align(alignment: Alignment.centerRight, child: toggle),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: texts),
+                      const SizedBox(width: Space.s3),
+                      toggle,
+                    ],
+                  ),
           ),
         ),
       ),

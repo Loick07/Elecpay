@@ -643,6 +643,14 @@ class FakeHomeBackend {
 
   Map<String, Object?> user = {..._api.sample('UserPublic'), 'full_name': 'Loick Makosso'};
 
+  /// « Me prévenir » (`/me/notification-preferences`) : comme la maquette.
+  Map<String, Object?> preferences = {
+    'due_soon': true,
+    'payments': true,
+    'high_consumption': false,
+    'email_receipts': false,
+  };
+
   static Map<String, Object?> _meter(int id, int household) => {
     ..._api.sample('MeterDetail'),
     'id': id,
@@ -708,6 +716,13 @@ class FakeHomeBackend {
         if (data.containsKey('email')) 'email_verified_at': null,
       };
       return JsonReply(200, user);
+    }
+    if (path == '/me/notification-preferences') {
+      if (request.method == 'PATCH') {
+        (sent[path] ??= []).add(request.data);
+        preferences = {...preferences, ...(request.data as Map<String, dynamic>)};
+      }
+      return JsonReply(200, preferences);
     }
     if (path == '/me/email/verification' && request.method == 'POST') {
       (sent[path] ??= []).add(null);

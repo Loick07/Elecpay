@@ -507,7 +507,10 @@ void main(List<String> args) {
     final dn = result.exitCode == 0 ? signerCertificate(result.stdout as String) : null;
     stdout.writeln('Signature : ${dn ?? 'illisible ou invalide'}');
     if (dn == null) {
-      error('signature de l’APK invalide (apksigner verify : ${result.stderr}).');
+      error(
+        'signature de l’APK illisible : $apksigner (code ${result.exitCode}) '
+        '| sortie : ${result.stdout} | erreurs : ${result.stderr}',
+      );
     } else if (isDebugCertificate(dn) != (signatureOption == 'debug')) {
       error(
         signatureOption == 'release'

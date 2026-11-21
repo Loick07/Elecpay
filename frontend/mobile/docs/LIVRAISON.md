@@ -71,7 +71,37 @@ Le contrôle affiche la taille (objectif : **moins de 25 Mo**) et refuse l'APK s
 - l'adresse https de l'API n'est pas celle donnée au build ;
 - l'APK est signé avec la clé de débogage.
 
-## 4. Installer sur un téléphone
+## 4. Ranger chaque version livrée (hors du dépôt)
+
+Les symboles de `build/symbols/` ne servent qu'à **une** construction : ceux d'une autre construction,
+même du même code, ne lisent pas ses plantages. `build/` est vidé à chaque `flutter clean` et n'est
+pas dans git : il faut donc les ranger **à chaque version livrée**, avec les APK correspondants.
+
+1. Un dossier par version, **en dehors du dépôt**, par exemple
+   `C:\Users\<toi>\ElecPay-livraisons\1.0.0+1\` (la version vient de `pubspec.yaml`) :
+
+   ```powershell
+   $v = '1.0.0+1'
+   $dest = "$env:USERPROFILE\ElecPay-livraisons\$v"
+   New-Item -ItemType Directory -Force "$dest\symbols" | Out-Null
+   Copy-Item build\symbols\* "$dest\symbols\"
+   Copy-Item build\app\outputs\flutter-apk\app-*-release.apk $dest
+   git rev-parse HEAD | Out-File -Encoding utf8 "$dest\commit.txt"
+   ```
+
+2. **Une copie hors du PC**, avec la sauvegarde de la clé (clé USB rangée, ou ton stockage en ligne).
+   Les symboles ne contiennent **aucun secret** (ni mot de passe, ni clé), seulement les noms du code.
+3. Lire un plantage envoyé par un utilisateur (trace illisible, noms obscurcis) :
+
+   ```powershell
+   flutter symbolize -i trace.txt -d "$env:USERPROFILE\ElecPay-livraisons\1.0.0+1\symbols\app.android-arm.symbols"
+   ```
+
+   `app.android-arm` pour l'itel (armeabi-v7a), `app.android-arm64` pour arm64-v8a.
+4. **Version suivante** : augmenter la version dans `pubspec.yaml` (`1.0.1+2` : le nombre après `+`
+   doit toujours augmenter, sinon Android refuse la mise à jour), puis recommencer.
+
+## 5. Installer sur un téléphone
 
 - **Par câble ou débogage sans fil** (téléphone en mode développeur, `docs/TELEPHONE.md`) :
 
@@ -86,7 +116,7 @@ Le contrôle affiche la taille (objectif : **moins de 25 Mo**) et refuse l'APK s
   inversement) : désinstaller d'abord l'ancienne version (les données de l'application sont perdues,
   il faut se reconnecter).
 
-## 5. Ce qui reste à faire pour une publication (après le MVP)
+## 6. Ce qui reste à faire pour une publication (après le MVP)
 
 - **Play Store** : un fichier `.aab` (`flutter build appbundle`), un compte développeur, la
   suppression du compte depuis l'application (D9.5), les vrais textes des conditions et de la

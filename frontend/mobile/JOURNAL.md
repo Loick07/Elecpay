@@ -27,7 +27,10 @@ Mis à jour et commité avec chaque sauvegarde.
 
 1. **F10 arrêté avant la CI de l'APK livré et le jalon final** (`rapports/F10-avant-jalon.md`) :
    F10.0 → F10.4 (partie `frontend/`) faits. Attendre de Loick : accord pour `.github/workflows/mobile.yml`
-   (a) ou b) pour la signature), sa clé (jamais transmise), l'`IP:port` de l'itel pour F10.5.
+   (a) ou b) pour la signature), l'`IP:port` de l'itel pour F10.5.
+   **Clé de Loick faite le 21/11/2026** : `android/key.properties` en place (ignoré par git). **Ne jamais
+   lire ce fichier ni en demander le contenu.** APK livrés signés avec sa clé : itel 15,9 Mo, arm64
+   18,5 Mo, x86_64 19,9 Mo, `apk_check --signature=release` OK sur les trois.
 2. Puis F10.5 : 17 tests d'intégration sur `elecpay_e2e`, vérification avec Loick (APK profile sur l'API
    du PC), rapport `rapports/F10.md` (y écrire : APK release utilisable seulement après M1).
 

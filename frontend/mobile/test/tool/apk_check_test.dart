@@ -263,6 +263,14 @@ void main() {
       expect(isDebugCertificate(signerCertificate(release)!), isFalse);
     });
 
+    test('build-tools 37.0.0 (serveurs de GitHub) : « V2 Signer: certificate DN: … »', () {
+      const ci =
+          'V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug\n'
+          'V2 Signer: certificate SHA-256 digest: 5e6f…\n';
+      expect(signerCertificate(ci), 'C=US, O=Android, CN=Android Debug');
+      expect(isDebugCertificate(signerCertificate(ci)!), isTrue);
+    });
+
     test('sortie sans signataire → null (signature invalide)', () {
       expect(signerCertificate('DOES NOT VERIFY'), isNull);
     });

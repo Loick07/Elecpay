@@ -60,6 +60,9 @@ void main() {
     );
     await shot(tester, 'f10-3-compteur-ajoute');
     await tapOn(tester, find.byKey(const Key('addMeter.done')));
+    // L'écran Compteurs et foyers est posé sur l'accueil (sans barre du bas) : on y revient.
+    await androidBack(tester);
+    await waitFor(tester, find.byKey(const Key('home.list')));
 
     // 3. Consommation (historique importé).
     await tapOn(tester, find.text('Conso'));

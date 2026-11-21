@@ -269,10 +269,12 @@ List<String> dartFilesContaining(List<int> apkBytes, String text) {
   ];
 }
 
-/// Certificat du premier signataire (`apksigner verify --print-certs`), ex. « CN=Android Debug,
-/// O=Android, C=US », ou `null`.
+/// Certificat du premier signataire (`apksigner verify --print-certs`), ex. « C=US, O=Android,
+/// CN=Android Debug », ou `null`. Deux formes selon la version des build-tools :
+/// « Signer #1 certificate DN: … » (36.x, PC de Loick) et « V2 Signer: certificate DN: … » (37.0.0,
+/// serveurs de GitHub, vu en CI le 21/11/2026).
 String? signerCertificate(String printCerts) => RegExp(
-  r'^Signer #1 certificate DN: (.*)$',
+  r'^(?:Signer #1|V\d+ Signer:) certificate DN: (.*)$',
   multiLine: true,
 ).firstMatch(printCerts)?.group(1)?.trim();
 

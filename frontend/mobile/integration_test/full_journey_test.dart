@@ -105,7 +105,8 @@ void main() {
     await waitFor(tester, find.byKey(const Key('account.history')));
     await tapOn(tester, find.byKey(const Key('account.history')));
     await waitFor(tester, find.byKey(const Key('history.list')));
-    await waitFor(tester, find.text('Réussie'));
+    // « Réussi » : le paiement (historyStatus), « Réussie » : la transaction (statuts communs).
+    await waitFor(tester, find.text('Réussi'));
     await shot(tester, 'f10-8-historique');
   });
 }

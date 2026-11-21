@@ -246,8 +246,18 @@ void main() {
       tester.view.viewInsets = const FakeViewPadding(bottom: 600);
       addTearDown(tester.view.resetViewInsets);
       await settle(tester);
+      // F10 : sans ce défilement, le toucher tombait hors de l'écran (y = 1256 sur 800, simple
+      // avertissement) : « Nouveau foyer » n'était jamais choisi et le formulaire restait court.
+      await tester.ensureVisible(find.byKey(const Key('addMeter.household.new')));
+      await settle(tester);
       await tester.tap(find.byKey(const Key('addMeter.household.new')));
       await settle(tester);
+      expect(
+        find.byKey(const Key('addMeter.name')),
+        findsOneWidget,
+        reason: 'nouveau foyer choisi',
+      );
+      expect(find.byKey(const Key('addMeter.city')), findsOneWidget);
       await tester.ensureVisible(find.byKey(const Key('addMeter.submit')));
       await settle(tester);
       expect(find.byKey(const Key('addMeter.submit')).hitTestable(), findsOneWidget);

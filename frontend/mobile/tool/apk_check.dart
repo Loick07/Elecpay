@@ -11,6 +11,10 @@
 // - avec `--lucide=reduced` : la police des icônes est réduite aux seules icônes utilisées ;
 // - avec `--launcher-icon=custom` : AUCUNE icône Flutter par défaut dans l'APK (pixels comparés),
 //   et le nom affiché sous l'icône est « ElecPay ».
+// - avec `--api-url=https://…` (F10.4) : l'adresse de l'API donnée au build
+//   (`--dart-define=API_BASE_URL`) est en https et se trouve dans le code Dart compilé ;
+// - avec `--signature=release` (F10.4) : l'APK n'est PAS signé avec la clé de débogage d'Android
+//   (`apksigner`, dans les build-tools du SDK) ; `--signature=debug` sert de contre-épreuve.
 //
 // Usage (depuis frontend/mobile) :
 //   dart run tool/apk_check.dart build/app/outputs/flutter-apk/app-release.apk \
@@ -255,6 +259,26 @@ List<String> flutterDefaultIcons(List<int> apkBytes) => [
       file.name,
 ];
 
+/// Fichiers de CODE DART de l'APK (libapp.so, kernel_blob.bin) qui contiennent `text`.
+List<String> dartFilesContaining(List<int> apkBytes, String text) {
+  final needle = utf8.encode(text);
+  return [
+    for (final file in ZipDecoder().decodeBytes(apkBytes).files)
+      if (file.isFile && isDartCode(file.name) && containsBytes(file.readBytes()!, needle))
+        file.name,
+  ];
+}
+
+/// Certificat du premier signataire (`apksigner verify --print-certs`), ex. « CN=Android Debug,
+/// O=Android, C=US », ou `null`.
+String? signerCertificate(String printCerts) => RegExp(
+  r'^Signer #1 certificate DN: (.*)$',
+  multiLine: true,
+).firstMatch(printCerts)?.group(1)?.trim();
+
+/// Clé de débogage d'Android (créée par le SDK sur chaque PC) : jamais pour l'APK livré.
+bool isDebugCertificate(String dn) => dn.contains('CN=Android Debug');
+
 /// Nom affiché sous l'icône (`application-label` de `aapt2 dump badging`), ou `null`.
 String? applicationLabel(String badging) =>
     RegExp(r"^application-label:'([^']*)'", multiLine: true).firstMatch(badging)?.group(1);
@@ -263,13 +287,17 @@ String? applicationLabel(String badging) =>
 String formatSize(int bytes) =>
     '${(bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',')} Mo';
 
-String? findAapt2() {
+String? findAapt2() => findBuildTool(Platform.isWindows ? 'aapt2.exe' : 'aapt2');
+
+String? findApksigner() => findBuildTool(Platform.isWindows ? 'apksigner.bat' : 'apksigner');
+
+/// Outil `exe` des build-tools du SDK Android (version la plus récente qui l'a).
+String? findBuildTool(String exe) {
   final roots = [
     Platform.environment['ANDROID_HOME'],
     Platform.environment['ANDROID_SDK_ROOT'],
     if (Platform.environment['LOCALAPPDATA'] case final local?) '$local/Android/sdk',
   ].whereType<String>();
-  final exe = Platform.isWindows ? 'aapt2.exe' : 'aapt2';
   for (final root in roots) {
     final buildTools = Directory('$root/build-tools');
     if (!buildTools.existsSync()) continue;
@@ -295,24 +323,29 @@ String _aapt2(String aapt2, List<String> args) {
 const _usage =
     'Usage : dart run tool/apk_check.dart <fichier.apk> --cleartext=true|false '
     '[--diagnostic=absent|present] [--demo-password=absent|present] [--lucide=reduced] '
-    '[--launcher-icon=custom]';
+    '[--launcher-icon=custom] [--api-url=https://…] [--signature=release|debug]';
 
 void main(List<String> args) {
-  String? option(String name) =>
-      args.where((a) => a.startsWith('--$name=')).map((a) => a.split('=')[1]).lastOrNull;
+  String? option(String name) => args
+      .where((a) => a.startsWith('--$name='))
+      .map((a) => a.substring('--$name='.length))
+      .lastOrNull;
   bool validPresence(String? value) => value == null || {'absent', 'present'}.contains(value);
   final cleartextOption = option('cleartext');
   final diagnosticOption = option('diagnostic');
   final demoPasswordOption = option('demo-password');
   final lucideOption = option('lucide');
   final launcherIconOption = option('launcher-icon');
+  final apiUrlOption = option('api-url');
+  final signatureOption = option('signature');
   final paths = args.where((a) => !a.startsWith('--')).toList();
   if (paths.length != 1 ||
       !{'true', 'false'}.contains(cleartextOption) ||
       !validPresence(diagnosticOption) ||
       !validPresence(demoPasswordOption) ||
       (lucideOption != null && lucideOption != 'reduced') ||
-      (launcherIconOption != null && launcherIconOption != 'custom')) {
+      (launcherIconOption != null && launcherIconOption != 'custom') ||
+      (signatureOption != null && !{'release', 'debug'}.contains(signatureOption))) {
     stderr.writeln(_usage);
     exit(2);
   }
@@ -439,6 +472,49 @@ void main(List<String> args) {
     final label = applicationLabel(_aapt2(aapt2, ['dump', 'badging', apk.path]));
     stdout.writeln('Nom sous l’icône : ${label ?? 'absent'}');
     if (label != expectedLabel) error('le nom affiché devrait être « $expectedLabel ».');
+  }
+
+  // Adresse de l'API (F10.4) : https, et bien celle compilée dans l'APK (`--dart-define`).
+  if (apiUrlOption != null) {
+    if (!apiUrlOption.startsWith('https://')) {
+      error('--api-url doit être en https:// (« $apiUrlOption ») : la version livrée l’exige.');
+    } else {
+      final files = dartFilesContaining(apk.readAsBytesSync(), apiUrlOption);
+      stdout.writeln(
+        'Adresse de l’API dans le code compilé : '
+        '${files.isEmpty ? 'ABSENTE' : '$apiUrlOption (${files.join(', ')})'}',
+      );
+      if (files.isEmpty) {
+        error('l’APK n’a pas été construit avec --dart-define=API_BASE_URL=$apiUrlOption.');
+      }
+    }
+  }
+
+  // Signature (F10.4) : la clé de l'APK livré, jamais la clé de débogage d'Android.
+  if (signatureOption != null) {
+    final apksigner = findApksigner();
+    if (apksigner == null) {
+      stderr.writeln(
+        'apksigner introuvable : définir ANDROID_HOME (SDK Android avec build-tools).',
+      );
+      exit(2);
+    }
+    final result = Process.runSync(apksigner, [
+      'verify',
+      '--print-certs',
+      apk.path,
+    ], runInShell: Platform.isWindows);
+    final dn = result.exitCode == 0 ? signerCertificate(result.stdout as String) : null;
+    stdout.writeln('Signature : ${dn ?? 'illisible ou invalide'}');
+    if (dn == null) {
+      error('signature de l’APK invalide (apksigner verify : ${result.stderr}).');
+    } else if (isDebugCertificate(dn) != (signatureOption == 'debug')) {
+      error(
+        signatureOption == 'release'
+            ? 'APK signé avec la clé de DÉBOGAGE : créer la clé de l’APK livré (docs/LIVRAISON.md).'
+            : 'APK signé avec une autre clé que celle de débogage.',
+      );
+    }
   }
 
   if (!ok) exit(1);

@@ -162,7 +162,7 @@ l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, s
 | Fin de F3 | premiers vrais écrans : connexion, inscription |
 | Mi-parcours, **groupé F4 + F5 + F6 + F7** (itel en panne le 19/11/2026 ; joué à son retour, le 20/11/2026, rapport `rapports/jalon-F4-F7.md`) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement ; **fluidité des graphiques de F7** (`consumption_perf_test.dart`, demande de Loick du 20/11/2026) |
 | Fin de F10 (en local, décision du 21/11/2026) | **APK profile** branché sur l'API du PC (`adb reverse`), comme aux jalons ; l'APK release est construit, signé et contrôlé en CI, mais **utilisable seulement après M1** (il exige le HTTPS) |
-| M1 | APK release sur l'itel contre l'API en HTTPS (`https://omnivore-pardon-sixth.ngrok-free.dev/api/v1`) |
+| M1 | APK release sur l'itel contre l'API en HTTPS (`https://omnivore-pardon-sixth.ngrok-free.dev`) |
 
 Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.
 
@@ -410,7 +410,8 @@ restent une piste pour plus tard, si l'API doit tourner sans le PC).
   (`uvicorn` écoute **seulement `127.0.0.1`**), ngrok fournit le HTTPS. Valeurs à utiliser :
   - `RECEIPT_VERIFY_URL=https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/receipts/verify` ;
   - `CORS_ORIGINS=https://omnivore-pardon-sixth.ngrok-free.dev` (seule origine autorisée ; le back-office web ajoutera la sienne) ;
-  - `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev/api/v1` pour l'**APK release** (vérifié par `tool/apk_check.dart`) ;
+  - `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev` pour l'**APK release** (sans chemin : l'application ajoute
+    `/api/v1` ; vérifié par `tool/apk_check.dart --api-url`) ;
   - `TRUSTED_PROXIES=127.0.0.1/32,::1/128` (l'agent ngrok se connecte depuis le PC : l'IP réelle est
     lue dans `X-Forwarded-For`, pour les limites de tentatives) ;
   - `APP_ENV=production`, `DEMO_MODE=true` (tout est encore simulé), `AUTH_COOKIE_SECURE=true`.
@@ -447,7 +448,7 @@ l'accord de Loick.**
 
 Terminé quand : `https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/health` répond, le seed de production refuse `Demo2026!` (test),
 les tâches planifiées tournent, une sauvegarde a été restaurée avec succès, et l'APK release (construit et
-contrôlé en CI, `API_BASE_URL` = le domaine ngrok) fonctionne sur l'itel contre cette API.
+contrôlé en CI, `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev`) fonctionne sur l'itel contre cette API.
 
 ### Après F10
 

@@ -219,4 +219,52 @@ void main() {
       expect(forbiddenPermissions(['android.permission.CAMERA']), ['android.permission.CAMERA']);
     });
   });
+  // F10.4 : APK livré.
+  group('adresse de l’API compilée dans l’APK (--api-url)', () {
+    List<int> apk(Map<String, String> files) {
+      final archive = Archive();
+      for (final entry in files.entries) {
+        archive.add(ArchiveFile.bytes(entry.key, utf8.encode(entry.value)));
+      }
+      return ZipEncoder().encode(archive);
+    }
+
+    const url = 'https://omnivore-pardon-sixth.ngrok-free.dev';
+
+    test('cherchée dans le code Dart seulement (libapp.so), pas dans les ressources', () {
+      final bytes = apk({
+        'lib/armeabi-v7a/libapp.so': 'xx${url}xx',
+        'assets/flutter_assets/NOTICES': url,
+      });
+      expect(dartFilesContaining(bytes, url), ['lib/armeabi-v7a/libapp.so']);
+    });
+
+    test('construit sans --dart-define (adresse par défaut) → absente', () {
+      final bytes = apk({'lib/arm64-v8a/libapp.so': 'http://127.0.0.1:8000'});
+      expect(dartFilesContaining(bytes, url), isEmpty);
+    });
+  });
+
+  group('signature (--signature)', () {
+    // Extraits de `apksigner verify --print-certs` (build-tools 36.1.0, APK du 21/11/2026).
+    const debug =
+        'Signer #1 certificate DN: C=US, O=Android, CN=Android Debug\n'
+        'Signer #1 certificate SHA-256 digest: 1a2b…\n';
+    const release =
+        'Signer #1 certificate DN: CN=Loick Makosso, OU=ElecPay, O=ElecPay, L=Pointe-Noire, C=CG\n'
+        'Signer #1 certificate SHA-256 digest: 3c4d…\n';
+
+    test('clé de débogage d’Android : reconnue (refusée pour l’APK livré)', () {
+      expect(signerCertificate(debug), 'C=US, O=Android, CN=Android Debug');
+      expect(isDebugCertificate(signerCertificate(debug)!), isTrue);
+    });
+
+    test('clé de l’APK livré : acceptée', () {
+      expect(isDebugCertificate(signerCertificate(release)!), isFalse);
+    });
+
+    test('sortie sans signataire → null (signature invalide)', () {
+      expect(signerCertificate('DOES NOT VERIFY'), isNull);
+    });
+  });
 }

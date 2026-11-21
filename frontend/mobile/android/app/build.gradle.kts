@@ -1,8 +1,23 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// Clé de l'APK livré (D10.1, guide docs/LIVRAISON.md) : JAMAIS dans le dépôt.
+// 1. Sur le PC de Loick : android/key.properties (ignoré par git) ;
+// 2. En CI : variables ELECPAY_KEYSTORE_FILE, ELECPAY_KEYSTORE_PASSWORD, ELECPAY_KEY_ALIAS,
+//    ELECPAY_KEY_PASSWORD (secrets GitHub) ;
+// 3. Sinon : clé de débogage d'Android (refusée par `apk_check --signature=release`).
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+fun signingValue(property: String, variable: String): String? =
+    keyProperties.getProperty(property) ?: System.getenv(variable)
+val releaseStoreFile = signingValue("storeFile", "ELECPAY_KEYSTORE_FILE")
 
 android {
     namespace = "cg.elecpay.client"
@@ -28,11 +43,25 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (releaseStoreFile != null) {
+            create("release") {
+                storeFile = file(releaseStoreFile)
+                storePassword = signingValue("storePassword", "ELECPAY_KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "ELECPAY_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "ELECPAY_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (releaseStoreFile != null) {
+                signingConfigs.getByName("release")
+            } else {
+                logger.warn("ElecPay : aucune clé de l'APK livré, APK release signé avec la clé de DÉBOGAGE.")
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

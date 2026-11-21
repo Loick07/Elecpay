@@ -25,8 +25,11 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. Après le « Continue » : branche `f10` depuis `main`, puis les sous-étapes F10.1 → F10.5 de
-   `DECOUPAGES.md` (F10.5 en local).
+1. **F10 arrêté avant la CI de l'APK livré et le jalon final** (`rapports/F10-avant-jalon.md`) :
+   F10.0 → F10.4 (partie `frontend/`) faits. Attendre de Loick : accord pour `.github/workflows/mobile.yml`
+   (a) ou b) pour la signature), sa clé (jamais transmise), l'`IP:port` de l'itel pour F10.5.
+2. Puis F10.5 : 17 tests d'intégration sur `elecpay_e2e`, vérification avec Loick (APK profile sur l'API
+   du PC), rapport `rapports/F10.md` (y écrire : APK release utilisable seulement après M1).
 
 ## Choix faits en route
 

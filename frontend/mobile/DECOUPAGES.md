@@ -266,7 +266,8 @@ restent une piste pour plus tard, si l'API doit tourner sans le PC).
   (`uvicorn` écoute **seulement `127.0.0.1`**), ngrok fournit le HTTPS. Valeurs à utiliser :
   - `RECEIPT_VERIFY_URL=https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/receipts/verify` ;
   - `CORS_ORIGINS=https://omnivore-pardon-sixth.ngrok-free.dev` (seule origine autorisée ; le back-office web ajoutera la sienne) ;
-  - `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev/api/v1` pour l'**APK release** (vérifié par `tool/apk_check.dart`) ;
+  - `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev` pour l'**APK release** (sans chemin : l'application ajoute
+    `/api/v1` ; vérifié par `tool/apk_check.dart --api-url`) ;
   - `TRUSTED_PROXIES=127.0.0.1/32,::1/128` (l'agent ngrok se connecte depuis le PC : l'IP réelle est
     lue dans `X-Forwarded-For`, pour les limites de tentatives) ;
   - `APP_ENV=production`, `DEMO_MODE=true` (tout est encore simulé), `AUTH_COOKIE_SECURE=true`.
@@ -303,7 +304,7 @@ l'accord de Loick.**
 
 Terminé quand : `https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/health` répond, le seed de production refuse `Demo2026!` (test),
 les tâches planifiées tournent, une sauvegarde a été restaurée avec succès, et l'APK release (construit et
-contrôlé en CI, `API_BASE_URL` = le domaine ngrok) fonctionne sur l'itel contre cette API.
+contrôlé en CI, `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev`) fonctionne sur l'itel contre cette API.
 
 ### Découpage proposé (à valider au moment de M1)
 

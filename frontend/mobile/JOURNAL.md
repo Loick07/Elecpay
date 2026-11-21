@@ -3,24 +3,28 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/mobile/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 21/11/2026 (fin de F8)
+## État au 21/11/2026 (fin de F9, sans F9.5)
 
-- **F4 → F8 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md` à `F8.md`, et
-  `jalon-F4-F7.md`). **On attend le « Continue » de Loick** avant F9.
-- Jalon F4 + F5 + F6 + F7 joué sur l'itel le 20/11/2026 (débogage sans fil ; le port change souvent :
-  `adb mdns services`). Prochain jalon : fin F10 (F8 et F9 y seront vérifiés).
+- **F4 → F9 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md` à `F9.md`, et
+  `jalon-F4-F7.md`). **On attend le « Continue » de Loick** avant F10.
+- **F9.5 reportée** : étape **M1 — Mise en ligne**, après F10 (`PLAN.md`, `DECOUPAGES.md`), avec la
+  condition de sécurité sur le seed de production. **Ne pas toucher `backend/`.**
+- **F10 en local** : vérification finale sur l'itel avec un APK profile sur l'API du PC, comme aux
+  jalons ; l'APK release (contrôlé en CI) n'est utilisable qu'après M1 : **à écrire dans le rapport de
+  F10.**
+- Jalon F4 → F7 joué le 20/11/2026 (débogage sans fil ; le port change souvent : `adb mdns services`).
+  Prochain jalon : fin F10 (F8, F9 et F10 y seront vérifiés).
 - Décisions de Loick (20/11/2026) : CI inchangée (pas de relance automatique ; `setup-gradle` si les
   pannes Maven deviennent fréquentes) ; captures avec les vraies polices à garder ;
   `tool/integration.ps1` autorisé aux jalons, base `elecpay_e2e` seulement (`AUTONOMIE.md`).
-- Fichiers temporaires sur ce PC, jamais commités, à supprimer par Loick : `test/zz_capture_tmp_test.dart`,
-  `test/zz_measure_tmp_test.dart`, `test/zz_dbg_tmp_test.dart`.
+- Fichiers temporaires : dans `build/tmp/` (ignoré par git), **jamais** `test/zz_*`.
 - **Avant chaque commit** : ajouter les fichiers un par un, relire `git status` ; ne jamais lancer
   `dart format` sur un dossier qui contient des `*.g.dart` (les remettre avec `git restore` sinon).
 
 ## Prochaine action
 
-1. Après le « Continue » : branche `f9` depuis `main`, découpage de F9 dans `DECOUPAGES.md` ; le bouton
-   temporaire « Compteurs et foyers » de la page d'attente de Compte devient le lien de l'écran Compte.
+1. Après le « Continue » : branche `f10` depuis `main`, puis les sous-étapes F10.1 → F10.5 de
+   `DECOUPAGES.md` (F10.5 en local).
 
 ## Choix faits en route
 

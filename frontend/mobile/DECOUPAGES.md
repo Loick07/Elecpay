@@ -190,9 +190,8 @@ de modifier quoi que ce soit dans `backend/`.
 - **F9.3 Sécurité** : changement de mot de passe, « Déconnecter mes autres appareils », déconnexion.
 - **F9.4 Assistance (écran 16)** : recherche, 5 questions fréquentes de la maquette, contacts (D9.3, D9.4),
   rappel que les pannes relèvent d'E²C.
-- **F9.5 Mise en ligne** (D10.2) : guide et fichiers de production (Oracle Cloud Always Free, Caddy,
-  DuckDNS, Cloudflare Tunnel en secours) ; ⏸ arrêt pour l'accord de Loick avant toute modification de
-  `backend/` et pour ses propres actions (compte Oracle). Clôture et rapport `rapports/F9.md`.
+- ~~F9.5 Mise en ligne~~ : **reportée** (décision de Loick du 21/11/2026) → étape **M1**, après F10.
+  F9 se clôt sans elle (rapport `rapports/F9.md`).
 
 ### Décisions
 
@@ -231,8 +230,9 @@ de modifier quoi que ce soit dans `backend/`.
   paiement → reçu → historique (base `elecpay_e2e`).
 - **F10.4 APK livré** : `--split-per-abi`, `--obfuscate --split-debug-info`, signature release (D10.1),
   objectif < 25 Mo, `apk_check` sur l'APK livré, guide d'installation.
-- **F10.5 Rapport final et vérification avec toi sur l'itel** (APK installé à la main + backend en ligne en
-  HTTPS, D10.2).
+- **F10.5 Rapport final et vérification avec toi sur l'itel**, **en local** (décision du 21/11/2026) :
+  **APK profile** branché sur l'API du PC, comme aux jalons. L'APK release est construit, signé et
+  contrôlé en CI, mais **utilisable seulement après M1** (il exige le HTTPS) : le rapport de F10 le dit.
 
 ### Décisions
 
@@ -244,9 +244,56 @@ de modifier quoi que ce soit dans `backend/`.
   ou service géré type Render / Railway) qui sort de l'application ; `backend/docs/DEPLOIEMENT.md` est prêt.
   **Recommandation : choisir l'hébergeur pendant F9** pour que F10.5 ne bloque pas ; sinon, vérification
   finale avec l'API du PC (`adb reverse`) et un APK profile, notée comme incomplète.
+  **Décidé le 21/11/2026** : Oracle Cloud Always Free (Johannesburg) + Caddy + DuckDNS, mais la mise
+  en ligne est **reportée en M1**, après F10. La vérification finale de F10 se fait **en local**
+  (APK profile sur l'API du PC) ; l'APK release, construit, signé et contrôlé en CI, ne sera
+  utilisable qu'après M1 (il exige le HTTPS).
 - **D10.3 Suivi des plantages** (Sentry, Firebase Crashlytics) : **Recommandation : aucun pour le MVP**
   (aucun service tiers, aucune donnée envoyée) ; journal local seulement.
 - **D10.4 Version** : `1.0.0+1` pour l'APK livré, nom affiché « ElecPay ». **Recommandation : oui.**
+
+---
+
+## M1 — Mise en ligne (après F10)
+
+Reportée de F9 (ancienne F9.5) : **tout reste en local jusqu'à la fin de F10**. Choix déjà faits (D10.2) :
+
+- **Oracle Cloud Always Free**, région d'origine **Johannesburg** (la plus proche du Congo ; elle ne se
+  change plus ensuite), machine **VM.Standard.A1.Flex** (ARM, 2 cœurs, 12 Go), **Ubuntu 24.04** ;
+  compte et clé SSH créés par Loick (jamais la clé privée transmise) ;
+- **Caddy** (HTTPS automatique Let's Encrypt) et **DuckDNS** (sous-domaine gratuit, jeton gardé sur le
+  serveur) ; **Cloudflare Tunnel** en secours seulement ;
+- fichiers de production dans **`backend/deploy/`** : `docker-compose.prod.yml` (API, MySQL 8 avec
+  volume, Caddy), `Caddyfile`, `.env.production.example` (sans secret), tâches planifiées
+  (`check_pending_payments`, `send_emails`, `send_announcements` chaque minute ; `daily_alerts` à 6 h),
+  `backup.sh` (sauvegarde MySQL quotidienne, 14 jours), `duckdns-update.sh` ;
+- **guide pas à pas** dans `backend/docs/DEPLOIEMENT.md` (créer la machine, ouvrir les ports, Docker,
+  lancer, vérifier, mettre à jour, restaurer une sauvegarde, Cloudflare Tunnel) ;
+- secrets (`JWT_SECRET`, `TWO_FACTOR_KEY`, `PAYMENT_WEBHOOK_SECRET`, mot de passe MySQL) **générés sur le
+  serveur**, jamais dans le dépôt ni dans la conversation.
+
+**Condition de sécurité (obligatoire, testée)** : le mot de passe de démo `Demo2026!` et le secret 2FA de
+démo sont **publics** (dépôt, documentation). En production, le seed devra :
+- **exiger un mot de passe fourni par le serveur** (variable d'environnement), et **refuser `Demo2026!`** ;
+- **générer les secrets 2FA de l'équipe au hasard** (jamais le secret de démo) ;
+- tout cela **couvert par des tests** du backend.
+Décision encore ouverte : autoriser `seed` et `daily_tick` en production **seulement si `DEMO_MODE=true`**
+(recommandé, environ 10 lignes + tests, jamais `reset_db`) ou faire tourner le serveur de démonstration en
+`APP_ENV=development` (rapport `rapports/F9-avant-mise-en-ligne.md`). **Aucune modification de `backend/`
+sans l'accord de Loick.**
+
+Terminé quand : l'API répond en HTTPS sur le sous-domaine, le seed de production refuse `Demo2026!` (test),
+les tâches planifiées tournent, une sauvegarde a été restaurée avec succès, et l'APK release (construit et
+contrôlé en CI) fonctionne sur l'itel contre cette API.
+
+### Découpage proposé (à valider au moment de M1)
+
+- **M1.1 Seed de production sûr** (backend, avec accord) : mot de passe fourni par le serveur, refus de
+  `Demo2026!`, secrets 2FA tirés au hasard, tests ; décision `seed` / `daily_tick` si `DEMO_MODE=true`.
+- **M1.2 Fichiers `backend/deploy/` et guide pas à pas** (avec accord).
+- **M1.3 Mise en ligne avec Loick** : machine Oracle (Johannesburg), DuckDNS, Caddy, secrets générés
+  sur le serveur, première sauvegarde restaurée.
+- **M1.4 APK release sur l'itel** contre l'API en HTTPS ; rapport `rapports/M1.md`.
 
 ---
 
@@ -254,5 +301,6 @@ de modifier quoi que ce soit dans `backend/`.
 
 1. Les contacts réels du support, avant F9 (D9.3).
 2. Les vrais textes des conditions et de la confidentialité (F9 ou F10).
-3. Son accord en F6 (avant `POST /payments`) et en F9.5 (avant `backend/`, compte Oracle).
+3. Son accord en F6 (avant `POST /payments`, donné) et en M1 (avant `backend/`, compte Oracle,
+   compte DuckDNS).
 4. Sa clé de signature release (D10.1) et sa présence pour la vérification finale sur l'itel.

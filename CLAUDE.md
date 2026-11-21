@@ -279,4 +279,18 @@ foyer créé une seule fois), gérer (inviter, retirer, quitter, renommer, confi
 Les droits suivent `can_manage` (le serveur décide). `ApiClient` : `patchObject`, `deleteNoContent`.
 1642 tests, APK release de l'itel 17,4 Mo.
 
-**Prochaine étape : F9** (compte et assistance), après le « Continue » de Loick.
+**F9 (compte et assistance) ✅ terminé le 21/11/2026, sans F9.5** — rapport `frontend/mobile/rapports/F9.md`.
+Écran Compte et profil (`lib/features/account/` : e-mail vérifié par code, code affiché en démo),
+réglages gardés sur l'appareil (`lib/core/settings/app_settings.dart` : thème Nuit / Jour / Auto,
+« Effet verre »), alertes, mot de passe et sécurité (`logout-all` déconnecte aussi cet appareil),
+assistance (contacts « bientôt disponibles », aucun faux numéro). Plus aucune page d'attente.
+1706 tests, APK release de l'itel 17,6 Mo.
+
+**Mise en ligne reportée** (décision du 21/11/2026) : étape **M1**, après F10 (`frontend/mobile/PLAN.md`,
+`DECOUPAGES.md`) : Oracle Cloud (Johannesburg), Caddy, DuckDNS, `backend/deploy/`, guide pas à pas.
+**Condition de sécurité** : `Demo2026!` et le secret 2FA de démo sont publics ; en production, le seed
+devra exiger un mot de passe fourni par le serveur, refuser `Demo2026!` et générer des secrets 2FA au
+hasard, le tout testé. **F10 se fait en local** (APK profile sur l'API du PC) ; l'APK release, contrôlé
+en CI, n'est utilisable qu'après M1 (HTTPS).
+
+**Prochaine étape : F10** (finitions et livraison, en local), après le « Continue » de Loick.

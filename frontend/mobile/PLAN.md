@@ -17,8 +17,9 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F6 | Paiement, reçus et historique | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
 | F7 | Consommation | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
 | F8 | Compteurs et foyers | ✅ terminé le 21/11/2026 |
-| F9 | Compte et assistance | prochaine étape |
-| F10 | Finitions et livraison (APK) | à faire |
+| F9 | Compte et assistance | ✅ terminé le 21/11/2026 (sans F9.5, reportée en M1) |
+| F10 | Finitions et livraison (APK) | prochaine étape (en local) |
+| M1 | Mise en ligne (Oracle Cloud, Caddy, DuckDNS) | après F10 |
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
 
@@ -131,7 +132,12 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   (invitations reçues, une carte par foyer) ; F8.3 feuille « Ajouter un compteur » (vérifié chez E²C à
   l'ajout) ; F8.4 gérer (inviter, retirer, quitter, renommer, avec confirmations). 1642 tests ; APK
   release de l'itel 17,4 Mo.
-- **Prochaine étape : F9** (compte et assistance), après le « Continue » de Loick.
+- **F9 ✅ terminé le 21/11/2026, sans F9.5** (rapport `rapports/F9.md` ; arrêt :
+  `rapports/F9-avant-mise-en-ligne.md`) : F9.0 « Activité récente » cliquable ; F9.1 écran Compte, profil
+  et e-mail vérifié par code, réglages gardés sur l'appareil ; F9.2 alertes, thème Nuit / Jour / Auto,
+  « Effet verre » ; F9.3 mot de passe et sécurité ; F9.4 assistance (contacts « bientôt disponibles »).
+  1706 tests ; APK release de l'itel 17,6 Mo. **La mise en ligne devient l'étape M1, après F10.**
+- **Prochaine étape : F10** (finitions et livraison, **en local**), après le « Continue » de Loick.
 
 ## Méthode (la même que pour le backend)
 
@@ -155,7 +161,8 @@ l'application rame sur l'itel ou si un texte est illisible : d'où ces jalons, s
 | Fin de F1 | connexion de démo, hors ligne, déconnexion |
 | Fin de F3 | premiers vrais écrans : connexion, inscription |
 | Mi-parcours, **groupé F4 + F5 + F6 + F7** (itel en panne le 19/11/2026 ; joué à son retour, le 20/11/2026, rapport `rapports/jalon-F4-F7.md`) | tests d'intégration F3 + F4 + F5 (+ F6), captures, PDF ouvert et partagé, texte à 130 / 200 %, TalkBack, fluidité, vraie feuille de paiement ; **fluidité des graphiques de F7** (`consumption_perf_test.dart`, demande de Loick du 20/11/2026) |
-| Fin de F10 | APK release installé à la main + backend en ligne en HTTPS |
+| Fin de F10 (en local, décision du 21/11/2026) | **APK profile** branché sur l'API du PC (`adb reverse`), comme aux jalons ; l'APK release est construit, signé et contrôlé en CI, mais **utilisable seulement après M1** (il exige le HTTPS) |
+| M1 | APK release sur l'itel contre l'API en ligne en HTTPS |
 
 Le problème du câble USB se règle une seule fois, au premier jalon : nouveau câble, sinon débogage sans fil.
 
@@ -371,8 +378,8 @@ changement de mot de passe, déconnexion ; assistance (recherche, questions fré
 relevant d'E²C).
 
 Option **« Effet verre »** (décidé au jalon F3, 18/11/2026) : le flou d'arrière-plan de la barre du bas et
-des feuilles, **désactivé par défaut** (trop lent sur l'itel), activable ici pour les téléphones plus
-puissants, choix gardé d'un lancement à l'autre (aujourd'hui : `glassModeProvider`, en mémoire seulement).
+des feuilles, **désactivé par défaut** (trop lent sur l'itel), activable ici, gardé d'un lancement à
+l'autre (fait en F9.2, `lib/core/settings/app_settings.dart`).
 
 ### F10 — Finitions et livraison
 
@@ -384,9 +391,46 @@ complet contre l'API de démo ; **APK optimisé** : `--split-per-abi`, obfuscati
 Terminé quand : tout le parcours client (inscription → compteur → consommation → facture → paiement →
 reçu → historique) se fait sur le téléphone, sans erreur, et l'APK livré fait moins de 25 Mo.
 
+**F10 se fait en local** (décision de Loick du 21/11/2026) : la vérification finale sur l'itel se fait
+avec un **APK profile branché sur l'API du PC**, comme aux jalons. L'APK release est construit, signé et
+contrôlé en CI, mais il ne sera **utilisable qu'après M1** (il exige le HTTPS) : **à écrire dans le
+rapport de F10.**
+
 Ajouts de Loick (19/11/2026, rapport de F5) :
 - **unifier « charger la suite »** : un seul composant (`lib/core/widgets/load_more.dart`) pour les
   Notifications et les Factures (aujourd'hui en double).
+
+### M1 — Mise en ligne (après F10 ; décision de Loick du 21/11/2026)
+
+Reportée de F9 (ancienne F9.5) : **tout reste en local jusqu'à la fin de F10**. Choix déjà faits (D10.2) :
+
+- **Oracle Cloud Always Free**, région d'origine **Johannesburg** (la plus proche du Congo ; elle ne se
+  change plus ensuite), machine **VM.Standard.A1.Flex** (ARM, 2 cœurs, 12 Go), **Ubuntu 24.04** ;
+  compte et clé SSH créés par Loick (jamais la clé privée transmise) ;
+- **Caddy** (HTTPS automatique Let's Encrypt) et **DuckDNS** (sous-domaine gratuit, jeton gardé sur le
+  serveur) ; **Cloudflare Tunnel** en secours seulement ;
+- fichiers de production dans **`backend/deploy/`** : `docker-compose.prod.yml` (API, MySQL 8 avec
+  volume, Caddy), `Caddyfile`, `.env.production.example` (sans secret), tâches planifiées
+  (`check_pending_payments`, `send_emails`, `send_announcements` chaque minute ; `daily_alerts` à 6 h),
+  `backup.sh` (sauvegarde MySQL quotidienne, 14 jours), `duckdns-update.sh` ;
+- **guide pas à pas** dans `backend/docs/DEPLOIEMENT.md` (créer la machine, ouvrir les ports, Docker,
+  lancer, vérifier, mettre à jour, restaurer une sauvegarde, Cloudflare Tunnel) ;
+- secrets (`JWT_SECRET`, `TWO_FACTOR_KEY`, `PAYMENT_WEBHOOK_SECRET`, mot de passe MySQL) **générés sur le
+  serveur**, jamais dans le dépôt ni dans la conversation.
+
+**Condition de sécurité (obligatoire, testée)** : le mot de passe de démo `Demo2026!` et le secret 2FA de
+démo sont **publics** (dépôt, documentation). En production, le seed devra :
+- **exiger un mot de passe fourni par le serveur** (variable d'environnement), et **refuser `Demo2026!`** ;
+- **générer les secrets 2FA de l'équipe au hasard** (jamais le secret de démo) ;
+- tout cela **couvert par des tests** du backend.
+Décision encore ouverte : autoriser `seed` et `daily_tick` en production **seulement si `DEMO_MODE=true`**
+(recommandé, environ 10 lignes + tests, jamais `reset_db`) ou faire tourner le serveur de démonstration en
+`APP_ENV=development` (rapport `rapports/F9-avant-mise-en-ligne.md`). **Aucune modification de `backend/`
+sans l'accord de Loick.**
+
+Terminé quand : l'API répond en HTTPS sur le sous-domaine, le seed de production refuse `Demo2026!` (test),
+les tâches planifiées tournent, une sauvegarde a été restaurée avec succès, et l'APK release (construit et
+contrôlé en CI) fonctionne sur l'itel contre cette API.
 
 ### Après F10
 

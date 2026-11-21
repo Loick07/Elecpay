@@ -204,6 +204,23 @@ void main() {
     },
   );
 
+  // Défaut vu en F9.3 : le bouton tournait (chargement sans fin) derrière la confirmation.
+  testWidgets('confirmation ouverte : aucun bouton ne tourne derrière (l’écran se stabilise)', (
+    tester,
+  ) async {
+    final backend = mockupBackend();
+    backend.households = [
+      backend.households[0],
+      {...backend.households[1], 'my_role': 'payer'},
+    ];
+    await pumpScreen(tester, backend);
+    await tapKey(tester, 'households.manage.2');
+    await tapKey(tester, 'manage.leave');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('manage.confirm')), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+  });
+
   testWidgets('texte à 200 % : feuille « Gérer » sans débordement', (tester) async {
     await pumpScreen(tester, mockupBackend(), textScale: 2);
     await tapKey(tester, 'households.manage.2');

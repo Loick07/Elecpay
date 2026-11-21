@@ -206,7 +206,8 @@ class ManageSheet extends ConsumerWidget {
                 key: const Key('manage.leave'),
                 label: 'Quitter ce foyer',
                 variant: ButtonVariant.danger,
-                onPressed: () async {
+                // Sans attendre la confirmation : le bouton ne tourne pas derrière la feuille.
+                onPressed: () => unawaited(() async {
                   final ok = await confirmAction(
                     context,
                     title: 'Quitter ${household.name} ?',
@@ -221,7 +222,7 @@ class ManageSheet extends ConsumerWidget {
                     await actions.leave(household.id);
                     navigator.pop();
                   }, 'Vous avez quitté ${household.name}.');
-                },
+                }()),
               ),
             ],
           ],
@@ -267,7 +268,15 @@ class _Line extends StatelessWidget {
               Text(subtitle, style: AppText.caption.copyWith(color: c.inkMuted)),
             ],
           ),
-          AppButton(label: action, variant: ButtonVariant.ghost, onPressed: onAction),
+          // Sans attendre la feuille de confirmation : le bouton ne tourne pas derrière elle.
+          AppButton(
+            label: action,
+            variant: ButtonVariant.ghost,
+            onPressed: () {
+              final pending = onAction();
+              if (pending is Future<void>) unawaited(pending);
+            },
+          ),
         ],
       ),
     );

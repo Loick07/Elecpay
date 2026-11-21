@@ -29,6 +29,9 @@ abstract final class Routes {
   /// « Modifier » de l'écran 14 : nom, e-mail et sa vérification (sous `/compte/` : protégé).
   static final profile = '${AppTab.account.path}/profil';
 
+  /// « Mot de passe et sécurité » de l'écran 14 (sous `/compte/` : protégé).
+  static final security = '${AppTab.account.path}/securite';
+
   /// Écran 15 : Compteurs et foyers, poussé (sous `/compte/` : protégé). D8.3 : depuis Compte,
   /// l'état « Ajoutez votre premier compteur », Consommation sans compteur et les invitations.
   static final households = '${AppTab.account.path}/compteurs';

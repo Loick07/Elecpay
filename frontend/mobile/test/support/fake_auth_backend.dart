@@ -162,8 +162,37 @@ class FakeAuthBackend {
     if (!validAccess.contains(auth.replaceFirst('Bearer ', ''))) {
       return JsonReply(401, apiError('TOKEN_EXPIRED', 'Jeton expiré.'));
     }
+    if (request.path == '/me/password' && request.method == 'POST') {
+      final body = request.data as Map<String, dynamic>;
+      if (body['current_password'] != currentPassword) {
+        return JsonReply(400, apiError('WRONG_CURRENT_PASSWORD', 'Mot de passe actuel incorrect.'));
+      }
+      if (body['new_password'] == currentPassword) {
+        return JsonReply(
+          400,
+          apiError('SAME_PASSWORD', "Le nouveau mot de passe doit être différent de l'actuel."),
+        );
+      }
+      // Comme l'API : les autres sessions sont fermées, celle-ci reçoit de nouveaux jetons.
+      currentPassword = body['new_password'] as String;
+      validAccess.clear();
+      generation++;
+      validAccess.add('at-$generation');
+      return JsonReply(200, tokenResponse(generation));
+    }
+    if (request.path == '/auth/logout-all' && request.method == 'POST') {
+      // Comme l'API : TOUTES les sessions sont fermées, celle-ci comprise.
+      loggedOutEverywhere = true;
+      return const JsonReply(200, {'revoked_sessions': 3});
+    }
     return JsonReply(200, {..._api.sample('UserPublic'), 'path': request.path});
   }
+
+  /// Mot de passe du compte (`POST /me/password`).
+  String currentPassword = 'Demo2026!';
+
+  /// `POST /auth/logout-all` reçu.
+  bool loggedOutEverywhere = false;
 }
 
 /// Une application de test : session + client protégé, branchés sur le faux backend.

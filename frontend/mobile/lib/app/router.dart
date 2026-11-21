@@ -8,6 +8,7 @@ import '../core/session/session_providers.dart';
 import '../core/widgets/bottom_nav.dart';
 import '../features/account/account_screen.dart';
 import '../features/account/profile_screen.dart';
+import '../features/account/security_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
@@ -66,6 +67,7 @@ List<RouteBase> appRoutes() => [
   GoRoute(path: Routes.notifications, builder: (context, state) => const NotificationsScreen()),
   GoRoute(path: Routes.history, builder: (context, state) => const HistoryScreen()),
   GoRoute(path: Routes.profile, builder: (context, state) => const ProfileScreen()),
+  GoRoute(path: Routes.security, builder: (context, state) => const SecurityScreen()),
   GoRoute(
     path: Routes.households,
     builder: (context, state) =>

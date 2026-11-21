@@ -110,7 +110,12 @@ void main() {
       await tester.pumpAndSettle();
       for (final (label, path) in [('Diagnostic', '/diagnostic'), ('Catalogue', '/catalogue')]) {
         await go(tester, AppTab.account.path);
-        await tester.ensureVisible(find.text(label));
+        // F9 : l'écran Compte est plus long ; on fait défiler jusqu'au lien (sous la barre du bas).
+        await tester.dragUntilVisible(
+          find.text(label).hitTestable(),
+          find.byKey(const Key('account.list')),
+          const Offset(0, -150),
+        );
         await tester.tap(find.text(label));
         // Pas de pumpAndSettle : la page Diagnostic a une animation de chargement continue.
         await tester.pump();

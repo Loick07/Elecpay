@@ -82,6 +82,12 @@ class AccountScreen extends ConsumerWidget {
                     label: 'Paiements et reçus',
                     onTap: () => context.push(Routes.history),
                   ),
+                  AccountRow(
+                    key: const Key('account.security'),
+                    icon: AppIcons.locked,
+                    label: 'Mot de passe et sécurité',
+                    onTap: () => context.push(Routes.security),
+                  ),
                 ],
               ),
               const SizedBox(height: 14),

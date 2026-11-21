@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../app/routes.dart';
 import '../../core/format/formats.dart';
 import '../../core/models/households.dart';
 import '../../core/network/api_failure.dart';
@@ -443,14 +444,24 @@ class _DayBarsPainter extends CustomPainter {
 }
 
 /// Une ligne d'« Activité récente ».
-typedef ActivityLine = ({bool payment, String title, String subtitle, int amount});
+/// Une ligne d'« Activité récente ». `route` : l'écran ouvert en la touchant (le reçu d'un paiement,
+/// le détail d'une facture) ; `null` : rien à ouvrir (paiement sans reçu connu).
+typedef ActivityLine = ({bool payment, String title, String subtitle, int amount, String? route});
 
 /// « Activité récente » avec « Tout voir », puis les lignes (paiements réussis, factures émises).
 class ActivityCard extends StatelessWidget {
-  const ActivityCard({required this.lines, required this.onSeeAll, super.key});
+  const ActivityCard({
+    required this.lines,
+    required this.onSeeAll,
+    required this.onOpen,
+    super.key,
+  });
 
   final List<ActivityLine> lines;
   final VoidCallback onSeeAll;
+
+  /// Ouvre l'écran d'une ligne (`ActivityLine.route`).
+  final ValueChanged<String> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -499,7 +510,10 @@ class ActivityCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           border: i == 0 ? null : Border(top: BorderSide(color: c.line)),
                         ),
-                        child: _ActivityRow(lines[i]),
+                        child: _ActivityRow(
+                          lines[i],
+                          onTap: lines[i].route == null ? null : () => onOpen(lines[i].route!),
+                        ),
                       ),
                   ],
                 ),
@@ -510,9 +524,12 @@ class ActivityCard extends StatelessWidget {
 }
 
 class _ActivityRow extends StatelessWidget {
-  const _ActivityRow(this.line);
+  const _ActivityRow(this.line, {required this.onTap});
 
   final ActivityLine line;
+
+  /// `null` : la ligne ne s'ouvre pas.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -520,7 +537,7 @@ class _ActivityRow extends StatelessWidget {
     // Texte très agrandi : le montant passe sous le titre (sinon il écrase le titre ou déborde).
     final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.3;
     final amount = Text(formatFcfa(line.amount), style: AppText.bodyStrong.copyWith(color: c.ink));
-    return ConstrainedBox(
+    final row = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Space.s4, vertical: Space.s3),
@@ -557,6 +574,15 @@ class _ActivityRow extends StatelessWidget {
         ),
       ),
     );
+    if (onTap == null) return row;
+    // Décision de Loick (21/11/2026) : un paiement ouvre son reçu, une facture son détail.
+    return Semantics(
+      button: true,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(onTap: onTap, child: row),
+      ),
+    );
   }
 }
 
@@ -577,12 +603,17 @@ List<ActivityLine> activityLines(List<ActivityItem> items) => [
           formatDayMonth(toBrazzaville(item.at)),
         ].join(' · '),
         amount: item.amount,
+        route: switch (payment.receiptId) {
+          final id? => Routes.receipt(id),
+          null => null,
+        },
       ),
       BillIssuedActivity(:final bill) => (
         payment: false,
         title: 'Nouvelle facture de ${formatBillPeriodShort(bill.periodStart, bill.periodEnd)}',
         subtitle: '${bill.householdName} · ${formatDayMonth(toBrazzaville(item.at))}',
         amount: item.amount,
+        route: Routes.bill(bill.id),
       ),
     },
 ];

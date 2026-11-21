@@ -307,6 +307,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     AsyncData(:final value) => ActivityCard(
       lines: activityLines(value.items),
       onSeeAll: () => context.push(Routes.history),
+      onOpen: (route) => context.push(route),
     ),
     AsyncError(:final error) => CardFailure(
       error: error,
@@ -317,15 +318,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       loading: true,
       child: ActivityCard(
         lines: const [
-          (payment: true, title: 'Facture payée', subtitle: 'MTN MoMo · 10 sept.', amount: 31281),
+          (
+            payment: true,
+            title: 'Facture payée',
+            subtitle: 'MTN MoMo · 10 sept.',
+            amount: 31281,
+            route: null,
+          ),
           (
             payment: false,
             title: 'Nouvelle facture',
             subtitle: 'Maison Mpita · 3 nov.',
             amount: 31420,
+            route: null,
           ),
         ],
         onSeeAll: () {},
+        onOpen: (_) {},
       ),
     ),
   };

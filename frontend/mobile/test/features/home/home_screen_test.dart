@@ -51,6 +51,11 @@ Future<void> pumpHome(
         builder: (context, state) => const Scaffold(body: Text('Écran Historique')),
       ),
       GoRoute(
+        path: Routes.receiptPath,
+        builder: (context, state) =>
+            Scaffold(body: Text('Reçu ${state.pathParameters['receiptId']}')),
+      ),
+      GoRoute(
         path: Routes.billPath,
         builder: (context, state) =>
             Scaffold(body: Text('Facture ${state.pathParameters['billId']}')),
@@ -123,6 +128,51 @@ void main() {
       expect(find.text('Facture de juil.\u2013août 2026 payée'), findsOneWidget);
       expect(find.textContaining('TEXTE API'), findsNothing);
       expect(find.textContaining('Nouvelle facture de'), findsOneWidget);
+    });
+
+    // Décision de Loick (21/11/2026) : les lignes d'« Activité récente » s'ouvrent.
+    testWidgets('activité : un paiement ouvre son reçu, une nouvelle facture son détail', (
+      tester,
+    ) async {
+      final backend = FakeHomeBackend();
+      backend.payments[0] = {...backend.payments[0], 'receipt_id': 3};
+      await pumpHome(tester, backend);
+      final paid = find.text('Facture de juil.\u2013août 2026 payée');
+      await tester.dragUntilVisible(
+        paid.hitTestable(),
+        find.byKey(const Key('home.list')),
+        const Offset(0, -150),
+      );
+      await tester.tap(paid);
+      await settle(tester);
+      expect(find.text('Reçu 3'), findsOneWidget);
+
+      await pumpHome(tester, FakeHomeBackend());
+      final issued = find.textContaining('Nouvelle facture de');
+      await tester.dragUntilVisible(
+        issued.hitTestable(),
+        find.byKey(const Key('home.list')),
+        const Offset(0, -150),
+      );
+      await tester.tap(issued);
+      await settle(tester);
+      expect(find.text('Facture 101'), findsOneWidget);
+    });
+
+    testWidgets('activité : un paiement sans reçu connu ne s’ouvre pas', (tester) async {
+      final backend = FakeHomeBackend();
+      backend.payments[0] = {...backend.payments[0], 'receipt_id': null};
+      await pumpHome(tester, backend);
+      final paid = find.text('Facture de juil.\u2013août 2026 payée');
+      await tester.dragUntilVisible(
+        paid.hitTestable(),
+        find.byKey(const Key('home.list')),
+        const Offset(0, -150),
+      );
+      await tester.tap(paid, warnIfMissed: false);
+      await settle(tester);
+      expect(find.textContaining('Reçu '), findsNothing);
+      expect(paid, findsOneWidget);
     });
 
     testWidgets('aucune non lue : pas de point rouge', (tester) async {

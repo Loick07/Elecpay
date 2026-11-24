@@ -45,6 +45,22 @@ Future<ProviderContainer> startApp(WidgetTester tester) async {
   return container;
 }
 
+/// Relance l'application comme après l'avoir fermée : nouvelle mémoire (réglages relus sur
+/// l'appareil), mais session et fichiers GARDÉS (contrairement à `startApp`).
+Future<ProviderContainer> relaunchApp(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox()); // l'ancienne application disparaît
+  await tester.pump(const Duration(milliseconds: 300));
+  final container = ProviderContainer(
+    retry: noAutomaticRetry,
+    overrides: [appConfigProvider.overrideWithValue(AppConfig.fromEnvironment())],
+  );
+  addTearDown(container.dispose);
+  await tester.pumpWidget(
+    UncontrolledProviderScope(container: container, child: const ElecPayApp()),
+  );
+  return container;
+}
+
 /// Attend qu'un élément apparaisse (images réelles ; jamais `pumpAndSettle` : le Splash et certains
 /// boutons ont une animation sans fin).
 Future<void> waitFor(

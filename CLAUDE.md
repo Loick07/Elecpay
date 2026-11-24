@@ -295,4 +295,15 @@ devra exiger un mot de passe fourni par le serveur, refuser `Demo2026!` et gén�
 hasard, le tout testé. **F10 se fait en local** (APK profile sur l'API du PC) ; l'APK release, contrôlé
 en CI, n'est utilisable qu'après M1 (HTTPS).
 
-**Prochaine étape : F10** (finitions et livraison, en local), après le « Continue » de Loick.
+**F10 (finitions et livraison) ✅ terminé le 24/11/2026, en local** — rapport `frontend/mobile/rapports/F10.md`.
+Un seul « charger la suite » ; revue des états (Compte : profil illisible dit) ; accessibilité de 17 écrans
+(`test/app/accessibility_test.dart` : 48 points, libellés, contraste Nuit / Jour, 200 %) ; APK livrés par
+architecture, obscurcis, `API_BASE_URL` ngrok, signés par la clé de Loick (`android/key.properties`, jamais lu),
+`apk_check --api-url --signature`, guide `frontend/mobile/docs/LIVRAISON.md` ; CI : 2 étapes ajoutées (APK
+livrés contrôlés, clé de débogage). `tool/integration.ps1` recrée `elecpay_e2e` à chaque passage (garde-fou
+strict testé). Jalon : 29 tests d'intégration sur l'itel (dont F8 et F9), TalkBack vérifié dans l'arbre
+d'accessibilité, effet verre mesuré (flou ≈ ×1,6 à ×2 sur le dessin : désactivé par défaut confirmé).
+**L'APK release n'est utilisable qu'après M1 (HTTPS).** 1793 tests ; APK de l'itel 15,9 Mo.
+
+**Prochaine étape : M1** (mise en ligne par ngrok, M1.1 seed de production sûr : accord de Loick
+avant de toucher `backend/`), après le « Continue » de Loick.

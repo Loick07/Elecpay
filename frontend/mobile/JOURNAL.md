@@ -3,36 +3,33 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/mobile/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 21/11/2026 (fin de F9, sans F9.5)
+## État au 24/11/2026 (fin de F10)
 
-- **F4 → F9 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md` à `F9.md`, et
-  `jalon-F4-F7.md`). **On attend le « Continue » de Loick** avant F10.
-- **F9.5 reportée** : étape **M1 — Mise en ligne**, après F10 (`PLAN.md`, `DECOUPAGES.md`), avec la
-  condition de sécurité sur le seed de production. **Ne pas toucher `backend/`.** M1 passe par
-  **ngrok** (`omnivore-pardon-sixth.ngrok-free.dev`, API du PC port 8000) ; l'authtoken n'est jamais
-  transmis ; ngrok s'installe seulement après M1.1.
-- **F10 en local** : vérification finale sur l'itel avec un APK profile sur l'API du PC, comme aux
-  jalons ; l'APK release (contrôlé en CI) n'est utilisable qu'après M1 : **à écrire dans le rapport de
-  F10.**
-- Jalon F4 → F7 joué le 20/11/2026 (débogage sans fil ; le port change souvent : `adb mdns services`).
-  Prochain jalon : fin F10 (F8, F9 et F10 y seront vérifiés).
-- Décisions de Loick (20/11/2026) : CI inchangée (pas de relance automatique ; `setup-gradle` si les
-  pannes Maven deviennent fréquentes) ; captures avec les vraies polices à garder ;
-  `tool/integration.ps1` autorisé aux jalons, base `elecpay_e2e` seulement (`AUTONOMIE.md`).
+- **F4 → F10 terminés**, intégrés dans `main`, CI verte (rapports `rapports/F4.md` à `F10.md`,
+  `jalon-F4-F7.md`, `F10-avant-jalon.md`). **On attend le « Continue » de Loick** avant M1.
+- **M1 — Mise en ligne** par **ngrok** (`omnivore-pardon-sixth.ngrok-free.dev`, API du PC port 8000) :
+  M1.1 seed de production sûr (refuser `Demo2026!`, secrets 2FA au hasard, testé) **avec l'accord de
+  Loick avant de toucher `backend/`** ; l'authtoken ngrok n'est jamais transmis ; ngrok s'installe
+  seulement après M1.1.
+- **Clé de l'APK livré** : `android/key.properties` chez Loick. **Ne jamais lire ce fichier ni en
+  demander le contenu.** APK livrés : `flutter build apk --release --split-per-abi --obfuscate
+  --split-debug-info=build/symbols --dart-define=API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev`.
+- **Itel** : utiliser son nom mDNS (`adb-1053140373000920-CyJJM4._adb-tls-connect._tcp`), qui suit les
+  changements de port ; le débogage sans fil se coupe au bout d'un moment ; **chargeur mural**
+  obligatoire (il se décharge sur le port USB du PC). Ne jamais arrêter `integration.ps1` pendant la
+  préparation de la base. Taille du texte de l'itel : remise à 1.0 le 24/11/2026.
+- Décisions de Loick (20/11/2026) : CI sans relance automatique (`setup-gradle` si les pannes Maven
+  deviennent fréquentes) ; captures avec les vraies polices ; `tool/integration.ps1` aux jalons, base
+  `elecpay_e2e` seulement (supprimée et recréée à chaque passage depuis F10).
 - Fichiers temporaires : dans `build/tmp/` (ignoré par git), **jamais** `test/zz_*`.
 - **Avant chaque commit** : ajouter les fichiers un par un, relire `git status` ; ne jamais lancer
   `dart format` sur un dossier qui contient des `*.g.dart` (les remettre avec `git restore` sinon).
 
 ## Prochaine action
 
-1. **F10 arrêté avant la CI de l'APK livré et le jalon final** (`rapports/F10-avant-jalon.md`) :
-   F10.0 → F10.4 (partie `frontend/`) faits. Attendre de Loick : accord pour `.github/workflows/mobile.yml`
-   (a) ou b) pour la signature), l'`IP:port` de l'itel pour F10.5.
-   **Clé de Loick faite le 21/11/2026** : `android/key.properties` en place (ignoré par git). **Ne jamais
-   lire ce fichier ni en demander le contenu.** APK livrés signés avec sa clé : itel 15,9 Mo, arm64
-   18,5 Mo, x86_64 19,9 Mo, `apk_check --signature=release` OK sur les trois.
-2. Puis F10.5 : 17 tests d'intégration sur `elecpay_e2e`, vérification avec Loick (APK profile sur l'API
-   du PC), rapport `rapports/F10.md` (y écrire : APK release utilisable seulement après M1).
+1. Après le « Continue » de Loick : branche `m1` depuis `main`, découpage M1 (`DECOUPAGES.md`), puis
+   **arrêt avant toute modification de `backend/`** (M1.1) pour son accord.
+2. Décision de Loick attendue : recherche « reçu » de l'Assistance (défaut de la maquette, rapport F10).
 
 ## Choix faits en route
 

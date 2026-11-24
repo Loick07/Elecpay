@@ -18,8 +18,8 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F7 | Consommation | ✅ terminé le 20/11/2026 (sans le jalon sur le téléphone) |
 | F8 | Compteurs et foyers | ✅ terminé le 21/11/2026 |
 | F9 | Compte et assistance | ✅ terminé le 21/11/2026 (sans F9.5, reportée en M1) |
-| F10 | Finitions et livraison (APK) | prochaine étape (en local) |
-| M1 | Mise en ligne (API du PC exposée par ngrok, `omnivore-pardon-sixth.ngrok-free.dev`) | après F10 |
+| F10 | Finitions et livraison (APK) | ✅ terminé le 24/11/2026 (en local) |
+| M1 | Mise en ligne (API du PC exposée par ngrok, `omnivore-pardon-sixth.ngrok-free.dev`) | prochaine étape |
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
 
@@ -137,7 +137,10 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   et e-mail vérifié par code, réglages gardés sur l'appareil ; F9.2 alertes, thème Nuit / Jour / Auto,
   « Effet verre » ; F9.3 mot de passe et sécurité ; F9.4 assistance (contacts « bientôt disponibles »).
   1706 tests ; APK release de l'itel 17,6 Mo. **La mise en ligne devient l'étape M1, après F10.**
-- **Prochaine étape : F10** (finitions et livraison, **en local**), après le « Continue » de Loick.
+- **F10 ✅ terminé le 24/11/2026, en local** (rapport `rapports/F10.md`) : 29 tests d'intégration sur
+  l'itel, accessibilité de 17 écrans, APK livrés signés (itel 15,9 Mo), CI des APK livrés. **APK release
+  utilisable seulement après M1.** 1793 tests.
+- **Prochaine étape : M1** (mise en ligne), après le « Continue » de Loick.
 
 ## Méthode (la même que pour le backend)
 

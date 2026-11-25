@@ -36,6 +36,46 @@ void main() {
     expect((xs[2] - screenCenter).abs(), lessThan(20), reason: 'Payer au centre');
   });
 
+  // Vu sur l'itel pendant M1 : « Payer » plus haut que les autres libellés (décalage d'affichage),
+  // barre trop haute, disque qui dépassait à peine, contenu visible sous la barre.
+  for (final scale in [1.0, 1.3]) {
+    testWidgets('texte × $scale : les 5 libellés sur la même ligne', (tester) async {
+      await pumpOnItel(tester, nav(), textScale: scale);
+      final ys = [
+        for (final label in ['Accueil', 'Factures', 'Payer', 'Conso', 'Compte'])
+          tester.getRect(find.text(label)).bottom,
+      ];
+      for (final y in ys) {
+        expect(y, closeTo(ys.first, 0.5));
+      }
+    });
+
+    testWidgets('texte × $scale : disque Payer au-dessus du bord, sans toucher « Payer »', (
+      tester,
+    ) async {
+      await pumpOnItel(tester, nav(), textScale: scale);
+      final bar = tester.getRect(find.byType(GlassSurface));
+      final disc = tester.getRect(
+        find.ancestor(of: find.byIcon(AppIcons.navPay), matching: find.byType(Container)).first,
+      );
+      final label = tester.getRect(find.text('Payer'));
+      expect(bar.height, AppBottomNav.barHeight);
+      expect(disc.top, lessThan(bar.top - 20), reason: 'dépasse franchement du bord');
+      expect(disc.bottom, lessThanOrEqualTo(label.top), reason: 'ne recouvre pas « Payer »');
+      expect((disc.center.dx - label.center.dx).abs(), lessThan(0.5), reason: 'centré');
+    });
+  }
+
+  testWidgets('fondu vers le fond derrière la barre (le contenu ne se voit plus dessous)', (
+    tester,
+  ) async {
+    await pumpOnItel(tester, nav());
+    final fade = tester.widget<DecoratedBox>(find.byKey(const Key('bottomNav.fade')));
+    final gradient = (fade.decoration as BoxDecoration).gradient! as LinearGradient;
+    expect(gradient.colors.first.a, 0, reason: 'transparent en haut');
+    expect(gradient.colors.last, c.bg, reason: 'couleur du fond en bas');
+  });
+
   testWidgets('verre (un des deux usages permis), coins arrondis xl', (tester) async {
     await pumpOnItel(tester, nav());
     final glass = tester.widget<GlassSurface>(find.byType(GlassSurface));

@@ -61,7 +61,9 @@ docker run --rm --env-file .env.production elecpay-api:<version> alembic upgrade
 
 La base doit autoriser les triggers (`log_bin_trust_function_creators=1`) : les garde-fous métier
 (facture jamais supprimée, paiement terminé figé, journal intouchable…) en dépendent.
-**Jamais** `scripts.seed` ni `scripts.reset_db` en production (le seed le refuse de toute façon).
+**Jamais** `scripts.reset_db` en production (il le refuse). `scripts.seed` ne sert qu'au serveur de
+**démonstration** (section 7) : en production, il exige `DEMO_MODE=true` et un `DEMO_SEED_PASSWORD`
+choisi sur le serveur (jamais `Demo2026!`), et tire au hasard le secret 2FA de chaque membre de l'équipe.
 
 ## 4. Lancer l'API
 
@@ -87,7 +89,8 @@ Toutes sont **idempotentes** : relancées ou superposées, elles ne font jamais 
 | `send_announcements` | toutes les minutes | envoie les annonces programmées par l'équipe |
 | `daily_alerts` | chaque matin (ex. 6 h, heure de Brazzaville) | passage en retard, rappels d'échéance et de retard, consommation inhabituelle |
 
-`daily_tick` (relevés simulés) ne sert **qu'en démonstration** : il est refusé en production.
+`daily_tick` (relevés simulés) ne sert **qu'en démonstration** : en production, il exige des sources
+simulées et `DEMO_MODE=true` (refusé dès qu'E²C est branché).
 
 ## 6. Vérifier après la mise en ligne
 
@@ -96,3 +99,155 @@ Toutes sont **idempotentes** : relancées ou superposées, elles ne font jamais 
 - connexion au back-office avec un compte de l'équipe : la double authentification est demandée ;
 - les journaux (sortie standard du conteneur) sont en JSON, sans numéro de téléphone ni jeton ;
   chaque réponse porte `X-Request-ID`, à demander à un utilisateur qui signale un problème.
+
+## 7. Démonstration en ligne depuis le PC, avec ngrok (étape M1)
+
+Pour Loick : l'API tourne **sur ce PC** (Windows, Docker), et **ngrok** la rend joignable en HTTPS à
+l'adresse fixe **`https://omnivore-pardon-sixth.ngrok-free.dev`**. C'est l'adresse que l'APK livré
+appelle (`frontend/mobile/docs/LIVRAISON.md`). Toutes les commandes se lancent dans PowerShell,
+**depuis `backend/`**, avec Docker Desktop démarré.
+
+**Sécurité, en résumé :**
+- une base **dédiée**, `elecpay_public`, avec son propre utilisateur MySQL. Les bases `elecpay`,
+  `elecpay_test` et `elecpay_e2e` ne sont jamais touchées. MySQL n'écoute que ce PC
+  (`127.0.0.1:3307`), et ngrok n'expose **que** l'API (port 8000) ;
+- les secrets sont tirés au hasard **sur ce PC** et écrits dans `deploy\ngrok.env`, qui est ignoré
+  par git et n'est jamais affiché ni envoyé ;
+- l'API tourne en **production** (`APP_ENV=production`), donc avec tous ses garde-fous : secrets
+  forts, cookies sécurisés, CORS en https, 2FA de l'équipe obligatoire. Les données restent
+  simulées : `DEMO_MODE=true`, badge « Mode démo » ;
+- les comptes de démo ont un **mot de passe secret** (`DEMO_SEED_PASSWORD`), jamais `Demo2026!`.
+  Les admins ont chacun un **secret 2FA tiré au hasard**.
+
+### 7.1 Préparer (une seule fois)
+
+1. **Base et secrets** :
+
+   ```powershell
+   .\deploy\public.ps1 -Step preparer
+   ```
+
+   Le script crée la base `elecpay_public` et son utilisateur, puis écrit `deploy\ngrok.env`. Il ne
+   change rien si ce fichier existe déjà.
+2. **Vérifier la configuration** (rien n'est modifié) :
+
+   ```powershell
+   .\deploy\public.ps1 -Step config
+   ```
+
+   La sortie attendue : `Configuration valide : production https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/receipts/verify …`.
+3. **Créer les tables** :
+
+   ```powershell
+   .\deploy\public.ps1 -Step migrer
+   ```
+
+4. **Créer les comptes de démo** :
+
+   ```powershell
+   .\deploy\public.ps1 -Step seed
+   ```
+
+   - Le **mot de passe** des comptes est la valeur `DEMO_SEED_PASSWORD` de `deploy\ngrok.env`.
+     Ouvre ce fichier avec le Bloc-notes pour la lire, et ne la recopie nulle part ailleurs.
+   - La **double authentification** de l'admin et du super admin est déjà active, avec un secret
+     **différent pour chacun**. Les secrets sont affichés **une seule fois**, à la fin du seed :
+     ajoute-les **tout de suite** dans ton application d'authentification (Google Authenticator…),
+     avec le secret ou le lien en QR code.
+   - Perdus ? Un super admin réinitialise la 2FA du compte depuis le back-office.
+
+### 7.2 Installer ngrok et ajouter l'authtoken (par Loick, une seule fois)
+
+**L'authtoken ngrok est un secret : tu l'ajoutes toi-même. Il ne va ni dans le dépôt, ni dans un
+fichier du projet, ni dans une conversation.**
+
+1. Installer ngrok, au choix :
+   - **Microsoft Store** : chercher « ngrok », puis Installer ;
+   - **WinGet**, dans PowerShell :
+
+     ```powershell
+     winget install ngrok -s msstore
+     ```
+
+   Vérifier dans une **nouvelle** fenêtre PowerShell : `ngrok version`.
+2. Sur `https://dashboard.ngrok.com`, avec ton compte, ouvre « Your Authtoken » et copie-le.
+3. Dans PowerShell :
+
+   ```powershell
+   ngrok config add-authtoken <ton authtoken>
+   ```
+
+   ngrok l'enregistre dans **son propre** fichier de configuration, dans ton profil Windows, hors du
+   dépôt.
+
+### 7.3 Mettre en ligne (à chaque fois)
+
+Ouvre **trois fenêtres** PowerShell et laisse-les ouvertes :
+
+1. **L'API**, depuis `backend/` :
+
+   ```powershell
+   .\deploy\public.ps1 -Step api
+   ```
+
+2. **Les tâches planifiées**, depuis `backend/` : paiements en attente, e-mails et annonces chaque
+   minute ; chaque jour à partir de 6 h, relevés simulés puis alertes.
+
+   ```powershell
+   .\deploy\public.ps1 -Step taches
+   ```
+
+3. **ngrok** :
+
+   ```powershell
+   ngrok http 8000 --url=omnivore-pardon-sixth.ngrok-free.dev
+   ```
+
+   Avec une ancienne version de ngrok, l'option s'appelle `--domain=` au lieu de `--url=`. N'ajoute
+   pas d'autre option : ngrok transmet lui-même l'IP réelle du visiteur, et l'API ne la croit que
+   venant de ce PC (`TRUSTED_PROXIES`).
+
+Puis **vérifier**, dans une quatrième fenêtre depuis `backend/` :
+
+```powershell
+.\deploy\public.ps1 -Step verifier
+```
+
+Le résultat attendu : deux lignes `{"status":"ok","database":"ok","demo_mode":true}`, l'une en local,
+l'autre par ngrok.
+
+Dans un navigateur, `https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/health` affiche d'abord la
+**page d'avertissement de ngrok** (offre gratuite) : clique sur « Visit Site ». L'application, elle,
+n'est pas un navigateur et ne voit pas cette page.
+
+**Arrêter** : `Ctrl+C` dans les trois fenêtres. **Relancer plus tard** : seulement les étapes de 7.3.
+Pense à arrêter ngrok quand la démonstration ne sert pas.
+
+### 7.4 Sauvegarder et restaurer
+
+- **Sauvegarder** (par exemple chaque jour) :
+
+  ```powershell
+  .\deploy\public.ps1 -Step sauvegarde
+  ```
+
+  La copie va dans `deploy\sauvegardes\`, ignoré par git. Les **14 plus récentes** sont gardées.
+- **Restaurer** : arrête d'abord l'API et les tâches, puis :
+
+  ```powershell
+  .\deploy\public.ps1 -Step restaurer -Fichier deploy\sauvegardes\<fichier>.sql
+  ```
+
+  Le script demande de taper `RESTAURER` pour confirmer. Seules les sauvegardes de
+  `elecpay_public` sont acceptées.
+- **Nouvelle version de l'API** : `git pull`, puis `.\deploy\public.ps1 -Step migrer`, puis relancer
+  l'API.
+
+### 7.5 Limites de l'offre gratuite de ngrok
+
+- L'API n'est joignable que si **le PC est allumé**, avec l'API et ngrok lancés.
+- Les navigateurs voient la page d'avertissement de ngrok une première fois. C'est le cas du lien du
+  **QR code d'un reçu**, ouvert depuis un téléphone.
+- ngrok fixe des quotas mensuels (requêtes, données) : largement suffisants pour une démonstration.
+- Pour une API joignable jour et nuit, il faudra plus tard une machine en ligne (par exemple
+  Oracle Cloud), avec la même image Docker (sections 1 à 6).

@@ -37,3 +37,7 @@ Thumbs.db
 !.vscode/extensions.json
 *.log
 storage/receipts/
+
+# Mise en ligne par ngrok (M1) : configuration avec secrets et sauvegardes, jamais commitées
+backend/deploy/ngrok.env
+backend/deploy/sauvegardes/

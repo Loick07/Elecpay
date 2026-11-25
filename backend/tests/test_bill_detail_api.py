@@ -317,7 +317,8 @@ def test_pdf_shows_the_bill_like_e2c(client, auth_headers, world):
         "33 124",
         "5 962",
         "298",
-        "NET À PAYER",
+        "TOTAL À PAYER",  # libellé de la facture E²C (avant : « NET À PAYER »)
+        "*****40 384",  # montant précédé d'étoiles, comme sur la facture E²C
         "40 384 FCFA",
         "Échéance",
         "18/09/2026",
@@ -326,6 +327,38 @@ def test_pdf_shows_the_bill_like_e2c(client, auth_headers, world):
         "Valeurs à confirmer",  # tarif encore hypothèse
     ):
         assert expected in text, expected
+
+
+def test_pdf_follows_the_e2c_bt_layout(client, auth_headers, world):
+    """Mise en page dans le genre de la facture BT d'E²C (demande de Loick, M1)."""
+    text = pdf_text(pdf(client, auth_headers(world["owner"]), world["july"]).content)
+    for expected in (
+        "FACTURE BT",
+        "Centre E²C de",
+        "Point de livraison",
+        "N° Branchement",
+        "Référence abonné",
+        "N° POLICE",
+        "Droit à la consommation",
+        "Total hors taxes",
+        "RAV (*)",
+        "T.V.A. (18 %)",
+        "C.A. (5 %)",
+        "Timbre électronique",
+        "COUPON DÉTACHABLE FACTURE BT",
+        "MONTANT À PAYER",
+    ):
+        assert expected in text, expected
+    assert text.count("*****40 384") == 2  # totaux et coupon
+
+
+def test_pdf_never_copies_the_identity_of_e2c(client, auth_headers, world):
+    """La mise en page ressemble à la facture E²C, l'identité jamais (ce n'est pas E²C)."""
+    text = pdf_text(pdf(client, auth_headers(world["owner"]), world["july"]).content).upper()
+    for forbidden in ("ENERGIE ELECTRIQUE DU CONGO", "ÉNERGIE ÉLECTRIQUE DU CONGO", "SIÈGE SOCIAL",
+                      "R.C.", "NIU", "WWW.E2C"):  # fmt: skip
+        assert forbidden not in text, forbidden
+    assert "ELECPAY" in text
 
 
 def test_pdf_never_passes_for_an_official_bill(client, auth_headers, world):
@@ -341,7 +374,8 @@ def test_pdf_of_a_paid_bill(client, auth_headers, db_session, world):
     db_session.flush()
     text = pdf_text(pdf(client, auth_headers(world["owner"]), world["july"]).content)
     assert "Payée le 10/09/2026" in text
-    assert "TOTAL PAYÉ" in text and "NET À PAYER" not in text
+    assert "TOTAL PAYÉ" in text and "TOTAL À PAYER" not in text
+    assert "MONTANT PAYÉ" in text  # coupon
 
 
 def test_pdf_of_a_cancelled_bill(client, auth_headers, db_session, world):
@@ -349,7 +383,7 @@ def test_pdf_of_a_cancelled_bill(client, auth_headers, db_session, world):
     text = pdf_text(pdf(client, auth_headers(world["owner"]), world["july"]).content)
     assert "FACTURE ANNULÉE le 05/09/2026" in text
     assert "Index relevé par erreur" in text
-    assert "TOTAL ANNULÉ" in text and "NET À PAYER" not in text
+    assert "TOTAL ANNULÉ" in text and "TOTAL À PAYER" not in text
 
 
 def test_pdf_access_is_the_same_as_the_detail(client, auth_headers, db_session, world):

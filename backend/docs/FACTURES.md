@@ -72,7 +72,12 @@ En plus des champs de la liste :
 
 `application/pdf`, `Content-Disposition: attachment; filename="facture-<numéro>.pdf"`, jamais mis en cache.
 Même accès que le détail. Le PDF porte un bandeau **« Mode démo »** tant que les données sont simulées
-et rappelle que **seule la facture E²C fait foi**. Pour l'ouvrir, envoyer le jeton comme pour les autres
+et rappelle que **seule la facture E²C fait foi**.
+Mise en page dans le genre de la **facture BT d'E²C** (demande de Loick, M1) : grille d'identification
+(centre, point de livraison, période, branchement, client, numéro, référence abonné), tableau de
+consommation à 10 colonnes, totaux à droite et « TOTAL À PAYER » précédé d'étoiles, situation, coupon
+détachable. **Jamais l'identité d'E²C** (raison sociale, siège, R.C., NIU, logo) : l'en-tête est celui
+d'ElecPay, testé. Pour l'ouvrir, envoyer le jeton comme pour les autres
 routes, enregistrer le fichier, puis l'ouvrir ou le partager.
 
 ## Montants et énergie

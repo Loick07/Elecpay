@@ -51,6 +51,10 @@ class Settings(BaseSettings):
     payment_provider: Literal["simulated"] = "simulated"
     billing_source: Literal["simulated"] = "simulated"
     demo_mode: bool = True
+    # Mot de passe commun des comptes de démo créés par `scripts.seed` (M1.1). Vide : le mot de
+    # passe PUBLIC « Demo2026! » (développement seulement). Obligatoire en production, choisi sur
+    # le serveur, jamais « Demo2026! » (règles : app/simulators/seed_policy.py). Jamais affiché.
+    demo_seed_password: SecretStr = SecretStr("")
 
     # Paiements Mobile Money
     # Secret partagé avec le prestataire pour signer ses webhooks (HMAC-SHA256). Vide : tout

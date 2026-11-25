@@ -71,8 +71,11 @@ def meter_seed(seed: int, meter_number: int) -> int:
 
 
 class _Seeder:
-    def __init__(self, session: Session, today: date, settings: BillingSettings, seed: int):
+    def __init__(
+        self, session: Session, today: date, settings: BillingSettings, seed: int, password: str
+    ):
         self.session = session
+        self.password = password
         self.today = today
         self.settings = settings
         self.seed = seed
@@ -131,7 +134,7 @@ class _Seeder:
             phone=person.phone,
             full_name=person.full_name,
             email=person.email,
-            password_hash=hash_password(DEMO_PASSWORD),
+            password_hash=hash_password(self.password),
             role=person.role,
             last_login_at=self.now - timedelta(days=1 + len(self.users) % 9, hours=3),
         )
@@ -372,7 +375,16 @@ class _Seeder:
 
 
 def seed_demo(
-    session: Session, *, today: date, settings: BillingSettings, seed: int = DEFAULT_SEED
+    session: Session,
+    *,
+    today: date,
+    settings: BillingSettings,
+    seed: int = DEFAULT_SEED,
+    password: str = DEMO_PASSWORD,
 ) -> SeedReport:
-    """Remplit une base vide. Lève `SeedError` si la base contient déjà des utilisateurs."""
-    return _Seeder(session, today, settings, seed).run()
+    """Remplit une base vide. Lève `SeedError` si la base contient déjà des utilisateurs.
+
+    `password` : mot de passe commun des comptes. Par défaut le mot de passe PUBLIC de démo ;
+    `scripts.seed` passe celui choisi par `seed_policy.seed_credentials` (M1.1).
+    """
+    return _Seeder(session, today, settings, seed, password).run()

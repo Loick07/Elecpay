@@ -21,9 +21,11 @@ from app.simulators.daily import TickReport, run_daily_tick
 
 
 def refusal_reason(settings: Settings) -> str | None:
-    """Raison de refuser, ou None. On ne fabrique jamais de relevés hors du mode simulé."""
-    if settings.is_production:
-        return "Refusé : APP_ENV=production."
+    """Raison de refuser, ou None. On ne fabrique jamais de relevés hors du mode simulé.
+
+    M1.1 : permis aussi en production (serveur de démonstration exposé par ngrok), mais seulement
+    avec des sources simulées et DEMO_MODE=true : une vraie production (E²C branché) refuse.
+    """
     if settings.billing_source != "simulated" or not settings.demo_mode:
         return "Refusé : relevés simulés uniquement (BILLING_SOURCE=simulated et DEMO_MODE=true)."
     return None

@@ -322,7 +322,10 @@ def test_profile_of_a_meter(reference, power, profile):
     ("changes", "refused"),
     [
         ({}, False),
-        ({"app_env": "production"}, True),
+        # M1.1 (accord de Loick du 25/11/2026) : serveur de démonstration exposé par ngrok, en
+        # production avec DEMO_MODE=true : relevés simulés permis (avant : refusés).
+        ({"app_env": "production"}, False),
+        ({"app_env": "production", "demo_mode": False}, True),
         ({"demo_mode": False}, True),
     ],
 )

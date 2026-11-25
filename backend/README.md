@@ -43,7 +43,9 @@ Données de démo : 18 mois de relevés, factures, paiements et reçus **simulé
 Tous les comptes de démo ont le mot de passe `Demo2026!` (liste affichée par `scripts.seed`).
 Admin et super admin de démo : double authentification déjà active, secret de démonstration affiché
 par `scripts.seed`, à ajouter une fois dans une application d'authentification (Google Authenticator…).
-`reset_db` et `seed` refusent de tourner avec `APP_ENV=production`.
+`reset_db` refuse de tourner avec `APP_ENV=production`. `seed` y tourne seulement avec `DEMO_MODE=true`
+et un `DEMO_SEED_PASSWORD` choisi sur le serveur (jamais `Demo2026!`), et tire alors au hasard un
+secret 2FA par membre de l'équipe (M1.1, `app/simulators/seed_policy.py`).
 
 Les tests utilisent la base `elecpay_test` (créée par `docker/mysql/init/`), jamais la base de développement.
 La CI GitHub Actions (`.github/workflows/backend.yml`) lance Ruff, les migrations et les tests à chaque push.

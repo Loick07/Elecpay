@@ -103,6 +103,8 @@ def test_settings() -> Settings:
         update={
             "app_env": "test",
             "demo_mode": True,
+            # Seed : mot de passe public de démo, quel que soit le .env du développeur (M1.1).
+            "demo_seed_password": SecretStr(""),
             "cors_origins": [TEST_CORS_ORIGIN],
             # Secret propre aux tests, assez long pour HS256 (≥ 32 octets).
             "jwt_secret": SecretStr("secret-de-test-elecpay-" + "x" * 48),

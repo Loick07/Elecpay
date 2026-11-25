@@ -305,5 +305,12 @@ strict testé). Jalon : 29 tests d'intégration sur l'itel (dont F8 et F9), Talk
 d'accessibilité, effet verre mesuré (flou ≈ ×1,6 à ×2 sur le dessin : désactivé par défaut confirmé).
 **L'APK release n'est utilisable qu'après M1 (HTTPS).** 1793 tests ; APK de l'itel 15,9 Mo.
 
-**Prochaine étape : M1** (mise en ligne par ngrok, M1.1 seed de production sûr : accord de Loick
-avant de toucher `backend/`), après le « Continue » de Loick.
+**M1 (mise en ligne par ngrok) — en cours.** M1.1 ✅ (25/11/2026) : seed sûr (`backend/app/simulators/seed_policy.py` :
+`DEMO_SEED_PASSWORD` secret, refus de vide / `Demo2026!` / trop faible, `DEMO_MODE=true` en production,
+secrets 2FA tirés au hasard par admin, affichés une seule fois ; `daily_tick` permis en production de démo ;
+`reset_db` toujours refusé). M1.2 ✅ : `backend/deploy/` (`ngrok.env.example`, `public.ps1` : base dédiée
+`elecpay_public`, secrets tirés sur le PC, jamais affichés) et guide `backend/docs/DEPLOIEMENT.md` section 7.
+1981 tests du backend. Rapport d'arrêt : `frontend/mobile/rapports/M1-avant-ngrok.md`.
+
+**Prochaine étape : M1.3, par Loick** (installer ngrok, ajouter l'authtoken lui-même, mettre en ligne en
+suivant la section 7), puis M1.4 (APK release sur l'itel contre l'API en HTTPS).

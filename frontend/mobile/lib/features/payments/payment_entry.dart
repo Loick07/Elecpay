@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -137,9 +139,12 @@ Future<void> openPaymentInProgress(BuildContext context, WidgetRef ref, int bill
   await router.push(Routes.payment(billId));
 }
 
-/// Bouton Payer central de la barre du bas (D6.1) : aucune facture → message ; une seule → sa
-/// feuille (ou son suivi si un paiement est en cours) ; plusieurs → « Quelle facture payer ? »,
-/// les plus urgentes d'abord.
+/// Message du bouton central quand il n'y a rien à payer (il ouvre alors l'historique).
+const nothingToPayMessage = 'Tout est payé';
+
+/// Bouton Payer central de la barre du bas (D6.1) : aucune facture → l'historique des paiements
+/// et « Tout est payé » (charte) ; une seule → sa feuille (ou son suivi si un paiement est en
+/// cours) ; plusieurs → « Quelle facture payer ? », les plus urgentes d'abord.
 Future<void> payFromBottomBar(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
   final Fetched<BillList> toPay;
@@ -157,7 +162,12 @@ Future<void> payFromBottomBar(BuildContext context, WidgetRef ref) async {
     toPay.data.items.where((b) => b.canPay || b.status == BillStatuses.pendingPayment),
   );
   if (bills.isEmpty) {
-    messenger.showSnackBar(const SnackBar(content: Text('Aucune facture à payer.')));
+    // Charte (fiche BottomNav, décision de Loick après M1) : rien à payer, le bouton ouvre
+    // l'historique des paiements, avec un court message (avant : seulement un message).
+    unawaited(context.push(Routes.history));
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text(nothingToPayMessage)));
     return;
   }
   final bill = bills.length == 1

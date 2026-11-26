@@ -320,5 +320,6 @@ facture BT d'E²C (en-tête ElecPay, jamais l'identité d'E²C), mots-clés cach
 ngrok lancés à la main (`backend/deploy/public.ps1`) ; relancer l'API après chaque `git pull` qui touche
 `backend/`. **Ne jamais lire `backend/deploy/ngrok.env`** (secrets).
 
-**Prochaine étape : à décider par Loick** (écart du bouton Payer quand il n'y a rien à payer ; back-office
-Next.js `frontend/admin/` ; améliorations après le MVP dans `frontend/mobile/PLAN.md`).
+Après M1 : bouton Payer sans facture à payer → historique des paiements et « Tout est payé » (charte, décision de
+Loick du 26/11/2026). **Prochaine étape : à décider par Loick** (back-office Next.js `frontend/admin/` ;
+améliorations après le MVP dans `frontend/mobile/PLAN.md`).

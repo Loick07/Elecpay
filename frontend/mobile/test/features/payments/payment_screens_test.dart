@@ -55,6 +55,10 @@ class PayHarness {
           ),
         ),
         GoRoute(
+          path: Routes.history,
+          builder: (context, state) => const Scaffold(body: Text('Écran Historique')),
+        ),
+        GoRoute(
           path: Routes.receiptPath,
           builder: (context, state) =>
               Scaffold(body: Text('Reçu ${state.pathParameters['receiptId']}')),
@@ -353,13 +357,20 @@ void main() {
   });
 
   group('bouton Payer central (D6.1)', () {
-    testWidgets('aucune facture à payer : un message', (tester) async {
+    // Avant (F6) : seulement le message « Aucune facture à payer. ». Charte (fiche BottomNav,
+    // décision de Loick après M1) : l'historique des paiements s'ouvre, avec « Tout est payé ».
+    testWidgets('aucune facture à payer : l’historique des paiements et « Tout est payé »', (
+      tester,
+    ) async {
       final h = PayHarness();
       h.backend.toPay = [];
       await h.pump(tester, location: AppTab.home.path);
       await tester.tap(find.byKey(const Key('host.pay')));
       await settle(tester);
-      expect(find.text('Aucune facture à payer.'), findsOneWidget);
+      expect(find.text('Écran Historique'), findsOneWidget);
+      expect(find.text('Tout est payé'), findsOneWidget);
+      expect(find.byType(PaymentSheetContent), findsNothing, reason: 'rien ne se paie');
+      expect(h.gateway.creates, isEmpty, reason: 'aucune demande de paiement');
     });
 
     testWidgets('une seule facture : sa feuille directement', (tester) async {

@@ -27,8 +27,8 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. **M1 terminé** (`rapports/M1.md`). Attendre la décision de Loick sur la suite : écart du bouton Payer
-   quand il n'y a rien à payer (recommandé : ouvrir l'historique, comme la charte) ; back-office Next.js ;
+1. **M1 terminé** (`rapports/M1.md`), et le bouton Payer sans facture ouvre l'historique (« Tout est
+   payé »), comme la charte. Attendre la décision de Loick sur la suite : back-office Next.js ;
    améliorations après le MVP (`PLAN.md`, « Après F10 »).
 2. À rejouer au prochain jalon (port 8000 libre, API publique arrêtée) : `integration_test/account_test.dart`
    (recherche « recu » avec les mots-clés).

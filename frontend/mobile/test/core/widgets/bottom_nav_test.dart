@@ -66,6 +66,31 @@ void main() {
     });
   }
 
+  // Demande de Loick (validation de la barre, M1) : zone tactile de Payer d'au moins 48 points.
+  for (final scale in [1.0, 1.3]) {
+    testWidgets('texte × $scale : zones tactiles de Payer ≥ 48 points (disque et libellé)', (
+      tester,
+    ) async {
+      await pumpOnItel(tester, nav(), textScale: scale);
+      final disc = tester.getSize(
+        find.ancestor(of: find.byIcon(AppIcons.navPay), matching: find.byType(GestureDetector)),
+      );
+      final label = tester.getSize(
+        find.ancestor(of: find.text('Payer'), matching: find.byType(GestureDetector)).first,
+      );
+      for (final size in [disc, label]) {
+        expect(size.width, greaterThanOrEqualTo(48));
+        expect(size.height, greaterThanOrEqualTo(48));
+      }
+      // Toucher le bord du disque (pas seulement son centre) ouvre bien le paiement.
+      final rect = tester.getRect(
+        find.ancestor(of: find.byIcon(AppIcons.navPay), matching: find.byType(GestureDetector)),
+      );
+      await tester.tapAt(rect.topCenter + const Offset(0, 6));
+      expect(pays, 1);
+    });
+  }
+
   testWidgets('fondu vers le fond derrière la barre (le contenu ne se voit plus dessous)', (
     tester,
   ) async {

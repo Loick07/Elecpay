@@ -73,12 +73,19 @@
 .ep-seg .on{background:var(--surface-1);color:var(--ink);box-shadow:var(--shadow-card)}
 
 /* Navigation */
-.ep-nav{display:flex;align-items:flex-end;justify-content:space-around;padding:8px 8px 10px;border-radius:var(--radius-xl);box-shadow:var(--shadow-float)}
-.ep-nav__item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;min-height:48px;justify-content:center;font:500 11px/14px var(--font-app);color:var(--ink-muted)}
+/* Barre de navigation (revue et validée par Loick pendant M1, 26/11/2026) : barre de 64px, 5 entrées au même
+   gabarit (libellés sur la même ligne), disque Payer de 56px surélevé de 30px avec un anneau 4px couleur du fond,
+   zone tactile 64x64 ; fondu vers le fond sous la barre (.ep-nav-fade). */
+.ep-nav-fade{padding-top:34px;background:linear-gradient(180deg,transparent 30%,var(--bg) 100%)}
+.ep-nav{position:relative;display:flex;align-items:center;justify-content:space-around;height:64px;padding:0 8px;border-radius:var(--radius-xl);box-shadow:var(--shadow-float)}
+.ep-nav__item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;min-height:48px;justify-content:center;font:500 11px/14px var(--font-app);color:var(--ink-muted)}
 .ep-nav__item .ep-icon{width:24px;height:24px}
-.ep-nav__item--on{color:var(--ink)}
-.ep-nav__item--on::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--volt);margin-top:2px}
-.ep-nav__pay{width:56px;height:56px;border-radius:var(--radius-full);background:var(--volt);color:var(--on-volt);display:grid;place-items:center;box-shadow:var(--shadow-volt);transform:translateY(-14px)}
+.ep-nav__item::after{content:"";width:4px;height:4px;border-radius:50%;background:transparent}
+.ep-nav__item--on{color:var(--ink);font-weight:600}
+.ep-nav__item--on::after{background:var(--volt)}
+.ep-nav__item--pay{color:var(--volt-text);font-weight:600}
+.ep-nav__item--pay::before{content:"";height:24px}
+.ep-nav__pay{position:absolute;left:50%;top:-30px;transform:translateX(-50%);width:56px;height:56px;border-radius:var(--radius-full);background:var(--volt);color:var(--on-volt);display:grid;place-items:center;box-shadow:0 0 0 4px var(--bg),var(--shadow-volt)}
 .ep-nav__pay .ep-icon{width:26px;height:26px;stroke-width:2}
 
 /* États */

@@ -460,3 +460,6 @@ contrôlé en CI, `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev`) f
 
 - **Recherche de facture** (bouton de la maquette de l'écran 6) : **filtre local** sur les factures déjà
   chargées, **sans backend** (décision de Loick du 19/11/2026).
+- **Facture PDF : tableau « situation des impayés »**, comme sur la facture E²C (factures impayées du
+  même branchement : numéro, montant, total). Demande des données en plus dans le détail de la facture
+  (backend : `BillDetail`, puis `pdf.py`) ; noté après le MVP par Loick le 26/11/2026 (PDF validé en M1).

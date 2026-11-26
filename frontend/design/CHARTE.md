@@ -106,7 +106,7 @@ Chaque écran prévoit ces états, avec ces textes de départ :
 
 ## Navigation (application)
 
-Barre de navigation **flottante en verre**, 5 entrées : **Accueil · Factures · Payer · Conso · Compte**. L'entrée centrale **Payer** est un disque `volt` de 56px légèrement surélevé (`shadow-volt`) ; il ouvre la feuille de paiement de la facture la plus urgente. Zone tactile minimale 48 × 48 (`space-12`).
+Barre de navigation **flottante en verre**, 5 entrées : **Accueil · Factures · Payer · Conso · Compte**. L'entrée centrale **Payer** est un disque `volt` de 56px surélevé de 30px, avec un anneau de 4px couleur du fond (`shadow-volt`) ; il ouvre la feuille de paiement de la facture la plus urgente. Barre de 64px, 5 libellés sur la même ligne, fondu vers le fond sous la barre (validé par Loick pendant M1, détail : `components/BottomNav`). Zone tactile minimale 48 × 48 (`space-12`) ; Payer : 64 × 64.
 
 ## Mouvement
 

@@ -46,6 +46,23 @@ void main() {
       expect(searchFaqs('compteur facture').single.question, contains('référence de mon compteur'));
       expect(searchFaqs('bitcoin'), isEmpty);
     });
+
+    // Décision de Loick (M1) : le champ propose « reçu » en exemple ; des mots-clés cachés relient
+    // ce mot à « J’ai payé mais la facture reste « À payer » » (avant : aucun résultat).
+    test('« recu » / « reçu » / « paiement » trouvent la bonne réponse (mots-clés cachés)', () {
+      const paid = 'J’ai payé mais la facture reste « À payer »';
+      for (final query in ['recu', 'reçu', 'REÇU', 'paiement']) {
+        expect(searchFaqs(query).map((f) => f.question), contains(paid), reason: query);
+      }
+      expect(searchFaqs('recu').single.question, paid);
+    });
+
+    test('les mots-clés restent cachés : jamais dans les textes affichés', () {
+      for (final faq in faqs) {
+        expect(faq.keywords, isNotEmpty, reason: faq.question);
+        expect(faq.answer, isNot(contains(faq.keywords)));
+      }
+    });
   });
 
   testWidgets('écran : première question ouverte, ouvrir / fermer, contacts « bientôt »', (
@@ -88,7 +105,10 @@ void main() {
       'reçu',
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('support.faq.1')), findsNothing);
+    // « reçu » (exemple du champ) trouve « J’ai payé mais… » grâce aux mots-clés cachés (M1).
+    expect(find.byKey(const Key('support.faq.1')), findsOneWidget);
+    expect(find.byKey(const Key('support.faq.0')), findsNothing);
+    expect(find.byKey(const Key('support.noResult')), findsNothing);
     await tester.enterText(
       find.descendant(
         of: find.byKey(const Key('support.search')),

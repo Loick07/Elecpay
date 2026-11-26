@@ -242,11 +242,11 @@ void main() {
     await loginAs(tester, arnaud);
     await openAccountRow(tester, 'Assistance');
     await waitFor(tester, find.byKey(const Key('support.list')));
-    // DÉFAUT DE LA MAQUETTE (signalé dans le rapport de F10, décision de Loick attendue) : le
-    // champ propose « reçu » en exemple, mais aucune des 5 questions ne contient ce mot.
+    // Mots-clés cachés (décision de Loick, M1) : « recu » trouve « J’ai payé mais… ».
     await typeIn(tester, 'support.search', 'recu');
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.byKey(const Key('support.noResult')), findsOneWidget);
+    expect(find.byKey(const Key('support.noResult')), findsNothing);
+    expect(find.text('J’ai payé mais la facture reste « À payer »'), findsOneWidget);
     await shot(tester, 'f9-8-recherche-recu');
     await typeIn(tester, 'support.search', 'proche');
     await tester.pump(const Duration(milliseconds: 600));

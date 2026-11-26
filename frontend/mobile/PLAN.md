@@ -19,7 +19,7 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F8 | Compteurs et foyers | ✅ terminé le 21/11/2026 |
 | F9 | Compte et assistance | ✅ terminé le 21/11/2026 (sans F9.5, reportée en M1) |
 | F10 | Finitions et livraison (APK) | ✅ terminé le 24/11/2026 (en local) |
-| M1 | Mise en ligne (API du PC exposée par ngrok, `omnivore-pardon-sixth.ngrok-free.dev`) | en cours : M1.1 → M1.3 ✅, M1.4 à finir sur l'itel |
+| M1 | Mise en ligne (API du PC exposée par ngrok, `omnivore-pardon-sixth.ngrok-free.dev`) | ✅ terminé le 26/11/2026 |
 
 Après F10 : le back-office Next.js (`frontend/admin/`).
 
@@ -142,8 +142,8 @@ Après F10 : le back-office Next.js (`frontend/admin/`).
   utilisable seulement après M1.** 1793 tests.
 - **M1 en cours** : M1.1 (seed sûr) et M1.2 (configuration ngrok, `backend/deploy/public.ps1`, guide
   `backend/docs/DEPLOIEMENT.md` section 7) faits le 25/11/2026 (rapport `rapports/M1-avant-ngrok.md`).
-- **M1.3 ✅** (Loick, ngrok en ligne) ; **M1.4 en grande partie** (rapport `rapports/M1.md`) : reste le
-  paiement simulé, le PDF et l'historique sur l'itel.
+- **M1 ✅ terminé le 26/11/2026** (rapport `rapports/M1.md`) : API publique par ngrok, APK release signé
+  vérifié sur l'itel ; barre du bas et facture PDF validées ; mots-clés de l'Assistance.
 
 ## Méthode (la même que pour le backend)
 

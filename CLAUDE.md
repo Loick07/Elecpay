@@ -305,18 +305,20 @@ strict testé). Jalon : 29 tests d'intégration sur l'itel (dont F8 et F9), Talk
 d'accessibilité, effet verre mesuré (flou ≈ ×1,6 à ×2 sur le dessin : désactivé par défaut confirmé).
 **L'APK release n'est utilisable qu'après M1 (HTTPS).** 1793 tests ; APK de l'itel 15,9 Mo.
 
-**M1 (mise en ligne par ngrok) — en cours.** M1.1 ✅ (25/11/2026) : seed sûr (`backend/app/simulators/seed_policy.py` :
-`DEMO_SEED_PASSWORD` secret, refus de vide / `Demo2026!` / trop faible, `DEMO_MODE=true` en production,
-secrets 2FA tirés au hasard par admin, affichés une seule fois ; `daily_tick` permis en production de démo ;
-`reset_db` toujours refusé). M1.2 ✅ : `backend/deploy/` (`ngrok.env.example`, `public.ps1` : base dédiée
-`elecpay_public`, secrets tirés sur le PC, jamais affichés) et guide `backend/docs/DEPLOIEMENT.md` section 7.
-1981 tests du backend. Rapport d'arrêt : `frontend/mobile/rapports/M1-avant-ngrok.md`.
+**M1 (mise en ligne par ngrok) ✅ terminé le 26/11/2026** — rapport `frontend/mobile/rapports/M1.md`.
+M1.1 : seed sûr (`backend/app/simulators/seed_policy.py` : `DEMO_SEED_PASSWORD` secret, refus de vide /
+`Demo2026!` / trop faible, `DEMO_MODE=true` en production, secrets 2FA tirés au hasard ; `daily_tick` permis en
+production de démo ; `reset_db` toujours refusé). M1.2 : `backend/deploy/` (`ngrok.env.example`, `public.ps1` :
+base `elecpay_public`, secrets tirés sur le PC, jamais affichés) et guide `backend/docs/DEPLOIEMENT.md` section 7.
+M1.3 (Loick) : ngrok en ligne. M1.4 : APK release signé sur l'itel, tour complet par ngrok sans tunnel USB
+(reçu, vérification publique, facture PDF, historique, consommation). Pendant M1, à la demande de Loick :
+barre du bas revue et validée (charte `BottomNav` mise à jour, Payer 64 × 64), facture PDF dans le genre de la
+facture BT d'E²C (en-tête ElecPay, jamais l'identité d'E²C), mots-clés cachés de l'Assistance.
+1983 tests du backend, 1802 de l'application ; APK de l'itel 16,0 Mo.
 
-M1.3 ✅ (Loick) : ngrok et authtoken installés par lui, `verifier` « ok » en local et par ngrok. M1.4 en grande
-partie : APK release signé installé sur l'itel, accueil chargé par ngrok sans tunnel USB ; API publique vérifiée
-(401, HSTS / CSP, CORS strict, HTTP → HTTPS). Ajouts pendant M1 : barre du bas revue (libellés alignés, 64 points,
-disque dégagé, fondu), facture PDF dans le genre de la facture BT d'E²C (en-tête ElecPay, jamais l'identité
-d'E²C, testé). Rapport `frontend/mobile/rapports/M1.md`. 1983 tests du backend, 1798 de l'application.
+**L'API publique tourne sur le PC de Loick** (`https://omnivore-pardon-sixth.ngrok-free.dev`) : API, tâches et
+ngrok lancés à la main (`backend/deploy/public.ps1`) ; relancer l'API après chaque `git pull` qui touche
+`backend/`. **Ne jamais lire `backend/deploy/ngrok.env`** (secrets).
 
-**Prochaine étape : finir M1.4 sur l'itel** (paiement simulé jusqu'au reçu, PDF, historique) dès qu'il est
-joignable ; avis de Loick attendu sur la barre du bas (fiche `BottomNav` de la charte) et sur la facture PDF.
+**Prochaine étape : à décider par Loick** (écart du bouton Payer quand il n'y a rien à payer ; back-office
+Next.js `frontend/admin/` ; améliorations après le MVP dans `frontend/mobile/PLAN.md`).

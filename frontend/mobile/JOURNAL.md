@@ -27,11 +27,12 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. **M1.1 → M1.3 faits, M1.4 en grande partie** (`rapports/M1.md`). Reste, dès que l'itel est joignable
-   (chargeur mural) : paiement simulé jusqu'au reçu, PDF de la facture, historique, sur l'APK release
-   installé (session d'Arnaud gardée ; ne jamais taper ni lire le mot de passe de `ngrok.env`).
-   Avis de Loick attendus : barre du bas (puis fiche `BottomNav` de la charte), facture PDF.
-2. Décision de Loick attendue : recherche « reçu » de l'Assistance (défaut de la maquette, rapport F10).
+1. **M1 terminé** (`rapports/M1.md`). Attendre la décision de Loick sur la suite : écart du bouton Payer
+   quand il n'y a rien à payer (recommandé : ouvrir l'historique, comme la charte) ; back-office Next.js ;
+   améliorations après le MVP (`PLAN.md`, « Après F10 »).
+2. À rejouer au prochain jalon (port 8000 libre, API publique arrêtée) : `integration_test/account_test.dart`
+   (recherche « recu » avec les mots-clés).
+3. Ne jamais lire `backend/deploy/ngrok.env` ni demander l'authtoken ou `DEMO_SEED_PASSWORD`.
 
 ## Choix faits en route
 

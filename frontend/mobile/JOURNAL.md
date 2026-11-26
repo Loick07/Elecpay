@@ -27,10 +27,10 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. **M1.1 et M1.2 faits** (branche `m1`, `rapports/M1-avant-ngrok.md`). **Arrêt** : Loick installe ngrok,
-   ajoute l'authtoken (jamais demandé ni lu), et met en ligne avec `backend/docs/DEPLOIEMENT.md` section 7.
-   Ne jamais lire `backend/deploy/ngrok.env` (secrets). Ensuite M1.4 : APK release sur l'itel contre
-   `https://omnivore-pardon-sixth.ngrok-free.dev`.
+1. **M1.1 → M1.3 faits, M1.4 en grande partie** (`rapports/M1.md`). Reste, dès que l'itel est joignable
+   (chargeur mural) : paiement simulé jusqu'au reçu, PDF de la facture, historique, sur l'APK release
+   installé (session d'Arnaud gardée ; ne jamais taper ni lire le mot de passe de `ngrok.env`).
+   Avis de Loick attendus : barre du bas (puis fiche `BottomNav` de la charte), facture PDF.
 2. Décision de Loick attendue : recherche « reçu » de l'Assistance (défaut de la maquette, rapport F10).
 
 ## Choix faits en route

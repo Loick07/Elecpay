@@ -312,5 +312,11 @@ secrets 2FA tirés au hasard par admin, affichés une seule fois ; `daily_tick` 
 `elecpay_public`, secrets tirés sur le PC, jamais affichés) et guide `backend/docs/DEPLOIEMENT.md` section 7.
 1981 tests du backend. Rapport d'arrêt : `frontend/mobile/rapports/M1-avant-ngrok.md`.
 
-**Prochaine étape : M1.3, par Loick** (installer ngrok, ajouter l'authtoken lui-même, mettre en ligne en
-suivant la section 7), puis M1.4 (APK release sur l'itel contre l'API en HTTPS).
+M1.3 ✅ (Loick) : ngrok et authtoken installés par lui, `verifier` « ok » en local et par ngrok. M1.4 en grande
+partie : APK release signé installé sur l'itel, accueil chargé par ngrok sans tunnel USB ; API publique vérifiée
+(401, HSTS / CSP, CORS strict, HTTP → HTTPS). Ajouts pendant M1 : barre du bas revue (libellés alignés, 64 points,
+disque dégagé, fondu), facture PDF dans le genre de la facture BT d'E²C (en-tête ElecPay, jamais l'identité
+d'E²C, testé). Rapport `frontend/mobile/rapports/M1.md`. 1983 tests du backend, 1798 de l'application.
+
+**Prochaine étape : finir M1.4 sur l'itel** (paiement simulé jusqu'au reçu, PDF, historique) dès qu'il est
+joignable ; avis de Loick attendu sur la barre du bas (fiche `BottomNav` de la charte) et sur la facture PDF.

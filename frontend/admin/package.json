@@ -2,6 +2,7 @@
   "name": "elecpay-admin",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Back-office d'administration ElecPay (Next.js) : voir PLAN.md",
   "engines": {
     "node": ">=24 <25"
@@ -14,10 +15,12 @@
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node tool/vitest.ts run",
+    "test:watch": "node tool/vitest.ts",
+    "generate:tokens": "node tool/generate-tokens.ts"
   },
   "dependencies": {
+    "lucide-react": "1.81.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"

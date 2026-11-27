@@ -1,10 +1,16 @@
 @import "tailwindcss";
+/* Couleurs, textes, rayons, ombres et polices : générés depuis la charte (npm run generate:tokens). */
+@import "../styles/tokens.generated.css";
 
-@theme inline {
-  --font-sans: var(--font-inter), "Segoe UI", Roboto, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-}
+@layer base {
+  /* Charte, back-office : thème Jour, Inter, style « admin-body » par défaut. */
+  body {
+    @apply bg-bg text-admin-body text-ink font-sans;
+  }
 
-body {
-  font-family: var(--font-sans);
+  /* Focus clavier toujours visible (charte : `focus`, 2 px). */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
 }

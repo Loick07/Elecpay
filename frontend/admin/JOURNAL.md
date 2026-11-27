@@ -40,9 +40,18 @@ Mis à jour et commité avec chaque sauvegarde.
   annoncée comme obligatoire).
 - **TypeScript 5.9.3** (celui du modèle `create-next-app` 16.4.6), pas la 7.0.
 - **jsdom 29.0.2** : jsdom 30 et 31 exigent Node ≥ 24.15 (le PC a 24.14).
-- **Vitest 5** : l'`expect` global n'est pas celui que `vitest.setup.ts` étend → chaque test importe
-  `describe`, `it`, `expect` depuis `"vitest"` (types globaux retirés de `tsconfig.json`) ; un
-  `afterEach` dans `vitest.setup.ts` est refusé. Le nettoyage de Testing Library passe par les globales.
+- **Défaut de casse du lecteur (Windows), trouvé pas à pas le 27/11/2026** : si Node démarre dans
+  `c:\…` (minuscule, ce que donne parfois l'outil Bash lancé par VS Code), Vitest charge son propre
+  module DEUX fois (`c:\…` et `C:\…`) → « Vitest failed to find the current suite », assertions de
+  jest-dom introuvables. Reproduit à coup sûr (Vitest lancé avec `cwd` en `c:` : échec ; en `C:` :
+  succès). Corrigé par **`tool/vitest.ts`** (casse officielle par `realpathSync.native`), utilisé par
+  `npm test` : **toujours lancer les tests par `npm test`**, jamais `npx vitest` directement.
+  Mes premières conclusions (« l'`expect` global de Vitest 5 est différent ») étaient fausses : c'était
+  ce même défaut. Les tests importent quand même `describe`, `it`, `expect` (choix de clarté).
+- Tests qui lisent des fichiers (`import.meta.url`) : directive `// @vitest-environment node` (sous
+  jsdom, `import.meta.url` n'est pas une adresse `file:`).
+- À surveiller : le même défaut de casse pourrait toucher `next dev` ou `next build` lancés depuis un
+  dossier en `c:` (rien vu pour l'instant).
 - Statistiques anonymes de Next désactivées en CI (`NEXT_TELEMETRY_DISABLED=1`).
 - Arrêter `next dev` : l'arrêt de la tâche ne suit pas le processus Node enfant → vérifier le port 3000
   (`netstat -ano | grep :3000`) et arrêter le processus `node` qui l'écoute.

@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { SECURITY_HEADERS } from "./src/lib/security/headers";
+
 // Back-office ElecPay. Toutes les données sont lues DANS LE NAVIGATEUR, à travers le relais
 // `/api/v1/*` (aucune donnée rendue ni mise en cache côté serveur). « Cache Components » reste donc
 // désactivé : la politique de sécurité (CSP) à nonce exige un rendu dynamique de chaque page, alors
@@ -8,6 +10,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false, // pas d'en-tête « X-Powered-By: Next.js »
+  // En-têtes de sécurité fixes, sur toutes les réponses (la CSP, elle, est posée par src/proxy.ts).
+  async headers() {
+    return [{ source: "/:path*", headers: [...SECURITY_HEADERS] }];
+  },
   turbopack: {
     rules: {
       "*.css": {

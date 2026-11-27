@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { connection } from "next/server";
 
 import "./globals.css";
 import { Providers } from "./providers";
@@ -19,7 +20,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false }, // jamais indexé par les moteurs de recherche
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Rendu à chaque requête : la CSP de src/proxy.ts porte un nonce neuf que Next applique à ses
+  // scripts ; une page prérendue au moment de la construction n'en aurait pas (bloquée par la CSP).
+  await connection();
   return (
     <html lang="fr" className={`${inter.variable} ${mono.variable}`}>
       <body>

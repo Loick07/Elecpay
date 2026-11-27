@@ -5,9 +5,11 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## État au 27/11/2026 (avant A0)
 
-- Back-office **lancé par Loick le 27/11/2026**. Plan proposé sur la branche `admin-plan` :
-  `PLAN.md` (étapes A0 → A11), `DECOUPAGES.md` (découpages et décisions DA…), `AUTONOMIE.md` (méthode).
-- **Aucun code** : on attend la validation de Loick (et l'ajout des autorisations DA-G1) avant A0.
+- Back-office **lancé par Loick le 27/11/2026**. Plan **validé le 27/11/2026** (toutes les
+  recommandations ; arrêt maintenu avant `backend/` pour DA4.1 et DA11.1) : `PLAN.md` (A0 → A11),
+  `DECOUPAGES.md`, `AUTONOMIE.md`. Fusionné dans `main` depuis la branche `admin-plan`.
+- Autorisations DA-G1 : bloc complet de `.claude/settings.local.json` donné à Loick, qui remplace
+  lui-même le fichier.
 - Outils sur le PC : Node 24.14, npm 11.9 (pnpm absent). Versions publiées au 27/11/2026 : Next 16.4,
   React 19.3, Tailwind 4.3, TanStack Query 5.108, TanStack Table 9.3, React Hook Form 7.92, Zod 4.6,
   Recharts 3.11, Playwright 1.65, Vitest 5.1, openapi-typescript 7.13 ; TypeScript 7.0 (vérifier ce que
@@ -25,10 +27,9 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. Attendre la validation de Loick (`PLAN.md`, `DECOUPAGES.md`, `AUTONOMIE.md`) et ses réponses aux décisions.
-2. Après validation : fusionner `admin-plan` dans `main`, ajouter dans `CLAUDE.md` (« Méthode de travail »)
-   la ligne « Développement du back-office en autonomie : suivre frontend/admin/AUTONOMIE.md et reprendre
-   depuis frontend/admin/JOURNAL.md », puis créer la branche `a0` et commencer A0.1.
+1. **A0** sur la branche `a0` : A0.1 projet (+ CI `admin.yml` minimale dès A0.1, pour que chaque
+   fusion dans `main` passe par une CI verte), A0.2 charte, A0.3 relais, A0.4 types, A0.5 sécurité.
+2. Arrêt à la fin de A0 : rapport `rapports/A0.md`, attente du « Continue » de Loick.
 
 ## Choix faits en route
 

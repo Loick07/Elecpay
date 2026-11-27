@@ -2,7 +2,7 @@
 
 Consignes de Loick pour le back-office d'administration Next.js (`frontend/admin/`), tirées de son message
 de lancement du 27/11/2026 et des règles déjà suivies pour l'application mobile
-(`frontend/mobile/AUTONOMIE.md`). **Proposées le 27/11/2026, à valider par Loick avec `PLAN.md` et
+(`frontend/mobile/AUTONOMIE.md`). **Validées par Loick le 27/11/2026, avec `PLAN.md` et
 `DECOUPAGES.md`.** Une nouvelle session (après une coupure ou une limite d'utilisation) relit ces
 consignes, avec `CLAUDE.md` et `frontend/admin/JOURNAL.md`, avant toute action.
 

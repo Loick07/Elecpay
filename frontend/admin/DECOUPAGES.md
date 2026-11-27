@@ -1,7 +1,17 @@
-# Back-office — découpages de A0 à A11 et décisions (à valider)
+# Back-office — découpages de A0 à A11 et décisions (validés)
 
-Proposé le 27/11/2026 avec `PLAN.md` et `AUTONOMIE.md`. **En attente de la validation de Loick** : c'est
-le seul accord à attendre avant de commencer A0 (avec celui des autorisations, DA-G1).
+Proposé le 27/11/2026 avec `PLAN.md` et `AUTONOMIE.md`. **Validé par Loick le 27/11/2026** : « OK » pour
+**toutes les recommandations**, y compris DA4.1 et DA11.1.
+
+## Précisions de Loick (27/11/2026)
+
+- **DA4.1 et DA11.1** : l'**arrêt avant de toucher `backend/`** est maintenu (explication de ce qui change,
+  puis attente de son accord).
+- **Après le MVP** : rendre la **double authentification obligatoire aussi pour le Support** avant d'ouvrir
+  le back-office à une vraie équipe (noté dans `PLAN.md`, « Après le MVP ») ; en attendant, DA1.5.
+- **DA-G1** : Loick remplace lui-même tout le contenu de `.claude/settings.local.json` par le bloc complet
+  que Claude lui a donné (l'existant + les ajouts ci-dessous, + l'interdiction de `DROP DATABASE` en ligne
+  de commande).
 
 **Comment répondre** : pour chaque décision (DA0.3, DA1.2…), « OK » suffit si ma recommandation te va ;
 sinon indique l'option choisie. **Une décision sans réponse = ma recommandation.**

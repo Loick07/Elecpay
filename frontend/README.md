@@ -8,7 +8,7 @@ Le frontend ne contient **aucune** règle métier : il affiche ce que renvoie l'
 | `design/` | Charte UI/UX validée : couleurs, typographie, statuts, formats, textes, composants | ✅ charte v1 validée |
 | `design/maquettes/` | Maquettes : 16 écrans client + 11 écrans back-office | ✅ validées |
 | `mobile/` | Application client Flutter (16 écrans) | après la fin du backend (B11) |
-| `admin/` | Back-office web Next.js (11 écrans) | plan proposé le 27/11/2026 (`admin/PLAN.md`), à valider |
+| `admin/` | Back-office web Next.js (11 écrans) | plan validé le 27/11/2026 (`admin/PLAN.md`), A0 en cours |
 
 ## design/
 

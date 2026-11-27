@@ -73,6 +73,7 @@ Pour les factures, en cas d'écart, `backend/docs/FACTURES.md` et `FACTURE_E2C.m
 - Dire clairement à chaque fin d'étape : où on en est, ce qui reste.
 - Le contrat d'API (OpenAPI généré par FastAPI) fait foi pour le mobile et l'admin.
 - Développement Flutter en autonomie : suivre frontend/mobile/AUTONOMIE.md et reprendre depuis frontend/mobile/JOURNAL.md
+- Développement du back-office en autonomie : suivre frontend/admin/AUTONOMIE.md et reprendre depuis frontend/admin/JOURNAL.md
 - Depuis le 19/11/2026 : aucun arrêt pendant une étape (sous-étapes enchaînées, chacune testée, commitée,
   intégrée dans `main`, CI verte) ; **arrêt à la fin de chaque étape** (F4 … F10) avec le rapport
   `frontend/mobile/rapports/FX.md`, puis attente du « Continue » de Loick. Arrêts maintenus : F6 avant le
@@ -324,6 +325,6 @@ Après M1 : bouton Payer sans facture à payer → historique des paiements et �
 Loick du 26/11/2026). Vidéo de démonstration **en pause** le 27/11/2026, à refaire plus tard (leçons dans
 `frontend/mobile/JOURNAL.md`).
 
-**Back-office Next.js lancé par Loick le 27/11/2026** : plan proposé, **en attente de validation**
+**Back-office Next.js lancé par Loick le 27/11/2026** : plan **validé le 27/11/2026**
 (`frontend/admin/PLAN.md` étapes A0 → A11, `DECOUPAGES.md` décisions DA…, `AUTONOMIE.md` méthode) ;
-reprise depuis `frontend/admin/JOURNAL.md`. Aucun code avant la validation.
+reprise depuis `frontend/admin/JOURNAL.md`. **A0 en cours.**

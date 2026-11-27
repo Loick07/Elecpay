@@ -6,8 +6,8 @@ métier**, il affiche et appelle l'API d'administration (`/api/v1/admin`).
 Ce document est la feuille de route. On le suit **dans l'ordre**, une étape à la fois. Une étape n'est
 terminée que quand **tous** ses critères « Terminé quand » sont vrais.
 
-**Proposé le 27/11/2026, en attente de la validation de Loick** (avec `DECOUPAGES.md`, qui liste toutes
-les décisions qui lui reviennent, et `AUTONOMIE.md`, la méthode de travail).
+**Validé par Loick le 27/11/2026**, avec `DECOUPAGES.md` (toutes les recommandations, y compris DA4.1 et
+DA11.1, avec arrêt avant de toucher `backend/`) et `AUTONOMIE.md` (la méthode de travail).
 
 ## Tableau de bord
 
@@ -318,3 +318,13 @@ captures, vérification par Loick dans son navigateur.
 
 Terminé quand : le back-office en ligne fonctionne de bout en bout contre l'API publique (PC + ngrok), avec
 la vraie IP au journal (si DA11.1 b), et le guide permet à Loick de redéployer seul.
+
+## Après le MVP
+
+- **Double authentification obligatoire aussi pour le Support**, avant d'ouvrir le back-office à une vraie
+  équipe (demande de Loick, 27/11/2026) : règle du backend (aujourd'hui facultative pour le support), puis
+  le bandeau de DA1.5 devient la configuration obligatoire.
+- « Renvoyer au client » (A6, DA4.2) et « Exporter la période » du journal (A10, DA8.1) : routes à créer.
+- Choix du mois du tableau de bord (DA9.1) : paramètre `month` de `GET /admin/stats`.
+- Détacher / rattacher un compteur (DA6.1), thème Nuit au choix (DA0.3).
+- Offre payante de Vercel (ou autre hébergeur) avant le premier client (DA11.2).

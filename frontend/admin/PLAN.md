@@ -13,7 +13,7 @@ DA11.1, avec arrêt avant de toucher `backend/`) et `AUTONOMIE.md` (la méthode 
 
 | Étape | Nom | Écrans | État |
 |---|---|---|---|
-| A0 | Socle : projet, charte, relais vers l'API, types, sécurité, CI | — | à faire |
+| A0 | Socle : projet, charte, relais vers l'API, types, sécurité, CI | — | ✅ terminé le 27/11/2026 (`rapports/A0.md`) |
 | A1 | Connexion, double authentification et session | connexion, code, sécurité, mon compte | à faire |
 | A2 | Cadre de l'application et composants communs | menu, en-tête, états | à faire |
 | A3 | Utilisateurs | A2, A3 | à faire |

@@ -3,7 +3,12 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/admin/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 27/11/2026 (avant A0)
+## État au 27/11/2026 : A0 terminée, en attente du « Continue »
+
+- **A0 ✅** (rapport `rapports/A0.md`), tout dans `main` (`e9b6dd6` + rapport), CI `Admin` verte,
+  176 tests. Branche de travail `a0` (A1 commencera sur une branche `a1` créée depuis `main`).
+
+## Avant A0 (préparation du plan)
 
 - Back-office **lancé par Loick le 27/11/2026**. Plan **validé le 27/11/2026** (toutes les
   recommandations ; arrêt maintenu avant `backend/` pour DA4.1 et DA11.1) : `PLAN.md` (A0 → A11),
@@ -27,9 +32,10 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. **A0** sur la branche `a0` : A0.1 projet (+ CI `admin.yml` minimale dès A0.1, pour que chaque
-   fusion dans `main` passe par une CI verte), A0.2 charte, A0.3 relais, A0.4 types, A0.5 sécurité.
-2. Arrêt à la fin de A0 : rapport `rapports/A0.md`, attente du « Continue » de Loick.
+1. **Attendre le « Continue » de Loick** (rapport `rapports/A0.md`).
+2. Puis **A1** (connexion, double authentification, session) sur la branche `a1`, en commençant par
+   proposer la cible du relais en développement (jamais l'API publique par accident : point à
+   surveiller du rapport A0).
 
 ## Choix faits en route
 

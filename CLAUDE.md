@@ -327,4 +327,13 @@ Loick du 26/11/2026). Vidéo de démonstration **en pause** le 27/11/2026, à re
 
 **Back-office Next.js lancé par Loick le 27/11/2026** : plan **validé le 27/11/2026**
 (`frontend/admin/PLAN.md` étapes A0 → A11, `DECOUPAGES.md` décisions DA…, `AUTONOMIE.md` méthode) ;
-reprise depuis `frontend/admin/JOURNAL.md`. **A0 en cours.**
+reprise depuis `frontend/admin/JOURNAL.md`.
+
+**A0 (socle du back-office) ✅ terminé le 27/11/2026** — rapport `frontend/admin/rapports/A0.md`, CI `Admin`
+verte. Next 16.4 (sans Cache Components : CSP à nonce, pages rendues à la requête), thème généré depuis
+`tokens.json`, formats et statuts identiques au mobile (`src/lib/format/`, `src/lib/status/`), **relais
+`/api/v1/*`** (`src/lib/relay/` : préfixes ouverts seulement, origine vérifiée, cookies `elecpay_*`,
+`ngrok-skip-browser-warning`, aucun secret ni adresse d'API dans le navigateur), types générés depuis
+`openapi.json`, client typé (`unwrap(api.GET(…))`), badge « Mode démo » lu dans `/health`. Toujours lancer
+les tests par **`npm test`** (`tool/vitest.ts` : défaut de casse du lecteur sous Windows). MSW 3 :
+`onUnhandledFrame`. 176 tests. **En attente du « Continue » de Loick avant A1.**

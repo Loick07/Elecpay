@@ -12,7 +12,9 @@ const directives = (csp: string) =>
   );
 
 describe("politique de contenu (CSP), en production", () => {
-  const csp = directives(contentSecurityPolicy({ nonce: "abc123", development: false, https: true }));
+  const csp = directives(
+    contentSecurityPolicy({ nonce: "abc123", development: false, https: true }),
+  );
 
   it("scripts : seulement le nonce de la page, ni eval ni script en ligne", () => {
     expect(csp.get("script-src")).toBe("'self' 'nonce-abc123' 'strict-dynamic'");

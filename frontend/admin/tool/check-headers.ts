@@ -38,7 +38,10 @@ check(!csp.includes("unsafe-eval"), "page : CSP avec 'unsafe-eval' (mode dévelo
 const scripts = [...first.html.matchAll(/<script\b[^>]*>/g)].map((m) => m[0]);
 check(scripts.length > 0, "page : aucune balise <script> trouvée");
 for (const tag of scripts) {
-  check(tag.includes(`nonce="${first.nonce}"`), `page : <script> sans le nonce : ${tag.slice(0, 80)}`);
+  check(
+    tag.includes(`nonce="${first.nonce}"`),
+    `page : <script> sans le nonce : ${tag.slice(0, 80)}`,
+  );
 }
 
 const relay = await fetch(`${base}/api/v1/health`);
@@ -49,7 +52,9 @@ check(
 );
 
 if (problems.length > 0) {
-  console.error(`En-têtes de sécurité : ${problems.length} problème(s)\n- ${problems.join("\n- ")}`);
+  console.error(
+    `En-têtes de sécurité : ${problems.length} problème(s)\n- ${problems.join("\n- ")}`,
+  );
   process.exit(1);
 }
 console.warn(

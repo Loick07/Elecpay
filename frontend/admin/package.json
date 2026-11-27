@@ -18,7 +18,9 @@
     "test": "node tool/vitest.ts run",
     "test:watch": "node tool/vitest.ts",
     "generate:tokens": "node tool/generate-tokens.ts",
-    "generate:api": "node tool/generate-api-types.ts"
+    "generate:api": "node tool/generate-api-types.ts",
+    "check:bundle": "node tool/bundle-check.ts",
+    "check:headers": "node tool/check-headers.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "5.108.4",
@@ -29,6 +31,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "8.0.0",
@@ -42,6 +45,7 @@
     "eslint-config-next": "16.4.6",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "jsdom": "29.0.2",
+    "msw": "3.0.8",
     "openapi-typescript": "7.13.0",
     "prettier": "3.10.1",
     "prettier-plugin-tailwindcss": "0.8.1",

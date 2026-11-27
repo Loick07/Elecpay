@@ -38,9 +38,11 @@ export function createApiClient(
   options: { baseUrl?: string; fetch?: typeof fetch; readCookies?: () => string } = {},
 ) {
   const client = createClient<paths>({
-    baseUrl: options.baseUrl ?? "",
+    // Navigateur : le domaine de la page (le relais) ; rendu côté serveur : aucun appel.
+    baseUrl: options.baseUrl ?? globalThis.location?.origin ?? "",
     credentials: "same-origin",
-    ...(options.fetch ? { fetch: options.fetch } : {}),
+    // `fetch` pris AU MOMENT de l'appel (et non à la création) : l'API simulée des tests l'intercepte.
+    fetch: options.fetch ?? ((request: Request) => globalThis.fetch(request)),
   });
   client.use(csrfMiddleware(options.readCookies ?? (() => document.cookie)));
   return client;

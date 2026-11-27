@@ -37,6 +37,9 @@ jobs:
 
     env:
       NEXT_TELEMETRY_DISABLED: "1" # aucune statistique envoyée à Vercel depuis la CI
+      # Adresse TÉMOIN de l'API : le contrôle du code du navigateur vérifie qu'elle n'y apparaît pas
+      # (le relais, côté serveur, est seul à la connaître). Domaine `.invalid` : jamais joignable.
+      ELECPAY_API_URL: https://api-sentinelle.invalid
 
     steps:
       - uses: actions/checkout@v5
@@ -64,3 +67,15 @@ jobs:
 
       - name: Construction de production
         run: npm run build
+
+      - name: Rien de sensible dans le code envoyé au navigateur
+        run: npm run check:bundle
+
+      - name: En-têtes de sécurité sur le serveur de production
+        run: |
+          npx next start --port 3010 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:3010/ && break; sleep 1; done
+          npm run check:headers -- http://localhost:3010
+
+      - name: Failles connues des dépendances de production
+        run: npm audit --omit=dev --audit-level=high

@@ -1,9 +1,12 @@
+import { ApiStatus } from "@/components/api-status";
+
 // Page provisoire (étape A0) : remplacée par le tableau de bord en A9 (DECOUPAGES.md, DA2.4).
 export default function HomePage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-3 p-8">
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-4 p-8">
       <h1 className="text-admin-h1">Back-office ElecPay</h1>
-      <p>En construction (étape A0 : socle).</p>
+      <p className="text-ink-muted">En construction (étape A0 : socle).</p>
+      <ApiStatus />
     </main>
   );
 }

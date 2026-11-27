@@ -52,6 +52,16 @@ Mis à jour et commité avec chaque sauvegarde.
   jsdom, `import.meta.url` n'est pas une adresse `file:`).
 - À surveiller : le même défaut de casse pourrait toucher `next dev` ou `next build` lancés depuis un
   dossier en `c:` (rien vu pour l'instant).
+- **A0.5, CSP à nonce** : pages rendues à chaque requête (`await connection()` dans `layout.tsx`),
+  nonce tiré par `src/proxy.ts`, en-têtes fixes dans `next.config.ts` ; contrôlé sur le vrai serveur
+  par `tool/check-headers.ts` (CI) et dans un vrai navigateur par `tool/smoke-browser.ts` (local).
+- **MSW 3** : l'option s'appelle `onUnhandledFrame` ; l'ancien nom `onUnhandledRequest` était ignoré
+  SANS erreur (la garde « aucun réseau réel » ne marchait pas) : trouvé par le contrôle des types,
+  prouvé par `tests/no-network.test.ts` (contre-épreuve faite : il échoue en mode « bypass »).
+- **Navigateur local** : Playwright pilote l'Edge du PC (`channel: "msedge"`), rien à télécharger ;
+  Edge lancé seul en `--headless` n'écrit ni capture ni sortie sur ce PC (abandonné).
+- PC parfois très lent (un fichier de tests : 1 min) : le test de fraîcheur des types a un délai de
+  60 s (génération mesurée à 12 s) ; la comparaison reste exacte.
 - Statistiques anonymes de Next désactivées en CI (`NEXT_TELEMETRY_DISABLED=1`).
 - Arrêter `next dev` : l'arrêt de la tâche ne suit pas le processus Node enfant → vérifier le port 3000
   (`netstat -ano | grep :3000`) et arrêter le processus `node` qui l'écoute.

@@ -20,8 +20,9 @@ Une étape n'est terminée que quand **tous** ses critères « Terminé quand »
 | F9 | Compte et assistance | ✅ terminé le 21/11/2026 (sans F9.5, reportée en M1) |
 | F10 | Finitions et livraison (APK) | ✅ terminé le 24/11/2026 (en local) |
 | M1 | Mise en ligne (API du PC exposée par ngrok, `omnivore-pardon-sixth.ngrok-free.dev`) | ✅ terminé le 26/11/2026 |
+| — | Vidéo de démonstration (16 écrans, filmée sur l'itel) | ⏸ en pause le 27/11/2026, à refaire plus tard |
 
-Après F10 : le back-office Next.js (`frontend/admin/`).
+Après F10 : le back-office Next.js (`frontend/admin/`), lancé par Loick le 27/11/2026.
 
 ## Point de reprise (mis à jour le 19/11/2026)
 
@@ -463,3 +464,9 @@ contrôlé en CI, `API_BASE_URL=https://omnivore-pardon-sixth.ngrok-free.dev`) f
 - **Facture PDF : tableau « situation des impayés »**, comme sur la facture E²C (factures impayées du
   même branchement : numéro, montant, total). Demande des données en plus dans le détail de la facture
   (backend : `BillDetail`, puis `pdf.py`) ; noté après le MVP par Loick le 26/11/2026 (PDF validé en M1).
+- **Vidéo de démonstration : à refaire plus tard** (mise en pause par Loick le 27/11/2026, rien de
+  filmé). Prêts : `integration_test/demo_video_test.dart`, `tool/video/tournage.py`,
+  `tool/video/montage.py`. Leçons (détail dans `JOURNAL.md`) : **installer l'appli de test sans le
+  mode avion** (Play Protect bloque l'installation hors connexion) ; **filmer avec « Ne pas déranger »
+  en silence total et la barre d'état en mode démo** (revérifiés juste avant, perdus au redémarrage) ;
+  **téléphone sur le chargeur mural**.

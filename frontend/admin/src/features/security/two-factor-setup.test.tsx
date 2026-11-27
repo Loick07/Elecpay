@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { onSessionEvent, type SessionEvent } from "@/lib/session/events";
 import { apiError, apiUrl, healthHandler } from "@/test/api";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
@@ -118,11 +119,16 @@ describe("configuration", () => {
     ).toBeVisible();
     expect(attempts).toBe(0);
 
+    const sessionEvents: SessionEvent[] = [];
+    const stopListening = onSessionEvent((event) => sessionEvents.push(event));
     await user.type(screen.getByLabelText("Code à 6 chiffres"), "000000");
     await user.click(screen.getByRole("button", { name: "Activer la double authentification" }));
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Code incorrect.");
     expect(alert).toHaveTextContent("Référence : ref-2fa-1");
+    // Un code faux (401) n'est PAS une session expirée : aucune fenêtre « Session expirée ».
+    stopListening();
+    expect(sessionEvents).toEqual([]);
 
     await user.clear(screen.getByLabelText("Code à 6 chiffres"));
     await user.type(screen.getByLabelText("Code à 6 chiffres"), "123 456");

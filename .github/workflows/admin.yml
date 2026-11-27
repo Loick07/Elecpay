@@ -1,6 +1,7 @@
 # Intégration continue du back-office Next.js (frontend/admin/).
 # Lancée quand le back-office change, ou la charte dont son thème est généré (tokens.json), ou le
-# contrat d'API dont ses types sont générés (openapi.json) : décision DA0.8 de frontend/admin/DECOUPAGES.md.
+# contrat d'API dont ses types sont générés (openapi.json), ou les erreurs d'authentification du
+# backend que la session classe (errors.py, test session-codes) : décision DA0.8 de DECOUPAGES.md.
 name: Admin
 
 on:
@@ -10,12 +11,14 @@ on:
       - "frontend/admin/**"
       - "frontend/design/tokens.json"
       - "backend/openapi.json"
+      - "backend/app/modules/auth/errors.py"
       - ".github/workflows/admin.yml"
   pull_request:
     paths:
       - "frontend/admin/**"
       - "frontend/design/tokens.json"
       - "backend/openapi.json"
+      - "backend/app/modules/auth/errors.py"
       - ".github/workflows/admin.yml"
   workflow_dispatch: # lancement manuel depuis l'onglet Actions
 

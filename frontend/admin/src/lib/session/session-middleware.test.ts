@@ -131,6 +131,23 @@ describe("session terminée ou API injoignable", () => {
     expect(events).toEqual([]);
   });
 
+  it("REFRESH_TOKEN_REUSED : « expiree » sans tenter de rafraîchir", async () => {
+    const { client, state, events } = fakeApi({ expiredCode: "REFRESH_TOKEN_REUSED" });
+    await unwrap(client.GET("/api/v1/me")).catch(() => undefined);
+    expect(state.refreshCalls).toBe(0);
+    expect(events).toEqual(["expiree"]);
+  });
+
+  it("401 TWO_FACTOR_CODE_INVALID (code faux) : erreur ordinaire, la session continue", async () => {
+    const { client, state, events } = fakeApi({ expiredCode: "TWO_FACTOR_CODE_INVALID" });
+    const failure = await unwrap(
+      client.POST("/api/v1/me/2fa/backup-codes", { body: { code: "000000" } }),
+    ).catch((e: unknown) => e);
+    expect(failure).toMatchObject({ status: 401, code: "TWO_FACTOR_CODE_INVALID" });
+    expect(state.refreshCalls).toBe(0);
+    expect(events).toEqual([]);
+  });
+
   it("routes /auth/* : jamais rejouées (un 401 y veut dire « mauvais mot de passe »)", async () => {
     const { client, state } = fakeApi();
     const failure = await unwrap(

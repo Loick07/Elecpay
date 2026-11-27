@@ -321,5 +321,9 @@ ngrok lancés à la main (`backend/deploy/public.ps1`) ; relancer l'API après c
 `backend/`. **Ne jamais lire `backend/deploy/ngrok.env`** (secrets).
 
 Après M1 : bouton Payer sans facture à payer → historique des paiements et « Tout est payé » (charte, décision de
-Loick du 26/11/2026). **Prochaine étape : à décider par Loick** (back-office Next.js `frontend/admin/` ;
-améliorations après le MVP dans `frontend/mobile/PLAN.md`).
+Loick du 26/11/2026). Vidéo de démonstration **en pause** le 27/11/2026, à refaire plus tard (leçons dans
+`frontend/mobile/JOURNAL.md`).
+
+**Back-office Next.js lancé par Loick le 27/11/2026** : plan proposé, **en attente de validation**
+(`frontend/admin/PLAN.md` étapes A0 → A11, `DECOUPAGES.md` décisions DA…, `AUTONOMIE.md` méthode) ;
+reprise depuis `frontend/admin/JOURNAL.md`. Aucun code avant la validation.

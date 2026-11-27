@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+
+import "./globals.css";
+
+// Polices de la charte : Inter (back-office) et JetBrains Mono (références). `next/font` copie les
+// fichiers au moment de la construction : le navigateur ne contacte jamais Google.
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
+const mono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: { default: "ElecPay — Back-office", template: "%s · ElecPay — Back-office" },
+  description: "Back-office d'administration ElecPay, réservé à l'équipe.",
+  robots: { index: false, follow: false }, // jamais indexé par les moteurs de recherche
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="fr" className={`${inter.variable} ${mono.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}

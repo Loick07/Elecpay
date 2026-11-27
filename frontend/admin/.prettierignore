@@ -1,0 +1,10 @@
+# Documents en français mis en forme à la main (tableaux, retours à la ligne).
+*.md
+# Fichiers générés (thème, types de l'API) : vérifiés par leurs tests de fraîcheur.
+src/lib/api/schema.d.ts
+src/styles/tokens.generated.css
+package-lock.json
+.next
+coverage
+test-results
+playwright-report

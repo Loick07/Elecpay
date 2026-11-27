@@ -33,9 +33,23 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Choix faits en route
 
-(aucun pour l'instant)
+- **Next 16 : lire `node_modules/next/dist/docs/`** avant d'écrire du code (`AGENTS.md`, écrit par
+  `next dev`, commité). Le middleware s'appelle **`proxy.ts`** depuis Next 16 (Node.js par défaut).
+- **Cache Components désactivé** (A0.1) : tout est lu dans le navigateur ; la CSP à nonce exige un rendu
+  dynamique, incompatible avec la coque statique de Cache Components. À revoir pour Next 17 (option
+  annoncée comme obligatoire).
+- **TypeScript 5.9.3** (celui du modèle `create-next-app` 16.4.6), pas la 7.0.
+- **jsdom 29.0.2** : jsdom 30 et 31 exigent Node ≥ 24.15 (le PC a 24.14).
+- **Vitest 5** : l'`expect` global n'est pas celui que `vitest.setup.ts` étend → chaque test importe
+  `describe`, `it`, `expect` depuis `"vitest"` (types globaux retirés de `tsconfig.json`) ; un
+  `afterEach` dans `vitest.setup.ts` est refusé. Le nettoyage de Testing Library passe par les globales.
+- Statistiques anonymes de Next désactivées en CI (`NEXT_TELEMETRY_DISABLED=1`).
+- Arrêter `next dev` : l'arrêt de la tâche ne suit pas le processus Node enfant → vérifier le port 3000
+  (`netstat -ano | grep :3000`) et arrêter le processus `node` qui l'écoute.
 
 ## Commandes utiles
 
-(à compléter en A0 : `npm ci`, `npm run dev`, `npm run lint`, `npm test`, `npm run build`,
-`.\tool\e2e.ps1`)
+Depuis `frontend/admin` :
+- `npm ci` · `npm run dev` (http://localhost:3000) · `npm test` · `npm run typecheck` · `npm run lint` ·
+  `npm run format:check` · `npm run build`
+- Avant chaque commit, les mêmes contrôles que la CI : lint, typecheck, format:check, test, build.

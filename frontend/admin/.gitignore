@@ -1,0 +1,9 @@
+# Back-office (en plus du .gitignore à la racine du dépôt : node_modules, .next, out, .env)
+/coverage
+/test-results
+/playwright-report
+/blob-report
+/build
+*.tsbuildinfo
+next-env.d.ts
+.vercel

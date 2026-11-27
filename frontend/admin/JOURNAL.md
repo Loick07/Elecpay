@@ -62,3 +62,9 @@ Depuis `frontend/admin` :
 - `npm ci` · `npm run dev` (http://localhost:3000) · `npm test` · `npm run typecheck` · `npm run lint` ·
   `npm run format:check` · `npm run build`
 - Avant chaque commit, les mêmes contrôles que la CI : lint, typecheck, format:check, test, build.
+- **Essai réel du relais** (A0.3, sans toucher l'API publique ni la base de démo) : API de test sur le
+  port 8011 et la base jetable `elecpay_e2e` (lecture seulement)
+  `cd backend; DATABASE_URL=mysql+pymysql://elecpay:elecpay@127.0.0.1:3307/elecpay_e2e?charset=utf8mb4
+  .venv/Scripts/uvicorn.exe app.main:app --host 127.0.0.1 --port 8011`, puis le back-office avec
+  `ELECPAY_API_URL=http://127.0.0.1:8011 npx next dev` (depuis PowerShell). À la fin : vérifier que
+  les ports 3000 et 8011 sont libres (l'arrêt de la tâche ne suit pas toujours le processus enfant).

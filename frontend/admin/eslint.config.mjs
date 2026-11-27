@@ -13,7 +13,8 @@ const eslintConfig = defineConfig([
     rules: {
       // Jamais de HTML injecté tel quel (le QR code de la double authentification est une image).
       "react/no-danger": "error",
-      "no-console": ["error", { allow: ["warn", "error"] }],
+      // `info` : une ligne de journal par requête relayée (sans donnée sensible, voir relay.ts).
+      "no-console": ["error", { allow: ["info", "warn", "error"] }],
     },
   },
   globalIgnores([

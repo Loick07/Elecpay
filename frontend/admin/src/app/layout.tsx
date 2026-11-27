@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
+import { Providers } from "./providers";
 
 // Polices de la charte : Inter (back-office) et JetBrains Mono (références). `next/font` copie les
 // fichiers au moment de la construction : le navigateur ne contacte jamais Google.
@@ -21,7 +22,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${inter.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

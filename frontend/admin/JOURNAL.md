@@ -62,6 +62,10 @@ Depuis `frontend/admin` :
 - `npm ci` · `npm run dev` (http://localhost:3000) · `npm test` · `npm run typecheck` · `npm run lint` ·
   `npm run format:check` · `npm run build`
 - Avant chaque commit, les mêmes contrôles que la CI : lint, typecheck, format:check, test, build.
+- Fichiers générés (tests de fraîcheur) : `npm run generate:tokens` après un changement de
+  `frontend/design/tokens.json` ; `npm run generate:api` après un changement de `backend/openapi.json`.
+- Appels à l'API : `unwrap(api.GET("/api/v1/…"))` (`src/lib/api/client.ts`) → données ou `ApiError`
+  (message + `requestId` à afficher en « Référence : … »).
 - **Essai réel du relais** (A0.3, sans toucher l'API publique ni la base de démo) : API de test sur le
   port 8011 et la base jetable `elecpay_e2e` (lecture seulement)
   `cd backend; DATABASE_URL=mysql+pymysql://elecpay:elecpay@127.0.0.1:3307/elecpay_e2e?charset=utf8mb4

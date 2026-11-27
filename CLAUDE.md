@@ -336,4 +336,17 @@ verte. Next 16.4 (sans Cache Components : CSP à nonce, pages rendues à la requ
 `ngrok-skip-browser-warning`, aucun secret ni adresse d'API dans le navigateur), types générés depuis
 `openapi.json`, client typé (`unwrap(api.GET(…))`), badge « Mode démo » lu dans `/health`. Toujours lancer
 les tests par **`npm test`** (`tool/vitest.ts` : défaut de casse du lecteur sous Windows). MSW 3 :
-`onUnhandledFrame`. 176 tests. **En attente du « Continue » de Loick avant A1.**
+`onUnhandledFrame`. 176 tests.
+
+**A1 (connexion, double authentification, session) ✅ terminé le 28/11/2026** — rapport
+`frontend/admin/rapports/A1.md`, CI `Admin` verte (jobs `check-build` et `e2e`). **Jamais l'API publique
+depuis le PC** : `ELECPAY_API_URL` sans défaut, port 8000 refusé au démarrage ; API de développement
+`tool/dev-api.ps1` (8001, base `elecpay_admin_dev`). Connexion (code 6 chiffres ou de secours), page
+Sécurité (obligatoire admin / super admin), mot de passe oublié, Mon compte ; pages de l'équipe sous
+`src/app/(equipe)/` (`SessionGate`, `useTeamMember()`) ; session dans `src/lib/session/` (un seul
+rafraîchissement, aussi entre onglets ; seuls les 401 de session du backend ont un effet, testés contre
+`errors.py` ; inactivité 30 min). Le relais retire les jetons du corps de `POST /me/password`. CSP stricte
+en production (Zod sans compilation, nonce pour Radix, 404 de la charte). **Bout en bout** :
+`tool/e2e.ps1` (base `elecpay_admin_e2e` recréée, API 8010 avec jetons d'une minute, back-office 3010,
+Edge du PC), 11 parcours avec axe ; une session par test, 16 connexions sur 20 permises par quart
+d'heure. 336 tests + 11 parcours. **En attente du « Continue » de Loick avant A2.**

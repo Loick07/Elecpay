@@ -14,7 +14,7 @@ DA11.1, avec arrêt avant de toucher `backend/`) et `AUTONOMIE.md` (la méthode 
 | Étape | Nom | Écrans | État |
 |---|---|---|---|
 | A0 | Socle : projet, charte, relais vers l'API, types, sécurité, CI | — | ✅ terminé le 27/11/2026 (`rapports/A0.md`) |
-| A1 | Connexion, double authentification et session | connexion, code, sécurité, mon compte | à faire |
+| A1 | Connexion, double authentification et session | connexion, code, sécurité, mon compte | ✅ terminé le 28/11/2026 (`rapports/A1.md`) |
 | A2 | Cadre de l'application et composants communs | menu, en-tête, états | à faire |
 | A3 | Utilisateurs | A2, A3 | à faire |
 | A4 | Factures | A5, A6 | à faire |
@@ -64,8 +64,14 @@ Navigateur ──► back-office (Vercel, ou localhost:3000)
                  │  pages : /connexion, /utilisateurs, /factures/…   (aucune donnée rendue côté serveur)
                  │  relais : /api/v1/*  (route serveur Next, même domaine que les pages)
                  ▼
-               API ElecPay  (https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/*, ou http://127.0.0.1:8000)
+               API ElecPay  (en ligne : https://omnivore-pardon-sixth.ngrok-free.dev/api/v1/* ;
+                             en développement : http://127.0.0.1:8001 ; tests de bout en bout : 8010)
 ```
+
+- **Jamais l'API publique depuis le PC de développement** (décision de Loick du 27/11/2026, A1.0) :
+  `ELECPAY_API_URL` n'a aucune valeur par défaut, le port 8000 (API publique, base `elecpay_public`) est
+  refusé au démarrage ; en développement, l'API de développement (`tool/dev-api.ps1`, port 8001, base
+  `elecpay_admin_dev`).
 
 - Le navigateur ne parle **qu'au domaine du back-office** : les pages appellent `/api/v1/…` sur le même
   domaine, et le **relais** (route serveur Next, `src/app/api/v1/[...chemin]/route.ts`) transmet à l'API.
@@ -155,7 +161,8 @@ depuis le secret de démo public, **seulement** sur cette base. Une connexion pa
   `admin-*` ; module des formats et des statuts (mêmes cas de test que le mobile ; DA0.5).
 - **A0.3 Relais** `/api/v1/*` (voir « Architecture ») avec ses tests unitaires (API simulée : en-têtes
   transmis ou retirés, cookies, CSRF, `Origin`, délai, `502`, flux d'un CSV, rien de sensible dans les
-  journaux) ; variable serveur `ELECPAY_API_URL` (défaut en développement : `http://127.0.0.1:8000`).
+  journaux) ; variable serveur `ELECPAY_API_URL` (aucune valeur par défaut depuis A1.0 : voir
+  « Architecture »).
 - **A0.4 Types et client** : types générés depuis `backend/openapi.json` (`openapi-typescript`, fichier commité,
   **test de fraîcheur**), client typé (`openapi-fetch`) ; erreurs au format commun → message + référence ;
   TanStack Query (réglages communs : DA2.3).

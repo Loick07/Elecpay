@@ -3,10 +3,12 @@
 À relire au début de chaque session, avec `CLAUDE.md` et `frontend/admin/AUTONOMIE.md`.
 Mis à jour et commité avec chaque sauvegarde.
 
-## État au 27/11/2026 : A0 terminée, en attente du « Continue »
+## État au 28/11/2026 : A1 terminée, en attente du « Continue »
 
-- **A0 ✅** (rapport `rapports/A0.md`), tout dans `main` (`e9b6dd6` + rapport), CI `Admin` verte,
-  176 tests. Branche de travail `a0` (A1 commencera sur une branche `a1` créée depuis `main`).
+- **A1 ✅** (rapport `rapports/A1.md`) : connexion, double authentification, mot de passe oublié,
+  session, Mon compte, tests de bout en bout (`tool/e2e.ps1`, job `e2e` de la CI). Tout dans `main`,
+  CI `Admin` verte. Branche de travail `a1` (A2 commencera sur une branche `a2` créée depuis `main`).
+- **A0 ✅** (rapport `rapports/A0.md`), 176 tests à la fin de A0.
 
 ## Avant A0 (préparation du plan)
 
@@ -32,10 +34,9 @@ Mis à jour et commité avec chaque sauvegarde.
 
 ## Prochaine action
 
-1. **Attendre le « Continue » de Loick** (rapport `rapports/A0.md`).
-2. Puis **A1** (connexion, double authentification, session) sur la branche `a1`, en commençant par
-   proposer la cible du relais en développement (jamais l'API publique par accident : point à
-   surveiller du rapport A0).
+1. **Attendre le « Continue » de Loick** (rapport `rapports/A1.md`).
+2. Puis **A2** (cadre de l'application : menu latéral bleu nuit de `Menu.dc.html`, en-tête, états
+   communs) sur la branche `a2` ; il remplace l'en-tête provisoire `src/features/session/team-page.tsx`.
 
 ## Choix faits en route
 
@@ -104,3 +105,51 @@ Depuis `frontend/admin` :
   .venv/Scripts/uvicorn.exe app.main:app --host 127.0.0.1 --port 8011`, puis le back-office avec
   `ELECPAY_API_URL=http://127.0.0.1:8011 npx next dev` (depuis PowerShell). À la fin : vérifier que
   les ports 3000 et 8011 sont libres (l'arrêt de la tâche ne suit pas toujours le processus enfant).
+
+## A1 : choix et leçons (27–28/11/2026)
+
+- **Pages de l'équipe** dans le groupe `src/app/(equipe)/` (garde `SessionGate` : `/me` puis `/me/2fa`) ;
+  pages publiques (connexion, mot de passe oublié) hors du groupe. Le membre connecté :
+  `useTeamMember()` ; la lecture de `/me` (`meQueryKey`) se met à jour sans relecture après un changement.
+- **Session** (`src/lib/session/`) : un seul rafraîchissement par onglet et entre onglets (Web Locks
+  `elecpay-refresh` ; un jeton anti-CSRF changé = un autre onglet a déjà rafraîchi), rejeu avec le NOUVEAU
+  jeton anti-CSRF ; `/auth/*` jamais rejoué. **Seuls les 401 de session du backend ont un effet**
+  (`REFRESHABLE_CODES`, `SESSION_LOST_CODES`, testés contre `backend/app/modules/auth/errors.py`) : un code
+  de vérification faux (401 `TWO_FACTOR_CODE_INVALID`) est une erreur ordinaire (défaut trouvé et corrigé
+  le 27/11). Sous un formulaire, une session terminée affiche le texte de la fenêtre (`describeError`).
+- **CSP stricte en production** : Zod sans compilation (`src/lib/zod-config.ts`, chargé par les
+  fournisseurs), nonce transmis aux `<style>` de Radix (`src/lib/security/nonce.ts`, `get-nonce`), page
+  `not-found.tsx` de la charte. Les parcours de bout en bout échouent sur toute violation.
+- **`POST /me/password`** renvoie des jetons dans son corps : le relais les retire (`TOKEN_BODY_ROUTES`,
+  garde-fou contre `openapi.json`), puis déconnexion « mot-de-passe » (l'API a fermé toutes les sessions).
+  La session neuve que l'API ouvre alors reste inutilisée jusqu'à son expiration (point du rapport A1).
+- **Alertes** : teinte douce posée sur une base blanche opaque (le bleu d'information sur le fond de
+  page tombait à 4,49:1) ; contrastes calculés depuis les jetons (`alert-contrast.test.ts`).
+- **Testing Library** remplace les espaces insécables du texte de la page, pas ceux du texte cherché :
+  pour un numéro ou un montant formaté, `{ normalizer: (text) => text }`.
+- **Charge du PC** : « Failed to start forks worker » ou un délai dépassé dans la suite complète =
+  machine surchargée (serveurs d'essai, Edge…), pas le code : arrêter mes serveurs et relancer. Jamais
+  allonger un délai pour masquer un vrai échec (le test des types passe seul en 5 s).
+- **Python sous Windows** : `write_text` écrit des CRLF ; toujours `open(…, "w", newline="\n")` (git
+  normalise, mais un `.yml` non formaté reste en CRLF sur le disque). L'outil Bash avale une barre
+  oblique inverse sur deux dans un script passé en ligne : écrire le script dans un fichier.
+
+## Tests de bout en bout (A1.5)
+
+- **`.\tool\e2e.ps1`** (depuis `frontend/admin`, Docker lancé ; `-SkipBuild`, `-Grep <texte>`) : base
+  `elecpay_admin_e2e` supprimée et recréée, API de test sur **8010** (jetons d'une minute), back-office
+  construit et lancé sur **3010**, Playwright (Edge du PC ; Chromium dans la CI). Résultats, traces,
+  journaux, captures : `build/e2e/`. Refuse si 8010 ou 3010 sont déjà pris. ≈ 6 min (construction
+  comprise). Garde-fous testés : `tool/e2e.test.ts`, `tests/playwright-guard.test.ts`.
+- **Une session par test**, jamais `storageState` réutilisé : le jeton de rafraîchissement tourne, et
+  présenter un ancien jeton révoque toute la famille (`REFRESH_TOKEN_REUSED`).
+- **Budget de connexions** : l'API accepte 20 tentatives par IP et par quart d'heure (mot de passe ET
+  code comptent) ; le passage en fait 16, `signIn` s'arrête au-delà de 18 (regrouper les parcours).
+- **Codes de double authentification** : un code ne sert qu'une fois par compte → `freshCode(compte)`
+  attend la fenêtre de 30 s suivante si besoin.
+- Comptes : support (sessions, Mon compte, Sécurité sans activer), admin (code, cookies, nouveaux codes,
+  nom), super admin (mot de passe changé puis oublié, parcours en série). Inactivité : horloge de
+  Playwright (`page.clock`).
+- L'annonceur de Next (`#__next-route-announcer__`) a le rôle « alert » : chercher les messages DANS la
+  carte de l'écran. `getByLabel("Nouveau mot de passe")` trouve aussi « Confirmer le nouveau… » :
+  `{ exact: true }`.

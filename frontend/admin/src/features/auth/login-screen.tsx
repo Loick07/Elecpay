@@ -22,7 +22,7 @@ import type { components } from "@/lib/api/schema";
 import { formatCountdown, formatTime } from "@/lib/format";
 import { announceSession } from "@/lib/session/events";
 import { safeReturnPath } from "@/lib/session/return-path";
-import { retryDeadline, useCountdown } from "@/lib/use-countdown";
+import { useRetryLock } from "@/lib/use-countdown";
 import { loginSchema, twoFactorSchema } from "@/lib/validation";
 
 import { AuthShell } from "./auth-shell";
@@ -102,8 +102,8 @@ function PasswordStep({
   onChallenge: (challenge: Challenge) => void;
   onDone: () => void;
 }) {
-  const [blockedUntil, setBlockedUntil] = useState<number | null>(null);
-  const remaining = useCountdown(blockedUntil);
+  const lock = useRetryLock();
+  const remaining = lock.remaining;
   const blocked = remaining > 0;
   const form = useForm<z.input<typeof loginSchema>, unknown, z.output<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -116,7 +116,7 @@ function PasswordStep({
       if ("two_factor_required" in result) onChallenge(result);
       else onDone();
     },
-    onError: (error) => setBlockedUntil(retryDeadline(error, Date.now())),
+    onError: (error) => lock.block(error),
   });
   const failure = login.error ? describeError(login.error) : null;
 
@@ -175,8 +175,8 @@ function TwoFactorStep({
   onDone: () => void;
   onRestart: (notice: string | null) => void;
 }) {
-  const [blockedUntil, setBlockedUntil] = useState<number | null>(null);
-  const remaining = useCountdown(blockedUntil);
+  const lock = useRetryLock();
+  const remaining = lock.remaining;
   const blocked = remaining > 0;
   const form = useForm<z.input<typeof twoFactorSchema>, unknown, z.output<typeof twoFactorSchema>>({
     resolver: zodResolver(twoFactorSchema),
@@ -198,7 +198,7 @@ function TwoFactorStep({
         onRestart(describeError(error).message);
         return;
       }
-      setBlockedUntil(retryDeadline(error, Date.now()));
+      lock.block(error);
     },
   });
   const failure =

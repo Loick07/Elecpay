@@ -103,7 +103,7 @@ describe("connexion : numéro et mot de passe", () => {
     renderWithProviders(<LoginScreen />);
     await fillLogin();
     expect(await screen.findByRole("alert")).toHaveTextContent("Trop de tentatives.");
-    const button = await screen.findByRole("button", { name: /^Réessayer dans 2:0[45]$/ });
+    const button = await screen.findByRole("button", { name: "Réessayer dans 2:05" });
     expect(button).toBeDisabled();
   });
 

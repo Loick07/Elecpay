@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const FOLDERS = ["src", "tool", "tests"];
+const FOLDERS = ["src", "tool", "tests", "e2e"];
 const EXTENSIONS = /\.(ts|tsx|mts|css|json|mjs)$/;
 /** Espaces insécables (U+00A0, U+202F, U+2007), caractères de largeur nulle, marque d'ordre. */
 const INVISIBLE = new RegExp(
@@ -26,7 +26,7 @@ function files(folder: string): string[] {
   });
 }
 
-it("aucun caractère invisible dans src/, tool/ et tests/", () => {
+it("aucun caractère invisible dans src/, tool/, tests/ et e2e/", () => {
   const found: string[] = [];
   for (const folder of FOLDERS) {
     for (const file of files(join(ROOT, folder))) {

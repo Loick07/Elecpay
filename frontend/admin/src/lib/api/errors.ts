@@ -1,6 +1,7 @@
 // Erreurs de l'API au format commun (`{"error": {"code", "message", "details"}}`,
 // `backend/docs/AUTHENTIFICATION.md`). Les messages de l'API sont déjà en français et destinés à
 // l'équipe : on les affiche tels quels, avec la référence (`X-Request-ID`) à citer au support.
+import { REFRESHABLE_CODES, SESSION_LOST_CODES } from "@/lib/session/session-middleware";
 
 export type ApiErrorInit = {
   status: number;
@@ -89,8 +90,24 @@ export function fieldErrors(error: ApiError): Record<string, string> {
   return out;
 }
 
-/** Ce qu'un écran affiche pour une erreur quelconque : un message et, si possible, une référence. */
+export const SESSION_EXPIRED_MESSAGE = "Votre session a expiré. Reconnectez-vous pour continuer.";
+
+/** 401 de session (session terminée) : la fenêtre « Session expirée » s'en occupe. */
+export function isSessionError(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.status === 401 &&
+    (REFRESHABLE_CODES.has(error.code) || SESSION_LOST_CODES.has(error.code))
+  );
+}
+
+/**
+ * Ce qu'un écran affiche pour une erreur quelconque : un message et, si possible, une référence.
+ * Session terminée : le texte de la fenêtre « Session expirée », sans référence (jamais
+ * « Authentification requise. » sous un formulaire : vu le 28/11/2026 en bout en bout).
+ */
 export function describeError(error: unknown): { message: string; reference: string | null } {
+  if (isSessionError(error)) return { message: SESSION_EXPIRED_MESSAGE, reference: null };
   if (error instanceof ApiError) return { message: error.message, reference: error.requestId };
   return { message: "Une erreur inattendue est survenue. Réessayez.", reference: null };
 }

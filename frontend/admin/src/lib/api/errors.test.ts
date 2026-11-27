@@ -89,3 +89,25 @@ it("ce qu’un écran affiche : message et référence ; erreur inconnue : messa
     reference: null,
   });
 });
+
+it.each(["NOT_AUTHENTICATED", "TOKEN_EXPIRED", "TOKEN_INVALID", "REFRESH_TOKEN_REUSED"])(
+  "session terminée (401 %s) : le texte de la fenêtre « Session expirée », sans référence",
+  (code) => {
+    expect(
+      describeError(
+        new ApiError({ status: 401, code, message: "Authentification requise.", requestId: "r" }),
+      ),
+    ).toEqual({
+      message: "Votre session a expiré. Reconnectez-vous pour continuer.",
+      reference: null,
+    });
+  },
+);
+
+it("autres 401 (mauvais identifiants, code faux) : leur propre message", () => {
+  for (const code of ["INVALID_CREDENTIALS", "TWO_FACTOR_CODE_INVALID"]) {
+    expect(
+      describeError(new ApiError({ status: 401, code, message: "Refusé.", requestId: "r" })),
+    ).toEqual({ message: "Refusé.", reference: "r" });
+  }
+});

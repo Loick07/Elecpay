@@ -3,9 +3,15 @@
 //
 // - Requête qui modifie : en-tête `X-CSRF-Token` = cookie `elecpay_csrf`, relu à CHAQUE requête
 //   (il change à chaque connexion et à chaque rafraîchissement de session).
+// - Session (A1.4, `src/lib/session/`) : 401 d'un jeton expiré → UN rafraîchissement puis la
+//   requête est rejouée une fois ; sinon événement « session expirée ».
 // - `unwrap` : les données, ou une `ApiError` (message de l'API + référence).
-// - Aucune relance automatique ici (DA2.3) ; le rafraîchissement de session arrive en A1.4.
+// - Aucune autre relance automatique (DA2.3).
 import createClient, { type Middleware } from "openapi-fetch";
+
+import { announceSession, type SessionEvent } from "@/lib/session/events";
+import { createRefresher, refreshSession } from "@/lib/session/refresh";
+import { sessionMiddleware } from "@/lib/session/session-middleware";
 
 import { ApiError, apiErrorFrom, networkError } from "./errors";
 import type { paths } from "./schema";
@@ -34,17 +40,43 @@ export function csrfMiddleware(readCookies: () => string): Middleware {
   };
 }
 
+type LockRequester = Parameters<typeof createRefresher>[0]["locks"];
+
 export function createApiClient(
-  options: { baseUrl?: string; fetch?: typeof fetch; readCookies?: () => string } = {},
+  options: {
+    baseUrl?: string;
+    fetch?: typeof fetch;
+    readCookies?: () => string;
+    /** Événements de session (par défaut : ceux du back-office, dans cet onglet). */
+    announce?: (event: SessionEvent) => void;
+    /** Verrou entre onglets (par défaut : Web Locks du navigateur, s'il existe). */
+    locks?: LockRequester;
+  } = {},
 ) {
+  const baseUrl = options.baseUrl ?? globalThis.location?.origin ?? "";
+  // `fetch` pris AU MOMENT de l'appel (et non à la création) : l'API simulée des tests l'intercepte.
+  const fetchFn = options.fetch ?? ((request: Request) => globalThis.fetch(request));
+  // Hors navigateur (rendu côté serveur, tests Node), pas de `document` : aucun cookie lisible.
+  const readCookies = options.readCookies ?? (() => globalThis.document?.cookie ?? "");
+  const readCsrf = () => readCookie(CSRF_COOKIE, readCookies());
   const client = createClient<paths>({
     // Navigateur : le domaine de la page (le relais) ; rendu côté serveur : aucun appel.
-    baseUrl: options.baseUrl ?? globalThis.location?.origin ?? "",
+    baseUrl,
     credentials: "same-origin",
-    // `fetch` pris AU MOMENT de l'appel (et non à la création) : l'API simulée des tests l'intercepte.
-    fetch: options.fetch ?? ((request: Request) => globalThis.fetch(request)),
+    fetch: fetchFn,
   });
-  client.use(csrfMiddleware(options.readCookies ?? (() => document.cookie)));
+  client.use(csrfMiddleware(readCookies));
+  client.use(
+    sessionMiddleware({
+      readCsrf,
+      announce: options.announce ?? ((event) => announceSession(event, { otherTabs: false })),
+      refresher: createRefresher({
+        refresh: () => refreshSession(fetchFn, baseUrl, readCsrf()),
+        readCsrf,
+        locks: "locks" in options ? options.locks : globalThis.navigator?.locks,
+      }),
+    }),
+  );
   return client;
 }
 

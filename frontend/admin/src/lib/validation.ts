@@ -1,6 +1,8 @@
 // Règles de saisie des formulaires (React Hook Form + Zod) : les MÊMES que le backend
 // (`backend/app/core/validation.py`) et que l'application mobile (`validation.dart`), avec les mêmes
 // messages, pour refuser une saisie avant l'envoi. Le backend reste seul juge : il revérifie tout.
+import "./zod-config";
+
 import { z } from "zod";
 
 import { normalizeCongoPhone, PhoneFormatError } from "@/lib/format";

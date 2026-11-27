@@ -13,4 +13,11 @@
     outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
+
+  /* Edge ajoute son propre « œil » aux mots de passe : un seul bouton, le nôtre (« Afficher »,
+     lu par les lecteurs d'écran). */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
 }

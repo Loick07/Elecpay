@@ -3,6 +3,7 @@
 # Fichiers générés (thème, types de l'API) : vérifiés par leurs tests de fraîcheur.
 src/lib/api/schema.d.ts
 src/styles/tokens.generated.css
+src/styles/tokens.generated.ts
 package-lock.json
 .next
 coverage

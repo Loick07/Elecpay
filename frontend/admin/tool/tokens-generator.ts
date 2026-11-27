@@ -101,6 +101,37 @@ export function generateTokensCss(tokensJson: string): string {
   return out.join("\n");
 }
 
+/**
+ * Noms du thème pour `tailwind-merge` (`src/lib/utils.ts`) : sans eux, il prendrait `text-admin-body`
+ * pour une COULEUR et l'effacerait devant `text-ink`. Fichier `src/styles/tokens.generated.ts`.
+ */
+export function generateTokensTs(tokensJson: string): string {
+  const tokens = JSON.parse(tokensJson) as Tokens;
+  const names = (list: { name: string }[], prefix: string) =>
+    list.map(({ name }) => `  ${JSON.stringify(name.replace(prefix, ""))},`).join("\n");
+  const textStyles = tokens.type.groups.flatMap((group) => group.styles);
+  return [
+    "// CODE GÉNÉRÉ depuis frontend/design/tokens.json : ne pas modifier à la main.",
+    "// Régénérer : npm run generate:tokens (vérifié par tool/tokens.test.ts).",
+    "",
+    "/** Styles de texte de la charte (`text-<nom>`). */",
+    "export const TEXT_STYLES = [",
+    names(textStyles, ""),
+    "] as const;",
+    "",
+    "/** Ombres de la charte (`shadow-<nom>`). */",
+    "export const SHADOWS = [",
+    names(tokens.shadow.tokens, "shadow-"),
+    "] as const;",
+    "",
+    "/** Flous de la charte (`blur-<nom>`). */",
+    "export const BLURS = [",
+    names(tokens.blur.tokens, "blur-"),
+    "] as const;",
+    "",
+  ].join("\n");
+}
+
 /** `space-N` vaut N × 4 px : exactement `p-N`, `gap-N`… de Tailwind (pas de variable à générer). */
 function checkSpacing(spacing: { name: string; value: string }[]): void {
   for (const { name, value } of spacing) {

@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { generateTokensCss } from "./tokens-generator.ts";
-import { DESIGN_TOKENS_CSS, GENERATED_CSS, TOKENS_JSON } from "./tokens-paths.ts";
+import { generateTokensCss, generateTokensTs } from "./tokens-generator.ts";
+import { DESIGN_TOKENS_CSS, GENERATED_CSS, GENERATED_TS, TOKENS_JSON } from "./tokens-paths.ts";
 
 const tokensJson = readFileSync(TOKENS_JSON, "utf8");
 const generated = generateTokensCss(tokensJson);
@@ -19,8 +19,17 @@ function variables(css: string, selector: string): Map<string, string> {
 }
 
 describe("thème généré depuis la charte (tokens.json)", () => {
-  it("le fichier généré est à jour (sinon : npm run generate:tokens)", () => {
+  it("les fichiers générés sont à jour (sinon : npm run generate:tokens)", () => {
     expect(readFileSync(GENERATED_CSS, "utf8")).toBe(generated);
+    expect(readFileSync(GENERATED_TS, "utf8")).toBe(generateTokensTs(tokensJson));
+  });
+
+  it("noms du thème pour tailwind-merge : styles de texte, ombres, flous de la charte", () => {
+    const ts = generateTokensTs(tokensJson);
+    expect(ts).toContain('"admin-body",');
+    expect(ts).toContain('"reference",');
+    expect(ts).toContain('"card",');
+    expect(ts).toContain('"glass",');
   });
 
   it("mêmes couleurs que frontend/design/tokens.css, dans les deux thèmes", () => {

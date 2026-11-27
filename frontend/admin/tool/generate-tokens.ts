@@ -1,11 +1,13 @@
-// Régénère `src/styles/tokens.generated.css` depuis la charte : `npm run generate:tokens`.
+// Régénère le thème depuis la charte : `npm run generate:tokens`
+// (src/styles/tokens.generated.css et src/styles/tokens.generated.ts).
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { generateTokensCss } from "./tokens-generator.ts";
-import { GENERATED_CSS, TOKENS_JSON } from "./tokens-paths.ts";
+import { generateTokensCss, generateTokensTs } from "./tokens-generator.ts";
+import { GENERATED_CSS, GENERATED_TS, TOKENS_JSON } from "./tokens-paths.ts";
 
-const css = generateTokensCss(readFileSync(TOKENS_JSON, "utf8"));
+const tokens = readFileSync(TOKENS_JSON, "utf8");
 mkdirSync(dirname(GENERATED_CSS), { recursive: true });
-writeFileSync(GENERATED_CSS, css);
-console.warn(`Écrit : ${GENERATED_CSS}`);
+writeFileSync(GENERATED_CSS, generateTokensCss(tokens));
+writeFileSync(GENERATED_TS, generateTokensTs(tokens));
+console.warn(`Écrits : ${GENERATED_CSS} et ${GENERATED_TS}`);

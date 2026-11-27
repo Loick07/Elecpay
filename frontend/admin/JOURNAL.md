@@ -72,6 +72,22 @@ Mis à jour et commité avec chaque sauvegarde.
 - Arrêter `next dev` : l'arrêt de la tâche ne suit pas le processus Node enfant → vérifier le port 3000
   (`netstat -ano | grep :3000`) et arrêter le processus `node` qui l'écoute.
 
+## Cible du relais en développement et en test (décision de Loick du 27/11/2026, A1.0)
+
+- **Jamais l'API publique** (port 8000, base `elecpay_public`). Aucune valeur par défaut :
+  `ELECPAY_API_URL` manquante ou vers le port 8000 → `next dev` / `next start` **refusent de
+  démarrer** (`next.config.ts`, prouvé par `tests/startup-guard.test.ts`), le relais répond 500.
+- **API de développement** : `.\tool\dev-api.ps1` (port **8001**, base **`elecpay_admin_dev`**,
+  écrits en dur ; créée et remplie la première fois, puis gardée ; `-Reset` pour la recréer).
+- `frontend/admin/.env.local` (créé par Loick depuis `env.local.example` : je n'ai pas le droit
+  d'écrire les fichiers `.env*`) ; pour mes propres essais, `ELECPAY_API_URL` passée dans
+  l'environnement de la commande.
+- Ports : 8000 = API publique (jamais) · 8001 = API de développement · 8010 = API des tests de bout
+  en bout (A1.5) · 8011 = essais ponctuels sur `elecpay_e2e` · 3000 = `npm run dev` de Loick ·
+  3001 / 3010 = mes serveurs d'essai. `next dev` et `next start` n'écoutent que `127.0.0.1`.
+- `suppressHydrationWarning` sur `<html>` et `<body>` : une extension du navigateur de Loick ajoute
+  `__processed_…__` à `<body>` (« 1 Issue » de Next) ; reproduit puis corrigé.
+
 ## Commandes utiles
 
 Depuis `frontend/admin` :

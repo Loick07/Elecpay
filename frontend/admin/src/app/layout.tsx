@@ -24,9 +24,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   // Rendu à chaque requête : la CSP de src/proxy.ts porte un nonce neuf que Next applique à ses
   // scripts ; une page prérendue au moment de la construction n'en aurait pas (bloquée par la CSP).
   await connection();
+  // `suppressHydrationWarning` : certaines extensions du navigateur ajoutent des attributs à <html> ou
+  // <body> avant React (vu chez Loick le 27/11/2026 : `__processed_…__` sur <body>, « 1 Issue » de
+  // Next). React n'ignore alors que les ATTRIBUTS de ces deux balises (notre code ne les change
+  // jamais) ; tout le contenu de la page reste contrôlé.
   return (
-    <html lang="fr" className={`${inter.variable} ${mono.variable}`}>
-      <body>
+    <html lang="fr" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

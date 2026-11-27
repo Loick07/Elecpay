@@ -310,20 +310,39 @@ it("journal : méthode, chemin sans paramètres, statut ; jamais de cookie ni de
 });
 
 describe("adresse de l’API (ELECPAY_API_URL, côté serveur)", () => {
-  it("développement sans variable : l’API locale de démonstration", () => {
-    expect(apiOrigin(undefined, "development")).toBe(DEV_API_URL);
+  it.each(["development", "test", "production"])(
+    "%s sans variable (ou vide) : refusé, AUCUNE API par défaut",
+    (nodeEnv) => {
+      expect(() => apiOrigin(undefined, nodeEnv)).toThrow(/manquante : aucune API par défaut/);
+      expect(() => apiOrigin("", nodeEnv)).toThrow(RelayConfigError);
+    },
+  );
+
+  it.each([
+    ["http://127.0.0.1:8000", "development"],
+    ["http://localhost:8000", "development"],
+    ["http://[::1]:8000", "test"],
+    ["http://127.0.0.1:8000", "production"],
+    ["http://localhost:8000", "production"],
+  ])("%s (%s) : l’API PUBLIQUE de ce PC, toujours refusée", (value, nodeEnv) => {
+    expect(() => apiOrigin(value, nodeEnv)).toThrow(/API PUBLIQUE/);
   });
 
-  it("production sans variable : refusé", () => {
-    expect(() => apiOrigin(undefined, "production")).toThrow(RelayConfigError);
+  it("développement et test : seulement une API de ce PC (jamais l’adresse ngrok publique)", () => {
+    expect(apiOrigin(DEV_API_URL, "development")).toBe("http://127.0.0.1:8001");
+    expect(apiOrigin("http://localhost:8010", "test")).toBe("http://localhost:8010");
+    for (const nodeEnv of ["development", "test"]) {
+      expect(() => apiOrigin("https://omnivore-pardon-sixth.ngrok-free.dev", nodeEnv)).toThrow(
+        /seulement une API de ce PC/,
+      );
+    }
   });
 
-  it("HTTPS accepté ; HTTP seulement vers ce PC", () => {
+  it("production : HTTPS, ou HTTP vers ce PC (tests de bout en bout, port 8010)", () => {
     expect(apiOrigin("https://omnivore-pardon-sixth.ngrok-free.dev", "production")).toBe(
       "https://omnivore-pardon-sixth.ngrok-free.dev",
     );
     expect(apiOrigin("http://127.0.0.1:8010", "production")).toBe("http://127.0.0.1:8010");
-    expect(apiOrigin("http://localhost:8000", "production")).toBe("http://localhost:8000");
     expect(() => apiOrigin("http://api.exemple.cg", "production")).toThrow(/HTTPS/);
   });
 

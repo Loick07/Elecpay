@@ -73,9 +73,9 @@ jobs:
 
       - name: En-têtes de sécurité sur le serveur de production
         run: |
-          npx next start --port 3010 &
-          for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:3010/ && break; sleep 1; done
-          npm run check:headers -- http://localhost:3010
+          npm start -- --port 3010 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:3010/ && break; sleep 1; done
+          npm run check:headers -- http://127.0.0.1:3010
 
       - name: Failles connues des dépendances de production
         run: npm audit --omit=dev --audit-level=high

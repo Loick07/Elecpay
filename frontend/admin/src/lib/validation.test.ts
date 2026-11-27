@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  appCodeField,
+  fullNameField,
   loginSchema,
   newPasswordField,
+  passwordChangeSchema,
   passwordError,
   phoneField,
   smsCodeField,
@@ -76,4 +79,54 @@ it("connexion : numéro et mot de passe requis", () => {
     phone: "+242060000002",
     password: "x",
   });
+});
+
+describe("nom : règles et messages du backend", () => {
+  it.each([
+    ["  Grâce   Ngoma ", "Grâce Ngoma"],
+    ["Lé", "Lé"],
+  ])("« %s » → « %s »", (raw, expected) => {
+    expect(fullNameField.parse(raw)).toBe(expected);
+  });
+
+  it.each([
+    ["  ", "Nom trop court"],
+    ["A", "Nom trop court"],
+    ["é".repeat(121), "Nom trop long : 120 caractères maximum"],
+    ["12 34", "Le nom doit contenir des lettres"],
+  ])("« %s » refusé : %s", (raw, expected) => {
+    expect(message(fullNameField.safeParse(raw))).toBe(expected);
+  });
+
+  it("120 caractères accentués : acceptés (longueur en caractères, comme le backend)", () => {
+    expect(fullNameField.safeParse("é".repeat(120)).success).toBe(true);
+  });
+});
+
+it("code de l’application : 6 chiffres seulement (pas de code de secours)", () => {
+  expect(appCodeField.parse(" 123 456 ")).toBe("123456");
+  expect(message(appCodeField.safeParse("ABCD-EFGH"))).toBe(
+    "Saisissez les 6 chiffres affichés par l’application.",
+  );
+});
+
+it("changement de mot de passe : actuel requis, nouveau selon les règles, confirmation identique", () => {
+  const result = passwordChangeSchema.safeParse({
+    current: "",
+    password: "court",
+    confirmation: "autre",
+  });
+  expect(result.error?.issues.map((issue) => [issue.path.join("."), issue.message])).toEqual([
+    ["current", "Saisissez votre mot de passe actuel."],
+    ["password", "Mot de passe trop court : 8 caractères minimum"],
+    ["confirmation", "Les deux mots de passe ne sont pas identiques."],
+  ]);
+  const mismatch = passwordChangeSchema.safeParse({
+    current: "Demo2026!",
+    password: "Nouveau2026",
+    confirmation: "Nouveau2027",
+  });
+  expect(mismatch.error?.issues.map((issue) => issue.message)).toEqual([
+    "Les deux mots de passe ne sont pas identiques.",
+  ]);
 });

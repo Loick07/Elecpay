@@ -9,6 +9,8 @@ import { normalizeCongoPhone, PhoneFormatError } from "@/lib/format";
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
+export const FULL_NAME_MIN_LENGTH = 2;
+export const FULL_NAME_MAX_LENGTH = 120;
 
 const LETTER = /\p{L}/u;
 const DIGIT = /\p{Nd}/u;
@@ -28,6 +30,31 @@ export function passwordError(password: string): string | null {
   }
   return null;
 }
+
+/** Nom normalisé comme le backend (`normalize_full_name`) : « Grâce   Ngoma » → « Grâce Ngoma ». */
+export function normalizeFullName(raw: string): string {
+  return raw.split(/\s+/).filter(Boolean).join(" ");
+}
+
+/** Message d'erreur du nom (celui du backend), ou `null`. Longueur en caractères, comme Python. */
+export function fullNameError(raw: string): string | null {
+  const name = normalizeFullName(raw);
+  const length = [...name].length;
+  if (length < FULL_NAME_MIN_LENGTH) return "Nom trop court";
+  if (length > FULL_NAME_MAX_LENGTH) {
+    return `Nom trop long : ${FULL_NAME_MAX_LENGTH} caractères maximum`;
+  }
+  if (!LETTER.test(name)) return "Le nom doit contenir des lettres";
+  return null;
+}
+
+export const fullNameField = z
+  .string()
+  .superRefine((raw, context) => {
+    const message = fullNameError(raw);
+    if (message) context.addIssue({ code: "custom", message });
+  })
+  .transform(normalizeFullName);
 
 /** Numéro saisi librement (« 06 123 45 67 ») → « +242061234567 » ; message du backend sinon. */
 export const phoneField = z
@@ -71,6 +98,12 @@ export const twoFactorCodeField = z
     return z.NEVER;
   });
 
+/** Code à 6 chiffres de l'application d'authentification SEULEMENT (activation, nouveaux codes). */
+export const appCodeField = z
+  .string()
+  .transform((raw) => raw.replace(/\s+/g, ""))
+  .refine((code) => /^\d{6}$/.test(code), "Saisissez les 6 chiffres affichés par l’application.");
+
 /** Code reçu par SMS (mot de passe oublié, première connexion) : 6 chiffres. */
 export const smsCodeField = z
   .string()
@@ -83,3 +116,15 @@ export const loginSchema = z.object({
 });
 
 export const twoFactorSchema = z.object({ code: twoFactorCodeField });
+
+/** Changement du mot de passe (Mon compte) : l'actuel, puis le nouveau deux fois. */
+export const passwordChangeSchema = z
+  .object({
+    current: z.string().min(1, "Saisissez votre mot de passe actuel."),
+    password: newPasswordField,
+    confirmation: z.string(),
+  })
+  .refine((values) => values.password === values.confirmation, {
+    path: ["confirmation"],
+    message: "Les deux mots de passe ne sont pas identiques.",
+  });

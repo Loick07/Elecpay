@@ -252,6 +252,67 @@ describe("réponse de l’API renvoyée au navigateur", () => {
   });
 });
 
+describe("jetons dans le corps d’une réponse (POST /me/password) : retirés", () => {
+  const sameOrigin = { method: "POST", headers: { origin: SITE, "sec-fetch-site": "same-origin" } };
+  const tokens = {
+    access_token: "jeton-acces-secret",
+    refresh_token: "jeton-rafraichissement-secret",
+    token_type: "bearer",
+    expires_in: 900,
+    access_expires_at: "2026-11-27T10:15:00Z",
+    refresh_expires_at: "2026-12-27T10:00:00Z",
+    user: { id: 2, full_name: "Admin Démo" },
+  };
+
+  it("réussite : le reste de la réponse arrive, les deux jetons n’apparaissent nulle part", async () => {
+    const { response } = await run("/api/v1/me/password", ["me", "password"], sameOrigin, () =>
+      Response.json(tokens),
+    );
+    expect(response.status).toBe(200);
+    const text = await response.text();
+    expect(text).not.toContain("jeton-acces-secret");
+    expect(text).not.toContain("jeton-rafraichissement-secret");
+    expect(JSON.parse(text)).toEqual({
+      token_type: "bearer",
+      expires_in: 900,
+      access_expires_at: "2026-11-27T10:15:00Z",
+      refresh_expires_at: "2026-12-27T10:00:00Z",
+      user: { id: 2, full_name: "Admin Démo" },
+    });
+  });
+
+  it("erreur (mot de passe actuel incorrect) : relayée telle quelle", async () => {
+    const error = {
+      error: {
+        code: "WRONG_CURRENT_PASSWORD",
+        message: "Mot de passe actuel incorrect.",
+        details: {},
+      },
+    };
+    const { response } = await run("/api/v1/me/password", ["me", "password"], sameOrigin, () =>
+      Response.json(error, { status: 400 }),
+    );
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual(error);
+  });
+
+  it("corps illisible : 502, jamais relayé tel quel", async () => {
+    const { response } = await run(
+      "/api/v1/me/password",
+      ["me", "password"],
+      sameOrigin,
+      () =>
+        new Response("access_token=jeton-acces-secret", {
+          headers: { "content-type": "text/plain" },
+        }),
+    );
+    expect(response.status).toBe(502);
+    const text = await response.text();
+    expect(text).not.toContain("jeton-acces-secret");
+    expect(JSON.parse(text)).toMatchObject({ error: { code: "API_UNEXPECTED" } });
+  });
+});
+
 describe("API injoignable ou réponse inattendue : message clair au format commun", () => {
   const codeOf = async (response: Response) =>
     ((await response.json()) as { error: { code: string; message: string } }).error;

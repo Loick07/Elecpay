@@ -8,7 +8,7 @@
 // secours, montrés UNE SEULE FOIS : copier, télécharger, et confirmer les avoir mis en lieu sûr.
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Copy, Download, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -22,19 +22,16 @@ import { describeError } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
 import { formatDate } from "@/lib/format";
 import { safeReturnPath } from "@/lib/session/return-path";
+import { appCodeField } from "@/lib/validation";
 
 import { AuthShell } from "../auth/auth-shell";
+import { BackupCodesList, CopyButton } from "./backup-codes";
 
 type Setup = components["schemas"]["TwoFactorSetupResponse"];
 
 export const twoFactorStatusKey = ["me", "2fa"] as const;
 
-const firstCodeSchema = z.object({
-  code: z
-    .string()
-    .transform((raw) => raw.replace(/\s+/g, ""))
-    .refine((code) => /^\d{6}$/.test(code), "Saisissez les 6 chiffres affichés par l’application."),
-});
+const firstCodeSchema = z.object({ code: appCodeField });
 
 /** Clé lisible : groupes de 4 caractères (« ELEC PAYD … »). */
 export function groupKey(secret: string): string {
@@ -209,75 +206,17 @@ function ConfirmStep({ setup, onEnabled }: { setup: Setup; onEnabled: (codes: st
 function BackupCodes({ codes }: { codes: string[] }) {
   const router = useRouter();
   const params = useSearchParams();
-  const [saved, setSaved] = useState(false);
-  const checkboxId = useId();
-  const text = `Codes de secours ElecPay (back-office) : chacun ne sert qu'une fois.\n\n${codes.join("\n")}\n`;
-
-  function download() {
-    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "elecpay-codes-de-secours.txt";
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
   return (
     <AuthShell
       title="Vos codes de secours"
       description="Si vous perdez votre téléphone, chacun de ces codes remplace une fois le code de l’application. Ils ne seront plus jamais affichés."
     >
       <Alert tone="success">Double authentification activée.</Alert>
-      <ul
-        aria-label="Codes de secours"
-        className="bg-surface-2 grid grid-cols-2 gap-2 rounded-md p-4"
-      >
-        {codes.map((code) => (
-          <li key={code} className="text-reference text-ink font-mono tracking-wider">
-            {code}
-          </li>
-        ))}
-      </ul>
-      <div className="flex flex-wrap gap-3">
-        <CopyButton text={text} label="Copier les codes" />
-        <Button icon={<Download aria-hidden="true" className="size-4" />} onClick={download}>
-          Télécharger (.txt)
-        </Button>
-      </div>
-      <div className="flex items-start gap-3">
-        <input
-          id={checkboxId}
-          type="checkbox"
-          checked={saved}
-          onChange={(event) => setSaved(event.target.checked)}
-          className="accent-volt mt-1 size-4"
-        />
-        <label htmlFor={checkboxId} className="text-ink">
-          J’ai mis ces codes en lieu sûr.
-        </label>
-      </div>
-      <Button
-        variant="primary"
-        block
-        disabled={!saved}
-        onClick={() => router.replace(safeReturnPath(params.get("retour")))}
-      >
-        Continuer
-      </Button>
+      <BackupCodesList
+        codes={codes}
+        confirmLabel="Continuer"
+        onConfirm={() => router.replace(safeReturnPath(params.get("retour")))}
+      />
     </AuthShell>
-  );
-}
-
-function CopyButton({ text, label }: { text: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <Button
-      icon={<Copy aria-hidden="true" className="size-4" />}
-      onClick={() => {
-        void navigator.clipboard?.writeText(text).then(() => setCopied(true));
-      }}
-    >
-      <span aria-live="polite">{copied ? "Copié" : label}</span>
-    </Button>
   );
 }

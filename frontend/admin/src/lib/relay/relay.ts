@@ -15,7 +15,9 @@
 // - API injoignable, trop lente ou réponse inattendue : erreur au format commun de l'API
 //   (`{"error": {"code", "message", "details"}}`) avec un `X-Request-ID` à citer ;
 // - journal : méthode, chemin SANS paramètres, statut, durée, référence ; jamais un cookie, un jeton,
-//   un corps de requête ni un numéro de téléphone.
+//   un corps de requête ni un numéro de téléphone ;
+// - jetons dans le CORPS d'une réponse (`POST /me/password`, pensé pour le mobile) : retirés, le code
+//   de la page ne les voit jamais (le back-office n'a que ses cookies httpOnly).
 
 export type RelayLogEntry = {
   method: string;
@@ -49,6 +51,13 @@ const RELAYED_RESPONSE_HEADERS = [
   "retry-after",
 ];
 const SESSION_COOKIES = new Set(["elecpay_access", "elecpay_refresh", "elecpay_csrf"]);
+
+/**
+ * Routes ouvertes dont la réponse porte des jetons dans son corps (`TokenResponse` du contrat) :
+ * liste testée contre `backend/openapi.json` (relay-contract.test.ts).
+ */
+export const TOKEN_BODY_ROUTES: readonly string[] = ["me/password"];
+export const BODY_TOKEN_FIELDS: readonly string[] = ["access_token", "refresh_token"];
 const BACKSLASH = String.fromCharCode(92);
 
 /** Préfixes de l'API ouverts au back-office (aucune route réservée à l'application client). */
@@ -245,10 +254,29 @@ export async function relay(
   }
   if (!responseHeaders.has("cache-control")) responseHeaders.set("cache-control", "no-store");
   responseHeaders.set("x-request-id", upstream.headers.get("x-request-id") ?? requestId);
-  return finish(
-    new Response(method === "HEAD" ? null : upstream.body, {
-      status: upstream.status,
-      headers: responseHeaders,
-    }),
-  );
+  let responseBody: BodyInit | null = method === "HEAD" ? null : upstream.body;
+  if (responseBody !== null && TOKEN_BODY_ROUTES.includes(segments.join("/"))) {
+    const cleaned = await withoutTokens(upstream);
+    if (cleaned === null) {
+      return finish(
+        relayError(502, "API_UNEXPECTED", "Réponse inattendue de l'API ElecPay.", requestId),
+      );
+    }
+    responseBody = cleaned;
+  }
+  return finish(new Response(responseBody, { status: upstream.status, headers: responseHeaders }));
+}
+
+/** Corps JSON sans ses jetons ; `null` si le corps n'est pas un objet JSON (jamais relayé tel quel). */
+async function withoutTokens(upstream: Response): Promise<string | null> {
+  try {
+    const data: unknown = JSON.parse(await upstream.text());
+    if (typeof data !== "object" || data === null || Array.isArray(data)) return null;
+    const kept = Object.fromEntries(
+      Object.entries(data).filter(([field]) => !BODY_TOKEN_FIELDS.includes(field)),
+    );
+    return JSON.stringify(kept);
+  } catch {
+    return null;
+  }
 }

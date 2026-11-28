@@ -56,6 +56,37 @@ export const fullNameField = z
   })
   .transform(normalizeFullName);
 
+/** Limites des motifs des actions sensibles (backend : `clean_text(raw, min_length, max_length)`). */
+export const REASON_LIMITS = {
+  /** Annuler ou réémettre une facture, ouvrir un litige (maquette A6 : au moins 10 caractères). */
+  long: { min: 10, max: 255 },
+  /** Désactiver un compte, détacher un compteur, changer un rôle… */
+  short: { min: 5, max: 255 },
+} as const;
+
+/**
+ * Motif d'une action sensible : espaces superflus retirés comme le backend (`clean_text`), longueur
+ * en caractères. Message plus clair que celui du backend (« Ce champ ne peut pas être vide », même
+ * pour 7 caractères sur 10) ; le backend revérifie tout.
+ */
+export function reasonField(min: number, max: number) {
+  return z
+    .string()
+    .superRefine((raw, context) => {
+      const length = [...normalizeFullName(raw)].length;
+      const message =
+        length === 0
+          ? "Indiquez le motif."
+          : length < min
+            ? `Motif trop court : ${min} caractères minimum.`
+            : length > max
+              ? `Motif trop long : ${max} caractères maximum.`
+              : null;
+      if (message) context.addIssue({ code: "custom", message });
+    })
+    .transform(normalizeFullName);
+}
+
 /** Numéro saisi librement (« 06 123 45 67 ») → « +242061234567 » ; message du backend sinon. */
 export const phoneField = z
   .string()

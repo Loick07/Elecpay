@@ -44,6 +44,8 @@ test("session terminée pendant le travail : fenêtre « Session expirée », pu
   const dialog = page.getByRole("alertdialog", { name: "Session expirée" });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("Votre session a expiré. Reconnectez-vous pour continuer.");
+  // Le focus est DANS la fenêtre, sur l'action (défaut corrigé en A2.3).
+  await expect(dialog.getByRole("button", { name: "Se reconnecter" })).toBeFocused();
   await expectAccessible(page);
   // Sous la fenêtre, le formulaire ne parle pas d'« Authentification requise » (message technique).
   await expect(page.getByText("Authentification requise.")).toHaveCount(0);
@@ -94,6 +96,7 @@ test("30 min sans activité : avertissement 1 min avant, puis déconnexion (DA1.
   await page.clock.fastForward("29:01");
   const warning = page.getByRole("alertdialog", { name: "Toujours là ?" });
   await expect(warning).toBeVisible();
+  await expect(warning.getByRole("button", { name: "Rester connecté" })).toBeFocused();
   await expectAccessible(page);
   await capture(page, "inactivite", "screen");
 

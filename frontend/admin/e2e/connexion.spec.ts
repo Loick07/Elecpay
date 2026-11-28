@@ -84,6 +84,13 @@ test("support : connecté sans code ; Mon compte recommande la double authentifi
   await expectAccessible(page);
   await capture(page, "acces-refuse");
 
+  // Écran d'essai (A2.3) vu par le support : numéros masqués par l'API, pas d'export (admin).
+  await page.goto("/essai-composants");
+  const supportTable = page.getByRole("table", { name: "Utilisateurs" });
+  await expect(supportTable.getByRole("button").first()).toBeVisible();
+  await expect(supportTable.getByText(/\*\*/).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Exporter (CSV)" })).toHaveCount(0);
+
   await page.getByRole("link", { name: "Mon compte" }).click();
   await expect(page).toHaveURL(/\/mon-compte$/);
   const twoFactor = page.getByRole("region", { name: "Double authentification" });
@@ -142,6 +149,54 @@ test("admin : mot de passe puis code ; cookies sûrs ; nouveaux codes de secours
   await expect(page.getByRole("heading", { level: 1, name: "Journal d’activité" })).toBeVisible();
   await expect(page.getByText("Cet écran arrive à l’étape A8 du back-office.")).toBeVisible();
   await expectAccessible(page);
+
+  // Écran d'essai des composants (A2.3, « Terminé quand ») : tableau, filtres dans l'adresse,
+  // panneau, confirmation avec motif, export CSV, sur la vraie API de test.
+  await page.goto("/essai-composants");
+  const table = page.getByRole("table", { name: "Utilisateurs" });
+  await expect(table.getByRole("button").first()).toBeVisible();
+  await page.getByRole("button", { name: "Équipe ElecPay" }).click();
+  await expect(page).toHaveURL(/\/essai-composants\?kind=team$/);
+  await page.getByRole("searchbox", { name: "Rechercher un utilisateur" }).fill("Agent");
+  await expect(page).toHaveURL(/\/essai-composants\?kind=team&q=Agent$/);
+  const row = table.getByRole("button", { name: /Agent Support Démo/ });
+  await expect(row).toBeVisible();
+  await expect(table.getByRole("button")).toHaveCount(1);
+  await row.click();
+  const panel = page.getByRole("region", { name: "Agent Support Démo" });
+  await expect(panel.getByRole("heading", { level: 2, name: "Agent Support Démo" })).toBeFocused();
+  await expectAccessible(page);
+  await capture(page, "essai-composants");
+
+  await panel.getByRole("button", { name: "Essayer la confirmation avec motif" }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByLabel("Motif")).toBeFocused();
+  await dialog.getByLabel("Motif").fill("Court");
+  await dialog.getByRole("button", { name: "Confirmer l’essai" }).click();
+  await expect(dialog.getByText("Motif trop court : 10 caractères minimum.")).toBeVisible();
+  await expectAccessible(page);
+  await capture(page, "confirmation-motif", "screen");
+  await dialog.getByLabel("Motif").fill("Essai du motif obligatoire");
+  await dialog.getByRole("button", { name: "Confirmer l’essai" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    page.getByText(
+      "Essai réussi : motif « Essai du motif obligatoire » accepté, aucune action envoyée.",
+    ),
+  ).toBeVisible();
+  // La fenêtre fermée rend le focus au bouton du panneau ; Échap referme alors le panneau et
+  // rend le focus à la ligne qui l'avait ouvert.
+  await expect(
+    panel.getByRole("button", { name: "Essayer la confirmation avec motif" }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+  await expect(row).toBeFocused();
+
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Exporter (CSV)" }).click();
+  expect((await download).suggestedFilename()).toMatch(/\.csv$/);
+  await expect(page.getByText(/^Export prêt : .+\.csv\.$/)).toBeVisible();
 
   // Cookies de session : jetons illisibles par le code de la page (httpOnly), jamais envoyés en
   // clair ailleurs qu'à ce PC (Secure), jamais par un autre site (SameSite=Strict).

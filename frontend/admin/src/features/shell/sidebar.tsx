@@ -163,7 +163,7 @@ export function Sidebar() {
                 className={cn(
                   "text-admin-body flex min-h-10 items-center gap-2.5 rounded-[10px] px-2.5",
                   current
-                    ? "bg-volt/14 text-ink font-semibold"
+                    ? "bg-volt-soft text-ink font-semibold"
                     : "text-ink-muted hover:text-ink font-medium hover:bg-white/6",
                 )}
               >

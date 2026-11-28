@@ -120,6 +120,7 @@ jobs:
       ACCESS_TOKEN_MINUTES: "1"
       ELECPAY_API_URL: http://127.0.0.1:8010
       ELECPAY_E2E_DATABASE: elecpay_admin_e2e
+      ELECPAY_ESSAI: "1" # écran d'essai des composants (A2.3), jamais en ligne
       NEXT_TELEMETRY_DISABLED: "1"
 
     steps:

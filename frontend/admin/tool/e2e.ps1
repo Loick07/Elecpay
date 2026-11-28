@@ -63,6 +63,8 @@ $env:DATABASE_URL = "mysql+pymysql://elecpay:elecpay@127.0.0.1:3307/$database" +
 $env:ACCESS_TOKEN_MINUTES = '1'
 $env:ELECPAY_API_URL = "http://127.0.0.1:$apiPort"
 $env:ELECPAY_E2E_DATABASE = $database
+# Écran d'essai des composants (A2.3) : seulement pendant les parcours, jamais en ligne.
+$env:ELECPAY_ESSAI = '1'
 $env:NEXT_TELEMETRY_DISABLED = '1'
 $api = $null
 $site = $null
@@ -141,7 +143,8 @@ FLUSH PRIVILEGES;
     }
     if ($api -or $site) { Write-Host '== Serveurs de test arrêtés' }
     Remove-Item Env:DATABASE_URL, Env:ACCESS_TOKEN_MINUTES, Env:ELECPAY_API_URL, `
-        Env:ELECPAY_E2E_DATABASE, Env:NEXT_TELEMETRY_DISABLED -ErrorAction SilentlyContinue
+        Env:ELECPAY_E2E_DATABASE, Env:ELECPAY_ESSAI, Env:NEXT_TELEMETRY_DISABLED `
+        -ErrorAction SilentlyContinue
 }
 
 if ($code -eq 0) { Write-Host "== Parcours réussis. Captures et rapport : $out" }

@@ -1,7 +1,7 @@
 // @vitest-environment node
-// Contraste des alertes (WCAG AA : 4,5:1 pour le texte courant), calculé depuis les jetons générés
-// de la charte : texte du ton et références (`ink-muted`) sur la teinte douce posée sur `surface-1`
-// (base opaque de <Alert>), dans les deux thèmes.
+// Contraste des alertes ET des badges de statut (WCAG AA : 4,5:1 pour le texte courant), calculé
+// depuis les jetons générés de la charte : texte du ton et références (`ink-muted`) sur la teinte
+// douce posée sur `surface-1` (base opaque de <Alert> et de <StatusBadge>), dans les deux thèmes.
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
@@ -73,6 +73,11 @@ describe.each(["light", "dark"] as const)("thème %s", (name) => {
   it.each(TONES)("%s : texte et référence lisibles (≥ 4,5:1)", (_tone, soft, text) => {
     const background = over(value(soft), surface);
     expect(contrast(parse(value(text)).rgb, background)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(parse(value("ink-muted")).rgb, background)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("badge de statut neutre (« Annulée », « Expirée ») : `ink-muted` sur `surface-3`", () => {
+    const background = parse(value("surface-3")).rgb;
     expect(contrast(parse(value("ink-muted")).rgb, background)).toBeGreaterThanOrEqual(4.5);
   });
 });

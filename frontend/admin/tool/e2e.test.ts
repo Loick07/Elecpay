@@ -27,6 +27,8 @@ it("la seule base supprimée est la sienne ; jamais les autres bases ni l'API pu
 it("jetons d'une minute, garde-fou de Playwright posé, serveurs toujours arrêtés", () => {
   expect(script).toContain("$env:ACCESS_TOKEN_MINUTES = '1'");
   expect(script).toContain("$env:ELECPAY_E2E_DATABASE = $database");
+  expect(script).toContain("$env:ELECPAY_ESSAI = '1'"); // écran d'essai, pendant les parcours seulement
+  expect(script).toContain("Env:ELECPAY_ESSAI");
   expect(script).toContain('$env:ELECPAY_API_URL = "http://127.0.0.1:$apiPort"');
   expect(script).toMatch(/finally \{\s+# 6\. Toujours arrêter les deux serveurs/);
 });

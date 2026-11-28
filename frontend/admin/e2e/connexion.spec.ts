@@ -4,13 +4,16 @@
 import { capture } from "./support/capture";
 import {
   ADMIN,
+  ADMIN_MENU,
   CLIENT_PHONE,
   countLoginAttempt,
   DEMO_PASSWORD,
   expectHome,
   freshCode,
+  menuLabels,
   sessionCookies,
   signIn,
+  STAFF_MENU,
   SUPPORT,
 } from "./support/demo";
 import { expect, expectAccessible, test } from "./support/test";
@@ -64,6 +67,12 @@ test("support : connecté sans code ; Mon compte recommande la double authentifi
   await page.goto("/connexion");
   await signIn(page, SUPPORT);
   await expectHome(page, SUPPORT);
+  // Cadre (A2) : menu du support, sans le journal d'activité (droits lus dans /admin/permissions).
+  await expect.poll(() => menuLabels(page)).toEqual(STAFF_MENU);
+  await expect(page.getByRole("link", { name: "Tableau de bord" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
   await expectAccessible(page);
   await capture(page, "accueil-support");
 
@@ -79,6 +88,11 @@ test("support : connecté sans code ; Mon compte recommande la double authentifi
   await page.setViewportSize({ width: 390, height: 844 });
   await expectAccessible(page);
   await capture(page, "mon-compte-390");
+  // Petit écran (DA2.1) : le menu passe au-dessus, replié derrière « Menu ».
+  await page.getByRole("button", { name: "Menu" }).click();
+  await expect(page.getByRole("navigation", { name: "Menu principal" })).toBeVisible();
+  await expectAccessible(page);
+  await capture(page, "menu-390", "screen");
   await page.setViewportSize({ width: 1440, height: 900 });
 
   // Page Sécurité : clé et QR code DESSINÉ par le navigateur (image SVG autonome), sans activer
@@ -114,6 +128,12 @@ test("admin : mot de passe puis code ; cookies sûrs ; nouveaux codes de secours
   await page.getByLabel("Code de vérification").fill(await freshCode(ADMIN));
   await page.getByRole("button", { name: "Valider le code" }).click();
   await expectHome(page, ADMIN);
+  // Cadre (A2) : les huit entrées, dont le journal ; une rubrique pas encore construite.
+  await expect.poll(() => menuLabels(page)).toEqual(ADMIN_MENU);
+  await page.getByRole("link", { name: "Journal d’activité" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Journal d’activité" })).toBeVisible();
+  await expect(page.getByText("Cet écran arrive à l’étape A8 du back-office.")).toBeVisible();
+  await expectAccessible(page);
 
   // Cookies de session : jetons illisibles par le code de la page (httpOnly), jamais envoyés en
   // clair ailleurs qu'à ce PC (Secure), jamais par un autre site (SameSite=Strict).

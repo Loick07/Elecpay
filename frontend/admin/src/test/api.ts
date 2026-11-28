@@ -52,3 +52,59 @@ export function webSession(overrides: Partial<UserPublic> = {}) {
     user: teamMember(overrides),
   };
 }
+
+type Role = UserPublic["role"];
+type MyPermissions = components["schemas"]["MyPermissions"];
+
+/** Matrice du backend (`backend/app/modules/admin/permissions.py`) : niveau exigé par capacité. */
+const CAPABILITY_LEVELS: [string, string, Role[]][] = [
+  ["view", "Consulter clients, factures, transactions", ["support", "admin", "super_admin"]],
+  ["view_audit_log", "Consulter le journal", ["admin", "super_admin"]],
+  ["toggle_account", "Désactiver / réactiver un compte", ["admin", "super_admin"]],
+  ["cancel_bill", "Annuler une facture (motif)", ["admin", "super_admin"]],
+  ["recheck_transaction", "Relancer la vérification d'une transaction", ["admin", "super_admin"]],
+  ["send_announcement", "Envoyer une annonce", ["admin", "super_admin"]],
+  ["edit_tariffs", "Modifier les tarifs", ["super_admin"]],
+  ["manage_team", "Attribuer des rôles, inviter un membre", ["super_admin"]],
+  ["force_payment_success", "Marquer une transaction comme réussie", []],
+];
+
+const LEVELS: Record<Role, MyPermissions["levels"]> = {
+  client: [],
+  support: ["staff"],
+  admin: ["staff", "admin"],
+  super_admin: ["staff", "admin", "super_admin"],
+};
+
+/** Réponse de `GET /admin/permissions` pour un rôle (comme le backend). */
+export function permissionsFor(role: Role): MyPermissions {
+  return {
+    role,
+    levels: LEVELS[role],
+    capabilities: CAPABILITY_LEVELS.map(([key, label, roles]) => ({
+      key,
+      label,
+      roles,
+      allowed: roles.includes(role),
+    })),
+  };
+}
+
+/** Ce que lit le cadre (menu) : droits du rôle et pastilles (anomalies, transactions en attente). */
+export function shellHandlers(role: Role, counts: { anomalies?: number; pending?: number } = {}) {
+  return [
+    http.get(apiUrl("/admin/permissions"), () => HttpResponse.json(permissionsFor(role))),
+    http.get(apiUrl("/admin/meters"), () =>
+      HttpResponse.json({
+        items: [],
+        total: 0,
+        page: 1,
+        size: 1,
+        counters: { open_anomalies: counts.anomalies ?? 0 },
+      }),
+    ),
+    http.get(apiUrl("/admin/transactions"), () =>
+      HttpResponse.json({ items: [], total: counts.pending ?? 0, page: 1, size: 1 }),
+    ),
+  ];
+}

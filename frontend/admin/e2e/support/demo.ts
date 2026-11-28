@@ -93,3 +93,22 @@ export async function expectHome(page: Page, account: DemoAccount): Promise<void
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByText(`Bonjour ${account.firstName}.`)).toBeVisible();
 }
+
+/** Libellés des entrées du menu latéral (sans les pastilles). */
+export async function menuLabels(page: Page): Promise<string[]> {
+  return page
+    .getByRole("navigation", { name: "Menu principal" })
+    .getByRole("link")
+    .evaluateAll((links) => links.map((link) => link.querySelector("span")?.textContent ?? ""));
+}
+
+export const STAFF_MENU = [
+  "Tableau de bord",
+  "Utilisateurs",
+  "Compteurs",
+  "Factures",
+  "Transactions",
+  "Notifications",
+  "Paramètres et rôles",
+];
+export const ADMIN_MENU = [...STAFF_MENU.slice(0, 6), "Journal d’activité", "Paramètres et rôles"];

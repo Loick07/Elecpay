@@ -335,3 +335,7 @@ la vraie IP au journal (si DA11.1 b), et le guide permet à Loick de redéployer
 - Choix du mois du tableau de bord (DA9.1) : paramètre `month` de `GET /admin/stats`.
 - Détacher / rattacher un compteur (DA6.1), thème Nuit au choix (DA0.3).
 - Offre payante de Vercel (ou autre hébergeur) avant le premier client (DA11.2).
+- **Session inutilisée après un changement de mot de passe** (rapport A1, demande de Loick du
+  28/11/2026) : `POST /me/password` ouvre une session neuve dont le relais retire les jetons ; elle reste
+  valable 30 jours sans servir. Variante web de la route (cookies posés par l'API), modification du
+  backend.

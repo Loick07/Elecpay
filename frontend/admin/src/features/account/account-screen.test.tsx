@@ -5,11 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatDate, formatPhone } from "@/lib/format";
 import { onSessionEvent, type SessionEvent } from "@/lib/session/events";
-import { apiError, apiUrl, healthHandler, teamMember } from "@/test/api";
+import { apiError, apiUrl, healthHandler, shellHandlers, teamMember } from "@/test/api";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
 import { SessionGate } from "../session/session-gate";
+import { AppShell } from "../shell/app-shell";
 import { AccountScreen } from "./account-screen";
 
 const navigation = vi.hoisted(() => ({ replace: vi.fn() }));
@@ -38,11 +39,13 @@ function signedIn(overrides: Parameters<typeof teamMember>[0] = {}) {
   return http.get(apiUrl("/me"), () => HttpResponse.json(teamMember(overrides)));
 }
 
-/** Mon compte derrière la vraie garde des pages de l'équipe (/me, /me/2fa). */
+/** Mon compte derrière la vraie garde des pages de l'équipe (/me, /me/2fa), dans le cadre. */
 function renderAccount() {
   return renderWithProviders(
     <SessionGate>
-      <AccountScreen />
+      <AppShell>
+        <AccountScreen />
+      </AppShell>
     </SessionGate>,
   );
 }
@@ -51,7 +54,7 @@ const section = (name: string) => screen.findByRole("region", { name });
 
 beforeEach(() => {
   navigation.replace.mockReset();
-  server.use(healthHandler());
+  server.use(healthHandler(), ...shellHandlers("admin"));
 });
 
 describe("profil", () => {
@@ -96,7 +99,7 @@ describe("profil", () => {
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(await screen.findByText("Nom enregistré.")).toBeVisible();
     expect(sent).toEqual([{ full_name: "Grâce Ngoma" }]);
-    // Dans l'en-tête ET dans le profil : la lecture de /me partagée a été mise à jour.
+    // Dans le menu ET dans le profil : la lecture de /me partagée a été mise à jour.
     expect(screen.getAllByText("Grâce Ngoma")).toHaveLength(2);
     expect(screen.queryByText("Admin Démo")).toBeNull();
   });

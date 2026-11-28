@@ -4,12 +4,13 @@ import { http, HttpResponse } from "msw";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { announceSession } from "@/lib/session/events";
-import { apiError, apiUrl, healthHandler, teamMember } from "@/test/api";
+import { apiError, apiUrl, healthHandler, shellHandlers, teamMember } from "@/test/api";
 import { server } from "@/test/msw-server";
 import { renderWithProviders } from "@/test/render";
 
 import { SessionGate } from "./session-gate";
-import { TeamPage } from "./team-page";
+import { AppShell } from "../shell/app-shell";
+import { TeamPage } from "../shell/team-page";
 
 const navigation = vi.hoisted(() => ({ replace: vi.fn(), pathname: "/utilisateurs" }));
 vi.mock("next/navigation", () => ({
@@ -42,9 +43,11 @@ const signedOut = () => [
 function renderGate() {
   return renderWithProviders(
     <SessionGate>
-      <TeamPage title="Utilisateurs">
-        <p>Contenu protégé</p>
-      </TeamPage>
+      <AppShell>
+        <TeamPage title="Utilisateurs">
+          <p>Contenu protégé</p>
+        </TeamPage>
+      </AppShell>
     </SessionGate>,
   );
 }
@@ -52,7 +55,7 @@ function renderGate() {
 beforeEach(() => {
   navigation.replace.mockReset();
   navigation.pathname = "/utilisateurs";
-  server.use(healthHandler());
+  server.use(healthHandler(), ...shellHandlers("admin"));
 });
 afterEach(() => {
   document.cookie = "elecpay_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
@@ -63,8 +66,9 @@ describe("garde des pages de l’équipe", () => {
     server.use(signedIn(), twoFactor());
     renderGate();
     expect(await screen.findByText("Contenu protégé")).toBeVisible();
+    // Dans le menu (cadre) : nom et rôle du membre connecté.
     expect(screen.getByText("Admin Démo")).toBeVisible();
-    expect(screen.getByText("· Admin")).toBeVisible();
+    expect(screen.getByText("Admin")).toBeVisible();
   });
 
   it("jamais connecté : retour à la connexion, sans parler de session expirée", async () => {

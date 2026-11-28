@@ -31,6 +31,9 @@ test("session terminée pendant le travail : fenêtre « Session expirée », pu
   await page.goto("/mon-compte");
   await expect(page.getByRole("region", { name: "Profil" })).toBeVisible();
 
+  // Page chargée EN ENTIER d'abord : le menu lit ses droits puis ses pastilles après le profil ;
+  // sans cette attente, ce sont ces lectures qui découvrent la session perdue (vu le 28/11/2026).
+  await page.waitForLoadState("networkidle");
   // Session fermée ailleurs (jetons perdus) : la prochaine action est refusée par l'API.
   await page.context().clearCookies({ name: "elecpay_access" });
   await page.context().clearCookies({ name: "elecpay_refresh" });

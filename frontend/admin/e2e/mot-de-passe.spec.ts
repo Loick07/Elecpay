@@ -1,7 +1,14 @@
 // Mot de passe du super admin (un seul compte pour ces parcours, dans l'ordre) : changé dans Mon
 // compte (toutes les sessions fermées → reconnexion), puis oublié (code de démo affiché, aucun SMS).
 import { capture } from "./support/capture";
-import { expectHome, sessionCookies, signIn, SUPER_ADMIN } from "./support/demo";
+import {
+  ADMIN_MENU,
+  expectHome,
+  menuLabels,
+  sessionCookies,
+  signIn,
+  SUPER_ADMIN,
+} from "./support/demo";
 import { expect, expectAccessible, test } from "./support/test";
 
 const CHANGED = "Superviseur2027!";
@@ -15,6 +22,7 @@ test("changé dans Mon compte : déconnexion de partout, puis connexion avec le 
   await page.goto("/connexion");
   await signIn(page, SUPER_ADMIN);
   await expectHome(page, SUPER_ADMIN);
+  await expect.poll(() => menuLabels(page)).toEqual(ADMIN_MENU);
   await page.getByRole("link", { name: "Mon compte" }).click();
 
   const form = page.getByRole("region", { name: "Mot de passe" });

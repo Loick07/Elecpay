@@ -35,7 +35,7 @@ import { appCodeField, fullNameField, passwordChangeSchema } from "@/lib/validat
 
 import { BackupCodesList } from "../security/backup-codes";
 import { twoFactorStatusKey } from "../security/two-factor-setup";
-import { TeamPage } from "../session/team-page";
+import { TeamPage } from "../shell/team-page";
 
 /** Seuil d'alerte : peu de codes de secours restants. */
 export const FEW_BACKUP_CODES = 3;

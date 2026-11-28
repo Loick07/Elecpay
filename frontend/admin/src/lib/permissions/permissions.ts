@@ -30,12 +30,17 @@ export type Capability = (typeof CAPABILITIES)[number];
 
 export const permissionsQueryKey = ["admin", "permissions"] as const;
 
+/** Jamais permis, quoi que dise une réponse : aucun bouton « Marquer comme payée » n'existe. */
+const NEVER: ReadonlySet<Capability> = new Set(["force_payment_success"]);
+
 /** Ce que permettent des droits lus (fonctions pures, testées rôle par rôle). */
 export function rights(permissions: MyPermissions | undefined) {
   return {
     hasLevel: (level: Level) => permissions?.levels.includes(level) ?? false,
     can: (capability: Capability) =>
-      permissions?.capabilities.some((entry) => entry.key === capability && entry.allowed) ?? false,
+      !NEVER.has(capability) &&
+      (permissions?.capabilities.some((entry) => entry.key === capability && entry.allowed) ??
+        false),
   };
 }
 

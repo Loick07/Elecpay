@@ -76,6 +76,14 @@ test("support : connecté sans code ; Mon compte recommande la double authentifi
   await expectAccessible(page);
   await capture(page, "accueil-support");
 
+  // Journal ouvert par son adresse : « Accès refusé » (le serveur refuserait de toute façon).
+  await page.goto("/journal");
+  await expect(page.getByRole("heading", { level: 1, name: "Journal d’activité" })).toBeVisible();
+  await expect(page.getByText("Accès refusé")).toBeVisible();
+  await expect(page.getByText("Écran en préparation")).toHaveCount(0);
+  await expectAccessible(page);
+  await capture(page, "acces-refuse");
+
   await page.getByRole("link", { name: "Mon compte" }).click();
   await expect(page).toHaveURL(/\/mon-compte$/);
   const twoFactor = page.getByRole("region", { name: "Double authentification" });
